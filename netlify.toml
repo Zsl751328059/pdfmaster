@@ -1,8 +1,0 @@
-[build]
-  publish = "."
-  command = ""
-
-[[edge_functions]]
-  path = "/*"
-  function = "geo-control"
-  excluded_path = ["/assets/*", "/lib/*", "/*.png", "/*.jpg", "/*.ico", "/*.css", "/*.js"]

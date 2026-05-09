@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image to PDF Converter - Convert JPG/PNG to PDF Online Free | PDFMaster</title>
-  <meta name="description" content="Convert JPG, PNG, TIFF, BMP to PDF online for free. Our high quality Image to PDF converter lets you combine multiple images into one PDF without losing quality. No registration, no watermark, 100% free. All processing happens locally in your browser for complete privacy.">
+  <title>Image to PDF Converter - Create PDF from Images Free | PDFMaster</title>
+  <meta name="description" content="Convert images to PDF online free - JPG, PNG, TIFF to PDF. Combine multiple images into one PDF. 100% local processing, no upload, no watermark, no registration. Up to 50MB. Works on Mac, Windows, iPhone & Android.">
   <link rel="canonical" href="https://pdfeasz.com/image-to-pdf.html" />
 
   <meta property="og:title" content="Image to PDF Converter - Convert JPG/PNG to PDF | PDFMaster" />
@@ -37,7 +37,7 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
+    "@type": "SoftwareApplication",
     "name": "PDFMaster - Image to PDF",
     "description": "Convert images to PDF online for free. Convert JPG, PNG, and other images to PDF. 100% local browser processing ensures complete privacy. Works on Mac, Windows, iPhone, Android. No registration required.",
     "url": "https://pdfeasz.com/image-to-pdf.html",
@@ -58,9 +58,9 @@
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD",
-      "availability": "InStock"
+      "availability": "https://schema.org/OnlineOnly"
     },
-    "featureList": ["Convert images to PDF", "Multiple image formats", "Custom page size", "Local browser processing", "No registration required", "Works on Mac, Windows, iOS, Android", "Secure and private"]
+    "featureList": ["Convert images to PDF", "Multiple image formats", "Custom page size", "Local browser processing", "No registration required", "Works on Mac, Windows, iOS, Android", "Secure and private", "No watermark on output"]
   }
   </script>
 
@@ -1375,6 +1375,30 @@
           <h3>Is my data secure?</h3>
           <p>Absolutely! All processing happens locally in your browser. Your images never leave your device, ensuring complete privacy and security.</p>
         </div>
+        <div class="faq-item">
+          <h3>Is there a file size limit?</h3>
+          <p>Each image file must be under 50MB. You can upload multiple images at once for batch conversion.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Can I adjust page size and orientation?</h3>
+          <p>Yes! You can choose from standard page sizes (A4, Letter, Legal) and select portrait or landscape orientation before converting.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Can I use this tool on mobile devices?</h3>
+          <p>Yes! Our image to PDF converter works perfectly on iPhone and Android devices. Just open your browser and start converting - no app installation required.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Which browsers are supported?</h3>
+          <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How to convert image to PDF on Mac for free?</h3>
+          <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your images, and convert them to PDF for free. No software to install.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Why choose PDFMaster for image to PDF conversion?</h3>
+          <p>PDFMaster offers 100% free conversion with no watermarks, local processing for complete privacy, and multiple customization options. Your files stay secure on your device.</p>
+        </div>
       </div>
 
       <div class="tutorial-section">
@@ -1507,7 +1531,31 @@ new Vue({
       currentPreviewImage: ''
     }
   },
+  mounted() {
+    window.addEventListener('beforeunload', this.handleBeforeUnload)
+  },
+  beforeDestroy() {
+    window.removeEventListener('beforeunload', this.handleBeforeUnload)
+    this.cleanupAllResources()
+  },
   methods: {
+    handleBeforeUnload() {
+      this.cleanupAllResources()
+    },
+    cleanupAllResources() {
+      if (this.resultBlob) {
+        this.resultBlob = null
+      }
+      
+      this.previews.forEach(url => {
+        if (url && url.startsWith('blob:')) {
+          URL.revokeObjectURL(url)
+        }
+      })
+      
+      this.previews = []
+      this.currentPreviewImage = ''
+    },
     goToNext() { this.currentStep = '1' },
     goToPrev() { this.currentStep = '0' },
     goToUpload() {
