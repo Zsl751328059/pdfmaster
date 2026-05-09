@@ -1,0 +1,985 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDFMaster - Free Online PDF Tools</title>
+  <meta name="description" content="Free online PDF tools - merge, split, compress, convert PDFs. All processing happens locally in your browser. No registration required.">
+  <link rel="canonical" href="https://pdfeasz.com/" />
+  <link rel="alternate" hreflang="en" href="https://pdfeasz.com/index.html" />
+  <meta name="keywords" content="PDF tools, merge PDF, split PDF, compress PDF, PDF converter, free PDF editor, online PDF tools, PDF merger, PDF splitter" />
+  
+  <meta property="og:title" content="PDFMaster - Free Online PDF Tools" />
+  <meta property="og:description" content="Free all-in-one PDF toolkit - merge, split, compress, convert PDFs online. All processing happens locally in your browser. No registration required." />
+  <meta property="og:image" content="https://pdfeasz.com/assets/share.png" />
+  <meta property="og:url" content="https://pdfeasz.com/index.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PDFMaster" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="PDFMaster - Free Online PDF Tools" />
+  <meta name="twitter:description" content="Free all-in-one PDF toolkit - merge, split, compress, convert PDFs online." />
+  <meta name="twitter:image" content="https://pdfeasz.com/assets/share.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#10b981" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "PDFMaster",
+    "description": "Free all-in-one PDF toolkit - merge, split, compress, convert PDFs online. All processing happens locally in your browser for complete privacy.",
+    "url": "https://pdfeasz.com/index.html",
+    "keywords": "PDF tools, merge PDF, split PDF, compress PDF, PDF converter, free PDF editor",
+    "publisher": {
+      "@type": "Organization",
+      "name": "PDFMaster",
+      "url": "https://pdfeasz.com/"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "PDFMaster",
+    "description": "Free online PDF tools including PDF merger, splitter, compressor, converter, and more. All processing is done locally in your browser for complete privacy and security.",
+    "applicationCategory": "ProductivityApplication",
+    "featureList": [
+      "Merge PDF files online",
+      "Split PDF into separate pages",
+      "Compress PDF without losing quality",
+      "Convert PDF to Word, Image formats",
+      "Add watermarks and signatures",
+      "Extract text from PDF",
+      "Rotate and reorder pages",
+      "Add page numbers",
+      "100% local processing - files never leave your device",
+      "No registration or sign-up required",
+      "Free forever with no hidden fees",
+      "Visual preview before processing",
+      "Mobile-friendly responsive design"
+    ],
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "InStock"
+    },
+    "operatingSystem": "Web",
+    "requirements": "Modern web browser with JavaScript enabled",
+    "author": {
+      "@type": "Organization",
+      "name": "PDFMaster",
+      "url": "https://pdfeasz.com/"
+    },
+    "potentialAction": {
+      "@type": "UseAction",
+      "target": "https://pdfeasz.com/index.html"
+    }
+  }
+  </script>
+
+  <link rel="stylesheet" href="lib/element-ui/theme-chalk/index.css">
+  <script src="lib/vue/vue.js"></script>
+  <script src="lib/element-ui/index.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      color: #1e293b;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .container {
+      max-width: 1400px;
+      width: 95%;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header */
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+      padding: 12px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-image {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: linear-gradient(135deg, #409EFF, #67C23A);
+      padding: 8px;
+    }
+    
+    .logo-text {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #409EFF, #67C23A);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .header-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    
+    .header-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: #475569;
+      transition: color 0.3s;
+      padding: 8px 16px;
+      border-radius: 20px;
+    }
+    
+    .header-links a:hover {
+      color: #409EFF;
+      background: rgba(64, 158, 255, 0.08);
+    }
+    
+    .contact-btn {
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+      color: white !important;
+      padding: 10px 24px !important;
+    }
+    
+    .contact-btn:hover {
+      background: linear-gradient(135deg, #337ecc, #409EFF) !important;
+      transform: translateY(-1px);
+    }
+    
+    .feedback-btn {
+      background: linear-gradient(135deg, #67C23A, #5eb830);
+      color: white !important;
+      padding: 10px 24px !important;
+      margin-left: 8px;
+    }
+    
+    .feedback-btn:hover {
+      background: linear-gradient(135deg, #5eb830, #67C23A) !important;
+      transform: translateY(-1px);
+    }
+    
+    /* Hero Section */
+    .hero-section {
+      text-align: center;
+      padding: 80px 20px 100px;
+      background: linear-gradient(135deg, #409EFF 0%, #337ecc 50%, #67C23A 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -20%;
+      width: 60%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    
+    .hero-section::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      right: -10%;
+      width: 50%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+      border-radius: 50%;
+    }
+    
+    .hero-title {
+      font-size: 42px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 20px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.2;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-subtitle {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.9);
+      max-width: 1100px;
+      margin: 0 auto 40px;
+      line-height: 1.8;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s;
+    }
+    
+    .hero-feature:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .hero-feature i {
+      color: #fff;
+    }
+    
+    /* Tools Grid */
+    .tools-section {
+      padding: 60px 20px;
+    }
+    
+    .section-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 16px;
+    }
+    
+    .section-subtitle {
+      text-align: center;
+      font-size: 16px;
+      color: #64748b;
+      margin-bottom: 50px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .tool-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(64, 158, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      min-height: 200px;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tool-card.hot {
+      background: linear-gradient(145deg, #fff8f9, #ffffff);
+      border: 2px solid rgba(255, 71, 87, 0.15);
+      box-shadow: 0 6px 20px rgba(255, 71, 87, 0.08);
+    }
+    
+    .hot-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: linear-gradient(135deg, #ff4757, #ff6b81);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 0 16px 0 12px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+    }
+    
+    .hot-badge::before {
+      content: '🔥';
+      font-size: 12px;
+      animation: bounce 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-2px);
+      }
+    }
+    
+    .tool-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 32px rgba(64, 158, 255, 0.12);
+      border-color: rgba(64, 158, 255, 0.2);
+    }
+    
+    .tool-card.hot:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(255, 71, 87, 0.15);
+      border-color: rgba(255, 71, 87, 0.3);
+    }
+    
+    .tool-icon-wrapper {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 16px;
+      background: linear-gradient(135deg, rgba(64, 158, 255, 0.08), rgba(103, 194, 58, 0.08));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.4s;
+    }
+    
+    .tool-card.hot .tool-icon-wrapper {
+      background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), rgba(255, 107, 129, 0.1));
+    }
+    
+    .tool-card:hover .tool-icon-wrapper {
+      transform: scale(1.15);
+      background: linear-gradient(135deg, rgba(64, 158, 255, 0.15), rgba(103, 194, 58, 0.15));
+    }
+    
+    .tool-card.hot:hover .tool-icon-wrapper {
+      background: linear-gradient(135deg, rgba(255, 71, 87, 0.18), rgba(255, 107, 129, 0.18));
+    }
+    
+    .tool-icon {
+      font-size: 28px;
+      color: #409EFF;
+      transition: all 0.4s;
+    }
+    
+    .tool-card.hot .tool-icon {
+      color: #ff4757;
+    }
+    
+    .tool-card:hover .tool-icon {
+      color: #67C23A;
+      transform: scale(1.1);
+    }
+    
+    .tool-card.hot:hover .tool-icon {
+      color: #ff6b81;
+    }
+    
+    .tool-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    
+    .tool-card.hot h3 {
+      color: #dc2626;
+    }
+    
+    .tool-card p {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    
+    .tool-btn {
+      display: inline-block;
+      padding: 6px 18px;
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+      color: white;
+      border-radius: 18px;
+      margin-top: auto;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .tool-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(64, 158, 255, 0.3);
+    }
+    
+    /* Features Section */
+    .features-section {
+      padding: 60px 20px;
+      background: white;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .feature-card-link {
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+    }
+    
+    .feature-card {
+      text-align: center;
+      padding: 32px 24px;
+      background: linear-gradient(145deg, #f8fafc, #ffffff);
+      border-radius: 20px;
+      border: 1px solid rgba(64, 158, 255, 0.06);
+      transition: all 0.4s;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+    }
+    
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #409EFF, #67C23A);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: white;
+    }
+    
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+    
+    .feature-card p {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+    
+    .read-more {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #409EFF;
+      transition: all 0.3s ease;
+      margin-top: auto;
+      padding: 8px 16px;
+      background: rgba(64, 158, 255, 0.08);
+      border-radius: 20px;
+    }
+    
+    .feature-card:hover .read-more {
+      color: #fff;
+      background: linear-gradient(135deg, #409EFF, #67C23A);
+      transform: translateX(4px);
+    }
+    
+    /* CTA Section */
+    .cta-section {
+      padding: 80px 20px;
+      background: linear-gradient(135deg, #409EFF 0%, #337ecc 50%, #67C23A 100%);
+      text-align: center;
+      color: white;
+    }
+    
+    .cta-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    
+    .cta-subtitle {
+      font-size: 16px;
+      opacity: 0.9;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .cta-btn {
+      display: inline-block;
+      padding: 14px 40px;
+      background: white;
+      color: #409EFF;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+    }
+    
+    /* Footer */
+    .footer {
+      padding: 60px 20px 30px;
+      background: #1e293b;
+      color: #94a3b8;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto 40px;
+    }
+    
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .footer-brand .logo-image {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .footer-brand-text {
+      font-size: 22px;
+      font-weight: 800;
+      color: white;
+    }
+    
+    .footer-about {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #94a3b8;
+    }
+    
+    .footer-section h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 20px;
+    }
+    
+    .footer-links {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .footer-links li {
+      margin-bottom: 12px;
+    }
+    
+    .footer-links a {
+      font-size: 14px;
+      color: #94a3b8;
+      transition: color 0.3s;
+    }
+    
+    .footer-links a:hover {
+      color: #409EFF;
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 14px;
+    }
+    
+    .footer-bottom-links {
+      margin-bottom: 16px;
+    }
+    
+    .footer-bottom-links a {
+      font-size: 14px;
+      color: #94a3b8;
+      margin: 0 12px;
+      transition: color 0.3s;
+    }
+    
+    .footer-bottom-links a:hover {
+      color: #409EFF;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 32px;
+      }
+      
+      .hero-subtitle {
+        font-size: 16px;
+      }
+      
+      .section-title {
+        font-size: 26px;
+      }
+      
+      .cta-title {
+        font-size: 26px;
+      }
+      
+      .header-links a:not(.contact-btn) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-content">
+      <div class="logo">
+        <img src="./assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
+        <span class="logo-text">PDFMaster</span>
+      </div>
+      <nav class="header-links">
+        <a href="#tools">Tools</a>
+        <a href="#features">Features</a>
+        <a href="about.html">About</a>
+        <a href="./contact.html" class="contact-btn">Contact Me</a>
+        <a href="./feedback.html" class="feedback-btn">Send Feedback</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <h1 class="hero-title">PDFMaster | Free Online PDF Tools & Editor</h1>
+    <p class="hero-subtitle">Merge PDF files online for free, split PDFs into separate pages, compress PDF without losing quality. Free PDF tools supporting files up to 50MB, no registration required, no download needed. Best free PDF editor with no sign up.</p>
+    
+    <div class="hero-features">
+      <span class="hero-feature"><i class="el-icon-lock"></i> Secure Processing</span>
+      <span class="hero-feature"><i class="el-icon-lightning"></i> Fast Processing</span>
+      <span class="hero-feature"><i class="el-icon-eye"></i> Visual Preview</span>
+      <span class="hero-feature"><i class="el-icon-grid"></i> Page Selection</span>
+      <span class="hero-feature"><i class="el-icon-unlock"></i> No Signup</span>
+      <span class="hero-feature"><i class="el-icon-mobile-phone"></i> Mobile Friendly</span>
+    </div>
+  </section>
+
+  <!-- Tools Section -->
+  <section id="tools" class="tools-section">
+    <h2 class="section-title">All PDF Tools in One Platform</h2>
+    <p class="section-subtitle">Professional PDF editor with no registration. All document processing happens locally in your browser. Free all-in-one PDF toolkit for all your document needs.</p>
+    
+    <div class="tools-grid">
+      <a href="./pdf-merger.html" class="tool-card hot"><span class="hot-badge">Hot</span>
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-copy-document"></i></div>
+        <h3>Free PDF Merger</h3>
+        <p>Merge PDF files online for free. Combine multiple PDFs into a single document. Supports files up to 50MB.</p>
+        <span class="tool-btn">Start Merging</span>
+      </a>
+      
+      <a href="./pdf-to-word.html" class="tool-card hot"><span class="hot-badge">Hot</span>
+        <div class="tool-icon-wrapper"><span class="tool-icon">📄</span></div>
+        <h3>Free PDF to Word</h3>
+        <p>Free PDF to Word converter. Convert PDF to editable Word document. No software installation required.</p>
+        <span class="tool-btn">Convert Now</span>
+      </a>
+      
+      <a href="./pdf-compressor.html" class="tool-card hot"><span class="hot-badge">Hot</span>
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-minus"></i></div>
+        <h3>Free PDF Compressor</h3>
+        <p>Compress PDF without losing quality. Reduce PDF file size online. Supports files up to 50MB.</p>
+        <span class="tool-btn">Compress Files</span>
+      </a>
+      
+      <a href="./pdf-to-image.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-picture"></i></div>
+        <h3>Free PDF to Image</h3>
+        <p>Convert PDF pages to high-quality images. Our PDF converter supports PNG and JPG formats.</p>
+        <span class="tool-btn">Export as Image</span>
+      </a>
+      
+      <a href="./image-to-pdf.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-picture"></i></div>
+        <h3>Free Image to PDF</h3>
+        <p>Create PDFs from photos and scans. Our PDF file converter combines multiple images into one document.</p>
+        <span class="tool-btn">Create PDF</span>
+      </a>
+      
+      <a href="./pdf-watermark.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-edit"></i></div>
+        <h3>Free PDF Watermark</h3>
+        <p>Edit PDF online by adding custom watermarks. Protect your documents with text or image stamps.</p>
+        <span class="tool-btn">Add Watermark</span>
+      </a>
+      
+      <a href="./pdf-text-extractor.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-document"></i></div>
+        <h3>Free Extract Text</h3>
+        <p>Extract editable text from PDF files. Perfect for repurposing content with our free PDF tools.</p>
+        <span class="tool-btn">Extract Text</span>
+      </a>
+      
+      <a href="./pdf-signer.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-edit"></i></div>
+        <h3>Free PDF Signer</h3>
+        <p>Edit PDF online with digital signatures. Draw or type your signature using our online PDF editor.</p>
+        <span class="tool-btn">Sign Document</span>
+      </a>
+      
+      <a href="./pdf-rotator.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-refresh"></i></div>
+        <h3>Free Rotate PDF</h3>
+        <p>Edit PDF online by rotating pages. Supports 90, 180, and 270 degree rotation with our free PDF tools.</p>
+        <span class="tool-btn">Adjust Rotation</span>
+      </a>
+      
+      <a href="./pdf-page-remover.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-delete"></i></div>
+        <h3>Free Remove Pages</h3>
+        <p>Remove unwanted pages from PDFs. Visual preview before saving with our online PDF editor.</p>
+        <span class="tool-btn">Trim Document</span>
+      </a>
+      
+      <a href="./pdf-page-extractor.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-upload"></i></div>
+        <h3>Free Extract Pages</h3>
+        <p>Extract specific pages from PDFs. Save selected pages as new documents with our PDF converter.</p>
+        <span class="tool-btn">Save Pages</span>
+      </a>
+      
+      <a href="./pdf-page-number.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-document"></i></div>
+        <h3>Free Add Page Numbers</h3>
+        <p>Edit PDF online by adding page numbers. Multiple styles available with our free PDF tools.</p>
+        <span class="tool-btn">Insert Numbers</span>
+      </a>
+      
+      <a href="./pdf-margin.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-folder"></i></div>
+        <h3>Free PDF Margin</h3>
+        <p>Adjust margins for printing and binding. Customize padding for professional documents.</p>
+        <span class="tool-btn">Customize Margins</span>
+      </a>
+      
+      <a href="./pdf-page-reorder.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-sort-up"></i></div>
+        <h3>Free Reorder Pages</h3>
+        <p>Rearrange pages with visual drag-and-drop. Organize PDFs in any order you want.</p>
+        <span class="tool-btn">Reorder Now</span>
+      </a>
+      
+      <a href="./pdf-splitter.html" class="tool-card">
+        <div class="tool-icon-wrapper"><i class="tool-icon el-icon-scissors"></i></div>
+        <h3>Free PDF Splitter</h3>
+        <p>Split PDF files online. Extract individual pages or divide PDF into multiple documents.</p>
+        <span class="tool-btn">Split PDF</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features-section">
+    <h2 class="section-title">Why Choose PDFMaster?</h2>
+    <p class="section-subtitle">Powerful features designed for everyone. From casual users to professionals.</p>
+    
+    <div class="features-grid">
+      <a href="privacy-first.html" class="feature-card-link">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="el-icon-lock"></i></div>
+          <h3>Privacy First</h3>
+          <p>All processing happens locally in your browser. Your files never leave your device.</p>
+          <span class="read-more">Learn more</span>
+        </div>
+      </a>
+      
+      <a href="lightning-fast.html" class="feature-card-link">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="el-icon-lightning"></i></div>
+          <h3>Lightning Fast</h3>
+          <p>Optimized algorithms deliver instant results. No waiting for uploads or downloads.</p>
+          <span class="read-more">Learn more</span>
+        </div>
+      </a>
+      
+      <a href="completely-free.html" class="feature-card-link">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="el-icon-unlock"></i></div>
+          <h3>Completely Free</h3>
+          <p>All tools are free with no hidden fees, subscriptions, or usage limits.</p>
+          <span class="read-more">Learn more</span>
+        </div>
+      </a>
+      
+      <a href="web-access.html" class="feature-card-link">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="el-icon-monitor"></i></div>
+          <h3>Web-Based</h3>
+          <p>Access from any device - desktop, laptop, iPhone, or Android. No downloads needed.</p>
+          <span class="read-more">Learn more</span>
+        </div>
+      </a>
+      
+      <a href="visual-preview.html" class="feature-card-link">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="el-icon-view"></i></div>
+          <h3>Visual Preview</h3>
+          <p>Preview pages before processing. See exactly what you're getting.</p>
+          <span class="read-more">Learn more</span>
+        </div>
+      </a>
+      
+      <a href="secure-processing.html" class="feature-card-link">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="el-icon-cloudy"></i></div>
+          <h3>Secure</h3>
+          <p>SSL encrypted connection. GDPR and CCPA compliant.</p>
+          <span class="read-more">Learn more</span>
+        </div>
+      </a>
+      
+      <a href="web-access.html" class="feature-card-link">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="el-icon-mobile-phone"></i></div>
+          <h3>Mobile Friendly</h3>
+          <p>Works seamlessly on all devices - iPhone, Android, tablet, and desktop.</p>
+          <span class="read-more">Learn more</span>
+        </div>
+      </a>
+      
+      <a href="easy-editing.html" class="feature-card-link">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="el-icon-mouse"></i></div>
+          <h3>Easy to Use</h3>
+          <p>Intuitive interface with one-click operations. No technical skills required.</p>
+          <span class="read-more">Learn more</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <h2 class="cta-title">Start Working with PDFs Today</h2>
+    <p class="cta-subtitle">Join thousands of users who trust PDFMaster for their document needs. All tools are free, private, and easy to use.</p>
+    <a href="#tools" class="cta-btn">Explore All Tools</a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <div class="footer-brand">
+          <img src="./assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
+          <span class="footer-brand-text">PDFMaster</span>
+        </div>
+        <p class="footer-about">Free online PDF tools for everyone. Privacy-first, fast, and completely free.</p>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Tools</h4>
+        <ul class="footer-links">
+          <li><a href="./pdf-merger.html">PDF Merger</a></li>
+          <li><a href="./pdf-splitter.html">PDF Splitter</a></li>
+          <li><a href="./pdf-compressor.html">PDF Compressor</a></li>
+          <li><a href="./pdf-to-image.html">PDF to Image</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Resources</h4>
+        <ul class="footer-links">
+          <li><a href="about.html">About</a></li>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="./contact.html">Contact Me</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>© 2026 PDFMaster. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then((registration) => {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('Service Worker registration failed:', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>

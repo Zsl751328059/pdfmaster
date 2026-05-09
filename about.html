@@ -1,0 +1,559 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - PDFMaster</title>
+  <meta name="description" content="Learn more about PDFMaster, a personal project by an independent developer offering local processing and complete privacy.">
+  <link rel="canonical" href="https://pdfeasz.com/about.html" />
+  <meta name="keywords" content="about PDFMaster, PDF tools, online PDF services, local processing, privacy">
+
+  <meta property="og:title" content="About PDFMaster - Free Online PDF Tools" />
+  <meta property="og:description" content="Learn more about PDFMaster, a personal project offering free PDF tools with secure local processing and complete privacy." />
+  <meta property="og:image" content="https://pdfeasz.com/assets/share.png" />
+  <meta property="og:url" content="https://pdfeasz.com/about.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PDFMaster" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="About PDFMaster - Free Online PDF Tools" />
+  <meta name="twitter:description" content="Learn more about PDFMaster, offering free PDF tools with secure local processing." />
+  <meta name="twitter:image" content="https://pdfeasz.com/assets/share.png" />
+
+  
+  <script src="./lib/vue/vue.js"></script>
+  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
+  <script src="./lib/element-ui/index.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #303133;
+      line-height: 1.5;
+    }
+    a {
+      text-decoration: none;
+    }
+    .container {
+      max-width: 1600px;
+      width: 98%;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-content {
+      flex: 1;
+      padding: 20px 0;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #fff, #f8f9fa);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 10px 0;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+      border-bottom: 1px solid rgba(64,158,255,0.2);
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .logo-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      object-fit: contain;
+      box-shadow: 0 3px 10px rgba(64,158,255,0.2);
+    }
+    .logo .logo-link {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+    .logo-subtitle {
+      font-size: 11px;
+      color: #666;
+    }
+    .user-section {
+      display: flex;
+      gap: 10px;
+    }
+    .header-link {
+      padding: 7px 12px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      white-space: nowrap;
+    }
+    .contact-link {
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+    }
+    .feedback-link {
+      background: linear-gradient(135deg, #67C23A, #529b2e);
+    }
+
+    .breadcrumb-container {
+      margin-bottom: 18px;
+    }
+    .back-button button {
+      background-color: #409eff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tool-title {
+      font-size: 30px;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .about-section {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      padding: 40px;
+      margin: 40px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .about-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #409EFF, #66B1FF);
+      border-radius: 16px 16px 0 0;
+    }
+    .about-section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 24px;
+      line-height: 1.3;
+    }
+    .about-section h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 32px 0 16px;
+    }
+    .about-section p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 16px;
+    }
+    .about-section ul {
+      margin: 16px 0;
+      padding-left: 24px;
+    }
+    .about-section li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+      color: #333;
+    }
+    .about-section strong {
+      color: #409EFF;
+      font-weight: 600;
+    }
+
+    .mission-vision {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin: 40px 0;
+    }
+    .mission-item {
+      background: #f8faff;
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid #e8f4ff;
+    }
+    .mission-item h3 {
+      color: #409EFF;
+      margin-top: 0;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin: 40px 0;
+    }
+    .feature-item {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border: 1px solid #e8f4ff;
+    }
+    .feature-item h4 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #409EFF;
+      margin-bottom: 12px;
+    }
+    .feature-item p {
+      margin-bottom: 0;
+    }
+
+    .developer-section {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 32px;
+      margin: 40px 0;
+    }
+    .developer-section h3 {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .developer-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+    }
+    .developer-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #409EFF, #66B1FF);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 40px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .developer-details {
+      flex: 1;
+    }
+    .developer-details h4 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .developer-details p {
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .footer {
+      background: #fff;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+      padding: 25px 0 20px;
+      margin-top: 30px;
+      border-top: 1px solid #e9ecef;
+    }
+    .footer-business {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px 14px;
+      color: #666;
+      font-size: 13px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .footer-business a {
+      color: #666;
+    }
+    .footer-bottom {
+      text-align: center;
+      border-top: 1px solid #e9ecef;
+      padding-top: 15px;
+      color: #666;
+      font-size: 13px;
+    }
+    .footer-bottom p {
+      margin: 6px 0;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .footer-links a {
+      color: #666;
+    }
+
+    @media (max-width:768px) {
+      .mission-vision {
+        grid-template-columns: 1fr;
+      }
+      .about-section {
+        padding: 24px;
+        margin: 24px 0;
+      }
+      .about-section h2 {
+        font-size: 24px;
+      }
+      .about-section h3 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div id="app" class="app">
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-header">
+            <img src="./assets/logo.png" alt="PDFeasz logo" class="logo-image">
+            <a href="index.html" class="logo-link">PDFMaster</a>
+          </div>
+          <p class="logo-subtitle">Local PDF Tools</p>
+        </div>
+        <div class="user-section">
+          <a href="contact.html" class="header-link contact-link">Contact Us</a>
+          <a href="feedback.html" class="header-link feedback-link">Submit Feedback</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <div class="container">
+      <div class="breadcrumb-container" style="margin-bottom: 22px;">
+        <a href="index.html" style="display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; background: linear-gradient(135deg, #1e70bf, #337ecc); color: white; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 112, 191, 0.3);">
+          ← Back to Home
+        </a>
+      </div>
+
+      <h1 class="tool-title">About PDFMaster</h1>
+
+      <div class="about-section">
+        <h2>Welcome to PDFMaster</h2>
+        <p>PDFMaster is your trusted platform for all PDF needs. I provide a comprehensive suite of free PDF tools to manipulate, convert, and optimize PDF files easily. My mission is to make PDF processing simple, secure, and accessible to everyone.</p>
+        <p>Unlike many online PDF tools that upload your files to remote servers, I believe in <strong>local processing</strong>. This means your files never leave your device, ensuring complete privacy and security for your sensitive documents.</p>
+
+        <div class="mission-vision">
+          <div class="mission-item">
+            <h3>My Mission</h3>
+            <p>To empower users with powerful, easy-to-use PDF tools that respect their privacy and deliver professional results without cost or complexity.</p>
+          </div>
+          <div class="mission-item">
+            <h3>My Vision</h3>
+            <p>To become the most trusted and widely used online PDF toolset, recognized for my commitment to privacy, quality, and user experience.</p>
+          </div>
+        </div>
+
+        <h3>Why Choose PDFMaster?</h3>
+        <div class="features-grid">
+          <div class="feature-item">
+            <h4>Local Processing</h4>
+            <p>All PDF processing happens directly in your browser. Your files never leave your device, ensuring maximum security and privacy.</p>
+          </div>
+          <div class="feature-item">
+            <h4>Free to Use</h4>
+            <p>All tools are free with no limitations, hidden fees, or subscription requirements.</p>
+          </div>
+          <div class="feature-item">
+            <h4>No Account Needed</h4>
+            <p>Start using tools immediately without creating an account or providing personal information.</p>
+          </div>
+          <div class="feature-item">
+            <h4>Professional Results</h4>
+            <p>Tools deliver professional-grade output with no loss of quality or formatting.</p>
+          </div>
+          <div class="feature-item">
+            <h4>Fast Processing</h4>
+            <p>Process PDF files quickly, even large documents.</p>
+          </div>
+          <div class="feature-item">
+            <h4>Cross-Platform</h4>
+            <p>Works on all devices — desktops, laptops, phones, and tablets — directly in your browser.</p>
+          </div>
+        </div>
+
+        <h3>Our Toolset</h3>
+        <p>PDFMaster offers a wide range of PDF tools to meet all your document needs:</p>
+        <ul>
+          <li><strong>PDF Merger</strong> - Combine multiple PDF files into one</li>
+          <li><strong>PDF Splitter</strong> - Split PDF files into smaller documents</li>
+          <li><strong>PDF Compressor</strong> - Reduce PDF file size without losing quality</li>
+          <li><strong>PDF to Image</strong> - Convert PDF pages to image files</li>
+          <li><strong>Image to PDF</strong> - Convert images to PDF documents</li>
+          <li><strong>PDF Watermark</strong> - Add watermarks to PDF files</li>
+          <li><strong>PDF Text Extractor</strong> - Extract text from PDF files</li>
+          <li><strong>PDF Page Remover</strong> - Remove unwanted pages from PDF files</li>
+          <li><strong>PDF Page Extractor</strong> - Extract specific pages from PDF files</li>
+          <li><strong>PDF Rotator</strong> - Rotate PDF pages</li>
+          <li><strong>PDF Page Reorder</strong> - Reorder pages in PDF files</li>
+          <li><strong>PDF Margin Adder</strong> - Add margins to PDF files</li>
+          <li><strong>PDF Page Number</strong> - Add page numbers to PDF files</li>
+        </ul>
+
+        <div class="developer-section">
+          <h3>About the Developer</h3>
+          <div class="developer-info">
+            <div class="developer-avatar">T</div>
+            <div class="developer-details">
+              <h4>Tom</h4>
+              <p>PDFMaster is a personal project created by Tom, an independent developer passionate about creating useful, secure, and privacy-focused PDF tools.</p>
+              <p>With years of experience in web development and a deep understanding of PDF processing, I created PDFMaster to provide a free, secure alternative to other online PDF tools.</p>
+              <p>📍 Location: San Francisco, CA, USA</p>
+              <p>📧 Email: <a href="mailto:tom@pdfeasz.com" style="color: #409EFF; text-decoration: underline;">tom@pdfeasz.com</a></p>
+              <p>🌐 Website: <a href="https://pdfeasz.com" target="_blank" style="color: #409EFF; text-decoration: underline;">https://pdfeasz.com</a></p>
+              <p>🔗 GitHub: <a href="https://github.com/tompdfmaster" target="_blank" style="color: #409EFF; text-decoration: underline;">github.com/tompdfmaster</a></p>
+              <div style="margin-top: 16px; display: flex; gap: 10px;">
+                <a href="mailto:tom@pdfeasz.com" style="padding: 8px 16px; background: linear-gradient(135deg, #409EFF, #337ecc); color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(64,158,255,0.3);">📧 Contact</a>
+                <a href="https://pdfeasz.com" target="_blank" style="padding: 8px 16px; background: linear-gradient(135deg, #67C23A, #529b2e); color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(103,194,58,0.3);">🌐 Website</a>
+                <a href="feedback.html" style="padding: 8px 16px; background: linear-gradient(135deg, #909399, #7a7d82); color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(144,147,153,0.3);">💬 Feedback</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: #fffbe6; border-left: 4px solid #faad14; border-radius: 0 8px 8px 0; padding: 20px; margin: 30px 0;">
+          <h4 style="color: #d48806; margin-bottom: 16px; font-size: 18px;">⭐ User Reviews</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+              <p style="color: #ffc107; font-size: 16px; margin-bottom: 8px;">★★★★★</p>
+              <p style="font-size: 13px; color: #333; line-height: 1.5;">"Excellent tools! Fast, secure, and completely free. I've tried many PDF tools but this is by far the best."</p>
+              <p style="font-size: 12px; color: #666; margin-top: 8px;">— Sarah M.</p>
+            </div>
+            <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+              <p style="color: #ffc107; font-size: 16px; margin-bottom: 8px;">★★★★★</p>
+              <p style="font-size: 13px; color: #333; line-height: 1.5;">"Love that all processing happens locally. No need to worry about privacy. Highly recommend!"</p>
+              <p style="font-size: 12px; color: #666; margin-top: 8px;">— John D.</p>
+            </div>
+            <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+              <p style="color: #ffc107; font-size: 16px; margin-bottom: 8px;">★★★★★</p>
+              <p style="font-size: 13px; color: #333; line-height: 1.5;">"Best free PDF tools I've found. Works perfectly every time. Thank you!"</p>
+              <p style="font-size: 12px; color: #666; margin-top: 8px;">— Emily K.</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: #f0f9ff; border-radius: 12px; padding: 24px; margin: 30px 0;">
+          <h4 style="color: #1e70bf; margin-bottom: 20px; font-size: 18px; text-align: center;">🔒 Trust & Security</h4>
+          <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
+            <div style="text-align: center;">
+              <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #67C23A, #529b2e); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                <span style="color: white; font-size: 28px;">🔐</span>
+              </div>
+              <p style="font-size: 13px; color: #333;">Local Processing</p>
+            </div>
+            <div style="text-align: center;">
+              <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #409EFF, #337ecc); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                <span style="color: white; font-size: 28px;">🛡️</span>
+              </div>
+              <p style="font-size: 13px; color: #333;">Privacy Protected</p>
+            </div>
+            <div style="text-align: center;">
+              <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #E6A23C, #d4922f); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                <span style="color: white; font-size: 28px;">✅</span>
+              </div>
+              <p style="font-size: 13px; color: #333;">No Data Uploads</p>
+            </div>
+            <div style="text-align: center;">
+              <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #909399, #7a7d82); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                <span style="color: white; font-size: 28px;">🔑</span>
+              </div>
+              <p style="font-size: 13px; color: #333;">Secure HTTPS</p>
+            </div>
+          </div>
+        </div>
+
+        <h3>My Commitment</h3>
+        <p>At PDFMaster, I am committed to:</p>
+        <ul>
+          <li>Protecting your privacy and security</li>
+          <li>Delivering high-quality tools and results</li>
+          <li>Providing a user-friendly experience</li>
+          <li>Continuously improving my toolset</li>
+          <li>Offering my services free of charge</li>
+        </ul>
+
+        <h3>Contact Me</h3>
+        <p>If you have any questions, feedback, or suggestions, please feel free to <a href="contact.html">contact me</a>. I value your input and am always looking for ways to improve my services.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+     <div class="footer-business">
+        <a href="pdf-merger.html">PDF Merger</a>
+        <a href="pdf-splitter.html">PDF Splitter</a>
+        <a href="pdf-compressor.html">PDF Compressor</a>
+        <a href="pdf-to-image.html">PDF to Image</a>
+        <a href="image-to-pdf.html">Image to PDF</a>
+        <a href="pdf-watermark.html">PDF Watermark</a>
+        <a href="pdf-rotator.html">PDF Rotator</a>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 PDFMaster. All rights reserved.</p>
+        <p>Free PDF tools with local processing. No signup or data uploads.</p>
+        <div class="footer-links">
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="terms.html">Terms of Service</a>
+          <a href="cookie.html">Cookie Policy</a>
+          <a href="about.html">About Us</a>
+          <a href="contact.html">Contact Us</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+new Vue({
+  el: '#app',
+  data() {
+    return {
+      toolName: 'About PDFMaster'
+    }
+  },
+  methods: {
+    goBack() { window.location.href = 'index.html'; }
+  }
+})
+</script>

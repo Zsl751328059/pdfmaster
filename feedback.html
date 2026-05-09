@@ -1,0 +1,493 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback - PDFMaster Tools</title>
+  <meta name="description" content="Share your feedback and suggestions to help us improve PDFMaster. Your input helps us create better PDF tools for everyone.">
+  <link rel="canonical" href="https://pdfeasz.com/feedback.html" />
+  <script src="./lib/vue/vue.js"></script>
+  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
+  <script src="./lib/element-ui/index.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #303133;
+      line-height: 1.5;
+    }
+    a {
+      text-decoration: none;
+    }
+    .container {
+      max-width: 1600px;
+      width: 98%;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #fff, #f8f9fa);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 10px 0;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+      border-bottom: 1px solid rgba(64,158,255,0.2);
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .logo-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      object-fit: contain;
+      box-shadow: 0 3px 10px rgba(64,158,255,0.2);
+    }
+    .logo .logo-link {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+    .logo-subtitle {
+      font-size: 11px;
+      color: #666;
+    }
+    .user-section {
+      display: flex;
+      gap: 10px;
+    }
+    .header-link {
+      padding: 7px 12px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      white-space: nowrap;
+    }
+    .contact-link {
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+    }
+    .feedback-link {
+      background: linear-gradient(135deg, #67C23A, #529b2e);
+    }
+    .main-content {
+      padding: 20px 0;
+    }
+    .breadcrumb-container {
+      margin-bottom: 22px;
+    }
+    .back-button button {
+      background: linear-gradient(135deg, #1e70bf, #3385ff);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(30, 112, 191, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .back-button button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(30, 112, 191, 0.4);
+      background: linear-gradient(135deg, #1a64ab, #2a74d5);
+    }
+    .back-button button:active {
+      transform: translateY(-1px);
+    }
+    .page-title {
+      text-align: center;
+      font-size: 28px;
+      color: #222;
+      margin-bottom: 10px;
+    }
+    .page-desc {
+      text-align: center;
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .feedback-intro {
+      max-width: 600px;
+      margin: 0 auto 35px;
+      padding: 30px;
+      background: linear-gradient(135deg, #ffffff, #f0f7ff);
+      border-radius: 16px;
+      text-align: center;
+      line-height: 1.7;
+      color: #475569;
+      border: 1px solid #e0e7ff;
+      box-shadow: 0 8px 25px rgba(64, 158, 255, 0.08);
+    }
+    .feedback-intro p {
+      margin: 0 0 14px 0;
+      font-size: 15px;
+    }
+    .feedback-intro p:last-child {
+      margin-bottom: 0;
+    }
+    .feedback-intro strong {
+      color: #409EFF;
+      font-weight: 600;
+    }
+    .feedback-section {
+      max-width: 650px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 20px;
+      padding: 45px;
+      box-shadow: 0 8px 35px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .feedback-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #409EFF, #67C23A, #409EFF);
+    }
+    .form-item {
+      margin-bottom: 28px;
+    }
+    .form-label {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-label::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: #409EFF;
+      border-radius: 50%;
+    }
+    .form-input {
+      width: 100%;
+      padding: 15px 18px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1e293b;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: #fafbfc;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #409eff;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.12);
+      background: #fff;
+      transform: translateY(-1px);
+    }
+    .form-input::placeholder {
+      color: #94a3b8;
+    }
+    .form-textarea {
+      width: 100%;
+      min-height: 160px;
+      padding: 15px 18px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1e293b;
+      resize: vertical;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: #fafbfc;
+      line-height: 1.6;
+    }
+    .form-textarea:focus {
+      outline: none;
+      border-color: #409eff;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.12);
+      background: #fff;
+      transform: translateY(-1px);
+    }
+    .form-textarea::placeholder {
+      color: #94a3b8;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 15px;
+      box-shadow: 0 4px 15px rgba(64, 158, 255, 0.3);
+    }
+    .submit-btn:hover {
+      box-shadow: 0 8px 25px rgba(64, 158, 255, 0.4);
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #337ecc, #266ab3);
+    }
+    .submit-btn:active {
+      transform: translateY(-1px);
+    }
+    .submit-btn:disabled {
+      background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .footer {
+      background: #fff;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+      padding: 25px 0 20px;
+      margin-top: 50px;
+      border-top: 1px solid #e9ecef;
+    }
+    .footer-business {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px 14px;
+      color: #666;
+      font-size: 13px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .footer-bottom {
+      text-align: center;
+      border-top: 1px solid #e9ecef;
+      padding-top: 15px;
+      color: #666;
+      font-size: 13px;
+    }
+    .footer-bottom p {
+      margin: 6px 0;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .footer-links a {
+      color: #666;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover {
+      color: #409EFF;
+    }
+
+    @media (max-width: 768px) {
+      .feedback-section {
+        padding: 24px 20px;
+        border-radius: 12px;
+      }
+      .page-title {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <div class="logo-header">
+              <img src="./assets/logo.png" alt="PDFeasz logo" class="logo-image">
+              <a href="index.html" class="logo-link">PDFMaster</a>
+            </div>
+            <p class="logo-subtitle">Local PDF Tools</p>
+          </div>
+          <div class="user-section">
+            <a href="contact.html" class="header-link contact-link">Contact Us</a>
+            <a href="feedback.html" class="header-link feedback-link">Submit Feedback</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <div class="container">
+        <div class="breadcrumb-container">
+          <div class="back-button">
+            <a href="index.html"><button>← Back to Home</button></a>
+          </div>
+        </div>
+
+        <h1 class="page-title">Feedback</h1>
+        <p class="page-desc">Share your thoughts to help us improve</p>
+        
+        <div class="feedback-intro">
+          <p>Your feedback is very important to us! Whether you have suggestions for new PDF tools, encountered any issues while using our tools, or have ideas for improvement, we'd love to hear from you.</p>
+          <p><strong>What would you like to see next?</strong> Let us know what PDF tools you need, and we'll work hard to make them available.</p>
+        </div>
+
+        <div class="feedback-section">
+          <div class="form-item">
+            <label class="form-label">Contact (Email or Phone)</label>
+            <input
+              type="text"
+              v-model="form.contact"
+              placeholder="So we can get back to you..."
+              class="form-input"
+            >
+          </div>
+          <div class="form-item">
+            <label class="form-label">Tool Suggestions</label>
+            <input
+              type="text"
+              v-model="form.toolSuggestion"
+              placeholder="What PDF tool would you like us to add?"
+              class="form-input"
+            >
+          </div>
+          <div class="form-item">
+            <label class="form-label">Your Feedback</label>
+            <textarea
+              v-model="form.message"
+              placeholder="Tell us what you think, report bugs, or share ideas..."
+              class="form-textarea"
+            ></textarea>
+          </div>
+          <button
+            class="submit-btn"
+            @click="submitFeedback"
+            :disabled="isSubmitting"
+          >
+            {{ isSubmitting ? 'Sending...' : 'Send Feedback' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-business">
+          <span>All tools process locally in your browser</span>
+          <span>•</span>
+          <span>No uploads to servers</span>
+          <span>•</span>
+          <span>100% file security guaranteed</span>
+        </div>
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="about.html">About Us</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; {{ new Date().getFullYear() }} PDFMaster Tools. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          form: {
+            contact: '',
+            toolSuggestion: '',
+            message: ''
+          },
+          isSubmitting: false
+        }
+      },
+      mounted() {
+        if (typeof emailjs !== 'undefined') {
+          emailjs.init('ARpf5InQzozkz-G43');
+        }
+      },
+      methods: {
+        submitFeedback() {
+          if (!this.form.message.trim()) {
+            this.$message.warning('Please enter your feedback');
+            return;
+          }
+
+          this.isSubmitting = true;
+
+          if (typeof emailjs !== 'undefined') {
+            this.submitViaEmailJS();
+          } else {
+            this.submitViaMailto();
+          }
+        },
+        submitViaEmailJS() {
+          emailjs.send('service_idpbemb', 'template_od4epr3', {
+            contact: this.form.contact || 'Not provided',
+            toolSuggestion: this.form.toolSuggestion || 'No suggestion',
+            message: this.form.message
+          })
+          .then((response) => {
+            this.$message.success('Thank you! Your feedback has been sent.');
+            this.form.contact = '';
+            this.form.toolSuggestion = '';
+            this.form.message = '';
+          })
+          .catch((error) => {
+            this.$message.error('Failed to send. Please try again.');
+          })
+          .finally(() => {
+            this.isSubmitting = false;
+          });
+        },
+        submitViaMailto() {
+          const subject = encodeURIComponent('Feedback from PDFMaster Tools');
+          const body = encodeURIComponent(
+            'Contact: ' + (this.form.contact || 'Not provided') + '\n\n' +
+            'Tool Suggestion: ' + (this.form.toolSuggestion || 'No suggestion') + '\n\n' +
+            'Message:\n' + this.form.message
+          );
+          window.location.href = 'mailto:support@pdfmaster.com?subject=' + subject + '&body=' + body;
+          this.$message.success('Opening email client...');
+          this.form.contact = '';
+          this.form.toolSuggestion = '';
+          this.form.message = '';
+          this.isSubmitting = false;
+        }
+      }
+    });
+  </script>

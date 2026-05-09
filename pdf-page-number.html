@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Page Numbers to PDF Online Free | PDF Page Numberer | PDFMaster</title>
+  <meta name="description" content="Add page numbers to PDF online free. Insert page numbers in PDF documents with custom position, font size & format. Free PDF page number adder no sign up, no watermark, local processing. Paginate PDF online securely without losing quality.">
+  <link rel="canonical" href="https://pdfeasz.com/pdf-page-number.html" />
+
+  <meta property="og:title" content="Add Page Numbers to PDF Online Free | PDF Page Numberer | PDFMaster" />
+  <meta property="og:description" content="Add page numbers to PDF online free. Insert page numbers in PDF documents with custom position, font size & format. Free PDF page number adder no sign up, no watermark, local processing." />
+  <meta property="og:image" content="https://pdfeasz.com/assets/share.png" />
+  <meta property="og:url" content="https://pdfeasz.com/pdf-page-number.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PDFMaster" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Add Page Numbers to PDF Online Free | PDFMaster" />
+  <meta name="twitter:description" content="Add page numbers to PDF online free. Insert page numbers in PDF with custom position and format. Free PDF page number adder no sign up." />
+  <meta name="twitter:image" content="https://pdfeasz.com/assets/share.png" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "PDF Page Numberer",
+    "description": "Add page numbers to PDF online free. Insert page numbers in PDF documents with custom position, font size, format and start number. Free PDF page number adder no sign up, secure local processing.",
+    "url": "https://pdfeasz.com/pdf-page-number.html",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    "featureList": ["Add page numbers to PDF", "Insert page numbers in PDF", "Custom position (top/bottom)", "Adjustable font size", "Multiple number formats", "Start from specific page", "100% free with no signup", "Secure local processing"]
+  }
+  </script>
+
+  
+  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
+  <script src="./lib/vue/vue.js"></script>
+  <script src="./lib/element-ui/index.js"></script>
+  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
+  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 100%;
+      width: 95%;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+    .main-content { 
+      flex: 1; 
+      padding: 32px 0;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 95%;
+    }
+
+    .header {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+      padding: 12px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-image {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: linear-gradient(135deg, #409EFF, #67C23A);
+      padding: 8px;
+    }
+    .logo-text {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #409EFF, #67C23A);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .header-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: #475569;
+      transition: color 0.3s;
+      padding: 8px 16px;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+    .header-links a:hover {
+      color: #409EFF;
+      background: rgba(64, 158, 255, 0.08);
+    }
+    .contact-btn {
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+      color: white !important;
+      padding: 10px 24px !important;
+      transition: all 0.3s;
+    }
+    .contact-btn:hover {
+      background: linear-gradient(135deg, #337ecc, #409EFF) !important;
+      transform: translateY(-1px);
+    }
+    .feedback-btn {
+      background: linear-gradient(135deg, #67C23A, #5eb830);
+      color: white !important;
+      padding: 10px 24px !important;
+      transition: all 0.3s;
+    }
+    .feedback-btn:hover {
+      background: linear-gradient(135deg, #5eb830, #67C23A) !important;
+      transform: translateY(-1px);
+    }
+    .back-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white !important;
+      padding: 10px 20px !important;
+      transition: all 0.3s;
+    }
+    .back-btn:hover {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+      color: white !important;
+      transform: translateY(-1px);
+    }
+
+    .page-header { text-align: center; margin-bottom: 32px; }
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    .page-subtitle {
+      font-size: 16px;
+      color: #ffffff;
+      line-height: 1.8;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 32px;
+      background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(64, 158, 255, 0.35);
+      position: relative;
+      overflow: hidden;
+      font-weight: 500;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .page-subtitle::before {
+      content: '📄';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      font-size: 60px;
+      opacity: 0.15;
+    }
+    .page-subtitle::after {
+      content: '🔗';
+      position: absolute;
+      bottom: -10px;
+      left: -10px;
+      font-size: 50px;
+      opacity: 0.15;
+    }
+
+    .steps-container { margin-bottom: 32px; }
+    .steps-wrapper {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+
+    .tool-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .tab-content { padding: 32px; }
+
+    .upload-area {
+      border: 2px dashed #d1d5db !important;
+      border-radius: 16px !important;
+      padding: 40px 24px !important;
+      background: #fafafa !important;
+      cursor: pointer !important;
+      transition: all 0.3s !important;
+      text-align: center !important;
+      min-height: 200px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .upload-area:hover { border-color: #409EFF !important; background: #f0f7ff !important; }
+    .upload-area .el-upload-dragger {
+      border: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .el-upload-dragger {
+      width: 100% !important;
+      min-height: 180px !important;
+      max-height: 200px !important;
+      border: none !important;
+      border-radius: 16px !important;
+      background: transparent !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      transition: all 0.3s !important;
+    }
+    .el-upload-dragger:hover, .el-upload-dragger.dragover {
+      border-color: #409EFF;
+      background: #f0f7ff;
+    }
+    .upload-icon {
+      font-size: 48px !important;
+      color: #409EFF !important;
+      margin-bottom: 16px !important;
+    }
+    .upload-text {
+      font-size: 18px !important;
+      font-weight: 500 !important;
+      color: #334155 !important;
+      margin-bottom: 8px !important;
+    }
+    .upload-hint {
+      font-size: 14px !important;
+      color: #94a3b8 !important;
+    }
+    .upload-hint strong { color: #409EFF !important; }
+    .upload-area .el-upload-list,
+    .upload-area .el-upload-list--text,
+    .upload-area .el-upload-list__item {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .file-list-section { margin-top:24px; }
+    .file-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .file-list-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .clear-all-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .clear-all-btn:hover {
+      background: #fef2f2;
+      text-decoration: underline;
+    }
+    .file-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      background: #f9fafb;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .file-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-info {
+      font-size: 12px;
+      color: #9ca3af;
+      margin: 0 12px;
+      flex-shrink: 0;
+    }
+    .delete-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      color: #fff;
+      background: #ef4444;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .delete-btn:hover { background: #dc2626; }
+
+    .file-count-hint {
+      font-size: 14px;
+      color: #d97706;
+      margin-top: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .file-count-hint::before {
+      content: '⚠️';
+      font-size: 16px;
+    }
+
+    .page-preview-item.clickable {
+      cursor: zoom-in;
+      transition: all 0.3s;
+    }
+    .page-preview-item.clickable:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+    .preview-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 11px;
+      opacity: 0;
+      transition: all 0.3s;
+    }
+    .page-preview-item.clickable:hover .preview-overlay {
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 1;
+    }
+
+    .preview-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 90vw;
+      max-height: 90vh;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: #f3f4f6;
+      border-radius: 50%;
+      font-size: 24px;
+      color: #6b7280;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+    .modal-close:hover {
+      background: #ef4444;
+      color: white;
+    }
+    .modal-image {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 8px;
+    }
+
+    .page-preview-container {
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 12px;
+    }
+    .page-preview-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .page-preview-item {
+      width: 80px;
+      height: 120px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+    .page-preview-image {
+      flex: 1;
+      width: 100%;
+      object-fit: contain;
+      background: #f9fafb;
+    }
+    .page-number {
+      font-size: 11px;
+      text-align: center;
+      padding: 4px;
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    .result-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .filename-input {
+      margin: 16px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .filename-input label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+    }
+    .filename-input input {
+      width: 100%;
+      max-width: 300px;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    .filename-input input:focus {
+      outline: none;
+      border-color: #409EFF;
+    }
+
+    .options-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 16px;
+    }
+    .options-group {
+      margin-bottom: 24px;
+    }
+    .options-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 12px;
+    }
+    .position-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .position-option {
+      padding: 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .position-option:hover { 
+      border-color: #409EFF; 
+    }
+    .position-option.active {
+      border-color: #409EFF;
+      background: #f0f7ff;
+    }
+    .position-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .position-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .progress-section {
+      margin-top: 20px;
+      padding: 16px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+    }
+    .progress-text {
+      font-size: 14px;
+      color: #065f46;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #dcfce7;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .preview-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 90vw;
+      max-height: 90vh;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: #f3f4f6;
+      border-radius: 50%;
+      font-size: 24px;
+      color: #6b7280;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+    .modal-close:hover {
+      background: #ef4444;
+      color: white;
+    }
+    .modal-image {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 8px;
+    }
+
+    .action-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .btn {
+      flex: 1;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #409EFF;
+      color: white;
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .result-content {
+      text-align: center;
+      padding: 32px;
+      background: #ecfdf5;
+      border-radius: 16px;
+    }
+    .result-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #065f46;
+    }
+    .result-desc {
+      font-size: 14px;
+      color: #047857;
+      margin: 8px 0 24px;
+    }
+    .download-btn {
+      padding: 16px 40px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    .instructions {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .instructions-title {
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 24px;
+    }
+    .step { text-align: center; }
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: #409EFF;
+      border-radius: 50%;
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+    .step-title { font-size: 14px; font-weight: 600; }
+    .step-desc { font-size: 12px; color: #6b7280; }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .privacy-section {
+      background: linear-gradient(135deg, #065f46, #047857);
+      border-radius: 20px;
+      padding: 40px;
+      margin-top: 32px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .privacy-section::before {
+      content: '🔒';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      font-size: 120px;
+      opacity: 0.1;
+    }
+    .privacy-section .section-title {
+      color: white;
+      font-size: 22px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .privacy-content {
+      font-size: 15px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.9);
+      position: relative;
+      z-index: 1;
+    }
+    .privacy-content p {
+      margin-bottom: 16px;
+    }
+    .privacy-content p:last-child {
+      margin-bottom: 0;
+    }
+    .privacy-content strong {
+      color: #a7f3d0;
+      font-weight: 600;
+    }
+
+    .faq-section {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      margin-top: 32px;
+    }
+    .faq-item {
+      border-bottom: 1px solid #f1f5f9;
+      padding: 20px 0;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-item h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+    .faq-item p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    .tutorial-section {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      margin-top: 32px;
+    }
+    .tutorial-step {
+      display: flex;
+      gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .tutorial-step:last-child { border-bottom: none; }
+    .tutorial-number {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #409EFF, #66B1FF);
+      border-radius: 50%;
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tutorial-content h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .tutorial-content p {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .blog-section {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      margin-top: 32px;
+    }
+    .blog-card {
+      display: flex;
+      gap: 16px;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .blog-card:last-child { margin-bottom: 24px; }
+    .blog-icon { font-size: 28px; }
+    .blog-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .blog-card p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+    .cta-box {
+      background: linear-gradient(135deg, #409EFF, #66B1FF);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      color: white;
+    }
+    .cta-box h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .cta-box p {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 16px;
+    }
+    .cta-button {
+      background: white;
+      color: #409EFF;
+      border: none;
+      padding: 12px 32px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+    }
+
+    .footer {
+      background: white;
+      padding: 24px 0;
+      border-top: 1px solid #f1f5f9;
+      text-align: center;
+    }
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      margin-bottom: 24px;
+    }
+    .footer-section h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 12px;
+    }
+    .footer-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .footer-section li {
+      margin-bottom: 8px;
+    }
+    .footer-section li:last-child {
+      margin-bottom: 0;
+    }
+    .footer-section a {
+      font-size: 13px;
+      color: #6b7280;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-section a:hover {
+      color: #409EFF;
+    }
+    .footer-copyright {
+      font-size: 12px;
+      color: #9ca3af;
+      padding-top: 16px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    @media (max-width: 768px) {
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .action-section { flex-direction: column; }
+      .position-options { grid-template-columns: repeat(3, 1fr); }
+      .tab-content { padding: 16px; }
+      .header-content { flex-direction: column; gap: 12px; }
+      .header-links { gap: 8px; flex-wrap: wrap; justify-content: center; }
+      .header-links a { padding: 6px 12px; font-size: 12px; }
+      .logo-text { font-size: 20px; }
+      .logo-image { width: 36px; height: 36px; }
+      .footer-content { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    }
+
+    .hidden { display: none; }
+
+    .technology-section {
+      margin-top: 32px;
+      padding: 40px;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .technology-section::before {
+      content: '⚡';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      font-size: 150px;
+      opacity: 0.05;
+    }
+    .technology-section .section-title {
+      color: white;
+      font-size: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .tech-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .tech-item {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+    .tech-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    .tech-item-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .tech-item h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 12px;
+    }
+    .tech-item p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.7;
+    }
+
+    .guide-section {
+      margin-top: 32px;
+      padding: 40px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+    }
+    .guide-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .guide-item {
+      padding: 24px;
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-radius: 16px;
+      border: 1px solid #fcd34d;
+      transition: all 0.3s ease;
+    }
+    .guide-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(251, 191, 36, 0.25);
+    }
+    .guide-item-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .guide-item h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 12px;
+    }
+    .guide-item p {
+      font-size: 14px;
+      color: #78350f;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+
+<body>
+<div id="app" class="app">
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <img src="./assets/logo.png" alt="PDFMaster logo" class="logo-image">
+          <span class="logo-text">PDFMaster</span>
+        </div>
+        <div class="header-links">
+          <a href="index.html" class="back-btn">
+            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            Back to Home
+          </a>
+          <a href="contact.html" class="contact-btn">Contact</a>
+          <a href="feedback.html" class="feedback-btn">Feedback</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-title">Add Page Numbers to PDF Online Free</h1>
+        <p class="page-subtitle">Add page numbers to PDF documents online. Insert page numbers in PDF with custom position, font size, format, and start number. Number PDF pages without losing quality. Free PDF page number adder no sign up, secure local processing.</p>
+      </div>
+
+      <div class="steps-container">
+        <div class="steps-wrapper">
+          <el-steps :active="Number(currentStep)" finish-status="success" align-center>
+            <el-step title="Upload PDF" icon="el-icon-upload"></el-step>
+            <el-step title="Customize" icon="el-icon-setting"></el-step>
+            <el-step title="Download" icon="el-icon-download"></el-step>
+          </el-steps>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick">
+          <el-tab-pane label="Upload" name="0">
+            <div class="tab-content">
+              <el-upload
+                ref="upload"
+                class="upload-area"
+                drag
+                :auto-upload="false"
+                accept=".pdf"
+                :on-change="handleFileChange"
+                :on-exceed="handleExceed"
+                action="#"
+                :show-file-list="false"
+                :limit="1"
+                :multiple="false"
+              >
+                <i class="el-icon-upload upload-icon"></i>
+                <div class="upload-text">Drag & drop PDF here, or click to browse</div>
+                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong></div>
+              </el-upload>
+
+              <div v-if="selectedFile" class="file-list-section">
+                <div class="file-list-header">
+                  <div class="file-list-title">
+                    <i class="el-icon-file-text"></i>
+                    Uploaded File
+                  </div>
+                  <button class="clear-all-btn" @click="clearFile">Clear All</button>
+                </div>
+                <div class="file-item">
+                  <span class="file-name">{{ selectedFile && selectedFile.name }}</span>
+                  <span class="file-info">{{ selectedFile && formatFileSize(selectedFile.size) }} | {{ pageCount }} pages</span>
+                  <button class="delete-btn" @click="clearFile">Remove</button>
+                </div>
+              </div>
+
+              <div v-if="!selectedFile" class="file-count-hint">
+                Maximum file size: 50MB | Only PDF files supported
+              </div>
+
+              <div v-if="selectedFile" class="action-section">
+                <button class="btn btn-primary" @click="goToNext">Continue</button>
+              </div>
+            </div>
+          </el-tab-pane>
+
+          <el-tab-pane label="Options" name="1" :disabled="!selectedFile">
+            <div class="tab-content">
+              <div class="options-group">
+                <label>Position</label>
+                <div class="position-options">
+                  <div 
+                    class="position-option" 
+                    :class="{active: form.position === 'top-left'}" 
+                    @click="form.position = 'top-left'"
+                  >
+                    <div class="position-icon">⬆️</div>
+                    <div class="position-title">Top Left</div>
+                  </div>
+                  <div 
+                    class="position-option" 
+                    :class="{active: form.position === 'top-center'}" 
+                    @click="form.position = 'top-center'"
+                  >
+                    <div class="position-icon">⬆️</div>
+                    <div class="position-title">Top Center</div>
+                  </div>
+                  <div 
+                    class="position-option" 
+                    :class="{active: form.position === 'top-right'}" 
+                    @click="form.position = 'top-right'"
+                  >
+                    <div class="position-icon">⬆️</div>
+                    <div class="position-title">Top Right</div>
+                  </div>
+                  <div 
+                    class="position-option" 
+                    :class="{active: form.position === 'bottom-left'}" 
+                    @click="form.position = 'bottom-left'"
+                  >
+                    <div class="position-icon">⬇️</div>
+                    <div class="position-title">Bottom Left</div>
+                  </div>
+                  <div 
+                    class="position-option" 
+                    :class="{active: form.position === 'bottom-center'}" 
+                    @click="form.position = 'bottom-center'"
+                  >
+                    <div class="position-icon">⬇️</div>
+                    <div class="position-title">Bottom Center</div>
+                  </div>
+                  <div 
+                    class="position-option" 
+                    :class="{active: form.position === 'bottom-right'}" 
+                    @click="form.position = 'bottom-right'"
+                  >
+                    <div class="position-icon">⬇️</div>
+                    <div class="position-title">Bottom Right</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="options-group">
+                <label>Font Size: {{ form.fontSize }}pt</label>
+                <el-slider v-model="form.fontSize" :min="8" :max="36" :step="1"></el-slider>
+              </div>
+
+              <div class="options-group">
+                <label>Start Number: {{ form.startNumber }}</label>
+                <el-input-number v-model="form.startNumber" :min="1" :max="9999"></el-input-number>
+              </div>
+
+              <div class="options-group">
+                <label>Number Format</label>
+                <el-select v-model="form.format" placeholder="Select format">
+                  <el-option label="1, 2, 3..." value="number"></el-option>
+                  <el-option label="1/10, 2/10..." value="fraction"></el-option>
+                  <el-option label="Page 1 of 10" value="page-x-of-y"></el-option>
+                  <el-option label="I, II, III..." value="roman"></el-option>
+                  <el-option label="A, B, C..." value="alpha"></el-option>
+                </el-select>
+              </div>
+
+              <div class="action-section">
+                <button class="btn btn-secondary" @click="goToPrev">Back</button>
+                <button class="btn btn-primary" @click="addPageNumbers" :disabled="processing">
+                  {{ processing ? 'Adding Page Numbers...' : 'Add Page Numbers' }}
+                </button>
+              </div>
+
+              <div v-if="processing" class="progress-section">
+                <div class="progress-text">{{ progressText }}</div>
+                <div class="progress-bar">
+                  <div class="progress-fill" :style="{width: progress + '%'}"></div>
+                </div>
+              </div>
+            </div>
+          </el-tab-pane>
+
+          <el-tab-pane label="Result" name="2" :disabled="!resultBlob">
+            <div class="tab-content">
+              <div class="result-content" v-if="resultBlob">
+                <div class="result-title">
+                  <i class="el-icon-check-circle" style="margin-right: 8px;"></i>
+                  Page Numbers Added Successfully
+                </div>
+                <p class="result-desc">Your PDF now has page numbers added</p>
+                <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
+                <div v-if="resultPreviews.length > 0" class="result-preview">
+                  <div 
+                    v-for="(thumb, idx) in resultPreviews" 
+                    :key="idx" 
+                    class="page-preview-item clickable"
+                    @click="openPreview(idx)"
+                  >
+                    <img :src="thumb" class="page-preview-image">
+                    <div class="page-number">{{ idx + 1 }}</div>
+                    <div class="preview-overlay">Click to zoom</div>
+                  </div>
+                </div>
+                <div class="filename-input">
+                  <label>File Name:</label>
+                  <input v-model="downloadFileName" type="text" placeholder="Enter file name" />
+                </div>
+                <button class="download-btn" @click="download">
+                  <i class="el-icon-download" style="margin-right: 8px;"></i>
+                  Download PDF
+                </button>
+              </div>
+
+              <div class="action-section">
+                <button class="btn btn-secondary" @click="reset">Start Over</button>
+              </div>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+
+      <div v-if="showPreviewModal" class="preview-modal" @click="closePreview">
+        <div class="modal-content" @click.stop>
+          <button class="modal-close" @click="closePreview">×</button>
+          <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview">
+        </div>
+      </div>
+
+      <div class="instructions">
+        <h2 class="instructions-title">Why Choose PDFMaster?</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">💰</div>
+            <div class="step-title">Completely Free</div>
+            <div class="step-desc">No hidden fees, 100% free</div>
+          </div>
+          <div class="step">
+            <div class="step-number">🔐</div>
+            <div class="step-title">No Registration</div>
+            <div class="step-desc">No login required</div>
+          </div>
+          <div class="step">
+            <div class="step-number">⚡</div>
+            <div class="step-title">Fast Processing</div>
+            <div class="step-desc">Process in seconds</div>
+          </div>
+          <div class="step">
+            <div class="step-number">📄</div>
+            <div class="step-title">Custom Options</div>
+            <div class="step-desc">Adjust position & format</div>
+          </div>
+          <div class="step">
+            <div class="step-number">✏️</div>
+            <div class="step-title">Font Size</div>
+            <div class="step-desc">Adjustable font size</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="privacy-section">
+        <h2 class="section-title">Local Processing - Your Privacy, Protected</h2>
+        <div class="privacy-content">
+          <p>What does <strong>"local processing"</strong> mean? When you use our PDF Page Numberer, <strong>all file processing happens directly in your web browser</strong>, right on your device. Your files <strong>never leave your computer or mobile device</strong> - they are <strong>not uploaded to any external server</strong>.</p>
+          <p>This means your sensitive documents stay <strong>private and secure</strong>. There's <strong>no risk of data breaches</strong>, <strong>no third-party access</strong>, and <strong>no server logs</strong> containing your information. Even if you're offline, our tool continues to work because everything runs locally in your browser.</p>
+          <p>Unlike other online tools that require uploading your files to remote servers, PDFMaster processes everything locally. You can add page numbers to confidential contracts, personal documents, or sensitive business files with <strong>complete peace of mind</strong>.</p>
+        </div>
+      </div>
+
+      <div class="faq-section">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-item">
+          <h3>How to add page numbers to PDF online?</h3>
+          <p>Upload your PDF, customize the page number position, font size, format, and start number, then click Add Page Numbers. Our free PDF page number adder works online without any software installation.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Can I add page numbers to bottom of PDF or top of PDF?</h3>
+          <p>Yes! You can choose from 6 positions: top-left, top-center, top-right, bottom-left, bottom-center, and bottom-right.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Is this PDF page number adder free?</h3>
+          <p>Yes! Our PDF page numberer is completely free with no sign up required. No watermark, no usage limits.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Can I start page numbers from a specific page?</h3>
+          <p>Yes! You can set the starting number to any value you like, allowing you to add page numbers starting from specific page.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Will adding page numbers reduce PDF quality?</h3>
+          <p>No! We add page numbers to PDF without losing quality. Your original content remains intact.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Can I add page numbers to scanned PDF?</h3>
+          <p>Yes! Our tool works with all PDF types including scanned PDFs. The page numbers will be added as overlay text.</p>
+        </div>
+      </div>
+
+      <div class="tutorial-section">
+        <h2 class="section-title">How to Add Page Numbers to PDF Step by Step</h2>
+        <div class="tutorial-step">
+          <div class="tutorial-number">1</div>
+          <div class="tutorial-content">
+            <h3>Add page numbers to PDF online free</h3>
+            <p>Drag and drop your PDF file into the upload area or click to browse. Our free PDF page number adder supports files up to 50MB.</p>
+          </div>
+        </div>
+        <div class="tutorial-step">
+          <div class="tutorial-number">2</div>
+          <div class="tutorial-content">
+            <h3>Customize page number options</h3>
+            <p>Choose position (top or bottom), font size, starting number, and format. Add custom page numbers to PDF exactly how you want.</p>
+          </div>
+        </div>
+        <div class="tutorial-step">
+          <div class="tutorial-number">3</div>
+          <div class="tutorial-content">
+            <h3>Insert page numbers in PDF</h3>
+            <p>Click "Add Page Numbers" and wait for processing. Number PDF pages without losing quality.</p>
+          </div>
+        </div>
+        <div class="tutorial-step">
+          <div class="tutorial-number">4</div>
+          <div class="tutorial-content">
+            <h3>Download PDF with page numbers</h3>
+            <p>Download your paginated PDF document. Works on Windows, Mac, iPhone, and Android.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="blog-section">
+        <h2 class="section-title">Add Page Numbers to PDF - Top Use Cases</h2>
+        <div class="blog-card">
+          <div class="blog-icon">📚</div>
+          <h3>Add Page Numbers to PDF Online Free</h3>
+          <p>Add page numbers to PDF online free without software. Free PDF page number adder no sign up, no watermark.</p>
+        </div>
+        <div class="blog-card">
+          <div class="blog-icon">🎯</div>
+          <h3>Custom Page Number Position</h3>
+          <p>Add page numbers to bottom of PDF or add page numbers to top of PDF. Choose from 6 positions.</p>
+        </div>
+        <div class="blog-card">
+          <div class="blog-icon">📊</div>
+          <p>Add custom page numbers to PDF with adjustable font size, number format, and start number. Paginate PDF online precisely.</p>
+        </div>
+        <div class="blog-card">
+          <div class="blog-icon">🔒</div>
+          <h3>Secure PDF Page Numbering</h3>
+          <p>Securely insert page numbers in PDF. Add page numbers to confidential PDF documents with complete privacy.</p>
+        </div>
+        <div class="blog-card">
+          <div class="blog-icon">💎</div>
+          <h3>High Quality Results</h3>
+          <p>Add page numbers to PDF without losing quality. Your original content remains intact.</p>
+        </div>
+        <div class="blog-card">
+          <div class="blog-icon">📱</div>
+          <h3>Works on Any Device</h3>
+          <p>Add page numbers to PDF on Windows, Mac, iPhone, and Android. No software installation needed.</p>
+        </div>
+        <div class="cta-box">
+          <h3>Ready to Add Page Numbers?</h3>
+          <p>Try our free PDF page numberer with no registration required. Process locally in browser only!</p>
+          <button class="cta-button" @click="currentStep = '0'">Add Page Numbers Now</button>
+        </div>
+      </div>
+
+      <div class="technology-section">
+        <h2 class="section-title">How It Works - Browser-Based Processing</h2>
+        <div class="tech-content">
+          <div class="tech-item">
+            <div class="tech-item-icon">⚙️</div>
+            <h3>PDFLib Processing</h3>
+            <p>We use PDFLib for precise page numbering. All operations happen locally in your browser.</p>
+          </div>
+          <div class="tech-item">
+            <div class="tech-item-icon">🔢</div>
+            <h3>Customizable Numbering</h3>
+            <p>Our tool supports various numbering formats, positions, and styling options for maximum flexibility.</p>
+          </div>
+          <div class="tech-item">
+            <div class="tech-item-icon">🧠</div>
+            <h3>Memory-Safe Architecture</h3>
+            <p>Smart memory management ensures smooth performance even with large documents.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h2 class="section-title">Pro Tips for Better Page Numbering</h2>
+        <div class="guide-content">
+          <div class="guide-item">
+            <div class="guide-item-icon">🔢</div>
+            <h3>Choose Appropriate Style</h3>
+            <p>Select a numbering style that matches your document type - Roman numerals for front matter, regular numbers for main content.</p>
+          </div>
+          <div class="guide-item">
+            <div class="guide-item-icon">📐</div>
+            <h3>Position Wisely</h3>
+            <p>Place page numbers in a consistent location (header or footer) for professional-looking documents.</p>
+          </div>
+          <div class="guide-item">
+            <div class="guide-item-icon">✅</div>
+            <h3>Preview Before Saving</h3>
+            <p>Always preview page numbers before saving to ensure they appear correctly on all pages.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>PDF Tools</h4>
+          <ul>
+            <li><a href="pdf-merger.html">PDF Merger</a></li>
+            <li><a href="pdf-splitter.html">PDF Splitter</a></li>
+            <li><a href="pdf-compressor.html">PDF Compressor</a></li>
+            <li><a href="image-to-pdf.html">Image to PDF</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>About</h4>
+          <ul>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="feedback.html">Feedback</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+new Vue({
+  el: '#app',
+  data() {
+    return {
+      currentStep: '0',
+      selectedFile: null,
+      pageCount: 0,
+      form: {
+        position: 'bottom-center',
+        fontSize: 12,
+        startNumber: 1,
+        format: 'number'
+      },
+      resultBlob: null,
+      processing: false,
+      progress: 0,
+      progressText: '',
+      resultPreviews: [],
+      downloadFileName: 'page-numbered.pdf',
+      showPreviewModal: false,
+      currentPreviewImage: ''
+    };
+  },
+  methods: {
+    goToNext() { this.currentStep = '1'; },
+    goToPrev() { this.currentStep = '0'; },
+    
+    handleExceed() {
+      this.$message.warning('You can upload only one file at a time');
+    },
+    async handleFileChange(file) {
+      const raw = file.raw;
+      if (!raw.name.toLowerCase().endsWith('.pdf')) {
+        this.$message.error('Only PDF files are allowed');
+        return;
+      }
+      
+      const maxSize = 50 * 1024 * 1024;
+      if (raw.size > maxSize) {
+        this.$message.error('File size cannot exceed 50MB');
+        return;
+      }
+      
+      if (this.selectedFile) {
+        this.$message.warning('You can upload only one file at a time');
+        return;
+      }
+      
+      this.processFile(raw);
+    },
+    async processFile(file) {
+      if (file.type !== 'application/pdf') {
+        this.$message.error('Please upload a PDF file');
+        return;
+      }
+      if (file.size > 50 * 1024 * 1024) {
+        this.$message.error('File size exceeds 50MB limit');
+        return;
+      }
+      
+      this.selectedFile = file;
+      
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        this.pageCount = pdf.numPages;
+        await pdf.destroy();
+      } catch (error) {
+        console.error('Error loading PDF:', error);
+      }
+    },
+    
+    handleTabClick(tab) {
+      const targetStep = tab.name;
+      if (targetStep !== '0' && !this.selectedFile) {
+        this.$message.warning('Please upload a file first');
+        this.$nextTick(() => {
+          this.currentStep = '0';
+        });
+        return;
+      }
+      if (targetStep === '2' && !this.resultBlob) {
+        this.$message.warning('Please add page numbers first');
+        this.$nextTick(() => {
+          this.currentStep = '1';
+        });
+        return;
+      }
+    },
+    
+    async addPageNumbers() {
+      if (!this.selectedFile) return;
+      
+      this.processing = true;
+      this.progress = 0;
+      this.progressText = 'Loading PDF...';
+      
+      try {
+        const PDFDocument = PDFLib.PDFDocument || PDFLib;
+        const arrayBuffer = await this.selectedFile.arrayBuffer();
+        const pdfDoc = await PDFDocument.load(arrayBuffer);
+        const pages = pdfDoc.getPages();
+        
+        this.progress = 20;
+        this.progressText = 'Adding page numbers...';
+        
+        for (let i = 0; i < pages.length; i++) {
+          const page = pages[i];
+          const pageNum = this.form.startNumber + i;
+          const content = this.formatPageNumber(pageNum, pages.length);
+          
+          const { width, height } = page.getSize();
+          let x, y;
+          const margin = 40;
+          
+          switch (this.form.position) {
+            case 'top-left':
+              x = margin;
+              y = height - margin;
+              break;
+            case 'top-center':
+              x = width / 2;
+              y = height - margin;
+              break;
+            case 'top-right':
+              x = width - margin;
+              y = height - margin;
+              break;
+            case 'bottom-left':
+              x = margin;
+              y = margin;
+              break;
+            case 'bottom-center':
+              x = width / 2;
+              y = margin;
+              break;
+            case 'bottom-right':
+              x = width - margin;
+              y = margin;
+              break;
+          }
+          
+          page.drawText(content, {
+            x: this.form.position.includes('center') ? x - (content.length * this.form.fontSize * 0.35) : x,
+            y: y,
+            size: this.form.fontSize,
+            font: await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica),
+          });
+          
+          this.progress = 20 + Math.round(((i + 1) / pages.length) * 60);
+        }
+        
+        this.progress = 90;
+        this.progressText = 'Generating output...';
+        
+        const pdfBytes = await pdfDoc.save();
+        this.resultBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+        
+        await this.generateResultPreviews(pdfBytes);
+        
+        setTimeout(() => {
+          this.processing = false;
+          this.progress = 100;
+          this.currentStep = '2';
+          this.$message.success('Page numbers added successfully!');
+        }, 300);
+        
+      } catch (error) {
+        this.processing = false;
+        this.$message.error('Failed to add page numbers');
+        console.error(error);
+      }
+    },
+    
+    formatPageNumber(num, total) {
+      switch (this.form.format) {
+        case 'fraction':
+          return `${num}/${total}`;
+        case 'page-x-of-y':
+          return `Page ${num} of ${total}`;
+        case 'roman':
+          return this.toRoman(num);
+        case 'alpha':
+          return this.toAlpha(num);
+        default:
+          return num.toString();
+      }
+    },
+    
+    toRoman(num) {
+      const romanNumerals = [
+        { value: 1000, numeral: 'M' },
+        { value: 900, numeral: 'CM' },
+        { value: 500, numeral: 'D' },
+        { value: 400, numeral: 'CD' },
+        { value: 100, numeral: 'C' },
+        { value: 90, numeral: 'XC' },
+        { value: 50, numeral: 'L' },
+        { value: 40, numeral: 'XL' },
+        { value: 10, numeral: 'X' },
+        { value: 9, numeral: 'IX' },
+        { value: 5, numeral: 'V' },
+        { value: 4, numeral: 'IV' },
+        { value: 1, numeral: 'I' }
+      ];
+      let result = '';
+      for (const { value, numeral } of romanNumerals) {
+        while (num >= value) {
+          result += numeral;
+          num -= value;
+        }
+      }
+      return result;
+    },
+    
+    toAlpha(num) {
+      let result = '';
+      while (num > 0) {
+        num--;
+        result = String.fromCharCode(65 + (num % 26)) + result;
+        num = Math.floor(num / 26);
+      }
+      return result;
+    },
+    
+    async generateResultPreviews(pdfBytes) {
+      this.resultPreviews = [];
+      const pdf = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+      const maxPages = Math.min(5, pdf.numPages);
+      
+      for (let i = 1; i <= maxPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 0.6 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        this.resultPreviews.push(canvas.toDataURL());
+      }
+      await pdf.destroy();
+    },
+    
+    async openPreview(index) {
+      if (!this.resultBlob) return;
+      
+      try {
+        const arrayBuffer = await this.resultBlob.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const page = await pdf.getPage(index + 1);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        this.currentPreviewImage = canvas.toDataURL();
+        await pdf.destroy();
+      } catch (error) {
+        console.error('Preview error:', error);
+        this.currentPreviewImage = this.resultPreviews[index];
+      }
+      this.showPreviewModal = true;
+    },
+    
+    closePreview() {
+      this.showPreviewModal = false;
+      this.currentPreviewImage = '';
+    },
+    
+    download() {
+      const url = URL.createObjectURL(this.resultBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      let fileName = this.downloadFileName.trim() || 'page-numbered.pdf';
+      if (!fileName.toLowerCase().endsWith('.pdf')) {
+        fileName += '.pdf';
+      }
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    
+    clearFile() {
+      this.selectedFile = null;
+      this.pageCount = 0;
+      this.resultBlob = null;
+      this.resultPreviews = [];
+      if (this.$refs.upload) {
+        this.$refs.upload.uploadFiles = [];
+      }
+    },
+    
+    reset() {
+      this.clearFile();
+      this.currentStep = '0';
+      this.form = {
+        position: 'bottom-center',
+        fontSize: 12,
+        startNumber: 1,
+        format: 'number'
+      };
+      this.downloadFileName = 'page-numbered.pdf';
+    },
+    
+    formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+  }
+});
+</script>
+</body>
+</html>

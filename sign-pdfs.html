@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign PDFs Easily - PDFMaster | e-Signatures</title>
+  <meta name="description" content="Sign PDFs with e-signatures quickly. No registration required. Add text and fill forms with ease.">
+  <meta name="keywords" content="sign PDFs, e-signature, digital signature, fill forms">
+  
+  <link rel="canonical" href="https://pdfeasz.com/sign-pdfs.html">
+  
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui/lib/theme-chalk/index.css">
+  <script src="https://cdn.jsdelivr.net/npm/element-ui/lib/index.js"></script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f7fa;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #1e70bf, #337ecc);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    
+    .content-section {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .content-section h2 {
+      color: #1e70bf;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    
+    .content-section p {
+      line-height: 1.8;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .feature-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+    }
+    
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .feature-list li::before {
+      content: '✓';
+      color: #67c23a;
+      margin-right: 12px;
+      font-weight: bold;
+    }
+    
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #1e70bf, #337ecc);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 20px;
+      display: inline-block;
+    }
+    
+    .back-link:hover {
+      opacity: 0.9;
+    }
+    
+    .faq-item {
+      margin-bottom: 20px;
+    }
+    
+    .faq-item h3 {
+      color: #1e70bf;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+    
+    .faq-item p {
+      color: #666;
+      line-height: 1.6;
+    }
+    
+    .related-links {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 30px;
+    }
+    
+    .related-links h3 {
+      color: #1e70bf;
+      margin-bottom: 16px;
+      font-size: 1.2rem;
+    }
+    
+    .related-links ul {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    
+    .related-links li a {
+      color: #1e70bf;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    
+    .related-links li a:hover {
+      background: rgba(30, 112, 191, 0.1);
+    }
+    
+    .site-link-box {
+      background: linear-gradient(135deg, rgba(30, 112, 191, 0.08), rgba(30, 112, 191, 0.04));
+      border: 2px solid #1e70bf;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .site-link-box a {
+      color: #1e70bf;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .site-link-box a:hover {
+      text-decoration: underline;
+    }
+    
+    .site-link-box i {
+      font-size: 1.3rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Sign PDFs Easily</h1>
+    <p>Digital Signatures Made Simple</p>
+  </div>
+  
+  <div class="container">
+    <div class="content-section">
+      <h2>Quick e-Signatures</h2>
+      <p>Signing PDFs has never been easier. PDFMaster allows you to add digital signatures to your documents quickly and easily. No registration or account required - just upload and sign.</p>
+      <p>Whether you need to sign contracts, agreements, or any other document, our signature tool makes the process fast and straightforward.</p>
+    </div>
+    
+    <div class="content-section">
+      <h2>Signing Features</h2>
+      <ul class="feature-list">
+        <li>Add digital signatures to PDFs</li>
+        <li>Type or draw your signature</li>
+        <li>Fill PDF forms easily</li>
+        <li>Add text annotations</li>
+        <li>No registration needed</li>
+        <li>Save signed documents</li>
+        <li>Adjust signature appearance</li>
+        <li>Multiple signature support</li>
+      </ul>
+    </div>
+    
+    <div class="content-section">
+      <h2>Frequently Asked Questions</h2>
+      
+      <div class="faq-item">
+        <h3>Q: Can I sign PDFs without registering?</h3>
+        <p>A: Yes! You can sign PDFs immediately without creating an account.</p>
+      </div>
+      
+      <div class="faq-item">
+        <h3>Q: Can I draw my signature?</h3>
+        <p>A: Yes! You can either type or draw your signature using your mouse or touchscreen.</p>
+      </div>
+    </div>
+    
+    <div class="site-link-box">
+      <a href="https://pdfeasz.com" target="_blank">
+        <i class="el-icon-home"></i>
+        Visit pdfeasz.com for free PDF tools
+      </a>
+    </div>
+    
+    <div class="related-links">
+      <h3>Explore Other Features</h3>
+      <ul>
+        <li><a href="easy-editing.html"><i class="el-icon-edit"></i> Easy Editing</a></li>
+        <li><a href="visual-preview.html"><i class="el-icon-view"></i> Visual Preview</a></li>
+        <li><a href="privacy-first.html"><i class="el-icon-lock"></i> Privacy First</a></li>
+        <li><a href="completely-free.html"><i class="el-icon-gift"></i> Completely Free</a></li>
+      </ul>
+    </div>
+    
+    <a href="index.html" class="back-link">
+      <i class="el-icon-arrow-left"></i>
+      Back to Home
+    </a>
+  </div>
+  
+</body>
+</html>
