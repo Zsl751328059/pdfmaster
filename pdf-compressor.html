@@ -168,6 +168,7 @@
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+  <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.11.0/dist/browser-image-compression.min.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1720,7 +1721,11 @@ new Vue({
         if (file.thumbnails) {
           file.thumbnails.forEach(url => {
             if (url && url.startsWith('blob:')) {
-              URL.revokeObjectURL(url)
+              try {
+                URL.revokeObjectURL(url)
+              } catch (e) {
+                console.warn('Error revoking blob URL:', e)
+              }
             }
           })
           file.thumbnails = null
@@ -1735,12 +1740,36 @@ new Vue({
           })
           file.pages = null
         }
+        if (file.originalData) {
+          file.originalData = null
+        }
+        if (file.file) {
+          file.file = null
+        }
       })
       
       if (this.resultBlob) {
         this.resultBlob = null
       }
       
+      if (this.previewsPdf) {
+        try {
+          this.previewsPdf.destroy()
+        } catch (e) {
+          console.warn('Error destroying preview PDF:', e)
+        }
+        this.previewsPdf = null
+      }
+      
+      this.previews.forEach(url => {
+        if (url && url.startsWith('blob:')) {
+          try {
+            URL.revokeObjectURL(url)
+          } catch (e) {
+            console.warn('Error revoking preview URL:', e)
+          }
+        }
+      })
       this.previews = []
       this.currentPreviewImage = ''
     },
@@ -1861,16 +1890,25 @@ new Vue({
       item.pageCount = pdf.numPages
       item.originalData = buf
       
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i)
-        const vp = page.getViewport({ scale: 0.4 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await page.render({ canvasContext: ctx, viewport: vp }).promise
-        item.thumbnails.push(c.toDataURL())
-        await new Promise(resolve => requestAnimationFrame(resolve))
+      try {
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i)
+          const vp = page.getViewport({ scale: 0.4 })
+          const c = document.createElement('canvas')
+          const ctx = c.getContext('2d')
+          c.width = vp.width
+          c.height = vp.height
+          await page.render({ canvasContext: ctx, viewport: vp }).promise
+          item.thumbnails.push(c.toDataURL())
+          await new Promise(resolve => requestAnimationFrame(resolve))
+        }
+      } finally {
+        try {
+          pdf.destroy()
+          item.pdfInstance = null
+        } catch (e) {
+          console.warn('Error destroying PDF instance in renderThumb:', e)
+        }
       }
     },
     
@@ -1934,8 +1972,10 @@ new Vue({
         small: { lossless: false, quality: 0.6, scale: 0.5 }
       }[this.form.mode]
 
+      let pdfDoc = null
+
       try {
-        const pdfDoc = await PDFDocument.load(fileBuf, { ignoreEncryption: true })
+        pdfDoc = await PDFDocument.load(fileBuf, { ignoreEncryption: true })
         
         this.progress = 20
         this.progressText = 'Processing...'
@@ -1985,6 +2025,14 @@ new Vue({
         console.error('Compression error:', err)
         this.$message.error('Compression failed')
         this.merging = false
+      } finally {
+        if (pdfDoc) {
+          try {
+            pdfDoc = null
+          } catch (e) {
+            console.warn('Error cleaning up PDFDocument:', e)
+          }
+        }
       }
     },
     
@@ -2036,8 +2084,42 @@ new Vue({
     },
     
     async compressSingleImage(imgBytes, quality, scale) {
+      try {
+        const file = new File([imgBytes], 'image.jpg', { type: 'image/jpeg' })
+        
+        const options = {
+          quality: quality,
+          maxWidthOrHeight: Math.floor(2480 * scale),
+          useWebWorker: true,
+          initialQuality: quality,
+          fileType: 'image/jpeg',
+          onProgress: (progress) => {
+            console.log('Compression progress:', progress)
+          }
+        }
+        
+        const compressedFile = await imageCompression(file, options)
+        return await compressedFile.arrayBuffer()
+      } catch (e) {
+        console.warn('browser-image-compression failed, falling back to Canvas:', e)
+        return this.compressSingleImageFallback(imgBytes, quality, scale)
+      }
+    },
+    
+    compressSingleImageFallback(imgBytes, quality, scale) {
       return new Promise((resolve) => {
         const img = new Image()
+        let blobUrl = null
+        
+        const cleanup = () => {
+          if (blobUrl) {
+            URL.revokeObjectURL(blobUrl)
+            blobUrl = null
+          }
+          img.onload = null
+          img.onerror = null
+        }
+        
         img.onload = () => {
           const w = Math.floor(img.width * scale)
           const h = Math.floor(img.height * scale)
@@ -2051,17 +2133,27 @@ new Vue({
           ctx.drawImage(img, 0, 0, w, h)
           
           canvas.toBlob((blob) => {
+            cleanup()
             if (blob) {
               const reader = new FileReader()
-              reader.onloadend = () => resolve(reader.result)
+              reader.onloadend = () => {
+                resolve(reader.result)
+              }
+              reader.onerror = () => {
+                resolve(null)
+              }
               reader.readAsArrayBuffer(blob)
             } else {
               resolve(null)
             }
           }, 'image/jpeg', quality)
         }
-        img.onerror = () => resolve(null)
-        img.src = URL.createObjectURL(new Blob([imgBytes]))
+        img.onerror = () => {
+          cleanup()
+          resolve(null)
+        }
+        blobUrl = URL.createObjectURL(new Blob([imgBytes]))
+        img.src = blobUrl
       })
     },
     
@@ -2106,6 +2198,17 @@ new Vue({
     async compressImageData(pngBytes, quality, maxWidth, maxHeight) {
       return new Promise((resolve) => {
         const img = new Image()
+        let blobUrl = null
+        
+        const cleanup = () => {
+          if (blobUrl) {
+            URL.revokeObjectURL(blobUrl)
+            blobUrl = null
+          }
+          img.onload = null
+          img.onerror = null
+        }
+        
         img.onload = () => {
           let width = img.width
           let height = img.height
@@ -2131,36 +2234,53 @@ new Vue({
           const isJpeg = quality <= 0.9
           const mimeType = isJpeg ? 'image/jpeg' : 'image/png'
           canvas.toBlob((blob) => {
+            cleanup()
             if (blob) {
               const reader = new FileReader()
               reader.onloadend = () => resolve({ bytes: reader.result, isJpeg })
+              reader.onerror = () => resolve(null)
               reader.readAsArrayBuffer(blob)
             } else {
               resolve(null)
             }
           }, mimeType, quality)
         }
-        img.onerror = () => resolve(null)
-        img.src = URL.createObjectURL(new Blob([pngBytes], { type: 'image/png' }))
+        img.onerror = () => {
+          cleanup()
+          resolve(null)
+        }
+        blobUrl = URL.createObjectURL(new Blob([pngBytes], { type: 'image/png' }))
+        img.src = blobUrl
       })
     },
     
     async makePreviews(bytes) {
       this.previews = []
-      const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
-      const max = pdf.numPages
+      let pdf = null
       
-      for (let i = 1; i <= max; i++) {
-        const page = await pdf.getPage(i)
-        const vp = page.getViewport({ scale: 0.6 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.previews.push(c.toDataURL())
+      try {
+        pdf = await pdfjsLib.getDocument({ data: bytes }).promise
+        const max = pdf.numPages
+        
+        for (let i = 1; i <= max; i++) {
+          const page = await pdf.getPage(i)
+          const vp = page.getViewport({ scale: 0.6 })
+          const c = document.createElement('canvas')
+          const ctx = c.getContext('2d')
+          c.width = vp.width
+          c.height = vp.height
+          await page.render({ canvasContext: ctx, viewport: vp }).promise
+          this.previews.push(c.toDataURL())
+        }
+      } finally {
+        if (pdf) {
+          try {
+            pdf.destroy()
+          } catch (e) {
+            console.warn('Error destroying PDF instance in makePreviews:', e)
+          }
+        }
       }
-      this.previewsPdf = pdf
     },
     
     download() {

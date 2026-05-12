@@ -1916,28 +1916,34 @@ new Vue({
           return parseInt(pi)
         }).sort((a, b) => a - b)
         
-        const doc = await PDFDocument.create()
-        const pages = await doc.copyPages(src, selectedIndices)
-        pages.forEach(p => doc.addPage(p))
-        
-        const bytes = await doc.save()
-        const blob = new Blob([bytes], { type: 'application/pdf' })
-        
-        const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
-        const pageData = await pdf.getPage(1)
-        const vp = pageData.getViewport({ scale: 0.4 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await pageData.render({ canvasContext: ctx, viewport: vp }).promise
-        
-        this.splitResults.push({
-          name: `selected-pages.pdf`,
-          blob,
-          thumbnail: c.toDataURL()
-        })
-        pdf.destroy()
+        const totalSelected = selectedIndices.length
+        for (let i = 0; i < totalSelected; i++) {
+          this.progressText = `Processing page ${i + 1} of ${totalSelected}...`
+          this.progress = Math.round(((i + 1) / totalSelected) * 80)
+          
+          const doc = await PDFDocument.create()
+          const [page] = await doc.copyPages(src, [selectedIndices[i]])
+          doc.addPage(page)
+          
+          const bytes = await doc.save()
+          const blob = new Blob([bytes], { type: 'application/pdf' })
+          
+          const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
+          const pageData = await pdf.getPage(1)
+          const vp = pageData.getViewport({ scale: 0.4 })
+          const c = document.createElement('canvas')
+          const ctx = c.getContext('2d')
+          c.width = vp.width
+          c.height = vp.height
+          await pageData.render({ canvasContext: ctx, viewport: vp }).promise
+          
+          this.splitResults.push({
+            name: `page-${selectedIndices[i] + 1}.pdf`,
+            blob,
+            thumbnail: c.toDataURL()
+          })
+          pdf.destroy()
+        }
       } else if (this.form.mode === 'range') {
         const ranges = this.parseRanges(this.form.ranges)
         let fileIndex = 1

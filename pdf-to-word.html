@@ -164,7 +164,8 @@
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="./lib/docx/docx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <!-- Using JSZip for DOCX generation - more stable in browser -->
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -346,40 +347,90 @@
     .tab-content { padding: 32px; }
 
     .upload-area {
-      border: 2px dashed #d1d5db;
-      border-radius: 16px;
-      padding: 40px 24px;
-      background: #fafafa;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-      min-height: 200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      border: 2px dashed #d1d5db !important;
+      border-radius: 16px !important;
+      padding: 40px 24px !important;
+      background: #fafafa !important;
+      cursor: pointer !important;
+      transition: all 0.3s !important;
+      text-align: center !important;
+      min-height: 200px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
-    .upload-area:hover { border-color: #409EFF; background: #f0f7ff; }
+    .upload-area:hover { border-color: #409EFF !important; background: #f0f7ff !important; }
     .upload-area.dragover { 
-      border-color: #409EFF; 
-      background: #f0f7ff;
+      border-color: #409EFF !important; 
+      background: #f0f7ff !important;
+    }
+    .upload-area .el-upload-dragger {
+      border: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
     .upload-icon {
-      font-size: 48px;
-      color: #409EFF;
-      margin-bottom: 16px;
+      font-size: 48px !important;
+      color: #409EFF !important;
+      margin-bottom: 16px !important;
     }
     .upload-text {
-      font-size: 18px;
-      font-weight: 500;
-      color: #334155;
-      margin-bottom: 8px;
+      font-size: 18px !important;
+      font-weight: 500 !important;
+      color: #334155 !important;
+      margin-bottom: 8px !important;
     }
     .upload-hint {
-      font-size: 14px;
-      color: #94a3b8;
+      font-size: 14px !important;
+      color: #94a3b8 !important;
     }
-    .upload-hint strong { color: #409EFF; }
+    .upload-hint strong { color: #409EFF !important; }
+
+    .el-upload-dragger {
+      width: 100% !important;
+      min-height: 180px !important;
+      max-height: 200px !important;
+      border: none !important;
+      border-radius: 16px !important;
+      background: transparent !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      transition: all 0.3s !important;
+    }
+    .el-upload-dragger:hover, .el-upload-dragger.dragover {
+      border-color: #409EFF;
+      background: #f0f7ff;
+    }
+    .el-upload__text {
+      font-size: 16px;
+      font-weight: 500;
+      color: #374151;
+      margin-top: 12px;
+    }
+    .el-upload__tip {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-top: 8px;
+    }
+
+    .upload-area .el-upload-list,
+    .upload-area .el-upload-list--text,
+    .upload-area .el-upload-list__item {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      overflow: hidden !important;
+    }
 
     .file-list-section { margin-top:24px; }
     .file-list-header {
@@ -535,7 +586,33 @@
     .result-desc {
       font-size: 14px;
       color: #047857;
-      margin: 8px 0 24px;
+    }
+    
+    
+    .filename-input-container {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .filename-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+    }
+    .filename-input {
+      width: 100%;
+      max-width: 300px;
+      padding: 12px 16px;
+      font-size: 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .filename-input:focus {
+      border-color: #409EFF;
     }
     .download-btn {
       padding: 16px 40px;
@@ -629,6 +706,105 @@
     .privacy-content strong {
       color: #a7f3d0;
       font-weight: 600;
+    }
+
+    .technology-section {
+      margin-top: 32px;
+      padding: 40px;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .technology-section::before {
+      content: '⚡';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      font-size: 150px;
+      opacity: 0.05;
+    }
+    .technology-section .section-title {
+      color: white;
+      font-size: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .tech-content {
+      display: grid;
+      
+      gap: 24px;
+      margin-top: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .tech-item {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      padding: 32px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+    .tech-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    .tech-item-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .tech-item h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 12px;
+    }
+    .tech-item p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.7;
+    }
+
+    .guide-section {
+      margin-top: 32px;
+      padding: 40px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+    }
+    .guide-content {
+      display: grid;
+      
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .guide-item {
+      padding: 32px;
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-radius: 16px;
+      border: 1px solid #fcd34d;
+      transition: all 0.3s ease;
+    }
+    .guide-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(251, 191, 36, 0.25);
+    }
+    .guide-item-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .guide-item h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 12px;
+    }
+    .guide-item p {
+      font-size: 14px;
+      color: #78350f;
+      line-height: 1.7;
     }
 
     .faq-section {
@@ -810,105 +986,6 @@
     }
 
     .hidden { display: none; }
-
-    .technology-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      border-radius: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .technology-section::before {
-      content: '⚡';
-      position: absolute;
-      top: -30px;
-      right: -30px;
-      font-size: 150px;
-      opacity: 0.05;
-    }
-    .technology-section .section-title {
-      color: white;
-      font-size: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-item {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      padding: 32px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-    .tech-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-    .tech-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .tech-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 12px;
-    }
-    .tech-item p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.7;
-    }
-
-    .guide-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
-    }
-    .guide-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-    }
-    .guide-item {
-      padding: 32px;
-      background: linear-gradient(135deg, #fef3c7, #fde68a);
-      border-radius: 16px;
-      border: 1px solid #fcd34d;
-      transition: all 0.3s ease;
-    }
-    .guide-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(251, 191, 36, 0.25);
-    }
-    .guide-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .guide-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #92400e;
-      margin-bottom: 12px;
-    }
-    .guide-item p {
-      font-size: 14px;
-      color: #78350f;
-      line-height: 1.7;
-    }
   </style>
 </head>
 
@@ -922,8 +999,11 @@
           <span class="logo-text">PDFMaster</span>
         </div>
         <div class="header-links">
-          <a href="index.html">Home</a>
-          <a href="contact.html" class="contact-btn">Contact</a>
+          <a href="index.html" class="back-btn">
+            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            Back to Home
+          </a>
+          <a href="contact.html" class="contact-btn">Contact Us</a>
           <a href="feedback.html" class="feedback-btn">Feedback</a>
         </div>
       </div>
@@ -949,31 +1029,28 @@
       </div>
 
       <div class="tool-card">
-        <el-tabs v-model="currentStep" type="card" @tab-click="handleTabClick">
+        <el-tabs v-model="currentStep" stretch type="card" @tab-click="handleTabClick">
           <el-tab-pane label="Upload" name="0">
             <div class="tab-content">
-              <div 
-                class="upload-area" 
-                :class="{ dragover: isDragging }"
-                @drop.prevent="handleDrop"
-                @dragover.prevent="isDragging = true"
-                @dragleave="isDragging = false"
-                @click="triggerUpload"
+              <el-upload
+                ref="upload"
+                class="upload-area"
+                drag
+                :auto-upload="false"
+                accept=".pdf"
+                :on-change="handleFileChange"
+                action="#"
+                :show-file-list="false"
+                tabindex="0"
+                @keydown.enter="triggerUpload"
+                role="button"
               >
                 <i class="el-icon-upload upload-icon"></i>
-                <div class="upload-text">Drag & drop PDF here, or click to browse</div>
-                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong></div>
-              </div>
+                <div class="upload-text">Drag & drop PDF files here</div>
+                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
+              </el-upload>
 
-              <input 
-                ref="fileInput" 
-                type="file" 
-                accept=".pdf" 
-                class="hidden" 
-                @change="handleFileSelect"
-              >
-
-              <div v-if="selectedFile" class="file-list-section">
+              <div v-if="selectedFile"  class="file-list-section">
                 <div class="file-list-header">
                   <div class="file-list-title">
                     <i class="el-icon-file-text"></i>
@@ -1022,6 +1099,17 @@
                 </div>
                 <p class="result-desc">Your PDF has been converted to Word DOCX</p>
                 <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
+                
+                <div class="filename-input-container">
+                  <label class="filename-label">File Name:</label>
+                  <input 
+                    type="text" 
+                    v-model="downloadFileName" 
+                    class="filename-input"
+                    placeholder="Enter filename"
+                  />
+                </div>
+                
                 <button class="download-btn" @click="download">
                   <i class="el-icon-download" style="margin-right: 8px;"></i>
                   Download DOCX
@@ -1291,8 +1379,15 @@ new Vue({
       processing: false,
       progress: 0,
       progressText: '',
-      isDragging: false
+      isDragging: false,
+      pages: [],  // 存储每页的内容
+      downloadFileName: ''  // 自定义下载文件名
     };
+  },
+  computed: {
+    paragraphCount() {
+      return this.pages.reduce((total, page) => total + page.paragraphs.length, 0);
+    }
   },
   mounted() {
     window.addEventListener('beforeunload', this.handleBeforeUnload)
@@ -1318,6 +1413,31 @@ new Vue({
     
     triggerUpload() {
       this.$refs.fileInput.click();
+    },
+    handleFileChange(file) {
+      // el-upload组件的on-change回调，file是一个包装对象，原始文件在file.raw中
+      const raw = file.raw;
+      
+      // 1. 文件类型检查
+      if (!raw.name.endsWith('.pdf')) {
+        this.$message.error('Only PDF files are allowed');
+        return;
+      }
+      
+      // 2. 文件大小限制 (50MB)
+      const maxSize = 50 * 1024 * 1024;
+      if (raw.size > maxSize) {
+        this.$message.error('File size cannot exceed 50MB');
+        return;
+      }
+      
+      // 3. 文件数量限制 (最多1个)
+      if (this.selectedFile) {
+        this.$message.warning('You can upload only one file at a time');
+        return;
+      }
+      
+      this.processFile(raw);
     },
     handleFileSelect(event) {
       const file = event.target.files[0];
@@ -1378,6 +1498,7 @@ new Vue({
       }
     },
     
+    // ✅ 修复2：彻底重写转换逻辑，无解构、无语法错误
     async convertToWord() {
       if (!this.selectedFile) return;
       
@@ -1393,34 +1514,64 @@ new Vue({
         this.progress = 20;
         this.progressText = 'Extracting text...';
         
-        const paragraphs = [];
+        this.pages = [];  // 使用实例属性，供分页预览使用
+        this.pageImages = [];  // 存储缩略图
         const paragraphThreshold = 15;
         
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
           
-          if (textContent.items.length === 0) continue;
+          const pageParagraphs = [];
           
-          let currentParagraph = '';
-          let lastY = textContent.items[0].transform[5];
-          
-          for (const item of textContent.items) {
-            const currentY = item.transform[5];
-            const yDiff = Math.abs(lastY - currentY);
+          if (textContent.items.length === 0) {
+            this.pages.push({ pageNumber: i, paragraphs: [] });
+          } else {
+            // ✅ 关键修复：按照阅读顺序排序文本块
+            // transform[5] = Y坐标（顶部为大值），transform[4] = X坐标（左边为小值）
+            // transform[3] = 字体大小（缩放因子）
+            const sortedItems = [...textContent.items].sort((a, b) => {
+              // 首先按Y坐标降序（从上到下）
+              const yDiff = b.transform[5] - a.transform[5];
+              if (Math.abs(yDiff) > paragraphThreshold) {
+                return yDiff;
+              }
+              // 同一行内按X坐标升序（从左到右）
+              return a.transform[4] - b.transform[4];
+            });
             
-            if (yDiff > paragraphThreshold && currentParagraph.trim()) {
-              paragraphs.push(currentParagraph.trim());
-              currentParagraph = '';
+            let currentParagraph = '';
+            let lastY = sortedItems[0].transform[5];
+            let currentFontSize = sortedItems[0].transform[3] || 16; // 默认16号字
+            
+            for (const item of sortedItems) {
+              const currentY = item.transform[5];
+              const itemFontSize = item.transform[3] || 16;
+              const yDiff = Math.abs(lastY - currentY);
+              
+              if (yDiff > paragraphThreshold && currentParagraph.trim()) {
+                // 保存段落及字体大小信息
+                pageParagraphs.push({ text: currentParagraph.trim(), fontSize: currentFontSize });
+                currentParagraph = '';
+                currentFontSize = itemFontSize;
+              }
+              
+              currentParagraph += item.str;
+              lastY = currentY;
+              // 使用当前最大的字体大小
+              if (itemFontSize > currentFontSize) {
+                currentFontSize = itemFontSize;
+              }
             }
             
-            currentParagraph += item.str;
-            lastY = currentY;
+            if (currentParagraph.trim()) {
+              pageParagraphs.push({ text: currentParagraph.trim(), fontSize: currentFontSize });
+            }
+            
+            this.pages.push({ pageNumber: i, paragraphs: pageParagraphs });
           }
           
-          if (currentParagraph.trim()) {
-            paragraphs.push(currentParagraph.trim());
-          }
+          
           
           this.progress = 20 + Math.round((i / pdf.numPages) * 60);
         }
@@ -1429,67 +1580,69 @@ new Vue({
         
         this.progress = 80;
         this.progressText = 'Creating Word document...';
+
+        // ✅ 使用 JSZip 生成 DOCX 文件（浏览器稳定版本）
+        // DOCX本质是ZIP格式，包含XML文件
+        const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`;
+
+        const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+        // 构建文档内容（保留字体大小信息）
+        // 从pages数组中提取所有段落
+        const allParagraphs = this.pages.flatMap(page => page.paragraphs);
+        const bodyContent = allParagraphs
+          .map(p => {
+            if (!p || !p.text || !p.text.trim()) return '';
+            const trimmedText = p.text.trim();
+            // 转义XML特殊字符
+            const escapedText = trimmedText
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&apos;');
+            // 将PDF字体大小转换为DOCX的half-point单位（1/2点）
+            // PDF中的transform[3]是缩放因子，约等于字体大小（点）
+            const fontSize = Math.round((p.fontSize || 16) * 2); // 转换为half-point
+            return `<w:p><w:r><w:rPr><w:sz w:val="${fontSize}"/><w:szCs w:val="${fontSize}"/></w:rPr><w:t>${escapedText}</w:t></w:r></w:p>`;
+          })
+          .join('\n');
+
+        const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+${bodyContent}
+    <w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr>
+  </w:body>
+</w:document>`;
+
+        // 创建ZIP包
+        const zip = new JSZip();
+        zip.file('[Content_Types].xml', contentTypesXml);
+        zip.folder('_rels').file('.rels', relsXml);
+        zip.folder('word').file('document.xml', documentXml);
+
+        this.progress = 90;
+        this.progressText = 'Generating file...';
+
+        // 生成ZIP文件
+        const blob = await zip.generateAsync({ type: 'blob' });
+        this.resultBlob = blob;
         
-        const doc = new docx.Document();
-        const sectionChildren = [];
-        
-        paragraphs.forEach((text, index) => {
-          const trimmedText = text.trim();
-          if (!trimmedText) return;
-          
-          let isHeading = false;
-          let fontSize = 11;
-          let bold = false;
-          
-          if (trimmedText.length < 100) {
-            const uppercaseRatio = (trimmedText.match(/[A-Z]/g) || []).length / trimmedText.length;
-            if (uppercaseRatio > 0.5) {
-              isHeading = true;
-              fontSize = 14;
-              bold = true;
-            }
-          }
-          
-          sectionChildren.push(new docx.Paragraph({
-            children: [
-              new docx.TextRun({
-                text: trimmedText,
-                bold: bold,
-                size: fontSize * 2,
-                font: {
-                  name: 'Arial'
-                }
-              })
-            ],
-            spacing: {
-              after: isHeading ? 200 : 100
-            }
-          }));
-          
-          if ((index + 1) % 5 === 0) {
-            sectionChildren.push(new docx.Paragraph({
-              children: [new docx.TextRun('')],
-              pageBreakBefore: true
-            }));
-          }
-        });
-        
-        doc.addSection({
-          children: sectionChildren,
-          pageSize: {
-            width: docx.WidthUnit.fromInches(8.5),
-            height: docx.WidthUnit.fromInches(11)
-          },
-          margins: {
-            top: docx.WidthUnit.fromInches(1),
-            bottom: docx.WidthUnit.fromInches(1),
-            left: docx.WidthUnit.fromInches(1),
-            right: docx.WidthUnit.fromInches(1)
-          }
-        });
-        
-        const buffer = await docx.Packer.toBuffer(doc);
-        this.resultBlob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        // 设置默认下载文件名（使用原PDF文件名，去掉.pdf扩展名）
+        if (this.selectedFile) {
+          this.downloadFileName = this.selectedFile.name.replace(/\.pdf$/i, '');
+        } else {
+          this.downloadFileName = 'converted';
+        }
         
         setTimeout(() => {
           this.processing = false;
@@ -1510,7 +1663,14 @@ new Vue({
       const url = URL.createObjectURL(this.resultBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `converted-${Date.now()}.docx`;
+      let fileName = this.downloadFileName.trim();
+      if (!fileName) {
+        fileName = this.selectedFile ? this.selectedFile.name.replace(/\.pdf$/i, '') : 'converted';
+      }
+      if (!fileName.toLowerCase().endsWith('.docx')) {
+        fileName += '.docx';
+      }
+      a.download = fileName;
       a.click();
       URL.revokeObjectURL(url);
     },
