@@ -213,7 +213,7 @@
     .logo-image {
       width: 44px;
       height: 44px;
-      border-radius: 12px;
+      border-radius: 16px;
       object-fit: contain;
       background: linear-gradient(135deg, #409EFF, #67C23A);
       padding: 8px;
@@ -340,7 +340,7 @@
       gap: 12px;
       background: white;
       padding: 16px 20px;
-      border-radius: 12px;
+      border-radius: 16px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.06);
       transition: all 0.2s;
     }
@@ -556,7 +556,7 @@
       flex: 1;
       padding: 20px;
       border: 2px solid #e5e7eb;
-      border-radius: 12px;
+      border-radius: 16px;
       cursor: pointer;
       text-align: center;
       transition: all 0.3s;
@@ -582,7 +582,7 @@
     .watermark-form {
       background: #f9fafb;
       padding: 20px;
-      border-radius: 12px;
+      border-radius: 16px;
     }
     .form-row {
       margin-bottom: 16px;
@@ -845,7 +845,7 @@
       background: #10b981;
       color: white;
       border: none;
-      border-radius: 12px;
+      border-radius: 16px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
@@ -1066,7 +1066,7 @@
     .tutorial-number {
       width: 36px;
       height: 36px;
-      background: linear-gradient(135deg, #409EFF, #66B1FF);
+      background: linear-gradient(135deg, #409EFF, #67C23A);
       border-radius: 50%;
       color: white;
       font-weight: 700;
@@ -1097,7 +1097,7 @@
       gap: 16px;
       padding: 20px;
       background: #f9fafb;
-      border-radius: 12px;
+      border-radius: 16px;
       margin-bottom: 16px;
     }
     .blog-card:last-child { margin-bottom: 24px; }
@@ -1113,9 +1113,9 @@
       line-height: 1.5;
     }
     .cta-box {
-      background: linear-gradient(135deg, #409EFF, #66B1FF);
-      border-radius: 12px;
-      padding: 24px;
+      background: linear-gradient(135deg, #409EFF, #67C23A);
+      border-radius: 16px;
+      padding: 32px;
       text-align: center;
       color: white;
     }
@@ -1130,6 +1130,7 @@
       margin-bottom: 16px;
     }
     .cta-button {
+      text-decoration: none;
       background: white;
       color: #409EFF;
       border: none;
@@ -1228,7 +1229,7 @@
     }
     .tech-content {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      
       gap: 24px;
       margin-top: 24px;
       position: relative;
@@ -1237,7 +1238,7 @@
     .tech-item {
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(10px);
-      padding: 24px;
+      padding: 32px;
       border-radius: 16px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       transition: all 0.3s ease;
@@ -1272,12 +1273,12 @@
     }
     .guide-content {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      
       gap: 24px;
       margin-top: 24px;
     }
     .guide-item {
-      padding: 24px;
+      padding: 32px;
       background: linear-gradient(135deg, #fef3c7, #fde68a);
       border-radius: 16px;
       border: 1px solid #fcd34d;
@@ -1325,14 +1326,6 @@
     </div>
   </header>
 
-  <nav class="breadcrumbs" aria-label="Breadcrumb">
-    <div class="container">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ path: '/' }">Home</el-breadcrumb-item>
-        <el-breadcrumb-item>PDF Watermark</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
-  </nav>
 
   <div class="main-content">
     <div class="container">
