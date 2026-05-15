@@ -106,7 +106,7 @@
     ]
   }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.0/dist/signature_pad.umd.min.js"></script>
+  <script src="/lib/signature_pad/signature_pad.umd.min.js"></script>
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/common.css">
   <script src="./lib/vue/vue.js"></script>
@@ -325,7 +325,7 @@
                   <div class="option-row">
                     <label class="option-label">Signature Color</label>
                     <div class="color-picker-container">
-                      <input v-model="form.signatureColor" type="color" class="color-input">
+                      <input v-model="form.signatureColor" type="color" class="color-input" @input="updateSignatureColor">
                       <div class="color-value">{{ form.signatureColor }}</div>
                     </div>
                   </div>
@@ -411,9 +411,13 @@
                   <a href="pdf-watermark.html" class="recommend-link">Try our PDF Watermark Tool →</a>
                 </div>
               </div>
-              <el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
-                <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
-              </el-dialog>
+              <div v-if="showPreviewModal" class="preview-modal" @click.self="closePreview">
+                <div class="modal-content">
+                  <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
+                  <div class="modal-title">PDF Preview</div>
+                  <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+                </div>
+              </div>
               <div class="action-section">
                 <el-button type="default" @click="reset">Start Over</el-button>
               </div>
@@ -693,6 +697,17 @@ new Vue({
       }
     }
   },
+  watch: {
+    'form.signatureColor'(newColor) {
+      if (this.signaturePad) {
+        if (typeof this.signaturePad.setOptions === 'function') {
+          this.signaturePad.setOptions({ penColor: newColor })
+        } else if (this.signaturePad.penColor !== undefined) {
+          this.signaturePad.penColor = newColor
+        }
+      }
+    }
+  },
   methods: {
     handleBeforeUnload() {
       this.cleanupAllResources()
@@ -780,6 +795,19 @@ new Vue({
     },
     switchToTextMode() {
       this.form.signatureType = 'text'
+    },
+    updateSignatureColor() {
+      if (this.signaturePad) {
+        if (typeof this.signaturePad.setOptions === 'function') {
+          this.signaturePad.setOptions({ penColor: this.form.signatureColor })
+        } else if (this.signaturePad.penColor !== undefined) {
+          this.signaturePad.penColor = this.form.signatureColor
+        }
+        if (this.signatureCanvas) {
+          const ctx = this.signatureCanvas.getContext('2d')
+          ctx.strokeStyle = this.form.signatureColor
+        }
+      }
     },
     goToNext() { 
       if (!this.selectedFile) {

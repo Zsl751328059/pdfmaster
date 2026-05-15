@@ -255,7 +255,7 @@
             <div class="tab-content">
               <div v-if="pageCount > 0">
                 <div class="options-title">Page Selection</div>
-                <div class="range-tip">Click on page thumbnails below to select pages to extract</div>
+              
                 <div style="display: flex; gap: 8px; margin-bottom: 16px;">
                   <el-button @click="selectAll" size="small">Select All</el-button>
                   <el-button @click="deselectAll" size="small">Deselect All</el-button>
@@ -272,6 +272,7 @@
                     >
                       <canvas :ref="`canvas${pageNum}`" class="page-preview-canvas"></canvas>
                       <div class="page-number">Page {{ pageNum }}</div>
+                      <div v-if="selectedPages.includes(pageNum)" class="selected-overlay">✓</div>
                     </div>
                   </div>
                 </div>
@@ -587,9 +588,13 @@
     </div>
   </footer>
 
-<el-dialog title="PDF Preview" :visible.sync="previewVisible" @close="previewVisible = false" width="70%" :close-on-click-modal="true">
-    <canvas ref="previewCanvas" class="modal-image" style="max-width: 100%; max-height: 70vh;" ></canvas>
-  </el-dialog>
+<div v-if="previewVisible" class="preview-modal" @click.self="previewVisible = false">
+    <div class="modal-content">
+      <button class="modal-close" @click="previewVisible = false" aria-label="Close preview">×</button>
+      <div class="modal-title">PDF Preview</div>
+      <canvas ref="previewCanvas" class="modal-image" style="max-width: 100%; max-height: calc(90vh - 80px);" ></canvas>
+    </div>
+  </div>
 </div>
 
 <script>

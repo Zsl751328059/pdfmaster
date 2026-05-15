@@ -553,9 +553,13 @@
                 </div>
               </div>
 
-              <el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
-                <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
-              </el-dialog>
+              <div v-if="showPreviewModal" class="preview-modal" @click.self="closePreview">
+                <div class="modal-content">
+                  <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
+                  <div class="modal-title">PDF Preview</div>
+                  <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+                </div>
+              </div>
 
               <div class="action-section">
                 <el-button type="default" @click="reset">Start Over</el-button>
@@ -1063,8 +1067,8 @@ new Vue({
         } else {
           this.progressText = 'Processing image...'
           const imageBuffer = await this.form.imageFile.arrayBuffer()
-          const imageType = this.form.imageFile.type === 'image/png' ? 'png' : 'jpeg'
-          const img = await pdfDoc.embedPng(imageBuffer)
+          const isPng = this.form.imageFile.type === 'image/png'
+          const img = isPng ? await pdfDoc.embedPng(imageBuffer) : await pdfDoc.embedJpg(imageBuffer)
           
           const scale = this.form.scale / 100
           const imageWidth = img.width * scale
@@ -1135,12 +1139,12 @@ new Vue({
     },
     getYPosition(containerHeight, elementHeight) {
       const positions = {
-        'center': containerHeight / 2 + elementHeight / 4,
+        'center': containerHeight / 2 - elementHeight / 2,
         'top-left': containerHeight - elementHeight - 50,
         'top-right': containerHeight - elementHeight - 50,
-        'bottom-left': 50 + elementHeight,
-        'bottom-right': 50 + elementHeight,
-        'tiled': containerHeight
+        'bottom-left': 50,
+        'bottom-right': 50,
+        'tiled': 0
       }
       return positions[this.form.position] || positions['center']
     },

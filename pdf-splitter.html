@@ -314,9 +314,7 @@
                   <label>Custom File Name</label>
                   <input v-model="downloadFileName" placeholder="Enter custom file name prefix">
                 </div>
-                <div class="action-section" style="margin-top: 24px;">
-                  <button class="download-btn" @click="downloadAll">Download All Files</button>
-                </div>
+                <el-button type="primary" size="large" @click="downloadAll" style="margin-top: 24px;">Download All Files</el-button>
                 <div class="recommend-section">
                   <p>Need to merge PDFs instead?</p>
                   <a href="pdf-merger.html" class="recommend-link">Try our PDF Merger Tool →</a>
@@ -329,9 +327,13 @@
           </el-tab-pane>
         </el-tabs>
       </div>
-      <el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
-        <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
-      </el-dialog>
+      <div v-if="showPreviewModal" class="preview-modal" @click.self="closePreview">
+        <div class="modal-content">
+          <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
+          <div class="modal-title">PDF Preview</div>
+          <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+        </div>
+      </div>
       <div class="instructions">
         <h2 class="instructions-title">Why Choose PDFMaster?</h2>
         <div class="steps">

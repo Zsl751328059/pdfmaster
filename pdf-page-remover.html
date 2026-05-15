@@ -354,9 +354,13 @@
                   <a href="pdf-page-extractor.html" class="recommend-link">Try our Page Extractor Tool →</a>
                 </div>
               </div>
-              <el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
-                <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
-              </el-dialog>
+              <div v-if="showPreviewModal" class="preview-modal" @click.self="closePreview">
+                <div class="modal-content">
+                  <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
+                  <div class="modal-title">PDF Preview</div>
+                  <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+                </div>
+              </div>
               <div class="action-section">
                 <el-button type="default" @click="reset">Start Over</el-button>
               </div>
@@ -739,6 +743,7 @@ new Vue({
       }
     },
     async generateResultPreviews() {
+      this.resultPreviews = []
       const arrayBuffer = await this.resultBlob.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
       const totalPages = Math.min(pdf.numPages, 6)

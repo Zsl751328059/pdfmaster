@@ -626,9 +626,13 @@
       </div>
     </div>
   </div>
-<el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
-    <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
-  </el-dialog>
+<div v-if="showPreviewModal" class="preview-modal" @click.self="closePreview">
+    <div class="modal-content">
+      <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
+      <div class="modal-title">PDF Preview</div>
+      <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+    </div>
+  </div>
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -899,15 +903,18 @@ new Vue({
           const viewport = page.getViewport({ scale: 0.8 });
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          
+
           canvas.width = viewport.width;
           canvas.height = viewport.height;
-          
+
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
           const renderContext = {
             canvasContext: ctx,
             viewport: viewport
           };
-          
+
           await page.render(renderContext).promise;
           this.resultPreviews.push(canvas.toDataURL('image/png'));
         }
