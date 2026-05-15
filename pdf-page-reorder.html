@@ -159,6 +159,96 @@
   </script>
   
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
+  <link rel="stylesheet" href="./common.css">
+  
+  <style>
+    .pages-container {
+      margin-top: 16px;
+    }
+    .page-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+      padding: 16px;
+      background: #fafafa;
+      border-radius: 12px;
+      min-height: 200px;
+    }
+    .page-preview-item {
+      position: relative;
+      cursor: grab;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .page-preview-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    .page-preview-item:active {
+      cursor: grabbing;
+    }
+    .page-preview-image {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      background: #fff;
+    }
+    .page-number {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 24px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .page-order {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 4px 8px;
+      font-size: 11px;
+      text-align: center;
+    }
+    .page-preview-item.clickable {
+      cursor: pointer;
+    }
+    .preview-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .page-preview-item.clickable:hover .preview-overlay {
+      opacity: 1;
+    }
+    .file-count-hint {
+      text-align: center;
+      color: #909399;
+      font-size: 14px;
+      margin-top: 16px;
+    }
+  </style>
   <script src="./lib/vue/vue.js"></script>
   <script src="./lib/element-ui/index.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
@@ -166,951 +256,8 @@
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
   <script src="./lib/sortablejs/Sortable.min.js"></script>
 
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f7fa;
-      color: #333;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 100%;
-      width: 95%;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-    .app { min-height: 100vh; display: flex; flex-direction: column; }
-    .main-content { 
-      flex: 1; 
-      padding: 32px 0;
-      max-width: 1100px;
-      margin: 0 auto;
-      width: 95%;
-    }
 
-    .header {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-      padding: 12px 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo-image {
-      width: 44px;
-      height: 44px;
-      border-radius: 16px;
-      object-fit: contain;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      padding: 8px;
-    }
-    .logo-text {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .header-links {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-    .header-links a {
-      font-size: 14px;
-      font-weight: 500;
-      color: #475569;
-      transition: color 0.3s;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-    }
-    .header-links a:hover {
-      color: #409EFF;
-      background: rgba(64, 158, 255, 0.08);
-    }
-    .contact-btn {
-      background: linear-gradient(135deg, #409EFF, #337ecc);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .contact-btn:hover {
-      background: linear-gradient(135deg, #337ecc, #409EFF) !important;
-      transform: translateY(-1px);
-    }
-    .feedback-btn {
-      background: linear-gradient(135deg, #67C23A, #5eb830);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .feedback-btn:hover {
-      background: linear-gradient(135deg, #5eb830, #67C23A) !important;
-      transform: translateY(-1px);
-    }
-    .back-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white !important;
-      padding: 10px 20px !important;
-      transition: all 0.3s;
-    }
-    .back-btn:hover {
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
-      color: white !important;
-      transform: translateY(-1px);
-    }
-    .breadcrumbs {
-      background: #f8fafc;
-      padding: 12px 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .breadcrumbs .el-breadcrumb {
-      font-size: 14px;
-    }
-    .breadcrumbs .el-breadcrumb__item a {
-      color: #409EFF;
-    }
 
-    .page-header { text-align: center; margin-bottom: 32px; }
-    .page-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 16px;
-      line-height: 1.3;
-    }
-    .page-subtitle {
-      font-size: 16px;
-      color: #ffffff;
-      line-height: 1.8;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 24px 32px;
-      background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(64, 158, 255, 0.35);
-      position: relative;
-      overflow: hidden;
-      font-weight: 500;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-    .page-subtitle::before {
-      content: '📄';
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      font-size: 60px;
-      opacity: 0.15;
-    }
-    .page-subtitle::after {
-      content: '🔗';
-      position: absolute;
-      bottom: -10px;
-      left: -10px;
-      font-size: 50px;
-      opacity: 0.15;
-    }
-
-    .steps-container { margin-bottom: 32px; }
-    .steps-wrapper {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-
-    .tool-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      overflow: hidden;
-      margin-bottom: 32px;
-    }
-
-    .tab-content { padding: 32px; }
-
-    .upload-area {
-      border: 2px dashed #d1d5db;
-      border-radius: 16px;
-      padding: 40px 24px;
-      background: #fafafa;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-      min-height: 200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .upload-area:hover { border-color: #409EFF; background: #f0f7ff; }
-    .upload-area.dragover { 
-      border-color: #409EFF; 
-      background: #f0f7ff;
-    }
-    .upload-icon {
-      font-size: 48px;
-      color: #409EFF;
-      margin-bottom: 16px;
-    }
-    .upload-text {
-      font-size: 18px;
-      font-weight: 500;
-      color: #334155;
-      margin-bottom: 8px;
-    }
-    .upload-hint {
-      font-size: 14px;
-      color: #94a3b8;
-    }
-    .upload-hint strong { color: #409EFF; }
-
-    .file-list-section { margin-top:24px; }
-    .file-list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .file-list-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .clear-all-btn {
-      background: none;
-      border: none;
-      color: #ef4444;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-    .clear-all-btn:hover {
-      background: #fef2f2;
-      text-decoration: underline;
-    }
-    .file-item {
-      display: flex;
-      align-items: center;
-      padding: 14px 16px;
-      background: #f9fafb;
-      border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    .file-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: #374151;
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .file-info {
-      font-size: 12px;
-      color: #9ca3af;
-      margin: 0 12px;
-      flex-shrink: 0;
-    }
-    .delete-btn {
-      padding: 6px 12px;
-      font-size: 13px;
-      color: #fff;
-      background: #ef4444;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .delete-btn:hover { background: #dc2626; }
-
-    .file-count-hint {
-      font-size: 14px;
-      color: #d97706;
-      margin-top: 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 16px;
-      background: #fef3c7;
-      border: 1px solid #fde68a;
-      border-radius: 10px;
-      font-weight: 500;
-    }
-    .file-count-hint::before {
-      content: '⚠️';
-      font-size: 16px;
-    }
-
-    .pages-container {
-      max-height: 400px;
-      overflow-y: auto;
-      margin-bottom: 20px;
-    }
-    .pages-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 10px;
-    }
-    .page-item {
-      background: #f9fafb;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 6px;
-      cursor: move;
-      transition: all 0.3s;
-      position: relative;
-    }
-    .page-item:hover {
-      border-color: #409EFF;
-      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
-    }
-    .page-item.sortable-ghost {
-      opacity: 0.5;
-      background: #dbeafe;
-    }
-    .page-item.sortable-chosen {
-      transform: scale(1.05);
-    }
-    .page-thumbnail {
-      width: 100%;
-      height: 100px;
-      border-radius: 4px;
-      background: #fff;
-      object-fit: contain;
-    }
-    .page-number {
-      text-align: center;
-      font-size: 11px;
-      font-weight: 500;
-      color: #6b7280;
-      margin-top: 6px;
-    }
-    .page-order {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      width: 20px;
-      height: 20px;
-      background: #409EFF;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 600;
-    }
-
-    .progress-section {
-      margin-top: 20px;
-      padding: 16px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 10px;
-    }
-    .progress-text {
-      font-size: 14px;
-      color: #065f46;
-      margin-bottom: 12px;
-      font-weight: 500;
-    }
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: #dcfce7;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #34d399);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    .action-section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 24px;
-    }
-    .btn {
-      flex: 1;
-      padding: 14px 24px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: #409EFF;
-      color: white;
-    }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #4b5563;
-    }
-
-    .result-content {
-      text-align: center;
-      padding: 32px;
-      background: #ecfdf5;
-      border-radius: 16px;
-    }
-    .result-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #065f46;
-    }
-    .result-desc {
-      font-size: 14px;
-      color: #047857;
-      margin: 8px 0 24px;
-    }
-    .download-btn {
-      padding: 16px 40px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 16px;
-    }
-
-    .instructions {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .instructions-title {
-      font-size: 20px;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 24px;
-    }
-    .step { text-align: center; }
-    .step-number {
-      width: 40px;
-      height: 40px;
-      background: #409EFF;
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-    }
-    .step-title { font-size: 14px; font-weight: 600; }
-    .step-desc { font-size: 12px; color: #6b7280; }
-
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 24px;
-      text-align: center;
-    }
-
-    .privacy-section {
-      background: linear-gradient(135deg, #065f46, #047857);
-      border-radius: 20px;
-      padding: 40px;
-      margin-top: 32px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    .privacy-section::before {
-      content: '🔒';
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      font-size: 120px;
-      opacity: 0.1;
-    }
-    .privacy-section .section-title {
-      color: white;
-      font-size: 22px;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content {
-      font-size: 15px;
-      line-height: 1.8;
-      color: rgba(255, 255, 255, 0.9);
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content p {
-      margin-bottom: 16px;
-    }
-    .privacy-content p:last-child {
-      margin-bottom: 0;
-    }
-    .privacy-content strong {
-      color: #a7f3d0;
-      font-weight: 600;
-    }
-
-    .faq-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .faq-item {
-      border-bottom: 1px solid #f1f5f9;
-      padding: 20px 0;
-    }
-    .faq-item:last-child { border-bottom: none; }
-    .faq-item h3 {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 8px;
-    }
-    .faq-item p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.6;
-    }
-
-    .tutorial-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .tutorial-step {
-      display: flex;
-      gap: 20px;
-      padding: 20px 0;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .tutorial-step:last-child { border-bottom: none; }
-    .tutorial-number {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .tutorial-content h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .tutorial-content p {
-      font-size: 14px;
-      color: #6b7280;
-    }
-
-    .blog-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .blog-card {
-      display: flex;
-      gap: 16px;
-      padding: 20px;
-      background: #f9fafb;
-      border-radius: 16px;
-      margin-bottom: 16px;
-    }
-    .blog-card:last-child { margin-bottom: 24px; }
-    .blog-icon { font-size: 28px; }
-    .blog-card h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .blog-card p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.5;
-    }
-    .cta-box {
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      border-radius: 16px;
-      padding: 32px;
-      text-align: center;
-      color: white;
-    }
-    .cta-box h3 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .cta-box p {
-      font-size: 14px;
-      opacity: 0.9;
-      margin-bottom: 16px;
-    }
-    .cta-button {
-      text-decoration: none;
-      background: white;
-      color: #409EFF;
-      border: none;
-      padding: 12px 32px;
-      font-size: 15px;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-    }
-
-    .footer {
-      background: white;
-      padding: 24px 0;
-      border-top: 1px solid #f1f5f9;
-      text-align: center;
-    }
-    .footer-content {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      margin-bottom: 24px;
-    }
-    .footer-section h4 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 12px;
-    }
-    .footer-section ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .footer-section li {
-      margin-bottom: 8px;
-    }
-    .footer-section li:last-child {
-      margin-bottom: 0;
-    }
-    .footer-section a {
-      font-size: 13px;
-      color: #6b7280;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .footer-section a:hover {
-      color: #409EFF;
-    }
-    .footer-copyright {
-      font-size: 12px;
-      color: #9ca3af;
-      padding-top: 16px;
-      border-top: 1px solid #f1f5f9;
-    }
-
-    @media (max-width: 768px) {
-      .steps { grid-template-columns: repeat(2, 1fr); }
-      .action-section { flex-direction: column; }
-      .tab-content { padding: 16px; }
-      .header-content { flex-direction: column; gap: 12px; }
-      .header-links { gap: 8px; flex-wrap: wrap; justify-content: center; }
-      .header-links a { padding: 6px 12px; font-size: 12px; }
-      .logo-text { font-size: 20px; }
-      .logo-image { width: 36px; height: 36px; }
-      .pages-grid { grid-template-columns: repeat(2, 1fr); }
-      .footer-content { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    }
-
-    .hidden { display: none; }
-
-    .upload-area .el-upload-dragger {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: transparent;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
-    .el-upload-dragger {
-      width: 100%;
-      min-height: 200px;
-      border: 2px dashed #d1d5db;
-      border-radius: 16px;
-      background: #fafafa;
-      transition: all 0.3s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .el-upload-dragger:hover, .el-upload-dragger.dragover {
-      border-color: #409EFF;
-      background: #f0f7ff;
-    }
-    .upload-area .el-upload-list {
-      display: none;
-    }
-    .el-upload-dragger .el-icon-upload {
-      font-size: 48px;
-      color: #409EFF;
-      margin-bottom: 16px;
-    }
-    .el-upload-dragger > div {
-      text-align: center;
-    }
-
-    .result-preview {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-    .result-page {
-      position: relative;
-      width: 120px;
-      height: 150px;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .result-preview-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .result-page-num {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      font-size: 12px;
-      padding: 4px;
-      text-align: center;
-    }
-    .clickable { cursor: pointer; }
-    .preview-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 12px;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .result-page:hover .preview-overlay { opacity: 1; }
-
-    .preview-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      cursor: pointer;
-    }
-    .modal-content {
-      position: relative;
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      max-width: 90%;
-      max-height: 90%;
-      overflow: auto;
-      cursor: default;
-    }
-    .modal-close {
-      position: absolute;
-      top: -40px;
-      right: 0;
-      background: none;
-      border: none;
-      color: white;
-      font-size: 32px;
-      cursor: pointer;
-      line-height: 1;
-    }
-    .modal-image {
-      max-width: 100%;
-      max-height: 80vh;
-      border-radius: 8px;
-    }
-
-    .filename-input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-    .filename-input:focus {
-      outline: none;
-      border-color: #409EFF;
-    }
-
-    .technology-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      border-radius: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .technology-section::before {
-      content: '⚡';
-      position: absolute;
-      top: -30px;
-      right: -30px;
-      font-size: 150px;
-      opacity: 0.05;
-    }
-    .technology-section .section-title {
-      color: white;
-      font-size: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-item {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      padding: 32px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-    .tech-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-    .tech-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .tech-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 12px;
-    }
-    .tech-item p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.7;
-    }
-
-    .guide-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
-    }
-    .guide-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-    }
-    .guide-item {
-      padding: 32px;
-      background: linear-gradient(135deg, #fef3c7, #fde68a);
-      border-radius: 16px;
-      border: 1px solid #fcd34d;
-      transition: all 0.3s ease;
-    }
-    .guide-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(251, 191, 36, 0.25);
-    }
-    .guide-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .guide-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #92400e;
-      margin-bottom: 12px;
-    }
-    .guide-item p {
-      font-size: 14px;
-      color: #78350f;
-      line-height: 1.7;
-    }
-  </style>
 </head>
 
 <body>
@@ -1127,7 +274,7 @@
             <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
             Back to Home
           </a>
-          <a href="contact.html" class="contact-btn">Contact</a>
+          <a href="contact.html" class="contact-btn">Contact Us</a>
           <a href="feedback.html" class="feedback-btn">Feedback</a>
         </div>
       </div>
@@ -1153,7 +300,7 @@
       </div>
 
       <div class="tool-card">
-        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick">
+        <el-tabs stretch type="border-card" v-model="currentStep" @tab-click="handleTabClick">
           <el-tab-pane label="Upload" name="0">
             <div class="tab-content">
               <div class="upload-area">
@@ -1168,9 +315,9 @@
                   accept=".pdf"
                   drag
                 >
-                  <i class="el-icon-upload upload-icon"></i>
+                  <div class="upload-icon">📁</div>
                   <div class="upload-text">Drag & drop PDF here, or click to browse</div>
-                  <div class="upload-hint">Supports PDF files up to <strong>50MB</strong></div>
+                  <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
                 </el-upload>
               </div>
 
@@ -1180,26 +327,24 @@
                     <i class="el-icon-file-text"></i>
                     Uploaded File
                   </div>
-                  <button class="clear-all-btn" @click="clearFile">Clear All</button>
+                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearFile">Clear All</el-button>
                 </div>
                 <div class="file-item">
                   <span class="file-name">{{ selectedFile && selectedFile.name }}</span>
                   <span class="file-info">{{ selectedFile && formatFileSize(selectedFile.size) }} | {{ pageCount }} pages</span>
-                  <button class="delete-btn" @click="clearFile">Remove</button>
+                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="clearFile"></el-button>
                 </div>
               </div>
 
-              <div v-if="!selectedFile" class="file-count-hint">
-                Maximum file size: 50MB | Only PDF files supported
-              </div>
-
-              <div v-if="selectedFile" class="action-section">
-                <button class="btn btn-primary" @click="goToNext">Continue</button>
+              <div class="action-section">
+                <el-button type="primary" @click="goToNext">
+                  Continue <i class="el-icon-right"></i>
+                </el-button>
               </div>
             </div>
           </el-tab-pane>
 
-          <el-tab-pane label="Reorder" name="1" :disabled="!selectedFile">
+          <el-tab-pane label="Reorder" name="1">
             <div class="tab-content">
               <div v-if="pages.length === 0" class="upload-area" style="pointer-events: none;">
                 <i class="el-icon-image upload-icon"></i>
@@ -1207,37 +352,33 @@
               </div>
 
               <div v-else class="pages-container">
-                <div ref="pagesList" class="pages-grid">
+                <div ref="pagesList" class="page-preview-grid">
                   <div 
                     v-for="(page, index) in pages" 
                     :key="page.id" 
-                    class="page-item"
+                    class="page-preview-item"
                     :data-order="index + 1"
                   >
-                    <div class="page-order">{{ index + 1 }}</div>
-                    <img :src="page.thumbnail" class="page-thumbnail" :alt="'Page ' + (index + 1)">
-                    <div class="page-number">Page {{ page.originalNumber }}</div>
+                    <div class="page-number">{{ index + 1 }}</div>
+                    <img :src="page.thumbnail" class="page-preview-image" :alt="'Page ' + (index + 1)">
+                    <div class="page-order">Page {{ page.originalNumber }}</div>
                   </div>
                 </div>
               </div>
 
               <div class="action-section">
-                <button class="btn btn-secondary" @click="goToPrev">Back</button>
-                <button class="btn btn-primary" @click="reorderPages" :disabled="processing">
-                  {{ processing ? 'Reordering...' : 'Apply Reorder' }}
-                </button>
+                <el-button type="default" @click="goToPrev" :disabled="processing">Back</el-button>
+                <el-button type="primary" @click="reorderPages" :disabled="processing">{{ processing ? 'Reordering...' : 'Apply Reorder' }}</el-button>
               </div>
 
               <div v-if="processing" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{width: progress + '%'}"></div>
-                </div>
+                <el-progress :percentage="progress" :status="progress === 100 ? 'success' : 'active'" :show-text="false" style="margin-top: 16px;" />
               </div>
             </div>
           </el-tab-pane>
 
-          <el-tab-pane label="Result" name="2" :disabled="!resultBlob">
+          <el-tab-pane label="Result" name="2">
             <div class="tab-content">
               <div class="result-content" v-if="resultBlob">
                 <div class="result-title">
@@ -1248,27 +389,26 @@
                 <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
                 
                 <div class="result-preview" v-if="resultPreviews.length > 0">
-                  <p style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 12px;">Preview:</p>
-                  <div v-for="(preview, i) in resultPreviews.slice(0, 5)" :key="i" class="result-page clickable" @click="openPreview(preview)">
-                    <img :src="preview.thumbnail" class="result-preview-img">
-                    <div class="result-page-num">{{ i + 1 }}</div>
+                  <div v-for="(preview, i) in resultPreviews.slice(0, 5)" :key="i" class="page-preview-item clickable" @click="openPreview(preview)">
+                    <img :src="preview.thumbnail" class="page-preview-image">
+                    <div class="page-number">{{ i + 1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>
                   </div>
                 </div>
 
-                <div style="margin-top: 20px;">
-                  <label style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; display: block;">File Name</label>
-                  <input v-model="downloadFileName" type="text" class="filename-input" placeholder="Enter file name">
+                <div class="filename-input">
+                  <label>File Name:</label>
+                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
                 </div>
 
-                <button class="download-btn" @click="download">
+                <el-button type="primary" size="large" @click="download">
                   <i class="el-icon-download" style="margin-right: 8px;"></i>
                   Download PDF
                 </button>
               </div>
 
               <div class="action-section">
-                <button class="btn btn-secondary" @click="reset">Start Over</button>
+                <el-button type="default" @click="reset">Start Over</button>
               </div>
             </div>
           </el-tab-pane>
@@ -1276,32 +416,32 @@
       </div>
 
       <div class="instructions">
-        <h2 class="instructions-title">Why Choose PDFMaster?</h2>
+        <h2 class="instructions-title">Why Reorder Here?</h2>
         <div class="steps">
           <div class="step">
-            <div class="step-number">💰</div>
-            <div class="step-title">Completely Free</div>
-            <div class="step-desc">No hidden fees, 100% free</div>
+            <i class="el-icon-check step-number"></i>
+            <div class="step-title">Drag & Drop Reorder</div>
+            <div class="step-desc">Visual interface | Easy sorting</div>
           </div>
           <div class="step">
-            <div class="step-number">🔐</div>
-            <div class="step-title">No Registration</div>
-            <div class="step-desc">No login required</div>
+            <i class="el-icon-lock step-number"></i>
+            <div class="step-title">100% Private</div>
+            <div class="step-desc">No server uploads | Locally processed</div>
           </div>
           <div class="step">
-            <div class="step-number">⚡</div>
-            <div class="step-title">Fast Processing</div>
-            <div class="step-desc">Process in seconds</div>
+            <i class="el-icon-close step-number"></i>
+            <div class="step-title">No Watermarks</div>
+            <div class="step-desc">Clean output | No branding</div>
           </div>
           <div class="step">
-            <div class="step-number">🖱️</div>
-            <div class="step-title">Drag & Drop</div>
-            <div class="step-desc">Easy reordering</div>
-          </div>
-          <div class="step">
-            <div class="step-number">👁️</div>
+            <i class="el-icon-edit step-number"></i>
             <div class="step-title">Visual Preview</div>
-            <div class="step-desc">See before reorder</div>
+            <div class="step-desc">See before reorder | Verify order</div>
+          </div>
+          <div class="step">
+            <i class="el-icon-user step-number"></i>
+            <div class="step-title">No Registration</div>
+            <div class="step-desc">Start immediately | No sign-up</div>
           </div>
         </div>
       </div>
@@ -1316,97 +456,81 @@
       </div>
 
       <div class="technology-section">
-        <h2 class="section-title">How Page Reordering Works</h2>
+        <h2 class="section-title">Powered by Industry-Leading Technology</h2>
         <div class="tech-content">
-          <div class="tech-item">
-            <div class="tech-item-icon">🖱️</div>
+          <el-card class="tech-card" shadow="hover">
             <h3>Advanced Drag-and-Drop Engine</h3>
             <p>Our proprietary drag-and-drop system uses GPU-accelerated animations for buttery-smooth interactions. Real-time visual feedback with ghost elements and drop zone highlighting makes page organization effortless.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">🔄</div>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
             <h3>Smart Page Reordering Algorithm</h3>
             <p>Pages are reordered in memory with a non-destructive approach. Our algorithm maintains page metadata, annotations, and interactive elements while allowing unlimited undo/redo operations.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">🧠</div>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
             <h3>Memory-Optimized Architecture</h3>
             <p>Intelligent memory management prevents browser slowdowns with large documents. Preview images are dynamically loaded and released based on viewport visibility, ensuring smooth performance even with 100+ page documents.</p>
-          </div>
+          </el-card>
         </div>
       </div>
 
       <div class="guide-section">
-        <h2 class="section-title">Pro Tips for Better PDF Page Reordering</h2>
+        <h2 class="section-title">Pro Tips for Better Page Reordering</h2>
         <div class="guide-content">
-          <div class="guide-item">
-            <div class="guide-item-icon">📋</div>
-            <h3>Preview Pages First</h3>
-            <p>Take a moment to preview all pages before reordering. This helps you visualize the final document structure.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">🔄</div>
-            <h3>Use Drag and Drop</h3>
-            <p>Drag pages to quickly rearrange them. You can also use the move buttons for precise positioning.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">✅</div>
-            <h3>Verify Order Before Saving</h3>
-            <p>Double-check the page order before downloading. This ensures your document is correctly structured.</p>
-          </div>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Preview Pages First</h3>
+            <p class="guide-desc">Take a moment to preview all pages before reordering. This helps you visualize the final document structure.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Use Drag and Drop</h3>
+            <p class="guide-desc">Drag pages to quickly rearrange them. You can also use the move buttons for precise positioning.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Verify Order Before Saving</h3>
+            <p class="guide-desc">Double-check the page order before downloading. This ensures your document is correctly structured.</p>
+          </el-card>
         </div>
       </div>
 
       <div class="faq-section">
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <div class="faq-item">
-          <h3>How to reorder pages in PDF?</h3>
-          <p>Upload your PDF, drag and drop page thumbnails to rearrange them in custom order, then click Apply Reorder. Our free PDF page reorder tool works online without software.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I reorder PDF pages for free?</h3>
-          <p>Yes! Our PDF page reorder tool is completely free with no sign up required. Reorder PDF pages online free with unlimited usage.</p>
-        </div>
-        <div class="faq-item">
-          <h3>How to rearrange PDF pages online?</h3>
-          <p>Simply upload your PDF, use drag and drop to rearrange pages, and download the reordered PDF. All processing happens locally in your browser.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I reorder PDF pages without Adobe Acrobat?</h3>
-          <p>Absolutely! Our free PDF page reorder tool works online without any software installation, including Adobe Acrobat.</p>
-        </div>
-        <div class="faq-item">
-          <h3>What's the best free PDF page reorder tool?</h3>
-          <p>PDFMaster offers the best free PDF page reorder with drag and drop interface, visual preview, secure local processing, and no sign up required.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Will reordering PDF pages reduce quality?</h3>
-          <p>No! We reorder PDF pages without losing quality. Your original content remains intact.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I reorder scanned PDF pages?</h3>
-          <p>Yes! Our tool works with all PDF types including scanned PDFs. Reorder scanned PDF pages with ease.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I use this tool on mobile devices?</h3>
-          <p>Yes! Our PDF page reorder tool works perfectly on iPhone and Android devices. Just open your browser and start reordering - no app installation required.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I reorder PDF pages on Mac for free?</h3>
-          <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and reorder pages for free. No software to install.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Which browsers are supported?</h3>
-          <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I reorder password-protected PDFs?</h3>
-          <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Why choose PDFMaster for reordering pages?</h3>
-          <p>PDFMaster offers 100% free page reordering with no watermarks, local processing for complete privacy, and easy drag-and-drop interface. Your files stay secure on your device.</p>
-        </div>
+        <el-collapse accordion>
+          <el-collapse-item title="How to reorder pages in PDF?">
+            <p>Upload your PDF, drag and drop page thumbnails to rearrange them in custom order, then click Apply Reorder. Our free PDF page reorder tool works online without software.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I reorder PDF pages for free?">
+            <p>Yes! Our PDF page reorder tool is completely free with no sign up required. Reorder PDF pages online free with unlimited usage.</p>
+          </el-collapse-item>
+          <el-collapse-item title="How to rearrange PDF pages online?">
+            <p>Simply upload your PDF, use drag and drop to rearrange pages, and download the reordered PDF. All processing happens locally in your browser.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I reorder PDF pages without Adobe Acrobat?">
+            <p>Absolutely! Our free PDF page reorder tool works online without any software installation, including Adobe Acrobat.</p>
+          </el-collapse-item>
+          <el-collapse-item title="What's the best free PDF page reorder tool?">
+            <p>PDFMaster offers the best free PDF page reorder with drag and drop interface, visual preview, secure local processing, and no sign up required.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Will reordering PDF pages reduce quality?">
+            <p>No! We reorder PDF pages without losing quality. Your original content remains intact.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I reorder scanned PDF pages?">
+            <p>Yes! Our tool works with all PDF types including scanned PDFs. Reorder scanned PDF pages with ease.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I use this tool on mobile devices?">
+            <p>Yes! Our PDF page reorder tool works perfectly on iPhone and Android devices. Just open your browser and start reordering - no app installation required.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I reorder PDF pages on Mac for free?">
+            <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and reorder pages for free. No software to install.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Which browsers are supported?">
+            <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I reorder password-protected PDFs?">
+            <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Why choose PDFMaster for reordering pages?">
+            <p>PDFMaster offers 100% free page reordering with no watermarks, local processing for complete privacy, and easy drag-and-drop interface. Your files stay secure on your device.</p>
+          </el-collapse-item>
+        </el-collapse>
       </div>
 
       <div class="tutorial-section">
@@ -1483,12 +607,9 @@
     </div>
   </div>
 
-  <div v-if="showPreviewModal" class="preview-modal" @click="closePreview">
-    <div class="modal-content" @click.stop>
-      <button class="modal-close" @click="closePreview">×</button>
-      <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview">
-    </div>
-  </div>
+<el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
+    <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+  </el-dialog>
 
   <footer class="footer">
     <div class="container">
@@ -1517,8 +638,9 @@
             <li><a href="terms.html">Terms of Service</a></li>
           </ul>
         </div>
-      </div>
-      <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+                </div>
+              </div>
+            </div>
     </div>
   </footer>
 </div>
@@ -1563,33 +685,45 @@ new Vue({
   },
   methods: {
     goToNext() { 
+      if (!this.selectedFile) {
+        this.$notify({
+          title: '提示',
+          message: 'Please upload a PDF file first',
+          type: 'warning'
+        });
+        return;
+      }
       this.loadPages();
       this.currentStep = '1'; 
     },
     goToPrev() { this.currentStep = '0'; },
     
     handleExceed() {
-      this.$message.warning('You can upload only one file at a time');
+      this.$notify({ title: '提示', message: 'You can upload only one file at a time', type: 'warning' });
     },
     handleFileChange(file) {
       const rawFile = file.raw;
       if (!rawFile || rawFile.type !== 'application/pdf') {
-        this.$message.error('Please upload a PDF file');
+        this.$notify({ title: '错误', message: 'Please upload a PDF file', type: 'error' });
         return;
       }
       if (rawFile.size > 50 * 1024 * 1024) {
-        this.$message.error('File size exceeds 50MB limit');
+        this.$notify({ title: '错误', message: 'File size exceeds 50MB limit', type: 'error' });
+        return;
+      }
+      if (this.selectedFile) {
+        this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' });
         return;
       }
       this.processFile(rawFile);
     },
     async processFile(file) {
       if (file.type !== 'application/pdf') {
-        this.$message.error('Please upload a PDF file');
+        this.$notify({ title: '错误', message: 'Please upload a PDF file', type: 'error' });
         return;
       }
       if (file.size > 50 * 1024 * 1024) {
-        this.$message.error('File size exceeds 50MB limit');
+        this.$notify({ title: '错误', message: 'File size exceeds 50MB limit', type: 'error' });
         return;
       }
       
@@ -1662,14 +796,14 @@ new Vue({
     handleTabClick(tab) {
       const targetStep = tab.name;
       if (targetStep !== '0' && !this.selectedFile) {
-        this.$message.warning('Please upload a file first');
+        this.$notify({ title: '提示', message: 'Please upload a file first', type: 'warning' });
         this.$nextTick(() => {
           this.currentStep = '0';
         });
         return;
       }
       if (targetStep === '2' && !this.resultBlob) {
-        this.$message.warning('Please reorder pages first');
+        this.$notify({ title: '提示', message: 'Please reorder pages first', type: 'warning' });
         this.$nextTick(() => {
           this.currentStep = '1';
         });
@@ -1723,12 +857,12 @@ new Vue({
           this.processing = false;
           this.progress = 100;
           this.currentStep = '2';
-          this.$message.success('Pages reordered successfully!');
+          this.$notify({ title: '成功', message: 'Pages reordered successfully!', type: 'success' });
         }, 300);
         
       } catch (error) {
         this.processing = false;
-        this.$message.error('Failed to reorder pages');
+        this.$notify({ title: '错误', message: 'Failed to reorder pages', type: 'error' });
         console.error(error);
       }
     },

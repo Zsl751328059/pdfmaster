@@ -13,191 +13,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui/lib/theme-chalk/index.css">
   <script src="https://cdn.jsdelivr.net/npm/element-ui/lib/index.js"></script>
   
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f5f7fa;
-    }
-    
-    .header {
-      background: linear-gradient(135deg, #1e70bf, #337ecc);
-      color: white;
-      padding: 60px 20px;
-      text-align: center;
-    }
-    
-    .header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
-    
-    .header p {
-      font-size: 1.1rem;
-      opacity: 0.9;
-    }
-    
-    .container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-    
-    .content-section {
-      background: white;
-      border-radius: 16px;
-      padding: 40px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-    
-    .content-section h2 {
-      color: #1e70bf;
-      margin-bottom: 20px;
-      font-size: 1.5rem;
-    }
-    
-    .content-section p {
-      line-height: 1.8;
-      color: #666;
-      margin-bottom: 20px;
-    }
-    
-    .feature-list {
-      list-style: none;
-      padding: 0;
-    }
-    
-    .feature-list li {
-      padding: 12px 0;
-      border-bottom: 1px solid #eee;
-      display: flex;
-      align-items: center;
-    }
-    
-    .feature-list li:last-child {
-      border-bottom: none;
-    }
-    
-    .feature-list li::before {
-      content: '✓';
-      color: #67c23a;
-      margin-right: 12px;
-      font-weight: bold;
-    }
-    
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      background: linear-gradient(135deg, #1e70bf, #337ecc);
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      margin-top: 20px;
-      display: inline-block;
-    }
-    
-    .back-link:hover {
-      opacity: 0.9;
-    }
-    
-    .info-badge {
-      background: linear-gradient(135deg, rgba(30, 112, 191, 0.06), rgba(30, 112, 191, 0.03));
-      border-left: 4px solid #1e70bf;
-      padding: 16px 20px;
-      border-radius: 0 8px 8px 0;
-      margin: 20px 0;
-    }
-    
-    .info-badge p {
-      margin: 0;
-      color: #333;
-      font-weight: 500;
-    }
-    
-    .faq-item {
-      margin-bottom: 20px;
-    }
-    
-    .faq-item h3 {
-      color: #1e70bf;
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-    }
-    
-    .faq-item p {
-      color: #666;
-      line-height: 1.6;
-    }
-    
-    .related-links {
-      background: #f8fafc;
-      border-radius: 12px;
-      padding: 24px;
-      margin-top: 30px;
-    }
-    
-    .related-links h3 {
-      color: #1e70bf;
-      margin-bottom: 16px;
-      font-size: 1.2rem;
-    }
-    
-    .related-links ul {
-      list-style: none;
-      padding: 0;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-    }
-    
-    .related-links li a {
-      color: #1e70bf;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px;
-      border-radius: 8px;
-      transition: background 0.2s;
-    }
-    
-    .related-links li a:hover {
-      background: rgba(30, 112, 191, 0.1);
-    }
-    
-    .site-link-box {
-      background: linear-gradient(135deg, rgba(30, 112, 191, 0.08), rgba(30, 112, 191, 0.04));
-      border: 2px solid #1e70bf;
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      margin: 20px 0;
-    }
-    
-    .site-link-box a {
-      color: #1e70bf;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1.1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    
-    .site-link-box a:hover {
-      text-decoration: underline;
-    }
-    
-    .site-link-box i {
-      font-size: 1.3rem;
-    }
-  </style>
+  
 </head>
 <body>
   <div class="header">
@@ -240,25 +56,21 @@
     <div class="content-section">
       <h2>Frequently Asked Questions</h2>
       
-      <div class="faq-item">
-        <h3>Q: How fast is PDFMaster compared to other tools?</h3>
-        <p>A: PDFMaster is significantly faster than most online PDF tools. Thanks to our WebAssembly-powered processing and optimized algorithms, we can process most PDFs in under a second.</p>
-      </div>
+      <el-collapse-item title="Q: How fast is PDFMaster compared to other tools?">
+            <p>A: PDFMaster is significantly faster than most online PDF tools. Thanks to our WebAssembly-powered processing and optimized algorithms, we can process most PDFs in under a second.</p>
+          </el-collapse-item>
       
-      <div class="faq-item">
-        <h3>Q: Does speed affect quality?</h3>
-        <p>A: No. Our fast processing doesn't compromise on quality. Your PDFs will maintain their original quality while being processed quickly.</p>
-      </div>
+      <el-collapse-item title="Q: Does speed affect quality?">
+            <p>A: No. Our fast processing doesn't compromise on quality. Your PDFs will maintain their original quality while being processed quickly.</p>
+          </el-collapse-item>
       
-      <div class="faq-item">
-        <h3>Q: Do larger files take longer?</h3>
-        <p>A: While larger files naturally take more time, our optimized algorithms ensure even large PDFs are processed as quickly as possible.</p>
-      </div>
+      <el-collapse-item title="Q: Do larger files take longer?">
+            <p>A: While larger files naturally take more time, our optimized algorithms ensure even large PDFs are processed as quickly as possible.</p>
+          </el-collapse-item>
       
-      <div class="faq-item">
-        <h3>Q: Is there a difference in speed between devices?</h3>
-        <p>A: Processing speed can vary slightly depending on your device's capabilities, but our optimizations ensure fast performance across all modern devices.</p>
-      </div>
+      <el-collapse-item title="Q: Is there a difference in speed between devices?">
+            <p>A: Processing speed can vary slightly depending on your device's capabilities, but our optimizations ensure fast performance across all modern devices.</p>
+          </el-collapse-item>
     </div>
     
     <div class="site-link-box">

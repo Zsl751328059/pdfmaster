@@ -6,19 +6,16 @@
   <title>Adjust PDF Margins Online Free - Add White Margins | PDFMaster</title>
   <meta name="description" content="Adjust PDF margins online free - add white margins for printing and binding. Customize padding. 100% local processing, no upload, no watermark, no registration. Works on Mac, Windows, iPhone & Android.">
   <link rel="canonical" href="https://pdfeasz.com/pdf-margin.html" />
-
   <meta property="og:title" content="Add White Margins to PDF | Free PDF Margin Adder | PDFMaster" />
   <meta property="og:description" content="Free online PDF margin adder to add white margins for printing and binding. 100% local browser processing." />
   <meta property="og:image" content="https://pdfeasz.com/assets/share.png" />
   <meta property="og:url" content="https://pdfeasz.com/pdf-margin.html" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PDFMaster" />
-
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Add White Margins to PDF | Free PDF Margin Adder | PDFMaster" />
   <meta name="twitter:description" content="Free online PDF margin adder to add white margins for printing and binding." />
   <meta name="twitter:image" content="https://pdfeasz.com/assets/share.png" />
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -33,7 +30,6 @@
     }
   }
   </script>
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -84,7 +80,6 @@
     ]
   }
   </script>
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -158,958 +153,161 @@
   }
   </script>
   
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
-  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
-  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-
+  <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
+  <link rel="stylesheet" href="./common.css">
+  
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f7fa;
-      color: #333;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 100%;
-      width: 95%;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-    .app { min-height: 100vh; display: flex; flex-direction: column; }
-    .main-content { 
-      flex: 1; 
-      padding: 32px 0;
-      max-width: 1100px;
-      margin: 0 auto;
-      width: 95%;
-    }
-
-    .header {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-      padding: 12px 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo-image {
-      width: 44px;
-      height: 44px;
-      border-radius: 16px;
-      object-fit: contain;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      padding: 8px;
-    }
-    .logo-text {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .header-links {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-    .header-links a {
-      font-size: 14px;
-      font-weight: 500;
-      color: #475569;
-      transition: color 0.3s;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-    }
-    .header-links a:hover {
-      color: #409EFF;
-      background: rgba(64, 158, 255, 0.08);
-    }
-    .contact-btn {
-      background: linear-gradient(135deg, #409EFF, #337ecc);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .contact-btn:hover {
-      background: linear-gradient(135deg, #337ecc, #409EFF) !important;
-      transform: translateY(-1px);
-    }
-    .feedback-btn {
-      background: linear-gradient(135deg, #67C23A, #5eb830);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .feedback-btn:hover {
-      background: linear-gradient(135deg, #5eb830, #67C23A) !important;
-      transform: translateY(-1px);
-    }
-    .back-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white !important;
-      padding: 10px 20px !important;
-      transition: all 0.3s;
-    }
-    .back-btn:hover {
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
-      color: white !important;
-      transform: translateY(-1px);
-    }
-    .breadcrumbs {
-      background: #f8fafc;
-      padding: 12px 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .breadcrumbs .el-breadcrumb {
-      font-size: 14px;
-    }
-    .breadcrumbs .el-breadcrumb__item a {
-      color: #409EFF;
-    }
-
-    .page-header { text-align: center; margin-bottom: 32px; }
-    .page-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 16px;
-      line-height: 1.3;
-    }
-    .page-subtitle {
-      font-size: 16px;
-      color: #ffffff;
-      line-height: 1.8;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 24px 32px;
-      background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(64, 158, 255, 0.35);
-      position: relative;
-      overflow: hidden;
-      font-weight: 500;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-    .page-subtitle::before {
-      content: '📄';
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      font-size: 60px;
-      opacity: 0.15;
-    }
-    .page-subtitle::after {
-      content: '🔗';
-      position: absolute;
-      bottom: -10px;
-      left: -10px;
-      font-size: 50px;
-      opacity: 0.15;
-    }
-
-    .steps-container { margin-bottom: 32px; }
-    .steps-wrapper {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-
-    .tool-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      overflow: hidden;
-      margin-bottom: 32px;
-    }
-
-    .tab-content { padding: 32px; }
-
-    .upload-area {
-      border: 2px dashed #d1d5db;
-      border-radius: 16px;
-      padding: 40px 24px;
-      background: #fafafa;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-      min-height: 200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .upload-area:hover { border-color: #409EFF; background: #f0f7ff; }
-    .upload-area.dragover { 
-      border-color: #409EFF; 
-      background: #f0f7ff;
-    }
-    .upload-icon {
-      font-size: 48px;
-      color: #409EFF;
-      margin-bottom: 16px;
-    }
-    .upload-text {
-      font-size: 18px;
-      font-weight: 500;
-      color: #334155;
-      margin-bottom: 8px;
-    }
-    .upload-hint {
-      font-size: 14px;
-      color: #94a3b8;
-    }
-    .upload-hint strong { color: #409EFF; }
-
-    .file-list-section { margin-top:24px; }
-    .file-list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .file-list-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .clear-all-btn {
-      background: none;
-      border: none;
-      color: #ef4444;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-    .clear-all-btn:hover {
-      background: #fef2f2;
-      text-decoration: underline;
-    }
-    .file-item {
-      display: flex;
-      align-items: center;
-      padding: 14px 16px;
-      background: #f9fafb;
-      border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    .file-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: #374151;
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .file-info {
-      font-size: 12px;
-      color: #9ca3af;
-      margin: 0 12px;
-      flex-shrink: 0;
-    }
-    .delete-btn {
-      padding: 6px 12px;
-      font-size: 13px;
-      color: #fff;
-      background: #ef4444;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .delete-btn:hover { background: #dc2626; }
-
     .file-count-hint {
-      font-size: 14px;
-      color: #d97706;
-      margin-top: 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 16px;
-      background: #fef3c7;
-      border: 1px solid #fde68a;
-      border-radius: 10px;
-      font-weight: 500;
-    }
-    .file-count-hint::before {
-      content: '⚠️';
-      font-size: 16px;
-    }
-
-    .options-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 16px;
-    }
-    .options-group {
-      margin-bottom: 24px;
-    }
-    .options-group label {
-      display: block;
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 12px;
-    }
-
-    .progress-section {
-      margin-top: 20px;
-      padding: 16px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 10px;
-    }
-    .progress-text {
-      font-size: 14px;
-      color: #065f46;
-      margin-bottom: 12px;
-      font-weight: 500;
-    }
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: #dcfce7;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #34d399);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    .action-section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 24px;
-    }
-    .btn {
-      flex: 1;
-      padding: 14px 24px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: #409EFF;
-      color: white;
-    }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #4b5563;
-    }
-
-    .result-content {
       text-align: center;
-      padding: 32px;
-      background: #ecfdf5;
-      border-radius: 16px;
-    }
-    .result-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #065f46;
-    }
-    .result-desc {
+      color: #909399;
       font-size: 14px;
-      color: #047857;
-      margin: 8px 0 24px;
-    }
-    .download-btn {
-      padding: 16px 40px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
       margin-top: 16px;
     }
-
-    .instructions {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .instructions-title {
-      font-size: 20px;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 24px;
-    }
-    .step { text-align: center; }
-    .step-number {
-      width: 40px;
-      height: 40px;
-      background: #409EFF;
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-    }
-    .step-title { font-size: 14px; font-weight: 600; }
-    .step-desc { font-size: 12px; color: #6b7280; }
-
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 24px;
-      text-align: center;
-    }
-
-    .privacy-section {
-      background: linear-gradient(135deg, #065f46, #047857);
-      border-radius: 20px;
-      padding: 40px;
-      margin-top: 32px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    .privacy-section::before {
-      content: '🔒';
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      font-size: 120px;
-      opacity: 0.1;
-    }
-    .privacy-section .section-title {
-      color: white;
-      font-size: 22px;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content {
-      font-size: 15px;
-      line-height: 1.8;
-      color: rgba(255, 255, 255, 0.9);
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content p {
-      margin-bottom: 16px;
-    }
-    .privacy-content p:last-child {
-      margin-bottom: 0;
-    }
-    .privacy-content strong {
-      color: #a7f3d0;
-      font-weight: 600;
-    }
-
-    .faq-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .faq-item {
-      border-bottom: 1px solid #f1f5f9;
-      padding: 20px 0;
-    }
-    .faq-item:last-child { border-bottom: none; }
-    .faq-item h3 {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 8px;
-    }
-    .faq-item p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.6;
-    }
-
-    .tutorial-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .tutorial-step {
-      display: flex;
-      gap: 20px;
-      padding: 20px 0;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .tutorial-step:last-child { border-bottom: none; }
-    .tutorial-number {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .tutorial-content h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .tutorial-content p {
-      font-size: 14px;
-      color: #6b7280;
-    }
-
-    .blog-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .blog-card {
-      display: flex;
-      gap: 16px;
-      padding: 20px;
-      background: #f9fafb;
-      border-radius: 16px;
-      margin-bottom: 16px;
-    }
-    .blog-card:last-child { margin-bottom: 24px; }
-    .blog-icon { font-size: 28px; }
-    .blog-card h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .blog-card p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.5;
-    }
-    .cta-box {
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      border-radius: 16px;
-      padding: 32px;
-      text-align: center;
-      color: white;
-    }
-    .cta-box h3 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .cta-box p {
-      font-size: 14px;
-      opacity: 0.9;
-      margin-bottom: 16px;
-    }
-    .cta-button {
-      text-decoration: none;
-      background: white;
-      color: #409EFF;
-      border: none;
-      padding: 12px 32px;
-      font-size: 15px;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-    }
-
-    .footer {
-      background: white;
-      padding: 24px 0;
-      border-top: 1px solid #f1f5f9;
-      text-align: center;
-    }
-    .footer-content {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      margin-bottom: 24px;
-    }
-    .footer-section h4 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 12px;
-    }
-    .footer-section ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .footer-section li {
-      margin-bottom: 8px;
-    }
-    .footer-section li:last-child {
-      margin-bottom: 0;
-    }
-    .footer-section a {
-      font-size: 13px;
-      color: #6b7280;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .footer-section a:hover {
-      color: #409EFF;
-    }
-    .footer-copyright {
-      font-size: 12px;
-      color: #9ca3af;
-      padding-top: 16px;
-      border-top: 1px solid #f1f5f9;
-    }
-
-    .margin-preview {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-    .margin-box {
-      width: 200px;
-      height: 250px;
-      border: 2px solid #409EFF;
-      border-radius: 8px;
-      position: relative;
-      background: #f0f9ff;
-    }
-    .margin-box-inner {
-      position: absolute;
-      top: 30px;
-      left: 30px;
-      right: 20px;
-      bottom: 40px;
-      background: white;
-      border: 1px dashed #94a3b8;
-    }
-    .margin-label {
-      position: absolute;
-      font-size: 12px;
-      color: #64748b;
-      background: rgba(255,255,255,0.9);
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    .margin-label.top { top: 8px; left: 50%; transform: translateX(-50%); }
-    .margin-label.bottom { bottom: 8px; left: 50%; transform: translateX(-50%); }
-    .margin-label.left { top: 50%; left: 8px; transform: translateY(-50%); }
-    .margin-label.right { top: 50%; right: 8px; transform: translateY(-50%); }
-
-    @media (max-width: 768px) {
-      .steps { grid-template-columns: repeat(2, 1fr); }
-      .action-section { flex-direction: column; }
-      .tab-content { padding: 16px; }
-      .header-content { flex-direction: column; gap: 12px; }
-      .header-links { gap: 8px; flex-wrap: wrap; justify-content: center; }
-      .header-links a { padding: 6px 12px; font-size: 12px; }
-      .logo-text { font-size: 20px; }
-      .logo-image { width: 36px; height: 36px; }
-      .footer-content { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    }
-
-    .hidden { display: none; }
-
-    .upload-area .el-upload-dragger {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: transparent;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
-    .el-upload-dragger {
-      width: 100%;
-      min-height: 200px;
-      border: 2px dashed #d1d5db;
-      border-radius: 16px;
-      background: #fafafa;
-      transition: all 0.3s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .el-upload-dragger:hover, .el-upload-dragger.dragover {
-      border-color: #409EFF;
-      background: #f0f7ff;
-    }
-    .upload-area .el-upload-list {
-      display: none;
-    }
-    .el-upload-dragger .el-icon-upload {
-      font-size: 48px;
-      color: #409EFF;
-      margin-bottom: 16px;
-    }
-    .el-upload-dragger > div {
-      text-align: center;
-    }
-
-    .result-preview {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-    .result-page {
-      position: relative;
-      width: 120px;
-      height: 150px;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .result-preview-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .result-page-num {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      font-size: 12px;
-      padding: 4px;
-      text-align: center;
-    }
-    .clickable { cursor: pointer; }
-    .preview-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 12px;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .result-page:hover .preview-overlay { opacity: 1; }
-
     .preview-modal {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.7);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      cursor: pointer;
     }
     .modal-content {
       position: relative;
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
       max-width: 90%;
       max-height: 90%;
-      overflow: auto;
-      cursor: default;
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
     }
     .modal-close {
       position: absolute;
-      top: -40px;
-      right: 0;
-      background: none;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
       border: none;
-      color: white;
-      font-size: 32px;
+      background: #f5f5f5;
+      border-radius: 50%;
+      font-size: 20px;
       cursor: pointer;
-      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .modal-image {
       max-width: 100%;
       max-height: 80vh;
       border-radius: 8px;
     }
-
-    .filename-input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
+    .margin-sliders {
+      background: #fafafa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid #e8e8e8;
+    }
+    .slider-row {
+      display: flex;
+      gap: 24px;
+    }
+    .slider-item {
+      flex: 1;
+    }
+    .slider-item label {
+      display: block;
+      margin-bottom: 12px;
+      font-weight: 600;
+      color: #303133;
+      font-size: 13px;
+    }
+    .slider-item .el-slider {
+      margin-bottom: 0;
+    }
+    .slider-item .el-slider__bar {
+      background: linear-gradient(135deg, #409EFF, #667eea);
+      height: 6px;
+      border-radius: 3px;
+    }
+    .slider-item .el-slider__button {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(64, 158, 255, 0.4);
+      transition: all 0.3s ease;
+    }
+    .slider-item .el-slider__button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 3px 10px rgba(64, 158, 255, 0.5);
+    }
+    .slider-item .el-slider__runway {
+      height: 6px;
+      background: #e8e8e8;
+      border-radius: 3px;
+    }
+    .options-group {
+      background: #fafafa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid #e8e8e8;
+    }
+    .options-group label {
+      display: block;
+      margin-bottom: 16px;
+      font-weight: 600;
+      color: #303133;
+      font-size: 14px;
+    }
+    .preset-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .preset-buttons button {
+      padding: 14px 12px;
+      border: 2px solid #e8e8e8;
+      background: #fff;
       border-radius: 10px;
-      font-size: 14px;
-      transition: border-color 0.3s;
+      font-size: 13px;
+      font-weight: 500;
+      color: #606266;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
-    .filename-input:focus {
-      outline: none;
+    .preset-buttons button:hover {
       border-color: #409EFF;
+      color: #409EFF;
+      background: rgba(64, 158, 255, 0.05);
     }
-
-    .technology-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      border-radius: 20px;
-      position: relative;
-      overflow: hidden;
+    .preset-buttons button.active {
+      border-color: #409EFF;
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+      color: #fff;
     }
-    .technology-section::before {
-      content: '⚡';
-      position: absolute;
-      top: -30px;
-      right: -30px;
-      font-size: 150px;
-      opacity: 0.05;
-    }
-    .technology-section .section-title {
-      color: white;
-      font-size: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-item {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      padding: 32px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-    .tech-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-    .tech-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .tech-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 12px;
-    }
-    .tech-item p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.7;
-    }
-
-    .guide-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
-    }
-    .guide-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-    }
-    .guide-item {
-      padding: 32px;
-      background: linear-gradient(135deg, #fef3c7, #fde68a);
-      border-radius: 16px;
-      border: 1px solid #fcd34d;
-      transition: all 0.3s ease;
-    }
-    .guide-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(251, 191, 36, 0.25);
-    }
-    .guide-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .guide-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #92400e;
-      margin-bottom: 12px;
-    }
-    .guide-item p {
-      font-size: 14px;
-      color: #78350f;
-      line-height: 1.7;
+    .preset-buttons button.active:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
     }
   </style>
+  <script src="./lib/vue/vue.js"></script>
+  <script src="/lib/element-ui/index.js"></script>
+  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
+  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+  
 </head>
-
 <body>
 <div id="app" class="app">
   <header class="header">
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="./assets/logo.png" alt="PDFMaster logo" class="logo-image">
+          <img src="/assets/logo.png" alt="PDFMaster logo" class="logo-image">
           <span class="logo-text">PDFMaster</span>
         </div>
         <div class="header-links">
@@ -1117,21 +315,18 @@
             <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
             Back to Home
           </a>
-          <a href="contact.html" class="contact-btn">Contact</a>
+          <a href="contact.html" class="contact-btn">Contact Us</a>
           <a href="feedback.html" class="feedback-btn">Feedback</a>
         </div>
       </div>
     </div>
   </header>
-
-
   <div class="main-content">
     <div class="container">
       <div class="page-header">
         <h1 class="page-title">Add White Margins to PDF Online Free</h1>
         <p class="page-subtitle">Easily add white margins to your PDF documents for printing, binding, or annotations. Customize margin sizes for all four sides. All processing happens locally in your browser, ensuring complete privacy.</p>
       </div>
-
       <div class="steps-container">
         <div class="steps-wrapper">
           <el-steps :active="Number(currentStep)" finish-status="success" align-center>
@@ -1141,104 +336,83 @@
           </el-steps>
         </div>
       </div>
-
       <div class="tool-card">
-        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick">
+        <el-tabs stretch v-model="currentStep" type="border-card" @tab-click="handleTabClick">
           <el-tab-pane label="Upload" name="0">
             <div class="tab-content">
-              <div class="upload-area">
-                <el-upload
-                  ref="upload"
-                  class="upload-dragger"
-                  :limit="1"
-                  :on-exceed="handleExceed"
-                  :auto-upload="false"
-                  :on-change="handleFileChange"
-                  accept=".pdf"
-                  drag
-                >
-                  <i class="el-icon-upload upload-icon"></i>
-                  <div class="upload-text">Drag & drop PDF here, or click to browse</div>
-                  <div class="upload-hint">Supports PDF files up to <strong>50MB</strong></div>
-                </el-upload>
-              </div>
-
+              <el-upload
+                ref="upload"
+                class="upload-area"
+                :limit="1"
+                :on-exceed="handleExceed"
+                :auto-upload="false"
+                :on-change="handleFileChange"
+                accept=".pdf"
+                drag
+                action="#"
+              >
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Drag & drop PDF here, or click to browse</div>
+                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
+              </el-upload>
               <div v-if="selectedFile" class="file-list-section">
                 <div class="file-list-header">
                   <div class="file-list-title">
                     <i class="el-icon-file-text"></i>
                     Uploaded File
                   </div>
-                  <button class="clear-all-btn" @click="clearFile">Clear All</button>
+                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearFile">Clear All</el-button>
                 </div>
                 <div class="file-item">
                   <span class="file-name">{{ selectedFile && selectedFile.name }}</span>
                   <span class="file-info">{{ selectedFile && formatFileSize(selectedFile.size) }} | {{ pageCount }} pages</span>
-                  <button class="delete-btn" @click="clearFile">Remove</button>
+                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="clearFile"></el-button>
                 </div>
               </div>
-
-              <div v-if="!selectedFile" class="file-count-hint">
-                Maximum file size: 50MB | Only PDF files supported
-              </div>
-
-              <div v-if="selectedFile" class="action-section">
-                <button class="btn btn-primary" @click="goToNext">Continue</button>
+              <div class="action-section">
+                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
               </div>
             </div>
           </el-tab-pane>
-
-          <el-tab-pane label="Options" name="1" :disabled="!selectedFile">
+          <el-tab-pane label="Options" name="1">
             <div class="tab-content">
-              <div class="margin-preview">
-                <div class="margin-box">
-                  <div class="margin-box-inner"></div>
-                  <div class="margin-label top">{{ margins.top }}mm</div>
-                  <div class="margin-label bottom">{{ margins.bottom }}mm</div>
-                  <div class="margin-label left">{{ margins.left }}mm</div>
-                  <div class="margin-label right">{{ margins.right }}mm</div>
+              <div class="margin-sliders">
+                <div class="slider-row">
+                  <div class="slider-item">
+                    <label>Top: {{ margins.top }}mm</label>
+                    <el-slider v-model="margins.top" :min="0" :max="50" :step="1"></el-slider>
+                  </div>
+                  <div class="slider-item">
+                    <label>Bottom: {{ margins.bottom }}mm</label>
+                    <el-slider v-model="margins.bottom" :min="0" :max="50" :step="1"></el-slider>
+                  </div>
+                </div>
+                <div class="slider-row">
+                  <div class="slider-item">
+                    <label>Left: {{ margins.left }}mm</label>
+                    <el-slider v-model="margins.left" :min="0" :max="50" :step="1"></el-slider>
+                  </div>
+                  <div class="slider-item">
+                    <label>Right: {{ margins.right }}mm</label>
+                    <el-slider v-model="margins.right" :min="0" :max="50" :step="1"></el-slider>
+                  </div>
                 </div>
               </div>
-
-              <div class="options-group">
-                <label>Top Margin: {{ margins.top }}mm</label>
-                <el-slider v-model="margins.top" :min="0" :max="50" :step="1"></el-slider>
-              </div>
-
-              <div class="options-group">
-                <label>Bottom Margin: {{ margins.bottom }}mm</label>
-                <el-slider v-model="margins.bottom" :min="0" :max="50" :step="1"></el-slider>
-              </div>
-
-              <div class="options-group">
-                <label>Left Margin: {{ margins.left }}mm</label>
-                <el-slider v-model="margins.left" :min="0" :max="50" :step="1"></el-slider>
-              </div>
-
-              <div class="options-group">
-                <label>Right Margin: {{ margins.right }}mm</label>
-                <el-slider v-model="margins.right" :min="0" :max="50" :step="1"></el-slider>
-              </div>
-
               <div class="options-group">
                 <label>Quick Presets</label>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                  <button class="btn btn-secondary" @click="setPreset('narrow')">Narrow (5mm)</button>
-                  <button class="btn btn-secondary" @click="setPreset('normal')">Normal (10mm)</button>
-                  <button class="btn btn-secondary" @click="setPreset('wide')">Wide (15mm)</button>
-                  <button class="btn btn-secondary" @click="setPreset('binding')">Binding (5-20mm)</button>
-                  <button class="btn btn-secondary" @click="setPreset('symmetric')">Symmetric</button>
-                  <button class="btn btn-secondary" @click="setPreset('reset')">Reset</button>
+                <div class="preset-buttons">
+                  <button :class="{ active: currentPreset === 'narrow' }" @click="setPreset('narrow')">Narrow (5mm)</button>
+                  <button :class="{ active: currentPreset === 'normal' }" @click="setPreset('normal')">Normal (10mm)</button>
+                  <button :class="{ active: currentPreset === 'wide' }" @click="setPreset('wide')">Wide (15mm)</button>
+                  <button :class="{ active: currentPreset === 'binding' }" @click="setPreset('binding')">Binding (5-20mm)</button>
+                  <button :class="{ active: currentPreset === 'symmetric' }" @click="setPreset('symmetric')">Symmetric</button>
+                  <button @click="setPreset('reset')">Reset</button>
                 </div>
               </div>
-
               <div class="action-section">
-                <button class="btn btn-secondary" @click="goToPrev">Back</button>
-                <button class="btn btn-primary" @click="addMargins" :disabled="processing">
-                  {{ processing ? 'Adding Margins...' : 'Add Margins' }}
-                </button>
+                <el-button type="default" @click="goToPrev" :disabled="processing">Back</el-button>
+                <el-button type="primary" @click="addMargins" :disabled="processing">{{ processing ? 'Adding Margins...' : 'Add Margins' }}</el-button>
               </div>
-
               <div v-if="processing" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
                 <div class="progress-bar">
@@ -1247,8 +421,7 @@
               </div>
             </div>
           </el-tab-pane>
-
-          <el-tab-pane label="Result" name="2" :disabled="!resultBlob">
+          <el-tab-pane label="Result" name="2">
             <div class="tab-content">
               <div class="result-content" v-if="resultBlob">
                 <div class="result-title">
@@ -1259,64 +432,58 @@
                 <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
                 
                 <div class="result-preview" v-if="resultPreviews.length > 0">
-                  <p style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 12px;">Preview:</p>
-                  <div v-for="(page, i) in resultPreviews.slice(0, 5)" :key="i" class="result-page clickable" @click="openPreview(page)">
-                    <img :src="page" class="result-preview-img">
-                    <div class="result-page-num">{{ i + 1 }}</div>
+                  <div v-for="(page, i) in resultPreviews.slice(0, 5)" :key="i" class="page-preview-item clickable" @click="openPreview(page)">
+                    <img :src="page" class="page-preview-image">
+                    <div class="page-number">{{ i + 1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>
                   </div>
                 </div>
-
-                <div style="margin-top: 20px;">
-                  <label style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; display: block;">File Name</label>
-                  <input v-model="downloadFileName" type="text" class="filename-input" placeholder="Enter file name">
+                <div class="filename-input">
+                  <label>File Name:</label>
+                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
                 </div>
-
-                <button class="download-btn" @click="download">
+                <el-button type="primary" size="large" @click="download">
                   <i class="el-icon-download" style="margin-right: 8px;"></i>
                   Download PDF
-                </button>
+                </el-button>
               </div>
-
               <div class="action-section">
-                <button class="btn btn-secondary" @click="reset">Start Over</button>
+                <el-button type="default" @click="reset">Start Over</el-button>
               </div>
             </div>
           </el-tab-pane>
         </el-tabs>
       </div>
-
       <div class="instructions">
-        <h2 class="instructions-title">Why Choose PDFMaster?</h2>
+        <h2 class="instructions-title">Why Add Margins Here?</h2>
         <div class="steps">
           <div class="step">
-            <div class="step-number">💰</div>
-            <div class="step-title">Completely Free</div>
-            <div class="step-desc">No hidden fees, 100% free</div>
+            <i class="el-icon-check step-number"></i>
+            <div class="step-title">Precision Margin Control</div>
+            <div class="step-desc">0.1mm accuracy | Custom presets</div>
           </div>
           <div class="step">
-            <div class="step-number">🔐</div>
+            <i class="el-icon-lock step-number"></i>
+            <div class="step-title">100% Private</div>
+            <div class="step-desc">No server uploads | Locally processed</div>
+          </div>
+          <div class="step">
+            <i class="el-icon-close step-number"></i>
+            <div class="step-title">No Watermarks</div>
+            <div class="step-desc">Clean output | No branding</div>
+          </div>
+          <div class="step">
+            <i class="el-icon-edit step-number"></i>
+            <div class="step-title">Asymmetric Margins</div>
+            <div class="step-desc">Perfect for binding | Booklet support</div>
+          </div>
+          <div class="step">
+            <i class="el-icon-user step-number"></i>
             <div class="step-title">No Registration</div>
-            <div class="step-desc">No login required</div>
-          </div>
-          <div class="step">
-            <div class="step-number">⚡</div>
-            <div class="step-title">Fast Processing</div>
-            <div class="step-desc">Process in seconds</div>
-          </div>
-          <div class="step">
-            <div class="step-number">📄</div>
-            <div class="step-title">Custom Margins</div>
-            <div class="step-desc">Adjust all sides</div>
-          </div>
-          <div class="step">
-            <div class="step-number">✏️</div>
-            <div class="step-title">Quick Presets</div>
-            <div class="step-desc">One-click presets</div>
+            <div class="step-desc">Start immediately | No sign-up</div>
           </div>
         </div>
       </div>
-
       <div class="privacy-section">
         <h2 class="section-title">Local Processing - Your Privacy, Protected</h2>
         <div class="privacy-content">
@@ -1325,184 +492,129 @@
           <p>Unlike other online tools that require uploading your files to remote servers, PDFMaster processes everything locally. You can add margins to confidential contracts, personal documents, or sensitive business files with <strong>complete peace of mind</strong>.</p>
         </div>
       </div>
-
       <div class="technology-section">
-        <h2 class="section-title">Advanced Margin Adjustment Technology</h2>
+        <h2 class="section-title">Powered by Industry-Leading Technology</h2>
         <div class="tech-content">
-          <div class="tech-item">
-            <div class="tech-item-icon">📐</div>
+          <el-card class="tech-card" shadow="hover">
             <h3>0.1mm Precision Margin Engine</h3>
             <p>Our proprietary layout engine calculates page boundaries with 0.1mm precision, ensuring professional-grade margin adjustments. The engine supports asymmetric margins for booklet binding, with automatic gutter calculation for perfect inner margins.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">📐</div>
-            <h3>Intelligent Preset System</h3>
-            <p>Built-in presets for academic (1-inch margins), legal (1.5-inch side margins), and booklet printing (asymmetric gutters). Each preset is calibrated based on industry standards for optimal printing results.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">🖨️</div>
-            <h3>Printer Compatibility Engine</h3>
-            <p>Automatically detects minimum printable area for common printers and adjusts margins accordingly. Preserves bleed areas and crop marks for professional print shops.</p>
-          </div>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
+            <h3>Intelligent Content Scaling</h3>
+            <p>Advanced content-aware scaling preserves document integrity when adding margins. Text, images, and graphics are automatically adjusted to maintain proper proportions and readability across all page sizes.</p>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
+            <h3>Multi-Unit Support System</h3>
+            <p>Seamlessly switch between millimeters, inches, and points. Our unit conversion engine ensures accurate margin calculations regardless of your preferred measurement system.</p>
+          </el-card>
         </div>
       </div>
-
-      <div class="guide-section">
+            <div class="guide-section">
         <h2 class="section-title">Pro Tips for Better PDF Margins</h2>
         <div class="guide-content">
-          <div class="guide-item">
-            <div class="guide-item-icon">📐</div>
-            <h3>Choose the Right Preset</h3>
-            <p>Use the Binding preset for documents that will be bound, or Symmetric for double-sided printing to ensure consistent margins on both sides.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">🖨️</div>
-            <h3>Check Printer Settings</h3>
-            <p>Ensure your margins match your printer's minimum printable area. Most printers need at least 5mm on each side.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">✅</div>
-            <h3>Preview Before Printing</h3>
-            <p>Always preview your document before printing to verify margins are correct and content isn't cut off.</p>
-          </div>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Choose the Right Preset</h3>
+            <p class="guide-desc">Use the Binding preset for documents that will be bound, or Symmetric for double-sided printing to ensure consistent margins on both sides.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Check Printer Settings</h3>
+            <p class="guide-desc">Ensure your margins match your printer's minimum printable area. Most printers need at least 5mm on each side.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Preview Before Printing</h3>
+            <p class="guide-desc">Always preview your document before printing to verify margins are correct and content isn't cut off.</p>
+          </el-card>
         </div>
       </div>
-
-      <div class="faq-section">
+            <div class="faq-section">
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <div class="faq-item">
-          <h3>How to add margins to PDF online free?</h3>
-          <p>Upload your PDF, adjust margin sizes for each side, and click Add Margins. Your PDF with custom margins will be ready to download in seconds - completely free.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Is this PDF margin adder free to use?</h3>
-          <p>Yes! Our PDF margin adder is completely free with no usage limits. No signup or payment required. No watermark on output.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I customize individual margin sizes?</h3>
-          <p>Yes! You can set different margin sizes for top, bottom, left, and right independently.</p>
-        </div>
-        <div class="faq-item">
-          <h3>What margin presets are available?</h3>
-          <p>We offer several presets: Narrow (5mm), Normal (10mm), Wide (15mm), Binding (5-20mm for booklet printing), and Symmetric.</p>
-        </div>
-        <div class="faq-item">
-          <h3>What is the maximum margin size?</h3>
-          <p>You can set margins up to 50mm on each side.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Will adding margins affect PDF quality?</h3>
-          <p>No! We use lossless PDF processing. Your PDF with added margins will maintain the same quality as the original file.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I add margins to PDF on Mac for free?</h3>
-          <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and add margins for free. No software to install.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I use this tool on iPhone or Android?</h3>
-          <p>Yes! Our PDF margin tool works perfectly on mobile devices. Just open your browser and start adding margins - no app installation required.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Is my data secure?</h3>
-          <p>Yes! All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Which browsers are supported?</h3>
-          <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-        </div>
-        <div class="faq-item">
-          <h3>What's the file size limit?</h3>
-          <p>Each file must be under 50MB. This ensures efficient processing in your browser without performance issues.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Why choose PDFMaster for adding margins?</h3>
-          <p>PDFMaster offers 100% free margin adjustment with no watermarks, local processing for complete privacy, and multiple preset options. Your files stay secure on your device.</p>
-        </div>
-        <div class="faq-item">
-          <h3>What margin size is required for academic papers?</h3>
-          <p>Most universities require 1-inch (25.4mm) margins on all sides for essays, research papers, and dissertations. Use our Academic preset for instant compliance.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I create booklet margins for printing?</h3>
-          <p>Yes! Our Binding preset automatically creates asymmetric margins - wider on the inside for binding and narrower on the outside for perfect booklet printing.</p>
-        </div>
-        <div class="faq-item">
-          <h3>What margins are needed for legal documents?</h3>
-          <p>Legal documents typically require 1.5-inch (38mm) side margins and 1-inch (25.4mm) top/bottom margins. Use our Legal preset for compliance.</p>
-        </div>
+        <el-collapse accordion>
+          <el-collapse-item title="How to add margins to PDF online free?">
+            <p>Upload your PDF, adjust margin sizes for each side, and click Add Margins. Your PDF with custom margins will be ready to download in seconds - completely free.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Is this PDF margin adder free to use?">
+            <p>Yes! Our PDF margin adder is completely free with no usage limits. No signup or payment required. No watermark on output.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I customize individual margin sizes?">
+            <p>Yes! You can set different margin sizes for top, bottom, left, and right independently.</p>
+          </el-collapse-item>
+          <el-collapse-item title="What margin presets are available?">
+            <p>We offer several presets: Narrow (5mm), Normal (10mm), Wide (15mm), Binding (5-20mm for booklet printing), and Symmetric.</p>
+          </el-collapse-item>
+          <el-collapse-item title="What is the maximum margin size?">
+            <p>You can set margins up to 50mm on each side.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Will adding margins affect PDF quality?">
+            <p>No! We use lossless PDF processing. Your PDF with added margins will maintain the same quality as the original file.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I add margins to PDF on Mac for free?">
+            <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and add margins for free. No software to install.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I use this tool on iPhone or Android?">
+            <p>Yes! Our PDF margin tool works perfectly on mobile devices. Just open your browser and start adding margins - no app installation required.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Is my data secure?">
+            <p>Yes! All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Which browsers are supported?">
+            <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
+          </el-collapse-item>
+          <el-collapse-item title="What's the file size limit?">
+            <p>Each file must be under 50MB. This ensures efficient processing in your browser without performance issues.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Why choose PDFMaster for adding margins?">
+            <p>PDFMaster offers 100% free margin adjustment with no watermarks, local processing for complete privacy, and multiple preset options. Your files stay secure on your device.</p>
+          </el-collapse-item>
+          <el-collapse-item title="What margin size is required for academic papers?">
+            <p>Most universities require 1-inch (25.4mm) margins on all sides for essays, research papers, and dissertations. Use our Academic preset for instant compliance.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I create booklet margins for printing?">
+            <p>Yes! Our Binding preset automatically creates asymmetric margins - wider on the inside for binding and narrower on the outside for perfect booklet printing.</p>
+          </el-collapse-item>
+          <el-collapse-item title="What margins are needed for legal documents?">
+            <p>Legal documents typically require 1.5-inch (38mm) side margins and 1-inch (25.4mm) top/bottom margins. Use our Legal preset for compliance.</p>
+          </el-collapse-item>
+        </el-collapse>
       </div>
-
-      <div class="tutorial-section">
-        <h2 class="section-title">How to Add Margins to PDF</h2>
-        <div class="tutorial-step">
-          <div class="tutorial-number">1</div>
-          <div class="tutorial-content">
-            <h3>Upload Your PDF</h3>
-            <p>Drag and drop your PDF file into the upload area or click to browse your computer.</p>
-          </div>
-        </div>
-        <div class="tutorial-step">
-          <div class="tutorial-number">2</div>
-          <div class="tutorial-content">
-            <h3>Customize Margins</h3>
-            <p>Adjust the margin sizes for top, bottom, left, and right, or use one of the quick presets.</p>
-          </div>
-        </div>
-        <div class="tutorial-step">
-          <div class="tutorial-number">3</div>
-          <div class="tutorial-content">
-            <h3>Add Margins</h3>
-            <p>Click "Add Margins" and wait for processing. All operations happen locally in your browser.</p>
-          </div>
-        </div>
-        <div class="tutorial-step">
-          <div class="tutorial-number">4</div>
-          <div class="tutorial-content">
-            <h3>Download</h3>
-            <p>Download your PDF with custom margins added.</p>
-          </div>
-        </div>
-      </div>
-
       <div class="blog-section">
         <h2 class="section-title">PDF Margin Adjustment - Essential Use Cases</h2>
         <div class="blog-card">
-          <div class="blog-icon">🖨️</div>
+          <i class="el-icon-briefcase blog-icon"></i>
           <h3>Professional Printing</h3>
           <p>Prepare PDFs for professional printing by adding proper margins. Ensure your documents meet print shop requirements with precise margin adjustments. Perfect for business cards, flyers, brochures, and marketing materials.</p>
         </div>
         <div class="blog-card">
-          <div class="blog-icon">📑</div>
+          <i class="el-icon-briefcase blog-icon"></i>
           <h3>Booklet & Book Binding</h3>
           <p>Create booklets with extra binding margins on the inside. Our booklet preset automatically adds asymmetric margins - wider on the binding side, narrower on the outer edge - ideal for self-publishing authors and small publishers.</p>
         </div>
         <div class="blog-card">
-          <div class="blog-icon">✏️</div>
+          <i class="el-icon-briefcase blog-icon"></i>
           <h3>Annotation & Note Space</h3>
           <p>Add extra margin space for handwritten notes and annotations on printed documents. Perfect for students, teachers, and professionals who need to mark up documents, textbooks, and meeting materials.</p>
         </div>
         <div class="blog-card">
-          <div class="blog-icon">📄</div>
+          <i class="el-icon-briefcase blog-icon"></i>
           <h3>Document Standardization</h3>
           <p>Ensure consistent margins across all your PDF documents for a professional look. Standardize company reports, proposals, and official documents to maintain brand consistency.</p>
         </div>
         <div class="blog-card">
-          <div class="blog-icon">📚</div>
+          <i class="el-icon-briefcase blog-icon"></i>
           <h3>Academic Papers & Thesis</h3>
           <p>Adjust margins to meet university formatting requirements. Most academic institutions require 1-inch margins on all sides - our preset makes compliance easy for essays, research papers, and dissertations.</p>
         </div>
         <div class="blog-card">
-          <div class="blog-icon">💼</div>
+          <i class="el-icon-briefcase blog-icon"></i>
           <h3>Legal Documents</h3>
           <p>Prepare legal contracts and agreements for printing and signing. Proper margins ensure signatures and witness lines fit perfectly without overlapping content.</p>
         </div>
         <div class="blog-card">
-          <div class="blog-icon">🎨</div>
+          <i class="el-icon-briefcase blog-icon"></i>
           <h3>Design & Layout</h3>
           <p>Fine-tune margins for design projects. Add breathing room to posters, portfolios, and creative documents while maintaining visual balance.</p>
         </div>
         <div class="blog-card">
-          <div class="blog-icon">🔒</div>
+          <i class="el-icon-briefcase blog-icon"></i>
           <h3>Secure Processing</h3>
           <p>All margin adjustments happen locally in your browser. Your confidential documents never leave your device - perfect for sensitive legal, financial, and personal documents.</p>
         </div>
@@ -1514,14 +626,9 @@
       </div>
     </div>
   </div>
-
-  <div v-if="showPreviewModal" class="preview-modal" @click="closePreview">
-    <div class="modal-content" @click.stop>
-      <button class="modal-close" @click="closePreview">×</button>
-      <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview">
-    </div>
-  </div>
-
+<el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
+    <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+  </el-dialog>
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -1554,7 +661,6 @@
     </div>
   </footer>
 </div>
-
 <script>
 new Vue({
   el: '#app',
@@ -1569,6 +675,7 @@ new Vue({
         left: 10,
         right: 10
       },
+      currentPreset: 'normal',
       resultBlob: null,
       resultArrayBuffer: null,
       processing: false,
@@ -1582,31 +689,45 @@ new Vue({
     };
   },
   methods: {
-    goToNext() { this.currentStep = '1'; },
+    goToNext() { 
+      if (!this.selectedFile) {
+        this.$notify({
+          title: '提示',
+          message: 'Please upload a PDF file first',
+          type: 'warning'
+        });
+        return;
+      }
+      this.currentStep = '1'; 
+    },
     goToPrev() { this.currentStep = '0'; },
     
     handleExceed() {
-      this.$message.warning('You can upload only one file at a time');
+      this.$notify({ title: '提示', message: 'You can upload only one file at a time', type: 'warning' });
     },
     handleFileChange(file) {
       const rawFile = file.raw;
       if (!rawFile || rawFile.type !== 'application/pdf') {
-        this.$message.error('Please upload a PDF file');
+        this.$notify({ title: '错误', message: 'Please upload a PDF file', type: 'error' });
         return;
       }
       if (rawFile.size > 50 * 1024 * 1024) {
-        this.$message.error('File size exceeds 50MB limit');
+        this.$notify({ title: '错误', message: 'File size exceeds 50MB limit', type: 'error' });
+        return;
+      }
+      if (this.selectedFile) {
+        this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' });
         return;
       }
       this.processFile(rawFile);
     },
     async processFile(file) {
       if (file.type !== 'application/pdf') {
-        this.$message.error('Please upload a PDF file');
+        this.$notify({ title: '错误', message: 'Please upload a PDF file', type: 'error' });
         return;
       }
       if (file.size > 50 * 1024 * 1024) {
-        this.$message.error('File size exceeds 50MB limit');
+        this.$notify({ title: '错误', message: 'File size exceeds 50MB limit', type: 'error' });
         return;
       }
       
@@ -1625,14 +746,14 @@ new Vue({
     handleTabClick(tab) {
       const targetStep = tab.name;
       if (targetStep !== '0' && !this.selectedFile) {
-        this.$message.warning('Please upload a file first');
+        this.$notify({ title: '提示', message: 'Please upload a file first', type: 'warning' });
         this.$nextTick(() => {
           this.currentStep = '0';
         });
         return;
       }
       if (targetStep === '2' && !this.resultBlob) {
-        this.$message.warning('Please add margins first');
+        this.$notify({ title: '提示', message: 'Please add margins first', type: 'warning' });
         this.$nextTick(() => {
           this.currentStep = '1';
         });
@@ -1641,6 +762,7 @@ new Vue({
     },
     
     setPreset(preset) {
+      this.currentPreset = preset;
       switch(preset) {
         case 'narrow':
           this.margins = { top: 5, bottom: 5, left: 5, right: 5 };
@@ -1659,6 +781,7 @@ new Vue({
           break;
         case 'reset':
           this.margins = { top: 10, bottom: 10, left: 10, right: 10 };
+          this.currentPreset = 'normal';
           break;
       }
     },
@@ -1712,12 +835,12 @@ new Vue({
           this.processing = false;
           this.progress = 100;
           this.currentStep = '2';
-          this.$message.success('Margins added successfully!');
+          this.$notify({ title: '成功', message: 'Margins added successfully!', type: 'success' });
         }, 300);
         
       } catch (error) {
         this.processing = false;
-        this.$message.error('Failed to add margins');
+        this.$notify({ title: '错误', message: 'Failed to add margins', type: 'error' });
         console.error(error);
       }
     },

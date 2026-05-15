@@ -6,19 +6,16 @@
   <title>Free PDF Splitter - Split PDF Files Online | PDFMaster</title>
   <meta name="description" content="Split PDF files online free - separate pages into multiple documents, extract specific pages. 100% local processing, no upload, no watermark, no registration. Up to 50MB. Works on Mac, Windows, iPhone & Android.">
   <link rel="canonical" href="https://pdfeasz.com/pdf-splitter.html" />
-
   <meta property="og:title" content="Free PDF Splitter - Split PDFs Online | PDFMaster" />
   <meta property="og:description" content="Split PDF files online free with PDFMaster. Separate pages into multiple files easily. All processing happens locally." />
   <meta property="og:image" content="https://pdfeasz.com/assets/share.png" />
   <meta property="og:url" content="https://pdfeasz.com/pdf-splitter.html" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PDFMaster" />
-
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Free PDF Splitter - Split PDFs Online | PDFMaster" />
   <meta name="twitter:description" content="Split PDF files online free with PDFMaster. Separate pages into multiple files easily." />
   <meta name="twitter:image" content="https://pdfeasz.com/assets/share.png" />
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -33,7 +30,6 @@
     }
   }
   </script>
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -63,7 +59,6 @@
     "featureList": ["Split PDFs into multiple files", "Visual page selection", "Custom page range input", "Local browser processing", "No registration required", "Works on Mac, Windows, iOS, Android", "Secure and private", "No watermark on output"]
   }
   </script>
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -84,7 +79,6 @@
     ]
   }
   </script>
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -157,1032 +151,14 @@
     ]
   }
   </script>
-
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
+  <link rel="stylesheet" href="/common.css">
   <script src="./lib/vue/vue.js"></script>
   <script src="./lib/element-ui/index.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.min.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f7fa;
-      color: #333;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 100%;
-      width: 95%;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-    .app { min-height: 100vh; display: flex; flex-direction: column; }
-    .main-content { 
-      flex: 1; 
-      padding: 32px 0;
-      max-width: 1100px;
-      margin: 0 auto;
-      width: 95%;
-    }
-
-    .header {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-      padding: 12px 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo-image {
-      width: 44px;
-      height: 44px;
-      border-radius: 16px;
-      object-fit: contain;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      padding: 8px;
-    }
-    .logo-text {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .header-links {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-    .header-links a {
-      font-size: 14px;
-      font-weight: 500;
-      color: #475569;
-      transition: color 0.3s;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-    }
-    .header-links a:hover {
-      color: #409EFF;
-      background: rgba(64, 158, 255, 0.08);
-    }
-    .contact-btn {
-      background: linear-gradient(135deg, #409EFF, #337ecc);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .contact-btn:hover {
-      background: linear-gradient(135deg, #337ecc, #409EFF) !important;
-      transform: translateY(-1px);
-    }
-    .feedback-btn {
-      background: linear-gradient(135deg, #67C23A, #5eb830);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .feedback-btn:hover {
-      background: linear-gradient(135deg, #5eb830, #67C23A) !important;
-      transform: translateY(-1px);
-    }
-    .back-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white !important;
-      padding: 10px 20px !important;
-      transition: all 0.3s;
-    }
-    .back-btn:hover {
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
-      color: white !important;
-      transform: translateY(-1px);
-    }
-
-    .breadcrumbs {
-      background: #f8fafc;
-      padding: 12px 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .breadcrumbs .el-breadcrumb {
-      font-size: 14px;
-    }
-    .breadcrumbs .el-breadcrumb__item a {
-      color: #409EFF;
-    }
-    .page-header { text-align: center; margin-bottom: 32px; }
-    .page-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 16px;
-      line-height: 1.3;
-    }
-    .page-subtitle {
-      font-size: 16px;
-      color: #ffffff;
-      line-height: 1.8;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 24px 32px;
-      background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(64, 158, 255, 0.35);
-      position: relative;
-      overflow: hidden;
-      font-weight: 500;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-    .page-subtitle::before {
-      content: '📄';
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      font-size: 60px;
-      opacity: 0.15;
-    }
-    .page-subtitle::after {
-      content: '🔗';
-      position: absolute;
-      bottom: -10px;
-      left: -10px;
-      font-size: 50px;
-      opacity: 0.15;
-    }
-
-    .steps-container { margin-bottom: 32px; }
-    .steps-wrapper {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-
-    .tool-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      overflow: hidden;
-      margin-bottom: 32px;
-    }
-
-    .tab-content { padding: 32px; }
-
-    .upload-area {
-      border: 2px dashed #d1d5db !important;
-      border-radius: 16px !important;
-      padding: 40px 24px !important;
-      background: #fafafa !important;
-      cursor: pointer !important;
-      transition: all 0.3s !important;
-      text-align: center !important;
-      min-height: 200px !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-    .upload-area:hover { border-color: #409EFF !important; background: #f0f7ff !important; }
-    .upload-area .el-upload-dragger {
-      border: none !important;
-      background: transparent !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-    .upload-icon {
-      font-size: 48px !important;
-      color: #409EFF !important;
-      margin-bottom: 16px !important;
-    }
-    .upload-text {
-      font-size: 18px !important;
-      font-weight: 500 !important;
-      color: #334155 !important;
-      margin-bottom: 8px !important;
-    }
-    .upload-hint {
-      font-size: 14px !important;
-      color: #94a3b8 !important;
-    }
-    .upload-hint strong { color: #409EFF !important; }
-
-    .el-upload-dragger {
-      width: 100% !important;
-      min-height: 180px !important;
-      max-height: 200px !important;
-      border: none !important;
-      border-radius: 16px !important;
-      background: transparent !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-      cursor: pointer !important;
-      transition: all 0.3s !important;
-    }
-    .el-upload-dragger:hover, .el-upload-dragger.dragover {
-      border-color: #409EFF;
-      background: #f0f7ff;
-    }
-    .el-upload__text {
-      font-size: 16px;
-      font-weight: 500;
-      color: #374151;
-      margin-top: 12px;
-    }
-    .el-upload__tip {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-top: 8px;
-    }
-
-    .file-list-section { margin-top:24px; }
-    .file-list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .file-list-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .clear-all-btn {
-      background: none;
-      border: none;
-      color: #ef4444;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-    .clear-all-btn:hover {
-      background: #fef2f2;
-      text-decoration: underline;
-    }
-    .file-item {
-      display: flex;
-      align-items: center;
-      padding: 14px 16px;
-      background: #f9fafb;
-      border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    .file-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: #374151;
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .file-info {
-      font-size: 12px;
-      color: #9ca3af;
-      margin: 0 12px;
-      flex-shrink: 0;
-    }
-    .delete-btn {
-      padding: 6px 12px;
-      font-size: 13px;
-      color: #fff;
-      background: #ef4444;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .delete-btn:hover { background: #dc2626; }
-
-    .file-count-hint {
-      font-size: 14px;
-      color: #d97706;
-      margin-top: 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 16px;
-      background: #fef3c7;
-      border: 1px solid #fde68a;
-      border-radius: 10px;
-      font-weight: 500;
-    }
-    .file-count-hint::before {
-      content: '⚠️';
-      font-size: 16px;
-    }
-
-    .options-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 8px;
-    }
-    .mode-description {
-      font-size: 13px;
-      color: #6b7280;
-      margin-bottom: 16px;
-    }
-    .split-mode-options {
-      display: flex;
-      gap: 16px;
-    }
-    .mode-option {
-      flex: 1;
-      padding: 20px;
-      border: 2px solid #e5e7eb;
-      border-radius: 16px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.3s;
-    }
-    .mode-option:hover { 
-      border-color: #409EFF; 
-      transform: translateY(-2px);
-    }
-    .mode-option.active {
-      border-color: #409EFF;
-      background: #f0f7ff;
-    }
-    .mode-icon {
-      font-size: 28px;
-      margin-bottom: 10px;
-    }
-    .mode-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-    }
-    .mode-desc {
-      font-size: 12px;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-    .mode-explanation {
-      font-size: 12px;
-      color: #9ca3af;
-      line-height: 1.5;
-      padding-top: 8px;
-      border-top: 1px dashed #e5e7eb;
-      margin-top: 8px;
-    }
-
-    .progress-section {
-      margin-top: 20px;
-      padding: 16px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 10px;
-    }
-    .progress-text {
-      font-size: 14px;
-      color: #065f46;
-      margin-bottom: 12px;
-      font-weight: 500;
-    }
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: #dcfce7;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #34d399);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    .page-preview-item.clickable {
-      cursor: zoom-in;
-      transition: all 0.3s;
-    }
-    .page-preview-item.clickable:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    }
-    .preview-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 11px;
-      opacity: 0;
-      transition: all 0.3s;
-    }
-    .page-preview-item.clickable:hover .preview-overlay {
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 1;
-    }
-
-    .preview-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 20px;
-    }
-    .modal-content {
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
-      max-width: 90vw;
-      max-height: 90vh;
-      position: relative;
-    }
-    .modal-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 36px;
-      height: 36px;
-      border: none;
-      background: #f3f4f6;
-      border-radius: 50%;
-      font-size: 24px;
-      color: #6b7280;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-    }
-    .modal-close:hover {
-      background: #ef4444;
-      color: white;
-    }
-    .modal-image {
-      max-width: 100%;
-      max-height: 85vh;
-      border-radius: 8px;
-    }
-
-    .preview-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      margin: 20px 0 10px;
-    }
-    .page-preview-container {
-      padding: 16px;
-      background: #f9fafb;
-      border-radius: 16px;
-    }
-    .file-pages-header {
-      font-size: 14px;
-      font-weight: 600;
-      margin: 10px 0;
-    }
-    .page-preview-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .page-preview-item {
-      width: 80px;
-      height: 120px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      overflow: hidden;
-      cursor: pointer;
-      position: relative;
-      background: white;
-      display: flex;
-      flex-direction: column;
-    }
-    .page-preview-item.selected {
-      border-color: #409EFF;
-    }
-    .page-preview-image {
-      flex: 1;
-      width: 100%;
-      object-fit: contain;
-      background: #f9fafb;
-    }
-    .page-number {
-      font-size: 11px;
-      text-align: center;
-      padding: 4px;
-      background: #f3f4f6;
-      color: #6b7280;
-    }
-    .selected-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(64, 158, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #409EFF;
-    }
-
-    .action-section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 24px;
-    }
-    .btn {
-      flex: 1;
-      padding: 14px 24px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: #409EFF;
-      color: white;
-    }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #4b5563;
-    }
-
-    .result-content {
-      text-align: center;
-      padding: 32px;
-      background: #ecfdf5;
-      border-radius: 16px;
-    }
-    .result-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #065f46;
-    }
-    .result-desc {
-      font-size: 14px;
-      color: #047857;
-      margin: 8px 0 24px;
-    }
-    .result-preview {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-    .download-btn {
-      padding: 16px 40px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 16px;
-    }
-    .filename-input {
-      margin: 16px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-    .filename-input label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-    }
-    .filename-input input {
-      width: 100%;
-      max-width: 300px;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-    .filename-input input:focus {
-      outline: none;
-      border-color: #409EFF;
-    }
-    .recommend-section {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px dashed #d1d5db;
-    }
-    .recommend-section p {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-    .recommend-link {
-      font-size: 14px;
-      font-weight: 600;
-      color: #409EFF;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .recommend-link:hover {
-      color: #337ecc;
-      text-decoration: underline;
-    }
-
-    .instructions {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .instructions-title {
-      font-size: 20px;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 24px;
-    }
-    .step { text-align: center; }
-    .step-number {
-      width: 40px;
-      height: 40px;
-      background: #409EFF;
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-    }
-    .step-title { font-size: 14px; font-weight: 600; }
-    .step-desc { font-size: 12px; color: #6b7280; }
-
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 24px;
-      text-align: center;
-    }
-
-    .privacy-section {
-      background: linear-gradient(135deg, #065f46, #047857);
-      border-radius: 20px;
-      padding: 40px;
-      margin-top: 32px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    .privacy-section::before {
-      content: '🔒';
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      font-size: 120px;
-      opacity: 0.1;
-    }
-    .privacy-section .section-title {
-      color: white;
-      font-size: 22px;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content {
-      font-size: 15px;
-      line-height: 1.8;
-      color: rgba(255, 255, 255, 0.9);
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content p {
-      margin-bottom: 16px;
-    }
-    .privacy-content p:last-child {
-      margin-bottom: 0;
-    }
-    .privacy-content strong {
-      color: #a7f3d0;
-      font-weight: 600;
-    }
-
-    .faq-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .faq-item {
-      border-bottom: 1px solid #f1f5f9;
-      padding: 20px 0;
-    }
-    .faq-item:last-child { border-bottom: none; }
-    .faq-item h3 {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 8px;
-    }
-    .faq-item p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.6;
-    }
-
-    .tutorial-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .tutorial-step {
-      display: flex;
-      gap: 20px;
-      padding: 20px 0;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .tutorial-step:last-child { border-bottom: none; }
-    .tutorial-number {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .tutorial-content h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .tutorial-content p {
-      font-size: 14px;
-      color: #6b7280;
-    }
-
-    .blog-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .blog-card {
-      display: flex;
-      gap: 16px;
-      padding: 20px;
-      background: #f9fafb;
-      border-radius: 16px;
-      margin-bottom: 16px;
-    }
-    .blog-card:last-child { margin-bottom: 24px; }
-    .blog-icon { font-size: 28px; }
-    .blog-card h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .blog-card p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.5;
-    }
-    .cta-box {
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      border-radius: 16px;
-      padding: 32px;
-      text-align: center;
-      color: white;
-    }
-    .cta-box h3 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .cta-box p {
-      font-size: 14px;
-      opacity: 0.9;
-      margin-bottom: 16px;
-    }
-    .cta-button {
-      text-decoration: none;
-      position: relative;
-      z-index: 100;
-      background: white;
-      color: #409EFF;
-      border: none;
-      padding: 12px 32px;
-      font-size: 15px;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-    }
-
-    .footer {
-      background: white;
-      padding: 24px 0;
-      border-top: 1px solid #f1f5f9;
-      text-align: center;
-    }
-    .footer-content {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      margin-bottom: 24px;
-    }
-    .footer-section h4 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 12px;
-    }
-    .footer-section ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .footer-section li {
-      margin-bottom: 8px;
-    }
-    .footer-section li:last-child {
-      margin-bottom: 0;
-    }
-    .footer-section a {
-      font-size: 13px;
-      color: #6b7280;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .footer-section a:hover {
-      color: #409EFF;
-    }
-    .footer-copyright {
-      font-size: 12px;
-      color: #9ca3af;
-      padding-top: 16px;
-      border-top: 1px solid #f1f5f9;
-    }
-
-    @media (max-width: 768px) {
-      .steps { grid-template-columns: repeat(2, 1fr); }
-      .action-section { flex-direction: column; }
-      .split-mode-options { flex-direction: column; }
-      .tab-content { padding: 16px; }
-      .header-content { flex-direction: column; gap: 12px; }
-      .header-links { gap: 8px; flex-wrap: wrap; justify-content: center; }
-      .header-links a { padding: 6px 12px; font-size: 12px; }
-      .logo-text { font-size: 20px; }
-      .logo-image { width: 36px; height: 36px; }
-      .footer-content { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    }
-
-    .technology-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      border-radius: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .technology-section::before {
-      content: '⚡';
-      position: absolute;
-      top: -30px;
-      right: -30px;
-      font-size: 150px;
-      opacity: 0.05;
-    }
-    .technology-section .section-title {
-      color: white;
-      font-size: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-item {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      padding: 32px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-    .tech-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-    .tech-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .tech-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 12px;
-    }
-    .tech-item p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.7;
-    }
-
-    .guide-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
-    }
-    .guide-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-    }
-    .guide-item {
-      padding: 32px;
-      background: linear-gradient(135deg, #fef3c7, #fde68a);
-      border-radius: 16px;
-      border: 1px solid #fcd34d;
-      transition: all 0.3s ease;
-    }
-    .guide-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(251, 191, 36, 0.25);
-    }
-    .guide-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .guide-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #92400e;
-      margin-bottom: 12px;
-    }
-    .guide-item p {
-      font-size: 14px;
-      color: #78350f;
-      line-height: 1.7;
-    }
-  </style>
+  
 </head>
 <body>
 <div id="app" class="app">
@@ -1190,7 +166,7 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="./assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
+          <img src="/assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
           <span class="logo-text">PDFMaster</span>
         </div>
         <nav class="header-links">
@@ -1198,21 +174,18 @@
             <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
             Back to Home
           </a>
-          <a href="contact.html" class="contact-btn">Contact</a>
+          <a href="contact.html" class="contact-btn">Contact Us</a>
           <a href="feedback.html" class="feedback-btn">Feedback</a>
         </nav>
       </div>
     </div>
   </header>
-
-
   <div class="main-content">
     <div class="container">
       <div class="page-header">
         <h1 class="page-title">Free PDF Splitter - Split PDF Files Online</h1>
         <p class="page-subtitle">Split PDF files online for free. Extract individual pages or divide PDF into multiple documents. All processing happens locally in your browser. Split PDF online no signup required.</p>
       </div>
-
       <div class="steps-container">
         <div class="steps-wrapper">
           <el-steps :active="Number(currentStep)" finish-status="success" align-center>
@@ -1222,9 +195,8 @@
           </el-steps>
         </div>
       </div>
-
       <div class="tool-card">
-        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick">
+        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick" type="border-card">
           <el-tab-pane label="Upload" name="0">
             <div class="tab-content">
               <el-upload
@@ -1238,40 +210,35 @@
                 :limit="1"
                 :on-exceed="handleExceed"
               >
-                <i class="el-icon-upload upload-icon"></i>
+                <div class="upload-icon">📁</div>
                 <div class="upload-text">Drag & drop PDF file here</div>
-                <div class="upload-hint">or <strong>browse files</strong> from your device. Split PDF online free, no registration required.</div>
+                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
               </el-upload>
-
               <div v-if="selectedFiles.length" class="file-list-section">
                 <div class="file-list-header">
                   <div class="file-list-title">
                     <i class="el-icon-files"></i>
                     Selected File ({{ selectedFiles.length }})
                   </div>
-                  <button class="clear-all-btn" @click="clearAllFiles">Clear All</button>
+                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearAllFiles">Clear All</el-button>
                 </div>
                 <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
                   <span class="file-name">{{ file.name }}</span>
                   <span class="file-info">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
-                  <button class="delete-btn" @click="removeFile(idx)">Remove</button>
+                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="removeFile(idx)"></el-button>
                 </div>
               </div>
-
               <div class="action-section">
-                <button class="btn btn-primary" @click="goToNext" :disabled="selectedFiles.length < 1">
-                  Continue
-                </button>
+                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
               </div>
             </div>
           </el-tab-pane>
-
           <el-tab-pane label="Options" name="1">
             <div class="tab-content">
               <div class="options-section">
                 <div class="options-title">Split Mode</div>
                 <div class="mode-description">Choose how you want to split your PDF</div>
-                <div class="split-mode-options">
+                <div class="merge-mode-options">
                   <div class="mode-option" :class="{active: form.mode === 'every'}" @click="form.mode = 'every'">
                     <div class="mode-icon">📄</div>
                     <div class="mode-title">Every Page</div>
@@ -1292,14 +259,12 @@
                   </div>
                 </div>
               </div>
-
               <div v-if="form.mode === 'range'" class="options-section" style="margin-top: 24px;">
                 <div class="options-title">Page Ranges</div>
                 <div class="mode-description">Enter page ranges separated by commas (e.g., 1-5,7-10)</div>
                 <el-input v-model="form.ranges" placeholder="Example: 1-5,7-10,15" style="width: 100%; margin-bottom: 12px;" />
                 <div class="mode-description">Each range will create a separate PDF file</div>
               </div>
-
               <div v-if="form.mode === 'select' && selectedFiles.length > 0" class="preview-section">
                 <div class="preview-title">Select Pages to Extract</div>
                 <div class="page-preview-container">
@@ -1315,16 +280,13 @@
                   </div>
                 </div>
               </div>
-
               <div v-if="form.mode === 'select'" class="file-count-hint" style="margin-top: 16px;">
                 Selected {{ selectedPages.length }} pages
               </div>
-
               <div class="action-section">
-                <button class="btn btn-secondary" @click="goToPrev" :disabled="splitting">Back</button>
-                <button class="btn btn-primary" @click="startSplit" :disabled="splitting || !canSplit">{{ splitting ? 'Splitting...' : 'Split PDF' }}</button>
+                <el-button type="default" @click="goToPrev" :disabled="splitting">Back</el-button>
+                <el-button type="primary" @click="startSplit" :disabled="splitting || !canSplit">{{ splitting ? 'Splitting...' : 'Split PDF' }}</el-button>
               </div>
-
               <div v-if="splitting" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
                 <div class="progress-bar">
@@ -1333,7 +295,6 @@
               </div>
             </div>
           </el-tab-pane>
-
           <el-tab-pane label="Result" name="2">
             <div class="tab-content">
               <div class="result-content" v-if="done">
@@ -1361,22 +322,16 @@
                   <a href="pdf-merger.html" class="recommend-link">Try our PDF Merger Tool →</a>
                 </div>
               </div>
-
               <div class="action-section">
-                <button class="btn btn-secondary" @click="reset">Start Over</button>
+                <el-button type="default" @click="reset">Start Over</el-button>
               </div>
             </div>
           </el-tab-pane>
         </el-tabs>
       </div>
-
-      <div v-if="showPreviewModal" class="preview-modal" @click="closePreview">
-        <div class="modal-content" @click.stop>
-          <button class="modal-close" @click="closePreview">×</button>
-          <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview">
-        </div>
-      </div>
-
+      <el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
+        <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+      </el-dialog>
       <div class="instructions">
         <h2 class="instructions-title">Why Choose PDFMaster?</h2>
         <div class="steps">
@@ -1407,7 +362,6 @@
           </div>
         </div>
       </div>
-
       <div class="privacy-section">
         <h2 class="section-title">Local Processing - Your Privacy, Protected</h2>
         <div class="privacy-content">
@@ -1415,113 +369,93 @@
           <p>This means your sensitive documents stay <strong>private and secure</strong>. There's <strong>no risk of data breaches</strong>, <strong>no third-party access</strong>, and <strong>no server logs</strong> containing your information. Even if you're offline, our tool continues to work because everything runs locally in your browser.</p>
         </div>
       </div>
-
       <div class="technology-section">
         <h2 class="section-title">How PDF Splitting Works</h2>
         <div class="tech-content">
-          <div class="tech-item">
-            <div class="tech-item-icon">✂️</div>
+          <el-card class="tech-card" shadow="hover">
+            <!-- <div class="tech-card-icon">✂️</div> -->
             <h3>Precision Page Extraction</h3>
             <p>Our extraction algorithm identifies page boundaries with pixel-perfect accuracy. Complex documents with varying page sizes and orientations split correctly every time.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">�</div>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
+            <!-- <div class="tech-card-icon"></div> -->
             <h3>Smart Document Assembly</h3>
             <p>Each split document inherits the original PDF's structure - fonts, images, and interactive elements remain intact. No data loss, no formatting issues.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">🎯</div>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
+            <!-- <div class="tech-card-icon">🎯</div> -->
             <h3>Flexible Range Selection</h3>
             <p>Our parser supports multiple split modes - by page numbers, ranges, or custom selections. Complex extraction patterns process in a single pass.</p>
-          </div>
+          </el-card>
         </div>
       </div>
-
       <div class="guide-section">
         <h2 class="section-title">Pro Tips for Better PDF Splitting</h2>
         <div class="guide-content">
-          <div class="guide-item">
-            <div class="guide-item-icon">📊</div>
-            <h3>Plan Your Split Strategy</h3>
-            <p>Decide how you want to split your PDF before uploading. You can split by page range, extract specific pages, or split after every X pages.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">📁</div>
-            <h3>Organize Output Files</h3>
-            <p>Use custom file name prefixes to keep your split files organized. This makes it easier to find specific documents later.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">✅</div>
-            <h3>Verify Split Results</h3>
-            <p>Always check the first few pages of each split file to ensure pages are correctly separated and no content is missing.</p>
-          </div>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Plan Your Split Strategy</h3>
+            <p class="guide-desc">Decide how you want to split your PDF before uploading. You can split by page range, extract specific pages, or split after every X pages.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Organize Output Files</h3>
+            <p class="guide-desc">Use custom file name prefixes to keep your split files organized. This makes it easier to find specific documents later.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Verify Split Results</h3>
+            <p class="guide-desc">Always check the first few pages of each split file to ensure pages are correctly separated and no content is missing.</p>
+          </el-card>
         </div>
       </div>
-
       <div class="faq-section">
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <div class="faq-item">
-          <h3>How to split PDF files for free?</h3>
-          <p>It's easy! Upload your PDF file, choose a split mode (every page, select pages, or page ranges), and click split. Your split PDFs will be ready to download in seconds.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Is there a file size limit?</h3>
-          <p>Yes, each file must be under 50MB. Split PDF up to 50MB online free with our service.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Does my data get uploaded to servers?</h3>
-          <p>No! All processing happens locally in your browser. Your files never leave your device.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I extract specific pages from a PDF?</h3>
-          <p>Yes! Choose the "Select Pages" mode to pick individual pages from your document.</p>
-        </div>
-        <div class="faq-item">
-          <h3>What page range formats are supported?</h3>
-          <p>You can use single pages (5), ranges (1-5), or combinations (1-3,7-10,15).</p>
-        </div>
-        <div class="faq-item">
-          <h3>Do I need special software to split PDFs?</h3>
-          <p>No! Our online tool works in any web browser. No installation required - works on Windows, Mac, and mobile devices.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Will splitting PDFs affect the quality of my files?</h3>
-          <p>No! We use lossless PDF processing. Your split pages will maintain the same quality as the original file. Text, images, fonts, and formatting are preserved exactly.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I split password-protected PDFs?</h3>
-          <p>Currently, we don't support password-protected PDFs. Please remove the password from your files before uploading them to our tool.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I use this tool on my iPhone or Android device?</h3>
-          <p>Yes! Our tool works perfectly on mobile devices. Just open your browser on iPhone or Android, navigate to PDFMaster, and start splitting PDFs - no app installation required.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Will the split PDFs open in all PDF readers?</h3>
-          <p>Absolutely! Our split PDFs are standard PDF files that open in Adobe Reader, Preview, Chrome, Safari, and any other PDF reader. Full compatibility guaranteed.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Which browsers are supported?</h3>
-          <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version of your browser.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Is there a limit to how many times I can use the tool?</h3>
-          <p>No! There's no usage limit. You can split PDFs as many times as you want, completely free of charge.</p>
-        </div>
-        <div class="faq-item">
-          <h3>How to split PDF files on Mac for free?</h3>
-          <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and split it for free. No software to install, no watermarks added.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I split PDF files on iPhone without an app?</h3>
-          <p>Absolutely! Just open Safari on your iPhone, navigate to PDFMaster, and split PDFs directly in your browser. No app download required.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Why choose PDFMaster for splitting PDFs?</h3>
-          <p>Unlike other tools that limit free users, force uploads to servers, or add watermarks - PDFMaster is 100% free, 100% private, with no registration required. Your files stay on your device, always.</p>
-        </div>
+        <el-collapse accordion>
+          <el-collapse-item title="How to split PDF files for free?">
+            <p>It's easy! Upload your PDF file, choose a split mode (every page, select pages, or page ranges), and click split. Your split PDFs will be ready to download in seconds.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Is there a file size limit?">
+            <p>Yes, each file must be under 50MB. Split PDF up to 50MB online free with our service.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Does my data get uploaded to servers?">
+            <p>No! All processing happens locally in your browser. Your files never leave your device.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I extract specific pages from a PDF?">
+            <p>Yes! Choose the "Select Pages" mode to pick individual pages from your document.</p>
+          </el-collapse-item>
+          <el-collapse-item title="What page range formats are supported?">
+            <p>You can use single pages (5), ranges (1-5), or combinations (1-3,7-10,15).</p>
+          </el-collapse-item>
+          <el-collapse-item title="Do I need special software to split PDFs?">
+            <p>No! Our online tool works in any web browser. No installation required - works on Windows, Mac, and mobile devices.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Will splitting PDFs affect the quality of my files?">
+            <p>No! We use lossless PDF processing. Your split pages will maintain the same quality as the original file. Text, images, fonts, and formatting are preserved exactly.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I split password-protected PDFs?">
+            <p>Currently, we don't support password-protected PDFs. Please remove the password from your files before uploading them to our tool.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I use this tool on my iPhone or Android device?">
+            <p>Yes! Our tool works perfectly on mobile devices. Just open your browser on iPhone or Android, navigate to PDFMaster, and start splitting PDFs - no app installation required.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Will the split PDFs open in all PDF readers?">
+            <p>Absolutely! Our split PDFs are standard PDF files that open in Adobe Reader, Preview, Chrome, Safari, and any other PDF reader. Full compatibility guaranteed.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Which browsers are supported?">
+            <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version of your browser.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Is there a limit to how many times I can use the tool?">
+            <p>No! There's no usage limit. You can split PDFs as many times as you want, completely free of charge.</p>
+          </el-collapse-item>
+          <el-collapse-item title="How to split PDF files on Mac for free?">
+            <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and split it for free. No software to install, no watermarks added.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I split PDF files on iPhone without an app?">
+            <p>Absolutely! Just open Safari on your iPhone, navigate to PDFMaster, and split PDFs directly in your browser. No app download required.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Why choose PDFMaster for splitting PDFs?">
+            <p>Unlike other tools that limit free users, force uploads to servers, or add watermarks - PDFMaster is 100% free, 100% private, with no registration required. Your files stay on your device, always.</p>
+          </el-collapse-item>
+        </el-collapse>
       </div>
-
       <div class="tutorial-section">
         <h2 class="section-title">How to Split PDF Files Step by Step</h2>
         <div class="tutorial-step">
@@ -1553,7 +487,6 @@
           </div>
         </div>
       </div>
-
       <div class="blog-section">
         <h2 class="section-title">PDF Document Separation - Top Use Cases</h2>
         <div class="blog-card">
@@ -1592,10 +525,8 @@
           <a href="#" class="cta-button" onclick="document.querySelector('#app').scrollIntoView({ behavior: 'smooth' }); return false;">Split PDF Now - 100% Free</a>
         </div>
       </div>
-
     </div>
   </div>
-
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -1628,7 +559,6 @@
     </div>
   </footer>
 </div>
-
 <script>
 new Vue({
   el: '#app',
@@ -1712,7 +642,17 @@ new Vue({
       this.splitResults = []
       this.currentPreviewImage = ''
     },
-    goToNext() { this.currentStep = '1' },
+    goToNext() { 
+      if (this.selectedFiles.length === 0) {
+        this.$notify({
+          title: '提示',
+          message: 'Please upload a PDF file first',
+          type: 'warning'
+        });
+        return;
+      }
+      this.currentStep = '1' 
+    },
     goToPrev() { this.currentStep = '0' },
     async openPreview(result) {
       if (result.blob) {
@@ -1739,14 +679,14 @@ new Vue({
     handleTabClick(tab) {
       const targetStep = tab.name
       if (targetStep !== '0' && this.selectedFiles.length === 0) {
-        this.$message.warning('Please upload a file first')
+        this.$notify({ title: '提示', message: 'Please upload a file first', type: 'warning' })
         this.$nextTick(() => {
           this.currentStep = '0'
         })
         return
       }
       if (targetStep === '2' && !this.done) {
-        this.$message.warning('Please complete splitting first')
+        this.$notify({ title: '提示', message: 'Please complete splitting first', type: 'warning' })
         this.$nextTick(() => {
           this.currentStep = '1'
         })
@@ -1754,18 +694,23 @@ new Vue({
       }
     },
     handleExceed() {
-      this.$message.warning('Only one file can be processed at a time')
+      this.$notify({ title: '提示', message: 'Only one file can be processed at a time', type: 'warning' })
     },
     async handleFileChange(file) {
       const raw = file.raw
       if (!raw.name.endsWith('.pdf')) {
-        this.$message.error('Only PDF files are allowed')
+        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
         return
       }
       
       const maxSize = 50 * 1024 * 1024
       if (raw.size > maxSize) {
-        this.$message.error('File size cannot exceed 50MB')
+        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' })
+        return
+      }
+      
+      if (this.selectedFiles.length >= 1) {
+        this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' })
         return
       }
       
@@ -1998,7 +943,7 @@ new Vue({
         this.splitting = false
         this.done = true
         this.currentStep = '2'
-        this.$message.success('Split completed successfully!')
+        this.$notify({ title: '成功', message: 'Split completed successfully!', type: 'success' })
       }, 500)
     },
     downloadAll() {

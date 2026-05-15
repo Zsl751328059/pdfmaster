@@ -160,520 +160,79 @@
 
   
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
-  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
-  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-
+  <link rel="stylesheet" href="./common.css">
+  
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f7fa;
-      color: #333;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 100%;
-      width: 95%;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-    .app { min-height: 100vh; display: flex; flex-direction: column; }
-    .main-content { 
-      flex: 1; 
-      padding: 32px 0;
-      max-width: 1100px;
-      margin: 0 auto;
-      width: 95%;
-    }
-
-    .header {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-      padding: 12px 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo-image {
-      width: 44px;
-      height: 44px;
-      border-radius: 16px;
-      object-fit: contain;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      padding: 8px;
-    }
-    .logo-text {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .header-links {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-    .header-links a {
-      font-size: 14px;
-      font-weight: 500;
-      color: #475569;
-      transition: color 0.3s;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-    }
-    .header-links a:hover {
-      color: #409EFF;
-      background: rgba(64, 158, 255, 0.08);
-    }
-    .contact-btn {
-      background: linear-gradient(135deg, #409EFF, #337ecc);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .contact-btn:hover {
-      background: linear-gradient(135deg, #337ecc, #409EFF) !important;
-      transform: translateY(-1px);
-    }
-    .feedback-btn {
-      background: linear-gradient(135deg, #67C23A, #5eb830);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .feedback-btn:hover {
-      background: linear-gradient(135deg, #5eb830, #67C23A) !important;
-      transform: translateY(-1px);
-    }
-    .back-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white !important;
-      padding: 10px 20px !important;
-      transition: all 0.3s;
-    }
-    .back-btn:hover {
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
-      color: white !important;
-      transform: translateY(-1px);
-    }
-    .breadcrumbs {
-      background: #f8fafc;
-      padding: 12px 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .breadcrumbs .el-breadcrumb {
-      font-size: 14px;
-    }
-    .breadcrumbs .el-breadcrumb__item a {
-      color: #409EFF;
-    }
-
-    .page-header { text-align: center; margin-bottom: 32px; }
-    .page-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 16px;
-      line-height: 1.3;
-    }
-    .page-subtitle {
-      font-size: 16px;
-      color: #ffffff;
-      line-height: 1.8;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 24px 32px;
-      background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(64, 158, 255, 0.35);
-      position: relative;
-      overflow: hidden;
-      font-weight: 500;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-    .page-subtitle::before {
-      content: '📄';
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      font-size: 60px;
-      opacity: 0.15;
-    }
-    .page-subtitle::after {
-      content: '🔗';
-      position: absolute;
-      bottom: -10px;
-      left: -10px;
-      font-size: 40px;
-      opacity: 0.15;
-    }
-
-    .trust-badges {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-top: 32px;
-      flex-wrap: wrap;
-    }
-    .trust-badge {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: white;
-      padding: 16px 20px;
-      border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      transition: all 0.2s;
-    }
-    .trust-badge:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    }
-    .badge-icon {
-      font-size: 28px;
-    }
-    .badge-content {
-      display: flex;
-      flex-direction: column;
-    }
-    .badge-number {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    .badge-label {
-      font-size: 12px;
-      color: #64748b;
-    }
-
-    .steps-container { margin-top: 20px; margin-bottom: 32px; }
-    .steps-wrapper {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-
-    .tool-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      overflow: hidden;
-      margin-bottom: 32px;
-    }
-
-    .tab-content { padding: 32px; }
-
-    .upload-area {
-      border: 2px dashed #d1d5db !important;
-      border-radius: 16px !important;
-      padding: 40px 24px !important;
-      background: #fafafa !important;
-      cursor: pointer !important;
-      transition: all 0.3s !important;
-      text-align: center !important;
-      min-height: 200px !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-    .upload-area:hover { border-color: #409EFF !important; background: #f0f7ff !important; }
-    .upload-area .el-upload-dragger {
-      border: none !important;
-      background: transparent !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-    .upload-icon {
-      font-size: 48px !important;
-      color: #409EFF !important;
-      margin-bottom: 16px !important;
-    }
-    .upload-text {
-      font-size: 18px !important;
-      font-weight: 500 !important;
-      color: #334155 !important;
-      margin-bottom: 8px !important;
-    }
-    .upload-hint {
-      font-size: 14px !important;
-      color: #94a3b8 !important;
-    }
-    .upload-hint strong { color: #409EFF !important; }
-
-    .el-upload-dragger {
-      width: 100% !important;
-      min-height: 180px !important;
-      max-height: 200px !important;
-      border: none !important;
-      border-radius: 16px !important;
-      background: transparent !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-      cursor: pointer !important;
-      transition: all 0.3s !important;
-    }
-    .el-upload-dragger:hover, .el-upload-dragger.dragover {
-      border-color: #409EFF;
-      background: #f0f7ff;
-    }
-    .el-upload__text {
-      font-size: 16px;
-      font-weight: 500;
-      color: #374151;
-      margin-top: 12px;
-    }
-    .el-upload__tip {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-top: 8px;
-    }
-    .upload-area .el-upload-list,
-    .upload-area .el-upload-list--text,
-    .upload-area .el-upload-list__item {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      height: 0 !important;
-      overflow: hidden !important;
-    }
-
-    .file-list-section { margin-top:24px; }
-    .file-list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .file-list-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .clear-all-btn {
-      background: none;
-      border: none;
-      color: #ef4444;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-    .clear-all-btn:hover {
-      background: #fef2f2;
-      text-decoration: underline;
-    }
-    .file-item {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: flex-start !important;
-      padding: 14px 16px !important;
-      background: #f9fafb !important;
-      border-radius: 10px !important;
-      margin-bottom: 10px !important;
-      width: 100% !important;
-      box-sizing: border-box !important;
-    }
-    .file-name {
-      font-size: 14px !important;
-      font-weight: 500 !important;
-      color: #374151 !important;
-      flex: 1 !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      white-space: nowrap !important;
-      text-align: left !important;
-      margin-right: auto !important;
-    }
-    .file-info {
-      font-size: 12px !important;
-      color: #9ca3af !important;
-      margin: 0 12px !important;
-      flex-shrink: 0 !important;
-      text-align: right !important;
-    }
-    .delete-btn {
-      padding: 6px 12px !important;
-      font-size: 13px !important;
-      color: #fff !important;
-      background: #ef4444 !important;
-      border: none !important;
-      border-radius: 6px !important;
-      cursor: pointer !important;
-      transition: all 0.2s !important;
-      flex-shrink: 0 !important;
-    }
-    .delete-btn:hover { background: #dc2626 !important; }
-
-    .options-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 8px;
-    }
-    .mode-description {
-      font-size: 13px;
-      color: #6b7280;
-      margin-bottom: 16px;
-    }
-
     .watermark-type-options {
       display: flex;
       gap: 16px;
-      margin-bottom: 24px;
+      margin-top: 16px;
     }
     .type-option {
       flex: 1;
       padding: 20px;
-      border: 2px solid #e5e7eb;
-      border-radius: 16px;
+      border: 2px solid #e4e7ed;
+      border-radius: 12px;
       cursor: pointer;
       text-align: center;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
     }
-    .type-option:hover { 
-      border-color: #409EFF; 
-      transform: translateY(-2px);
-    }
-    .type-option.active {
-      border-color: #409EFF;
+    .type-option:hover {
+      border-color: #409eff;
       background: #f0f7ff;
     }
+    .type-option.active {
+      border-color: #409eff;
+      background: #e8f4fd;
+    }
     .type-icon {
-      font-size: 28px;
-      margin-bottom: 10px;
+      font-size: 32px;
+      margin-bottom: 12px;
     }
     .type-title {
-      font-size: 15px;
       font-weight: 600;
-      color: #374151;
+      color: #303133;
     }
-
     .watermark-form {
-      background: #f9fafb;
+      margin-top: 24px;
       padding: 20px;
-      border-radius: 16px;
+      background: #fafafa;
+      border-radius: 12px;
     }
     .form-row {
-      margin-bottom: 16px;
-    }
-    .form-row:last-child {
-      margin-bottom: 0;
+      margin-bottom: 20px;
     }
     .form-row-row {
       display: flex;
-      gap: 16px;
-      margin-bottom: 12px;
+      gap: 24px;
+      margin-bottom: 20px;
     }
     .form-col {
       flex: 1;
     }
     .form-label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 8px;
       display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #606266;
     }
     .form-input {
       width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
+      padding: 10px 15px;
+      border: 1px solid #dcdfe6;
+      border-radius: 8px;
       font-size: 14px;
       transition: border-color 0.3s;
     }
     .form-input:focus {
       outline: none;
-      border-color: #409EFF;
-    }
-    .color-picker-container {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .color-input {
-      width: 60px;
-      height: 44px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      cursor: pointer;
-      padding: 2px;
-      transition: border-color 0.3s;
-    }
-    .color-input:hover {
-      border-color: #409EFF;
-    }
-    .color-input::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-    .color-input::-webkit-color-swatch {
-      border: none;
-      border-radius: 6px;
-    }
-    .color-value {
-      font-family: monospace;
-      font-size: 14px;
-      color: #6b7280;
-      background: #f3f4f6;
-      padding: 8px 12px;
-      border-radius: 8px;
-      min-width: 80px;
-      text-align: center;
-    }
-    .color-col .preset-colors {
-      display: flex;
-      gap: 6px;
-      margin-top: 8px;
-      flex-wrap: wrap;
-    }
-    .preset-color {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: all 0.2s;
-    }
-    .preset-color:hover {
-      transform: scale(1.1);
-      border-color: #409EFF;
+      border-color: #409eff;
     }
     .form-textarea {
       width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
+      padding: 12px 15px;
+      border: 1px solid #dcdfe6;
+      border-radius: 8px;
       font-size: 14px;
       resize: vertical;
       min-height: 80px;
@@ -681,629 +240,97 @@
     }
     .form-textarea:focus {
       outline: none;
-      border-color: #409EFF;
+      border-color: #409eff;
     }
-    .form-select {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
+    .color-col {
+      flex: 1;
+    }
+    .color-picker-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .color-input {
+      width: 50px;
+      height: 40px;
+      border: 1px solid #dcdfe6;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .color-value {
+      font-family: monospace;
       font-size: 14px;
-      background: white;
-      transition: border-color 0.3s;
+      color: #606266;
     }
-    .form-select:focus {
-      outline: none;
-      border-color: #409EFF;
+    .preset-colors {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .preset-color {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+    }
+    .preset-color:hover {
+      border-color: #409eff;
+      transform: scale(1.1);
     }
     .option-select {
       width: 100%;
     }
-    .option-select .el-input__inner {
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-    }
-    .option-select .el-input__inner:focus {
-      outline: none;
-      border-color: #409EFF;
-    }
-    .form-row .el-slider {
-      margin-top: 8px;
-    }
-
-    .progress-section {
-      margin-top: 20px;
-      padding: 16px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 10px;
-    }
-    .progress-text {
-      font-size: 14px;
-      color: #065f46;
-      margin-bottom: 12px;
-      font-weight: 500;
-    }
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: #dcfce7;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #34d399);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    .action-section {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-    .btn {
-      flex: 1;
-      padding: 14px 24px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: #409EFF;
-      color: white;
-    }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #4b5563;
-    }
-
-    .result-content {
-      text-align: center;
-      padding: 32px;
-      background: #ecfdf5;
-      border-radius: 16px;
-    }
-    .result-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #065f46;
-    }
-    .result-desc {
-      font-size: 14px;
-      color: #047857;
-      margin: 8px 0 24px;
-    }
-    .result-preview {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-    .page-preview-item {
-      width: 80px;
-      height: 120px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      overflow: hidden;
-      cursor: pointer;
-      position: relative;
-      background: white;
-      display: flex;
-      flex-direction: column;
-    }
-    .page-preview-item.clickable {
-      cursor: zoom-in;
-      transition: all 0.3s;
-    }
-    .page-preview-item.clickable:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    }
-    .page-preview-image {
-      flex: 1;
-      width: 100%;
-      object-fit: contain;
-      background: #f9fafb;
-    }
-    .page-number {
-      font-size: 11px;
-      text-align: center;
-      padding: 4px;
-      background: #f3f4f6;
-      color: #6b7280;
-    }
-    .preview-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 11px;
-      opacity: 0;
-      transition: all 0.3s;
-    }
-    .page-preview-item.clickable:hover .preview-overlay {
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 1;
-    }
-
-    .download-btn {
-      padding: 16px 40px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 16px;
-    }
-    .filename-input {
-      margin: 16px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-    .filename-input label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-    }
-    .filename-input input {
-      width: 100%;
-      max-width: 300px;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-    .filename-input input:focus {
-      outline: none;
-      border-color: #409EFF;
-    }
-    .recommend-section {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px dashed #d1d5db;
-    }
-    .recommend-section p {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-    .recommend-link {
-      font-size: 14px;
-      font-weight: 600;
-      color: #409EFF;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .recommend-link:hover {
-      color: #337ecc;
-      text-decoration: underline;
-    }
-
     .preview-modal {
       position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      padding: 20px;
     }
     .modal-content {
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
-      max-width: 90vw;
-      max-height: 90vh;
       position: relative;
+      max-width: 90%;
+      max-height: 90%;
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
     }
     .modal-close {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 36px;
-      height: 36px;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
       border: none;
-      background: #f3f4f6;
+      background: #f5f5f5;
       border-radius: 50%;
-      font-size: 24px;
-      color: #6b7280;
+      font-size: 20px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s;
-    }
-    .modal-close:hover {
-      background: #ef4444;
-      color: white;
     }
     .modal-image {
       max-width: 100%;
-      max-height: 85vh;
+      max-height: 80vh;
       border-radius: 8px;
-    }
-
-    .instructions {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .instructions-title {
-      font-size: 20px;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 24px;
-    }
-    .step { text-align: center; }
-    .step-number {
-      width: 40px;
-      height: 40px;
-      background: #409EFF;
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-    }
-    .step-title { font-size: 14px; font-weight: 600; }
-    .step-desc { font-size: 12px; color: #6b7280; }
-
-    .privacy-section {
-      background: linear-gradient(135deg, #065f46, #047857);
-      border-radius: 20px;
-      padding: 40px;
-      margin-top: 32px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    .privacy-section::before {
-      content: '🔒';
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      font-size: 120px;
-      opacity: 0.1;
-    }
-    .privacy-section .section-title {
-      color: white;
-      font-size: 22px;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content {
-      font-size: 15px;
-      line-height: 1.8;
-      color: rgba(255, 255, 255, 0.9);
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content p {
-      margin-bottom: 16px;
-    }
-    .privacy-content p:last-child {
-      margin-bottom: 0;
-    }
-    .privacy-content strong {
-      color: #a7f3d0;
-      font-weight: 600;
-    }
-
-    .faq-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .faq-item {
-      border-bottom: 1px solid #f1f5f9;
-      padding: 20px 0;
-    }
-    .faq-item:last-child { border-bottom: none; }
-    .faq-item h3 {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 8px;
-    }
-    .faq-item p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.6;
-    }
-
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 24px;
-      text-align: center;
-    }
-
-    .tutorial-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .tutorial-step {
-      display: flex;
-      gap: 20px;
-      padding: 20px 0;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .tutorial-step:last-child { border-bottom: none; }
-    .tutorial-number {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .tutorial-content h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .tutorial-content p {
-      font-size: 14px;
-      color: #6b7280;
-    }
-
-    .blog-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .blog-card {
-      display: flex;
-      gap: 16px;
-      padding: 20px;
-      background: #f9fafb;
-      border-radius: 16px;
-      margin-bottom: 16px;
-    }
-    .blog-card:last-child { margin-bottom: 24px; }
-    .blog-icon { font-size: 28px; }
-    .blog-card h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .blog-card p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.5;
-    }
-    .cta-box {
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      border-radius: 16px;
-      padding: 32px;
-      text-align: center;
-      color: white;
-    }
-    .cta-box h3 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .cta-box p {
-      font-size: 14px;
-      opacity: 0.9;
-      margin-bottom: 16px;
-    }
-    .cta-button {
-      text-decoration: none;
-      background: white;
-      color: #409EFF;
-      border: none;
-      padding: 12px 32px;
-      font-size: 15px;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-    }
-
-    .footer {
-      background: white;
-      padding: 24px 0;
-      border-top: 1px solid #f1f5f9;
-      text-align: center;
-      margin-top: 32px;
-    }
-    .footer-content {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      margin-bottom: 24px;
-    }
-    .footer-section h4 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 12px;
-    }
-    .footer-section ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .footer-section li {
-      margin-bottom: 8px;
-    }
-    .footer-section li:last-child {
-      margin-bottom: 0;
-    }
-    .footer-section a {
-      font-size: 13px;
-      color: #6b7280;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .footer-section a:hover {
-      color: #409EFF;
-    }
-    .footer-copyright {
-      font-size: 12px;
-      color: #9ca3af;
-      padding-top: 16px;
-      border-top: 1px solid #f1f5f9;
-    }
-
-    @media (max-width: 768px) {
-      .steps { grid-template-columns: repeat(2, 1fr); }
-      .action-section { flex-direction: column; }
-      .watermark-type-options { flex-direction: column; }
-      .tab-content { padding: 16px; }
-      .header-content { flex-direction: column; gap: 12px; }
-      .header-links { gap: 8px; flex-wrap: wrap; justify-content: center; }
-      .header-links a { padding: 6px 12px; font-size: 12px; }
-      .logo-text { font-size: 20px; }
-      .logo-image { width: 36px; height: 36px; }
-      .footer-content { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    }
-
-    .technology-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      border-radius: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .technology-section::before {
-      content: '⚡';
-      position: absolute;
-      top: -30px;
-      right: -30px;
-      font-size: 150px;
-      opacity: 0.05;
-    }
-    .technology-section .section-title {
-      color: white;
-      font-size: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-item {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      padding: 32px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-    .tech-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-    .tech-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .tech-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 12px;
-    }
-    .tech-item p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.7;
-    }
-
-    .guide-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
-    }
-    .guide-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-    }
-    .guide-item {
-      padding: 32px;
-      background: linear-gradient(135deg, #fef3c7, #fde68a);
-      border-radius: 16px;
-      border: 1px solid #fcd34d;
-      transition: all 0.3s ease;
-    }
-    .guide-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(251, 191, 36, 0.25);
-    }
-    .guide-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .guide-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #92400e;
-      margin-bottom: 12px;
-    }
-    .guide-item p {
-      font-size: 14px;
-      color: #78350f;
-      line-height: 1.7;
     }
   </style>
+  <script src="./lib/vue/vue.js"></script>
+  <script src="./lib/element-ui/index.js"></script>
+  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
+  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+
+
 </head>
 <body>
 <div id="app" class="app">
@@ -1311,7 +338,7 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="./assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
+          <img src="/assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
           <span class="logo-text">PDFMaster</span>
         </div>
         <nav class="header-links">
@@ -1319,7 +346,7 @@
             <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
             Back to Home
           </a>
-          <a href="contact.html" class="contact-btn">Contact Me</a>
+          <a href="contact.html" class="contact-btn">Contact Us</a>
           <a href="feedback.html" class="feedback-btn">Send Feedback</a>
         </nav>
       </div>
@@ -1346,7 +373,7 @@
       </div>
 
       <div class="tool-card">
-        <el-tabs v-model="currentStep" stretch @tab-click="handleTabClick">
+        <el-tabs v-model="currentStep" stretch @tab-click="handleTabClick" type="border-card">
           <el-tab-pane label="Upload" name="0">
             <div class="tab-content">
               <el-upload
@@ -1360,9 +387,9 @@
                 :limit="1"
                 action="#"
               >
-                <i class="el-icon-upload upload-icon"></i>
+                <div class="upload-icon">📁</div>
                 <div class="upload-text">Drag & drop PDF file here</div>
-                <div class="upload-hint">or <strong>browse files</strong> from your device. Max 1 file, up to 50MB.</div>
+                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
               </el-upload>
 
               <div v-if="selectedFiles.length" class="file-list-section">
@@ -1371,19 +398,17 @@
                     <i class="el-icon-files"></i>
                     Selected Files ({{ selectedFiles.length }})
                   </div>
-                  <button class="clear-all-btn" @click="clearAllFiles">Clear All</button>
+                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearAllFiles">Clear All</el-button>
                 </div>
                 <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
                   <span class="file-name">{{ file.name }}</span>
                   <span class="file-info">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
-                  <button class="delete-btn" @click="removeFile(idx)">Remove</button>
+                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="removeFile(idx)"></el-button>
                 </div>
               </div>
 
               <div class="action-section">
-                <button class="btn btn-primary" @click="goToNext" :disabled="selectedFiles.length !== 1">
-                  Continue
-                </button>
+                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
               </div>
             </div>
           </el-tab-pane>
@@ -1462,9 +487,9 @@
                     :on-change="handleImageChange"
                     action="#"
                   >
-                    <i class="el-icon-upload upload-icon"></i>
+                    <div class="upload-icon">📁</div>
                     <div class="upload-text">Drag & drop image here</div>
-                    <div class="upload-hint">or <strong>browse files</strong> (PNG, JPG supported)</div>
+                    <div class="upload-hint">Supports JPG, PNG up to <strong>50MB</strong> - Free, no watermarks</div>
                   </el-upload>
                   <div v-if="form.imageFile" class="file-info" style="margin-top: 8px;">
                     Selected: {{ form.imageFile.name }}
@@ -1492,8 +517,8 @@
               </div>
 
               <div class="action-section">
-                <button class="btn btn-secondary" @click="goToPrev" :disabled="processing">Back</button>
-                <button class="btn btn-primary" @click="addWatermark" :disabled="processing || !canAddWatermark">{{ processing ? 'Adding Watermark...' : 'Add Watermark' }}</button>
+                <el-button type="default" @click="goToPrev" :disabled="processing">Back</el-button>
+                <el-button type="primary" @click="addWatermark" :disabled="processing || !canAddWatermark">{{ processing ? 'Adding Watermark...' : 'Add Watermark' }}</el-button>
               </div>
 
               <div v-if="processing" class="progress-section">
@@ -1519,24 +544,21 @@
                 </div>
                 <div class="filename-input">
                   <label>File Name:</label>
-                  <input v-model="downloadFileName" type="text" placeholder="Enter file name" />
+                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
                 </div>
-                <button class="download-btn" @click="download">Download PDF</button>
+                <el-button type="primary" size="large" @click="download">Download PDF</el-button>
                 <div class="recommend-section">
                   <p>Need to protect your PDF with a digital signature?</p>
                   <a href="pdf-signer.html" class="recommend-link">Try our PDF Signer Tool →</a>
                 </div>
               </div>
 
-              <div v-if="showPreviewModal" class="preview-modal" @click="closePreview">
-                <div class="modal-content" @click.stop>
-                  <button class="modal-close" @click="closePreview">×</button>
-                  <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview">
-                </div>
-              </div>
+              <el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
+                <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+              </el-dialog>
 
               <div class="action-section">
-                <button class="btn btn-secondary" @click="reset">Start Over</button>
+                <el-button type="default" @click="reset">Start Over</el-button>
               </div>
             </div>
           </el-tab-pane>
@@ -1583,97 +605,93 @@
       </div>
 
       <div class="technology-section">
-        <h2 class="section-title">Professional Watermarking Technology</h2>
+        <h2 class="section-title">Powered by Industry-Leading Technology</h2>
         <div class="tech-content">
-          <div class="tech-item">
-            <div class="tech-item-icon">🎨</div>
+          <el-card class="tech-card" shadow="hover">
+            <!-- <div class="tech-item-icon"></div> -->
             <h3>Vector-Based Watermark Engine</h3>
             <p>Our proprietary vector rendering engine ensures watermarks scale perfectly at any resolution. Text watermarks use TrueType font embedding for consistent appearance across all PDF readers.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">🔲</div>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
+            <!-- <div class="tech-item-icon"></div> -->
             <h3>Smart Layering System</h3>
             <p>Intelligent z-axis layering places watermarks optimally - text watermarks above background images but below document content. Supports 0-100% opacity with anti-aliasing for professional results.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">⚡</div>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
+            <!-- <div class="tech-item-icon">⚡</div> -->
             <h3>Batch Processing Engine</h3>
             <p>Process multiple PDFs simultaneously with consistent watermark placement. Supports multi-page documents with automatic scaling and positioning across all pages.</p>
-          </div>
+          </el-card>
         </div>
       </div>
 
       <div class="guide-section">
         <h2 class="section-title">Pro Tips for Better PDF Watermarking</h2>
         <div class="guide-content">
-          <div class="guide-item">
-            <div class="guide-item-icon">🎨</div>
-            <h3>Choose Watermark Color Wisely</h3>
-            <p>Select a color that's visible but not intrusive. Light gray works well for most documents.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">📐</div>
-            <h3>Adjust Opacity Carefully</h3>
-            <p>Too opaque and the watermark becomes distracting. Too transparent and it's ineffective.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">✅</div>
-            <h3>Preview Before Applying</h3>
-            <p>Always preview the watermark on a sample page to ensure it looks right.</p>
-          </div>
+          <el-card class="guide-card" shadow="hover">
+            <!-- <div class="guide-icon-wrapper"> -->
+              <!-- <i class="el-icon-folder guide-icon"></i> -->
+            <!-- </div> -->
+            <h3 class="guide-title">Choose Watermark Color Wisely</h3>
+            <p class="guide-desc">Select a color that's visible but not intrusive. Light gray works well for most documents.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <!-- <div class="guide-icon-wrapper blue"> -->
+              <!-- <i class="el-icon-document guide-icon"></i>
+            </div> -->
+            <h3 class="guide-title">Adjust Opacity Carefully</h3>
+            <p class="guide-desc">Too opaque and the watermark becomes distracting. Too transparent and it's ineffective.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <!-- <div class="guide-icon-wrapper green"> -->
+              <!-- <i class="el-icon-folder guide-icon"></i> -->
+            <!-- </div> -->
+            <h3 class="guide-title">Preview Before Applying</h3>
+            <p class="guide-desc">Always preview the watermark on a sample page to ensure it looks right.</p>
+          </el-card>
         </div>
       </div>
 
       <div class="faq-section">
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <div class="faq-item">
-          <h3>How to add watermark to PDF for free?</h3>
-          <p>Upload your PDF, choose text/image watermark, customize opacity and position, then click "Add Watermark". No registration required.</p>
-        </div>
-        <div class="faq-item">
-          <h3>What is the best free watermark tool?</h3>
-          <p>PDFMaster offers local processing, no sign up, and no output watermark. Perfect for adding text or logo watermarks.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I add watermark to multiple PDFs at once?</h3>
-          <p>Currently one PDF at a time, with full customization options for quality processing.</p>
-        </div>
-        <div class="faq-item">
-          <h3>How to make transparent watermark?</h3>
-          <p>Adjust the opacity slider (10-100%) - lower values create more transparent results.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I remove watermark from PDF?</h3>
-          <p>This tool adds watermarks. Check our PDF editor tools for removal capabilities.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Is this tool really free?</h3>
-          <p>100% free with no hidden fees, no registration, and no watermarks on your output.</p>
-        </div>
-        <div class="faq-item">
-          <h3>How to add logo watermark?</h3>
-          <p>Select "Image Watermark", upload your logo (PNG/JPG), adjust settings, and click "Add Watermark".</p>
-        </div>
-        <div class="faq-item">
-          <h3>Is my data secure?</h3>
-          <p>Absolutely! All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy and security.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I use this tool on mobile devices?</h3>
-          <p>Yes! Our PDF watermark tool works perfectly on iPhone and Android devices. Just open your browser and start adding watermarks - no app installation required.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Which browsers are supported?</h3>
-          <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I add watermark to password-protected PDFs?</h3>
-          <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Why choose PDFMaster for adding watermarks?</h3>
-          <p>PDFMaster offers 100% free watermarking with no watermarks on your output, local processing for complete privacy, and multiple customization options. Your files stay secure on your device.</p>
-        </div>
+        <el-collapse accordion>
+          <el-collapse-item title="How to add watermark to PDF for free?">
+            <p>Upload your PDF, choose text/image watermark, customize opacity and position, then click "Add Watermark". No registration required.</p>
+          </el-collapse-item>
+          <el-collapse-item title="What is the best free watermark tool?">
+            <p>PDFMaster offers local processing, no sign up, and no output watermark. Perfect for adding text or logo watermarks.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I add watermark to multiple PDFs at once?">
+            <p>Currently one PDF at a time, with full customization options for quality processing.</p>
+          </el-collapse-item>
+          <el-collapse-item title="How to make transparent watermark?">
+            <p>Adjust the opacity slider (10-100%) - lower values create more transparent results.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I remove watermark from PDF?">
+            <p>This tool adds watermarks. Check our PDF editor tools for removal capabilities.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Is this tool really free?">
+            <p>100% free with no hidden fees, no registration, and no watermarks on your output.</p>
+          </el-collapse-item>
+          <el-collapse-item title="How to add logo watermark?">
+            <p>Select "Image Watermark", upload your logo (PNG/JPG), adjust settings, and click "Add Watermark".</p>
+          </el-collapse-item>
+          <el-collapse-item title="Is my data secure?">
+            <p>Absolutely! All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy and security.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I use this tool on mobile devices?">
+            <p>Yes! Our PDF watermark tool works perfectly on iPhone and Android devices. Just open your browser and start adding watermarks - no app installation required.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Which browsers are supported?">
+            <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I add watermark to password-protected PDFs?">
+            <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Why choose PDFMaster for adding watermarks?">
+            <p>PDFMaster offers 100% free watermarking with no watermarks on your output, local processing for complete privacy, and multiple customization options. Your files stay secure on your device.</p>
+          </el-collapse-item>
+        </el-collapse>
       </div>
 
       <div class="tutorial-section">
@@ -1860,14 +878,24 @@ new Vue({
     handleBeforeUnload() {
       this.cleanupAllResources()
     },
-    goToNext() { this.currentStep = '1' },
+    goToNext() { 
+      if (this.selectedFiles.length === 0) {
+        this.$notify({
+          title: '提示',
+          message: 'Please upload a PDF file first',
+          type: 'warning'
+        });
+        return;
+      }
+      this.currentStep = '1' 
+    },
     goToPrev() { this.currentStep = '0' },
     goToUpload() {
       this.currentStep = '0'
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
     handleExceed() {
-      this.$message.warning('Only one PDF file can be processed at a time')
+      this.$notify({ title: '提示', message: 'Only one PDF file can be processed at a time', type: 'warning' })
     },
     async openPreview(image) {
       const idx = this.previews.indexOf(image)
@@ -1895,14 +923,14 @@ new Vue({
     handleTabClick(tab) {
       const targetStep = tab.name
       if (targetStep !== '0' && this.selectedFiles.length === 0) {
-        this.$message.warning('Please upload a PDF file first')
+        this.$notify({ title: '提示', message: 'Please upload a PDF file first', type: 'warning' })
         this.$nextTick(() => {
           this.currentStep = '0'
         })
         return
       }
       if (targetStep === '2' && !this.done) {
-        this.$message.warning('Please complete adding watermark first')
+        this.$notify({ title: '提示', message: 'Please complete adding watermark first', type: 'warning' })
         this.$nextTick(() => {
           this.currentStep = '1'
         })
@@ -1912,18 +940,18 @@ new Vue({
     async handleFileChange(file) {
       const raw = file.raw
       if (!raw.name.endsWith('.pdf')) {
-        this.$message.error('Only PDF files are allowed')
+        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
         return
       }
       
       const maxSize = 50 * 1024 * 1024
       if (raw.size > maxSize) {
-        this.$message.error('File size cannot exceed 50MB')
+        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' })
         return
       }
 
       if (this.selectedFiles.length >= 1) {
-        this.$message.warning('Only one PDF file can be processed at a time')
+        this.$notify({ title: '提示', message: 'Only one PDF file can be processed at a time', type: 'warning' })
         return
       }
 
@@ -1943,7 +971,7 @@ new Vue({
     handleImageChange(file) {
       const raw = file.raw
       if (!['image/png', 'image/jpeg', 'image/jpg'].includes(raw.type)) {
-        this.$message.error('Only PNG and JPG images are allowed')
+        this.$notify({ title: '错误', message: 'Only PNG and JPG images are allowed', type: 'error' })
         return
       }
       this.form.imageFile = raw
@@ -2090,7 +1118,7 @@ new Vue({
         
       } catch (error) {
         console.error('Error adding watermark:', error)
-        this.$message.error('Failed to add watermark. Please try again.')
+        this.$notify({ title: '错误', message: 'Failed to add watermark. Please try again.', type: 'error' })
         this.processing = false
       }
     },

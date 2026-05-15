@@ -5,21 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Free PDF Signer - Sign PDF Documents Online | PDFMaster</title>
   <meta name="description" content="Sign PDF documents online free - add digital signatures to PDF. Draw or type your signature. 100% local processing, no upload, no watermark, no registration. Up to 50MB. Works on Mac, Windows, iPhone & Android.">
-
   <link rel="canonical" href="https://pdfeasz.com/pdf-signer.html" />
-
   <meta property="og:title" content="Sign Documents Online - Free e-Signature Tool | PDFMaster" />
   <meta property="og:description" content="Sign documents online with our free e-signature tool. Add digital signatures to PDFs easily and securely." />
   <meta property="og:image" content="https://pdfeasz.com/assets/share.png" />
   <meta property="og:url" content="https://pdfeasz.com/pdf-signer.html" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PDFMaster" />
-
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Sign Documents Online - Free e-Signature Tool | PDFMaster" />
   <meta name="twitter:description" content="Sign documents online with our free e-signature tool." />
   <meta name="twitter:image" content="https://pdfeasz.com/assets/share.png" />
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -110,442 +106,31 @@
     ]
   }
   </script>
-
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.0/dist/signature_pad.umd.min.js"></script>
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
+  <link rel="stylesheet" href="/common.css">
   <script src="./lib/vue/vue.js"></script>
   <script src="./lib/element-ui/index.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-
+  
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f7fa;
-      color: #333;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 100%;
-      width: 95%;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-    .app { min-height: 100vh; display: flex; flex-direction: column; }
-    .main-content { 
-      flex: 1; 
-      padding: 32px 0;
-      max-width: 1100px;
-      margin: 0 auto;
-      width: 95%;
-    }
-
-    .header {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-      padding: 12px 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo-image {
-      width: 44px;
-      height: 44px;
-      border-radius: 16px;
-      object-fit: contain;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      padding: 8px;
-    }
-    .logo-text {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .header-links {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-    .header-links a {
-      font-size: 14px;
-      font-weight: 500;
-      color: #475569;
-      transition: color 0.3s;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-    }
-    .header-links a:hover {
-      color: #409EFF;
-      background: rgba(64, 158, 255, 0.08);
-    }
-    .contact-btn {
-      background: linear-gradient(135deg, #409EFF, #337ecc);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .contact-btn:hover {
-      background: linear-gradient(135deg, #337ecc, #409EFF) !important;
-      transform: translateY(-1px);
-    }
-    .feedback-btn {
-      background: linear-gradient(135deg, #67C23A, #5eb830);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .feedback-btn:hover {
-      background: linear-gradient(135deg, #5eb830, #67C23A) !important;
-      transform: translateY(-1px);
-    }
-    .back-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white !important;
-      padding: 10px 20px !important;
-      transition: all 0.3s;
-    }
-    .back-btn:hover {
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
-      color: white !important;
-      transform: translateY(-1px);
-    }
-    .breadcrumbs {
-      background: #f8fafc;
-      padding: 12px 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .breadcrumbs .el-breadcrumb {
-      font-size: 14px;
-    }
-    .breadcrumbs .el-breadcrumb__item a {
-      color: #409EFF;
-    }
-
-    .page-header { text-align: center; margin-bottom: 32px; }
-    .page-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 16px;
-      line-height: 1.3;
-    }
-    .page-subtitle {
-      font-size: 16px;
-      color: #ffffff;
-      line-height: 1.8;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 24px 32px;
-      background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(64, 158, 255, 0.35);
-      position: relative;
-      overflow: hidden;
-      font-weight: 500;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-    .page-subtitle::before {
-      content: '📄';
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      font-size: 60px;
-      opacity: 0.15;
-    }
-    .page-subtitle::after {
-      content: '🔗';
-      position: absolute;
-      bottom: -10px;
-      left: -10px;
-      font-size: 50px;
-      opacity: 0.15;
-    }
-
-    .trust-badges {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-top: 32px;
-      flex-wrap: wrap;
-    }
-    .trust-badge {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: white;
-      padding: 16px 20px;
-      border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      transition: all 0.2s;
-    }
-    .trust-badge:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    }
-    .badge-icon {
-      font-size: 28px;
-    }
-    .badge-content {
-      display: flex;
-      flex-direction: column;
-    }
-    .badge-number {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    .badge-label {
-      font-size: 12px;
-      color: #64748b;
-    }
-
-    .steps-container { margin-bottom: 32px; }
-    .steps-wrapper {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-
-    .tool-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      overflow: hidden;
-      margin-bottom: 32px;
-    }
-
-    .tab-content { padding: 32px; }
-
-    .upload-area {
-      border: 2px dashed #d1d5db !important;
-      border-radius: 16px !important;
-      padding: 40px 24px !important;
-      background: #fafafa !important;
-      cursor: pointer !important;
-      transition: all 0.3s !important;
-      text-align: center !important;
-      min-height: 200px !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-    .upload-area:hover { border-color: #409EFF !important; background: #f0f7ff !important; }
-    .upload-area .el-upload-dragger {
-      border: none !important;
-      background: transparent !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-    .upload-icon {
-      font-size: 48px !important;
-      color: #409EFF !important;
-      margin-bottom: 16px !important;
-    }
-    .upload-text {
-      font-size: 18px !important;
-      font-weight: 500 !important;
-      color: #334155 !important;
-      margin-bottom: 8px !important;
-    }
-    .upload-hint {
-      font-size: 14px !important;
-      color: #94a3b8 !important;
-    }
-    .upload-hint strong { color: #409EFF; }
-
-    .upload-area .el-upload-list,
-    .upload-area .el-upload-list--text,
-    .upload-area .el-upload-list__item {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      height: 0 !important;
-      overflow: hidden !important;
-    }
-
-    .el-upload-dragger {
-      width: 100% !important;
-      min-height: 180px !important;
-      max-height: 200px !important;
-      border: none !important;
-      border-radius: 16px !important;
-      background: transparent !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-      cursor: pointer !important;
-      transition: all 0.3s !important;
-    }
-    .el-upload-dragger:hover, .el-upload-dragger.dragover {
-      border-color: #409EFF;
-      background: #f0f7ff;
-    }
-
-    .file-list-section { margin-top:24px; }
-    .file-list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .file-list-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .clear-all-btn {
-      background: none;
-      border: none;
-      color: #ef4444;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-    .clear-all-btn:hover {
-      background: #fef2f2;
-      text-decoration: underline;
-    }
-    .file-item {
-      display: flex;
-      align-items: center;
-      padding: 14px 16px;
-      background: #f9fafb;
-      border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    .file-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: #374151;
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .file-info {
-      font-size: 12px;
-      color: #9ca3af;
-      margin: 0 12px;
-      flex-shrink: 0;
-    }
-    .delete-btn {
-      padding: 6px 12px;
-      font-size: 13px;
-      color: #fff;
-      background: #ef4444;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .delete-btn:hover { background: #dc2626; }
-
-    .options-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 8px;
-    }
-    .mode-description {
-      font-size: 13px;
-      color: #6b7280;
-      margin-bottom: 16px;
-    }
-
     .output-options {
-      margin-bottom: 24px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #e5e7eb;
     }
     .option-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 16px;
-    }
-    .option-row:last-child {
-      margin-bottom: 0;
     }
     .option-label {
       font-size: 14px;
       font-weight: 600;
       color: #374151;
-      margin-bottom: 8px;
-      display: block;
-    }
-    .option-select {
-      width: 100%;
-      font-size: 14px;
-      background: white;
-    }
-    .merge-mode-options {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .mode-option {
-      flex: 1;
-      padding: 20px;
-      border: 2px solid #e5e7eb;
-      border-radius: 16px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.3s;
-    }
-    .mode-option:hover { 
-      border-color: #409EFF; 
-      transform: translateY(-2px);
-    }
-    .mode-option.active {
-      border-color: #409EFF;
-      background: #f0f7ff;
-    }
-    .mode-icon {
-      font-size: 28px;
-      margin-bottom: 10px;
-    }
-    .mode-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-    }
-    .mode-desc {
-      font-size: 12px;
-      color: #6b7280;
-      margin-top: 4px;
-    }
-    .mode-explanation {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-top: 10px;
-      line-height: 1.5;
     }
     .color-picker-container {
       display: flex;
@@ -553,38 +138,21 @@
       gap: 12px;
     }
     .color-input {
-      width: 60px;
-      height: 44px;
+      width: 50px;
+      height: 40px;
       border: 2px solid #e5e7eb;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      padding: 2px;
-      transition: border-color 0.3s;
-    }
-    .color-input:hover {
-      border-color: #409EFF;
-    }
-    .color-input::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-    .color-input::-webkit-color-swatch {
-      border: none;
-      border-radius: 6px;
     }
     .color-value {
-      font-family: monospace;
       font-size: 14px;
+      font-family: monospace;
       color: #6b7280;
-      background: #f3f4f6;
-      padding: 8px 12px;
-      border-radius: 8px;
-      min-width: 80px;
     }
-
     .signature-section {
-      background: #f9fafb;
-      border-radius: 16px;
-      margin-bottom: 24px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #e5e7eb;
     }
     .signature-title {
       font-size: 15px;
@@ -592,711 +160,77 @@
       color: #374151;
       margin-bottom: 16px;
     }
-    .signature-tabs {
-      margin-bottom: 16px;
-    }
-    .preview-section {
-      margin-bottom: 20px;
-    }
-    .preview-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 12px;
-    }
-    .page-preview-container {
-      padding: 16px;
-      background: #f9fafb;
-      border-radius: 16px;
-    }
-    .page-preview-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .page-preview-item {
-      width: 80px;
-      height: 120px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
+    .signature-canvas-wrapper {
+      width: 100%;
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      background: #fafafa;
       overflow: hidden;
-      position: relative;
-      cursor: pointer;
-      transition: all 0.2s;
     }
-    .page-preview-item:hover {
-      border-color: #409EFF;
-    }
-    .page-preview-item.selected {
-      border-color: #409EFF;
-    }
-    .page-preview-image {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: white;
-    }
-    .page-number {
-      position: absolute;
-      bottom: 2px;
-      right: 4px;
-      font-size: 10px;
-      color: #6b7280;
-      background: rgba(255,255,255,0.8);
-      padding: 1px 4px;
-      border-radius: 4px;
-    }
-    .selected-overlay {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 20px;
-      height: 20px;
-      background: #409EFF;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-    }
-    .preview-hint {
-      margin-top: 12px;
-      font-size: 13px;
-      color: #6b7280;
-    }
-    .preview-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      cursor: pointer;
-    }
-    .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      cursor: default;
-      max-width: 90vw;
-      max-height: 90vh;
-    }
-    .modal-close {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 32px;
-      color: white;
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
-    .modal-image {
-      max-width: 100%;
-      max-height: 80vh;
-      border-radius: 8px;
-    }
-    .result-preview {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-    .page-preview-item.clickable {
-      cursor: zoom-in;
-      transition: all 0.3s;
-    }
-    .page-preview-item.clickable:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    }
-    .preview-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 12px;
-      opacity: 0;
-      transition: all 0.3s;
-    }
-    .page-preview-item.clickable:hover .preview-overlay {
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 1;
-    }
-    .signature-canvas-wrapper {
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      background: white;
-      margin-bottom: 16px;
-    }
-    .hidden {
-      display: none !important;
-    }
-    #signatureCanvas {
-      width: 800px !important;
-      height: 250px !important;
-      cursor: crosshair !important;
-      background: white !important;
-      border: 1px solid #e5e7eb !important;
-      border-radius: 8px !important;
+    .signature-canvas-wrapper canvas {
       display: block;
-      margin: 0 auto;
-    }
-    .signature-canvas-wrapper {
       width: 100%;
-      height: 250px;
     }
     .signature-actions {
       display: flex;
       gap: 12px;
-      flex-wrap: wrap;
+      margin-top: 16px;
+      justify-content: center;
     }
     .sig-btn {
-      padding: 10px 20px;
-      font-size: 13px;
+      padding: 10px 24px;
+      font-size: 14px;
       font-weight: 500;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s;
     }
     .sig-btn-clear {
-      background: #f3f4f6;
-      color: #4b5563;
+      background: #fee2e2;
+      color: #dc2626;
     }
-    .sig-btn-clear:hover { background: #e5e7eb; }
+    .sig-btn-clear:hover {
+      background: #fecaca;
+    }
     .sig-btn-undo {
-      background: #f3f4f6;
-      color: #4b5563;
+      background: #dbeafe;
+      color: #2563eb;
     }
-    .sig-btn-undo:hover { background: #e5e7eb; }
+    .sig-btn-undo:hover {
+      background: #bfdbfe;
+    }
     .sig-btn-save {
-      background: #409EFF;
+      background: linear-gradient(135deg, #409EFF, #337ecc);
       color: white;
     }
-    .sig-btn-save:hover { background: #337ecc; }
-
-    .text-signature-section {
-      display: none;
+    .sig-btn-save:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
     }
-    .text-signature-section.active {
-      display: block;
+    .text-signature-input {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
     }
     .signature-input {
-      width: 100%;
+      flex: 1;
+      min-width: 200px;
       padding: 12px 16px;
       border: 2px solid #e5e7eb;
       border-radius: 10px;
-      font-size: 18px;
-      font-family: 'Brush Script MT', cursive;
-      text-align: center;
-      margin-bottom: 16px;
+      font-size: 14px;
     }
     .signature-input:focus {
       outline: none;
       border-color: #409EFF;
     }
     .font-select {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      background: white;
-    }
-
-    .progress-section {
-      margin-top: 20px;
-      padding: 16px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 10px;
-    }
-    .progress-text {
-      font-size: 14px;
-      color: #065f46;
-      margin-bottom: 12px;
-      font-weight: 500;
-    }
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: #dcfce7;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #34d399);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    .action-section {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-    .btn {
-      flex: 1;
-      padding: 14px 24px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: #409EFF;
-      color: white;
-    }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #4b5563;
-    }
-
-    .result-content {
-      text-align: center;
-      padding: 32px;
-      background: #ecfdf5;
-      border-radius: 16px;
-    }
-    .result-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #065f46;
-    }
-    .result-desc {
-      font-size: 14px;
-      color: #047857;
-      margin: 8px 0 24px;
-    }
-    .filename-input {
-      margin: 16px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-    .filename-input label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-    }
-    .filename-input input {
-      width: 100%;
-      max-width: 300px;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-    .filename-input input:focus {
-      outline: none;
-      border-color: #409EFF;
-    }
-    .download-btn {
-      padding: 16px 40px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 16px;
-    }
-    .recommend-section {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px dashed #d1d5db;
-    }
-    .recommend-section p {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-    .recommend-link {
-      font-size: 14px;
-      font-weight: 600;
-      color: #409EFF;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .recommend-link:hover {
-      color: #337ecc;
-      text-decoration: underline;
-    }
-
-    .instructions {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .instructions-title {
-      font-size: 20px;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 24px;
-    }
-    .step { text-align: center; }
-    .step-number {
-      width: 40px;
-      height: 40px;
-      background: #409EFF;
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-    }
-    .step-title { font-size: 14px; font-weight: 600; }
-    .step-desc { font-size: 12px; color: #6b7280; }
-
-    .privacy-section {
-      background: linear-gradient(135deg, #065f46, #047857);
-      border-radius: 20px;
-      padding: 40px;
-      margin-top: 32px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    .privacy-section::before {
-      content: '🔒';
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      font-size: 120px;
-      opacity: 0.1;
-    }
-    .privacy-section .section-title {
-      color: white;
-      font-size: 22px;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content {
-      font-size: 15px;
-      line-height: 1.8;
-      color: rgba(255, 255, 255, 0.9);
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content p {
-      margin-bottom: 16px;
-    }
-    .privacy-content p:last-child {
-      margin-bottom: 0;
-    }
-    .privacy-content strong {
-      color: #a7f3d0;
-      font-weight: 600;
-    }
-
-    .faq-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .faq-item {
-      border-bottom: 1px solid #f1f5f9;
-      padding: 20px 0;
-    }
-    .faq-item:last-child { border-bottom: none; }
-    .faq-item h3 {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 8px;
-    }
-    .faq-item p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.6;
-    }
-
-    .footer {
-      background: white;
-      padding: 24px 0;
-      border-top: 1px solid #f1f5f9;
-      text-align: center;
-      margin-top: 32px;
-    }
-    .footer-content {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      margin-bottom: 24px;
-    }
-    .footer-section h4 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 12px;
-    }
-    .footer-section ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .footer-section li {
-      margin-bottom: 8px;
-    }
-    .footer-section li:last-child {
-      margin-bottom: 0;
-    }
-    .footer-section a {
-      font-size: 13px;
-      color: #6b7280;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .footer-section a:hover {
-      color: #409EFF;
-    }
-    .footer-copyright {
-      font-size: 12px;
-      color: #9ca3af;
-      padding-top: 16px;
-      border-top: 1px solid #f1f5f9;
-    }
-
-    .tutorial-section {
-    background: white;
-    border-radius: 16px;
-    padding: 32px;
-    margin-top: 32px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-  }
-  .tutorial-step {
-    display: flex;
-    gap: 20px;
-    padding: 20px 0;
-    border-bottom: 1px solid #f1f5f9;
-  }
-  .tutorial-step:last-child { border-bottom: none; }
-  .tutorial-number {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, #409EFF, #67C23A);
-    border-radius: 50%;
-    color: white;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .tutorial-content h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 8px;
-  }
-  .tutorial-content p {
-    font-size: 14px;
-    color: #64748b;
-    line-height: 1.6;
-  }
-
-  .blog-section {
-    background: white;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    margin-top: 32px;
-  }
-  .blog-card {
-    display: flex;
-    gap: 16px;
-    padding: 20px;
-    background: #f9fafb;
-    border-radius: 16px;
-    margin-bottom: 16px;
-  }
-  .blog-card:last-child { margin-bottom: 24px; }
-  .blog-icon { font-size: 28px; }
-  .blog-card h3 {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-  .blog-card p {
-    font-size: 14px;
-    color: #6b7280;
-    line-height: 1.5;
-  }
-  .cta-box {
-    background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
-    border-radius: 16px;
-    padding: 32px;
-    text-align: center;
-    margin-top: 16px;
-  }
-  .cta-box h3 {
-    font-size: 18px;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 8px;
-  }
-  .cta-box p {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 16px;
-  }
-  .cta-button {
-      text-decoration: none;
-    padding: 12px 32px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #409EFF;
-    background: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .cta-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  }
-
-    @media (max-width: 768px) {
-      .steps { grid-template-columns: repeat(2, 1fr); }
-      .action-section { flex-direction: column; }
-      .signature-actions { flex-direction: column; }
-      .sig-btn { width: 100%; }
-      .tab-content { padding: 16px; }
-      .header-content { flex-direction: column; gap: 12px; }
-      .header-links { gap: 8px; flex-wrap: wrap; justify-content: center; }
-      .header-links a { padding: 6px 12px; font-size: 12px; }
-      .logo-text { font-size: 20px; }
-      .logo-image { width: 36px; height: 36px; }
-      .footer-content { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    }
-
-    .technology-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      border-radius: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .technology-section::before {
-      content: '⚡';
-      position: absolute;
-      top: -30px;
-      right: -30px;
-      font-size: 150px;
-      opacity: 0.05;
-    }
-    .technology-section .section-title {
-      color: white;
-      font-size: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-item {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      padding: 32px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-    .tech-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-    .tech-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .tech-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 12px;
-    }
-    .tech-item p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.7;
-    }
-
-    .guide-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
-    }
-    .guide-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-    }
-    .guide-item {
-      padding: 32px;
-      background: linear-gradient(135deg, #fef3c7, #fde68a);
-      border-radius: 16px;
-      border: 1px solid #fcd34d;
-      transition: all 0.3s ease;
-    }
-    .guide-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(251, 191, 36, 0.25);
-    }
-    .guide-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .guide-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #92400e;
-      margin-bottom: 12px;
-    }
-    .guide-item p {
-      font-size: 14px;
-      color: #78350f;
-      line-height: 1.7;
+      min-width: 150px;
     }
   </style>
+  
 </head>
 <body>
 <div id="app" class="app">
@@ -1304,26 +238,23 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="./assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
+          <img src="/assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
           <span class="logo-text">PDFMaster</span>
         </div>
         <nav class="header-links">
           <a href="index.html" class="back-btn">Back to Home</a>
-          <a href="contact.html" class="contact-btn">Contact Me</a>
+          <a href="contact.html" class="contact-btn">Contact Us</a>
           <a href="feedback.html" class="feedback-btn">Send Feedback</a>
         </nav>
       </div>
     </div>
   </header>
-
-
   <div class="main-content">
     <div class="container">
       <div class="page-header">
         <h1 class="page-title">PDF Signer - Free e-Signature Tool</h1>
         <p class="page-subtitle">Sign documents online with our free e-signature tool. Add digital signatures to PDFs easily. All processing happens locally in your browser for complete privacy. Supports PDF files up to 50MB.</p>
       </div>
-
       <div class="steps-container">
         <div class="steps-wrapper">
           <el-steps :active="Number(currentStep)" finish-status="success" align-center>
@@ -1333,9 +264,8 @@
           </el-steps>
         </div>
       </div>
-
       <div class="tool-card">
-        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick">
+        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick" type="border-card">
           <el-tab-pane label="Upload" name="0">
             <div class="tab-content">
               <el-upload
@@ -1348,34 +278,29 @@
                 action="#"
                 :multiple="false"
               >
-                <i class="el-icon-upload upload-icon"></i>
+                <div class="upload-icon">📁</div>
                 <div class="upload-text">Drag & drop PDF files here</div>
-                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong>, max 1 file</div>
+                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
               </el-upload>
-
               <div v-if="selectedFile" class="file-list-section">
                 <div class="file-list-header">
                   <div class="file-list-title">
                     <i class="el-icon-file-text"></i>
                     Selected PDF
                   </div>
-                  <button class="clear-all-btn" @click="clearFile">Clear</button>
+                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearFile">Clear</el-button>
                 </div>
                 <div class="file-item">
                   <span class="file-name">{{ selectedFile.name }}</span>
                   <span class="file-info">{{ formatFileSize(selectedFile.size) }}</span>
-                  <button class="delete-btn" @click="clearFile">Remove</button>
+                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="clearFile"></el-button>
                 </div>
               </div>
-
               <div class="action-section">
-                <button class="btn btn-primary" @click="goToNext" :disabled="!selectedFile">
-                  Continue
-                </button>
+                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
               </div>
             </div>
           </el-tab-pane>
-
           <el-tab-pane label="Signature" name="1">
             <div class="tab-content">
               <div class="options-section">
@@ -1396,7 +321,6 @@
                     <div class="mode-explanation">Type your name and choose from several font options for a clean signature.</div>
                   </div>
                 </div>
-
                 <div class="output-options">
                   <div class="option-row">
                     <label class="option-label">Signature Color</label>
@@ -1405,10 +329,8 @@
                       <div class="color-value">{{ form.signatureColor }}</div>
                     </div>
                   </div>
-
                 </div>
               </div>
-
               <div v-if="previews.length > 0" class="preview-section">
                 <div class="preview-title">Select Pages to Sign</div>
                 <div class="page-preview-container">
@@ -1425,7 +347,6 @@
                   <div class="preview-hint">Selected: {{ selectedPages.join(', ') }}</div>
                 </div>
               </div>
-
               <div class="signature-section">
                 <div class="signature-title">Create Your Signature</div>
                 
@@ -1452,12 +373,10 @@
                   </div>
                 </template>
               </div>
-
               <div class="action-section">
-                <button class="btn btn-secondary" @click="goToPrev" :disabled="signing">Back</button>
-                <button class="btn btn-primary" @click="signPDF" :disabled="signing || !selectedFile || !canSignPDF">{{ signing ? 'Signing...' : 'Sign PDF' }}</button>
+                <el-button type="default" @click="goToPrev" :disabled="signing">Back</el-button>
+                <el-button type="primary" @click="signPDF" :disabled="signing || !selectedFile || !canSignPDF">{{ signing ? 'Signing...' : 'Sign PDF' }}</el-button>
               </div>
-
               <div v-if="signing" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
                 <div class="progress-bar">
@@ -1466,7 +385,6 @@
               </div>
             </div>
           </el-tab-pane>
-
           <el-tab-pane label="Result" name="2">
             <div class="tab-content">
               <div class="result-content" v-if="done">
@@ -1483,63 +401,56 @@
                 
                 <div class="filename-input">
                   <label>File Name:</label>
-                  <input v-model="downloadFileName" type="text" placeholder="Enter file name" />
+                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
                 </div>
                 
-                <button class="download-btn" @click="download">Download Signed PDF</button>
+                <el-button type="primary" size="large" @click="download">Download Signed PDF</el-button>
                 
                 <div class="recommend-section">
                   <p>Need to protect your PDF with a password?</p>
                   <a href="pdf-watermark.html" class="recommend-link">Try our PDF Watermark Tool →</a>
                 </div>
               </div>
-
-              <div v-if="showPreviewModal" class="preview-modal" @click="closePreview">
-                <div class="modal-content" @click.stop>
-                  <button class="modal-close" @click="closePreview">×</button>
-                  <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview">
-                </div>
-              </div>
-
+              <el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
+                <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+              </el-dialog>
               <div class="action-section">
-                <button class="btn btn-secondary" @click="reset">Start Over</button>
+                <el-button type="default" @click="reset">Start Over</el-button>
               </div>
             </div>
           </el-tab-pane>
         </el-tabs>
       </div>
-
       <div class="instructions">
         <h2 class="instructions-title">Why Choose PDFMaster for PDF Signing?</h2>
         <div class="steps">
           <div class="step">
-            <div class="step-number">💰</div>
+            <i class="el-icon-check step-number"></i>
             <div class="step-title">Free PDF Signer</div>
             <div class="step-desc">100% free, no hidden fees</div>
           </div>
           <div class="step">
-            <div class="step-number">🔐</div>
+            <i class="el-icon-lock step-number"></i>
             <div class="step-title">Local Processing</div>
             <div class="step-desc">Sign PDFs without upload</div>
           </div>
           <div class="step">
-            <div class="step-number">⚡</div>
+            <i class="el-icon-close step-number"></i>
             <div class="step-title">Fast Signing</div>
             <div class="step-desc">No Adobe required</div>
           </div>
           <div class="step">
-            <div class="step-number">📱</div>
+            <i class="el-icon-edit step-number"></i>
             <div class="step-title">Any Device</div>
             <div class="step-desc">Works on all platforms</div>
           </div>
           <div class="step">
-            <div class="step-number">🎯</div>
+            <i class="el-icon-user step-number"></i>
             <div class="step-title">Easy to Use</div>
             <div class="step-desc">Draw or type signatures</div>
           </div>
         </div>
       </div>
-
       <div class="privacy-section">
         <h2 class="section-title">🔒 Your Privacy is Our Priority</h2>
         <div class="privacy-content">
@@ -1547,51 +458,72 @@
           <p>Our PDF signer uses client-side JavaScript libraries to process your files directly in your browser. No data is transmitted over the internet, ensuring complete privacy and security.</p>
         </div>
       </div>
-
-      <div class="faq-section">
-        <h2 class="section-title">Frequently Asked Questions</h2>
-        <div class="faq-item">
-          <h3>Is this a legally binding signature?</h3>
-          <p>This tool creates a digital signature for convenience purposes. For legally binding electronic signatures, you may need to use a certified e-signature service that complies with regulations like eIDAS or ESIGN Act.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Is there a file size limit?</h3>
-          <p>Yes, the maximum file size is 50MB. This ensures the tool works efficiently in your browser without performance issues.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I sign multiple pages?</h3>
-          <p>Currently, this tool adds the signature to a single page. You can specify which page to sign or leave it blank to sign the last page.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I customize the signature appearance?</h3>
-          <p>Yes, you can choose between drawing or typing your signature, select different colors, and choose from several font options for text signatures.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Is my data secure?</h3>
-          <p>Absolutely! All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy and security.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I use this tool on mobile devices?</h3>
-          <p>Yes! Our PDF signer works perfectly on iPhone and Android devices. Just open your browser and start signing - no app installation required.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Which browsers are supported?</h3>
-          <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I sign password-protected PDFs?</h3>
-          <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-        </div>
-        <div class="faq-item">
-          <h3>How to sign PDF on Mac for free?</h3>
-          <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF, and sign it for free. No software to install, no watermarks added.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Why choose PDFMaster for signing PDFs?</h3>
-          <p>PDFMaster offers 100% free PDF signing with no watermarks, local processing for complete privacy, and multiple signature options. Your files stay secure on your device.</p>
+      <div class="technology-section">
+        <h2 class="section-title">Powered by Industry-Leading Technology</h2>
+        <div class="tech-content">
+          <el-card class="tech-card" shadow="hover">
+            <h3>PDFLib Signing</h3>
+            <p>We use <strong>PDFLib</strong> for secure digital signature placement. All signing operations happen locally in your browser. <strong>No data ever touches our servers.</strong></p>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
+            <h3>Signature Capture</h3>
+            <p>Our tool captures your signature through mouse or touch input, creating a digital representation of your handwritten signature. <strong>What you draw is what you get.</strong></p>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
+            <h3>Memory-Safe Architecture</h3>
+            <p>Smart memory management ensures smooth performance during signature creation and placement. <strong>Your browser stays responsive.</strong></p>
+          </el-card>
         </div>
       </div>
-
+      <div class="guide-section">
+        <h2 class="section-title">Pro Tips for Better PDF Signing</h2>
+        <div class="guide-content">
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Sign Clearly</h3>
+            <p class="guide-desc">Sign slowly and carefully for best results. Practice your signature on the canvas before applying it to your document.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Position Carefully</h3>
+            <p class="guide-desc">Place your signature in the appropriate location on the document to ensure legal validity.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Verify Signature</h3>
+            <p class="guide-desc">Always review your signed document to ensure the signature is clear and properly placed.</p>
+          </el-card>
+        </div>
+      </div>
+      <div class="faq-section">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <el-collapse accordion>
+          <el-collapse-item title="Is this a legally binding signature?">
+            <p>This tool creates a digital signature for convenience purposes. For legally binding electronic signatures, you may need to use a certified e-signature service that complies with regulations like eIDAS or ESIGN Act.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Is there a file size limit?">
+            <p>Yes, the maximum file size is 50MB. This ensures the tool works efficiently in your browser without performance issues.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I sign multiple pages?">
+            <p>Currently, this tool adds the signature to a single page. You can specify which page to sign or leave it blank to sign the last page.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I customize the signature appearance?">
+            <p>Yes, you can choose between drawing or typing your signature, select different colors, and choose from several font options for text signatures.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Is my data secure?">
+            <p>Absolutely! All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy and security.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I use this tool on mobile devices?">
+            <p>Yes! Our PDF signer works perfectly on iPhone and Android devices. Just open your browser and start signing - no app installation required.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Which browsers are supported?">
+            <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
+          </el-collapse-item>
+          <el-collapse-item title="Can I sign password-protected PDFs?">
+            <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
+          </el-collapse-item>
+          <el-collapse-item title="How to sign PDF on Mac for free?">
+            <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF, and sign it for free. No software to install, no watermarks added.</p>
+          </el-collapse-item>
+        </el-collapse>
+      </div>
       <div class="tutorial-section">
         <h2 class="section-title">How to Sign PDF Documents Online</h2>
         <div class="tutorial-step">
@@ -1623,7 +555,6 @@
           </div>
         </div>
       </div>
-
       <div class="blog-section">
         <h2 class="section-title">Digital Document Signing - Top Use Cases</h2>
         <div class="blog-card">
@@ -1668,51 +599,6 @@
             <p>Sign documents securely online with local browser processing. Your signatures and documents never leave your device.</p>
           </div>
         </div>
-      </div>
-
-      <div class="technology-section">
-        <h2 class="section-title">How It Works - Browser-Based Processing</h2>
-        <div class="tech-content">
-          <div class="tech-item">
-            <div class="tech-item-icon">⚙️</div>
-            <h3>PDFLib Signing</h3>
-            <p>We use PDFLib for secure digital signature placement. All signing operations happen locally in your browser.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">✍️</div>
-            <h3>Handwritten Signatures</h3>
-            <p>Our tool captures your signature through mouse or touch input, creating a digital representation of your handwritten signature.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">🧠</div>
-            <h3>Memory-Safe Architecture</h3>
-            <p>Smart memory management ensures smooth performance during signature creation and placement.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="guide-section">
-        <h2 class="section-title">Pro Tips for Better PDF Signing</h2>
-        <div class="guide-content">
-          <div class="guide-item">
-            <div class="guide-item-icon">✍️</div>
-            <h3>Sign Clearly</h3>
-            <p>Sign slowly and carefully for best results. Practice your signature on the canvas before applying it to your document.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">📐</div>
-            <h3>Position Carefully</h3>
-            <p>Place your signature in the appropriate location on the document to ensure legal validity.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">✅</div>
-            <h3>Verify Signature</h3>
-            <p>Always review your signed document to ensure the signature is clear and properly placed.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="blog-section">
         <div class="cta-box">
           <h3>Sign Documents Now</h3>
           <p>Add digital signatures to your PDFs for free. Choose from multiple signature styles, add initials, and sign anywhere. No registration required, completely private.</p>
@@ -1721,7 +607,6 @@
       </div>
     </div>
   </div>
-
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -1754,7 +639,6 @@
     </div>
   </footer>
 </div>
-
 <script>
 new Vue({
   el: '#app',
@@ -1898,6 +782,14 @@ new Vue({
       this.form.signatureType = 'text'
     },
     goToNext() { 
+      if (!this.selectedFile) {
+        this.$notify({
+          title: '提示',
+          message: 'Please upload a PDF file first',
+          type: 'warning'
+        });
+        return;
+      }
       if (this.form.signatureType === 'draw') {
         this.$nextTick(() => {
           if (!this.signaturePad) this.initSignaturePad()
@@ -1913,14 +805,14 @@ new Vue({
     handleTabClick(tab) {
       const targetStep = tab.name
       if (targetStep !== '0' && !this.selectedFile) {
-        this.$message.warning('Please upload a PDF first')
+        this.$notify({ title: '提示', message: 'Please upload a PDF first', type: 'warning' })
         this.$nextTick(() => {
           this.currentStep = '0'
         })
         return
       }
       if (targetStep === '2' && !this.done) {
-        this.$message.warning('Please complete signing first')
+        this.$notify({ title: '提示', message: 'Please complete signing first', type: 'warning' })
         this.$nextTick(() => {
           this.currentStep = '1'
         })
@@ -1930,16 +822,16 @@ new Vue({
     handleFileChange(file) {
       const raw = file.raw
       if (!raw.name.toLowerCase().endsWith('.pdf')) {
-        this.$message.error('Only PDF files are allowed')
+        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
         return
       }
       const maxSize = 50 * 1024 * 1024
       if (raw.size > maxSize) {
-        this.$message.error('File size cannot exceed 50MB')
+        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' })
         return
       }
       if (this.selectedFile) {
-        this.$message.warning('You can upload only one file at a time. Please clear the current file first.')
+        this.$notify({ title: '提示', message: 'You can upload only one file at a time. Please clear the current file first.', type: 'warning' })
         return
       }
       this.selectedFile = {
@@ -2055,9 +947,9 @@ new Vue({
       if (this.form.signatureType === 'draw') {
         if (this.signaturePad && !this.signaturePad.isEmpty()) {
           this.signatureImage = this.signaturePad.toDataURL('image/png')
-          this.$message.success('Signature saved!')
+          this.$notify({ title: '成功', message: 'Signature saved!', type: 'success' })
         } else {
-          this.$message.warning('Please draw your signature first')
+          this.$notify({ title: '提示', message: 'Please draw your signature first', type: 'warning' })
         }
       } else {
         if (this.form.signatureText.trim()) {
@@ -2075,9 +967,9 @@ new Vue({
           ctx.textBaseline = 'middle'
           ctx.fillText(this.form.signatureText, canvas.width / 2, canvas.height / 2)
           this.signatureImage = canvas.toDataURL('image/png')
-          this.$message.success('Signature saved!')
+          this.$notify({ title: '成功', message: 'Signature saved!', type: 'success' })
         } else {
-          this.$message.warning('Please enter your signature text')
+          this.$notify({ title: '提示', message: 'Please enter your signature text', type: 'warning' })
         }
       }
     },
@@ -2102,7 +994,6 @@ new Vue({
       this.signing = true
       this.progress = 0
       this.progressText = 'Loading PDF...'
-
       try {
         const arrayBuffer = await this.selectedFile.file.arrayBuffer()
         const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer)
@@ -2145,7 +1036,7 @@ new Vue({
         
       } catch (error) {
         console.error('Error signing PDF:', error)
-        this.$message.error('Failed to sign PDF. Please try again.')
+        this.$notify({ title: '错误', message: 'Failed to sign PDF. Please try again.', type: 'error' })
         this.signing = false
       }
     },

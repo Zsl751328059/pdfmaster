@@ -6,19 +6,16 @@
   <title>Rotate PDF Pages Online Free - 90/180 Degrees | PDFMaster</title>
   <meta name="description" content="Rotate PDF pages online free - 90°, 180°, 270° clockwise/counter-clockwise. Fix sideways PDFs. 100% local processing, no upload, no watermark, no registration. Up to 50MB. Works on Mac, Windows, iPhone & Android.">
   <link rel="canonical" href="https://pdfeasz.com/pdf-rotator.html" />
-
   <meta property="og:title" content="PDF Rotator - Rotate PDF Pages Online Free | PDFMaster" />
   <meta property="og:description" content="Rotate PDF pages online for free. Rotate PDF 90°, 180°, 270° clockwise or counter-clockwise. Fix upside down PDF, flip PDF pages without losing quality." />
   <meta property="og:image" content="https://pdfeasz.com/assets/share.png" />
   <meta property="og:url" content="https://pdfeasz.com/pdf-rotator.html" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PDFMaster" />
-
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="PDF Rotator - Rotate PDF Pages Online | PDFMaster" />
   <meta name="twitter:description" content="Rotate PDF pages online for free. Rotate PDF 90/180 degrees, fix sideways PDF, flip pages. No upload, 100% private." />
   <meta name="twitter:image" content="https://pdfeasz.com/assets/share.png" />
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -33,7 +30,6 @@
     }
   }
   </script>
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -84,7 +80,6 @@
     ]
   }
   </script>
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -159,1022 +154,71 @@
   </script>
   
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
-  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
-  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-
+  <link rel="stylesheet" href="/common.css">
+  
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f7fa;
-      color: #333;
-      line-height: 1.6;
-      min-height: 100vh;
+    .options-section {
+      margin-bottom: 24px;
     }
-    .container {
-      max-width: 100%;
-      width: 95%;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-    .app { min-height: 100vh; display: flex; flex-direction: column; }
-    .main-content { 
-      flex: 1; 
-      padding: 32px 0;
-      max-width: 1100px;
-      margin: 0 auto;
-      width: 95%;
-    }
-
-    .header {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-      padding: 12px 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo-image {
-      width: 44px;
-      height: 44px;
-      border-radius: 16px;
-      object-fit: contain;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      padding: 8px;
-    }
-    .logo-text {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .header-links {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-    .header-links a {
-      font-size: 14px;
-      font-weight: 500;
-      color: #475569;
-      transition: color 0.3s;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-    }
-    .header-links a:hover {
-      color: #409EFF;
-      background: rgba(64, 158, 255, 0.08);
-    }
-    .contact-btn {
-      background: linear-gradient(135deg, #409EFF, #337ecc);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .contact-btn:hover {
-      background: linear-gradient(135deg, #337ecc, #409EFF) !important;
-      transform: translateY(-1px);
-    }
-    .feedback-btn {
-      background: linear-gradient(135deg, #67C23A, #5eb830);
-      color: white !important;
-      padding: 10px 24px !important;
-      transition: all 0.3s;
-    }
-    .feedback-btn:hover {
-      background: linear-gradient(135deg, #5eb830, #67C23A) !important;
-      transform: translateY(-1px);
-    }
-    .back-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white !important;
-      padding: 10px 20px !important;
-      transition: all 0.3s;
-    }
-    .back-btn:hover {
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
-      color: white !important;
-      transform: translateY(-1px);
-    }
-    .breadcrumbs {
-      background: #f8fafc;
-      padding: 12px 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .breadcrumbs .el-breadcrumb {
-      font-size: 14px;
-    }
-    .breadcrumbs .el-breadcrumb__item a {
-      color: #409EFF;
-    }
-
-    .page-header { text-align: center; margin-bottom: 32px; }
-    .page-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 16px;
-      line-height: 1.3;
-    }
-    .page-subtitle {
-      font-size: 16px;
-      color: #ffffff;
-      line-height: 1.8;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 24px 32px;
-      background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(64, 158, 255, 0.35);
-      position: relative;
-      overflow: hidden;
-      font-weight: 500;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-    .page-subtitle::before {
-      content: '📄';
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      font-size: 60px;
-      opacity: 0.15;
-    }
-    .page-subtitle::after {
-      content: '🔗';
-      position: absolute;
-      bottom: -10px;
-      left: -10px;
-      font-size: 50px;
-      opacity: 0.15;
-    }
-
-    .steps-container { margin-bottom: 32px; }
-    .steps-wrapper {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-
-    .tool-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      overflow: hidden;
-      margin-bottom: 32px;
-    }
-
-    .tab-content { padding: 32px; }
-
-    .upload-area {
-      border: 2px dashed #d1d5db;
-      border-radius: 16px;
-      padding: 40px 24px;
-      background: #fafafa;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-      min-height: 200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .upload-area:hover { border-color: #409EFF; background: #f0f7ff; }
-    .upload-icon {
-      font-size: 48px;
-      color: #409EFF;
-      margin-bottom: 16px;
-    }
-    .upload-text {
-      font-size: 18px;
-      font-weight: 500;
-      color: #334155;
-      margin-bottom: 8px;
-    }
-    .upload-hint {
-      font-size: 14px;
-      color: #94a3b8;
-    }
-    .upload-hint strong { color: #409EFF; }
-
-    .el-upload-dragger {
-      width: 100% !important;
-      min-height: 180px !important;
-      max-height: 200px !important;
-      border: none !important;
-      border-radius: 16px !important;
-      background: transparent !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-      cursor: pointer !important;
-      transition: all 0.3s !important;
-    }
-    .el-upload-dragger:hover, .el-upload-dragger.dragover {
-      border-color: #409EFF;
-      background: #f0f7ff;
-    }
-
-    .file-list-section { margin-top:24px; }
-    .file-list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .file-list-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .clear-all-btn {
-      background: none;
-      border: none;
-      color: #ef4444;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-    .clear-all-btn:hover {
-      background: #fef2f2;
-      text-decoration: underline;
-    }
-    .file-item {
-      display: flex;
-      align-items: center;
-      padding: 14px 16px;
-      background: #f9fafb;
-      border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    .file-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: #374151;
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .file-info {
-      font-size: 12px;
-      color: #9ca3af;
-      margin: 0 12px;
-      flex-shrink: 0;
-    }
-    .delete-btn {
-      padding: 6px 12px;
-      font-size: 13px;
-      color: #fff;
-      background: #ef4444;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .delete-btn:hover { background: #dc2626; }
-
     .options-title {
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 600;
-      color: #374151;
+      color: #1f2937;
       margin-bottom: 8px;
     }
     .mode-description {
-      font-size: 13px;
+      font-size: 14px;
       color: #6b7280;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
-
-    .output-options {
-      background: #f9fafb;
-      padding: 20px;
-      border-radius: 16px;
-      margin-bottom: 24px;
-    }
-    .option-row {
-      margin-bottom: 16px;
-    }
-    .option-row:last-child {
-      margin-bottom: 0;
-    }
-    .option-label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 8px;
-      display: block;
-    }
-    .option-select {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      background: white;
-      transition: border-color 0.3s;
-    }
-    .option-select:focus {
-      outline: none;
-      border-color: #409EFF;
-    }
-
     .rotation-options {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
     }
     .rotation-btn {
-      flex: 1;
-      min-width: 100px;
-      padding: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      background: white;
-      cursor: pointer;
-      transition: all 0.3s;
       display: flex;
-      flex-direction: column;
       align-items: center;
       gap: 8px;
+      padding: 12px 20px;
+      background: #fff;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
     .rotation-btn:hover {
       border-color: #409EFF;
-      background: #f0f7ff;
+      color: #409EFF;
     }
     .rotation-btn.active {
+      background: linear-gradient(135deg, #409EFF, #337ecc);
       border-color: #409EFF;
-      background: #409EFF;
-      color: white;
+      color: #fff;
     }
     .rotation-icon {
-      font-size: 28px;
+      font-size: 18px;
     }
-
-    .pages-preview {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      max-height: 300px;
-      overflow-y: auto;
-      padding: 16px;
+    .output-options {
       background: #f9fafb;
-      border-radius: 16px;
-      margin-top: 20px;
-    }
-    .page-item {
-      width: 100px;
-      height: 140px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      overflow: hidden;
-      cursor: pointer;
-      position: relative;
-      background: white;
-      display: flex;
-      flex-direction: column;
-      transition: all 0.3s;
-    }
-    .page-item:hover {
-      border-color: #409EFF;
-      transform: translateY(-2px);
-    }
-    .page-item.selected {
-      border-color: #409EFF;
-      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.2);
-    }
-    .page-preview {
-      flex: 1;
-      width: 100%;
-      object-fit: contain;
-      background: #f9fafb;
-    }
-    .page-num {
-      font-size: 11px;
-      text-align: center;
-      padding: 4px;
-      background: #f3f4f6;
-      color: #6b7280;
-    }
-    .rotate-indicator {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 24px;
-      height: 24px;
-      background: #409EFF;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: bold;
-    }
-
-    .progress-section {
-      margin-top: 20px;
+      border-radius: 12px;
       padding: 16px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 10px;
     }
-    .progress-text {
+    .option-hint {
       font-size: 14px;
-      color: #065f46;
-      margin-bottom: 12px;
-      font-weight: 500;
-    }
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: #dcfce7;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #34d399);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    .action-section {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-    .btn {
-      flex: 1;
-      padding: 14px 24px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: #409EFF;
-      color: white;
-    }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: #f3f4f6;
       color: #4b5563;
-    }
-
-    .result-content {
-      text-align: center;
-      padding: 32px;
-      background: #ecfdf5;
-      border-radius: 16px;
-    }
-    .result-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #065f46;
-    }
-    .result-desc {
-      font-size: 14px;
-      color: #047857;
-      margin: 8px 0 24px;
-    }
-    .result-preview {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-    .result-page {
-      width: 80px;
-      height: 120px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      overflow: hidden;
-      background: white;
-      display: flex;
-      flex-direction: column;
-    }
-    .result-preview-img {
-      flex: 1;
-      width: 100%;
-      object-fit: contain;
-      background: #f9fafb;
-    }
-    .result-page-num {
-      font-size: 11px;
-      text-align: center;
-      padding: 4px;
-      background: #f3f4f6;
-      color: #6b7280;
-    }
-    .result-page.clickable {
-      cursor: zoom-in;
-      position: relative;
-      transition: all 0.3s;
-    }
-    .result-page.clickable:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    }
-    .preview-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 12px;
-      opacity: 0;
-      transition: all 0.3s;
-    }
-    .result-page.clickable:hover .preview-overlay {
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 1;
-    }
-    .preview-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      cursor: pointer;
-    }
-    .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      cursor: default;
-      max-width: 90vw;
-      max-height: 90vh;
-    }
-    .modal-close {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 32px;
-      color: white;
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
-    .modal-image {
-      max-width: 100%;
-      max-height: 80vh;
-      border-radius: 8px;
-    }
-
-    .filename-input {
-      margin: 16px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-    .filename-input label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-    }
-    .filename-input input {
-      width: 100%;
-      max-width: 300px;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-    .filename-input input:focus {
-      outline: none;
-      border-color: #409EFF;
-    }
-    .download-btn {
-      padding: 16px 40px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 16px;
-    }
-    .recommend-section {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px dashed #d1d5db;
-    }
-    .recommend-section p {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-    .recommend-link {
-      font-size: 14px;
-      font-weight: 600;
-      color: #409EFF;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .recommend-link:hover {
-      color: #337ecc;
-      text-decoration: underline;
-    }
-
-    .instructions {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .instructions-title {
-      font-size: 20px;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 24px;
-    }
-    .step { text-align: center; }
-    .step-number {
-      width: 40px;
-      height: 40px;
-      background: #409EFF;
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-    }
-    .step-title { font-size: 14px; font-weight: 600; }
-    .step-desc { font-size: 12px; color: #6b7280; }
-
-    .privacy-section {
-      background: linear-gradient(135deg, #065f46, #047857);
-      border-radius: 20px;
-      padding: 40px;
-      margin-top: 32px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    .privacy-section::before {
-      content: '🔒';
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      font-size: 120px;
-      opacity: 0.1;
-    }
-    .privacy-section .section-title {
-      color: white;
-      font-size: 22px;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content {
-      font-size: 15px;
-      line-height: 1.8;
-      color: rgba(255, 255, 255, 0.9);
-      position: relative;
-      z-index: 1;
-    }
-    .privacy-content p {
-      margin-bottom: 16px;
-    }
-    .privacy-content p:last-child {
-      margin-bottom: 0;
-    }
-    .privacy-content strong {
-      color: #a7f3d0;
-      font-weight: 600;
-    }
-
-    .faq-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .faq-item {
-      border-bottom: 1px solid #f1f5f9;
-      padding: 20px 0;
-    }
-    .faq-item:last-child { border-bottom: none; }
-    .faq-item h3 {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 8px;
-    }
-    .faq-item p {
-      font-size: 14px;
-      color: #6b7280;
       line-height: 1.6;
-    }
-
-    .tutorial-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      margin-top: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .tutorial-step {
-      display: flex;
-      gap: 20px;
-      padding: 20px 0;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .tutorial-step:last-child { border-bottom: none; }
-    .tutorial-number {
-      width: 44px;
-      height: 44px;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      border-radius: 50%;
-      color: white;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .tutorial-content h3 {
-      font-size: 16px;
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 8px;
-    }
-    .tutorial-content p {
-      font-size: 14px;
-      color: #64748b;
-      line-height: 1.6;
-    }
-
-    .blog-section {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      margin-top: 32px;
-    }
-    .blog-card {
-      display: flex;
-      gap: 16px;
-      padding: 20px;
-      background: #f9fafb;
-      border-radius: 16px;
-      margin-bottom: 16px;
-    }
-    .blog-card:last-child { margin-bottom: 24px; }
-    .blog-icon { font-size: 28px; }
-    .blog-card h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .blog-card p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.5;
-    }
-    .cta-box {
-      background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
-      border-radius: 16px;
-      padding: 32px;
-      text-align: center;
-      margin-top: 16px;
-    }
-    .cta-box h3 {
-      font-size: 18px;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 8px;
-    }
-    .cta-box p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.9);
-      margin-bottom: 16px;
-    }
-    .cta-button {
-      text-decoration: none;
-      padding: 12px 32px;
-      font-size: 15px;
-      font-weight: 600;
-      color: #409EFF;
-      background: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .footer {
-      background: white;
-      padding: 24px 0;
-      border-top: 1px solid #f1f5f9;
-      text-align: center;
-      margin-top: 32px;
-    }
-    .footer-content {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      margin-bottom: 24px;
-    }
-    .footer-section h4 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 12px;
-    }
-    .footer-section ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .footer-section li {
-      margin-bottom: 8px;
-    }
-    .footer-section li:last-child {
-      margin-bottom: 0;
-    }
-    .footer-section a {
-      font-size: 13px;
-      color: #6b7280;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .footer-section a:hover {
-      color: #409EFF;
-    }
-    .footer-copyright {
-      font-size: 12px;
-      color: #9ca3af;
-      padding-top: 16px;
-      border-top: 1px solid #f1f5f9;
-    }
-
-    @media (max-width: 768px) {
-      .steps { grid-template-columns: repeat(2, 1fr); }
-      .action-section { flex-direction: column; }
-      .rotation-options { flex-direction: column; }
-      .rotation-btn { width: 100%; }
-      .tab-content { padding: 16px; }
-      .header-content { flex-direction: column; gap: 12px; }
-      .header-links { gap: 8px; flex-wrap: wrap; justify-content: center; }
-      .header-links a { padding: 6px 12px; font-size: 12px; }
-      .logo-text { font-size: 20px; }
-      .logo-image { width: 36px; height: 36px; }
-      .footer-content { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    }
-
-    .technology-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      border-radius: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .technology-section::before {
-      content: '⚡';
-      position: absolute;
-      top: -30px;
-      right: -30px;
-      font-size: 150px;
-      opacity: 0.05;
-    }
-    .technology-section .section-title {
-      color: white;
-      font-size: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .tech-item {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      padding: 32px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-    .tech-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-    .tech-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .tech-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 12px;
-    }
-    .tech-item p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.7;
-    }
-
-    .guide-section {
-      margin-top: 32px;
-      padding: 40px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
-    }
-    .guide-content {
-      display: grid;
-      
-      gap: 24px;
-      margin-top: 24px;
-    }
-    .guide-item {
-      padding: 32px;
-      background: linear-gradient(135deg, #fef3c7, #fde68a);
-      border-radius: 16px;
-      border: 1px solid #fcd34d;
-      transition: all 0.3s ease;
-    }
-    .guide-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(251, 191, 36, 0.25);
-    }
-    .guide-item-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    .guide-item h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #92400e;
-      margin-bottom: 12px;
-    }
-    .guide-item p {
-      font-size: 14px;
-      color: #78350f;
-      line-height: 1.7;
     }
   </style>
+  <script src="./lib/vue/vue.js"></script>
+  <script src="./lib/element-ui/index.js"></script>
+  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
+  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+  
 </head>
 <body>
 <div id="app" class="app">
@@ -1182,7 +226,7 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="./assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
+          <img src="/assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
           <span class="logo-text">PDFMaster</span>
         </div>
         <nav class="header-links">
@@ -1190,21 +234,18 @@
             <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
             Back to Home
           </a>
-          <a href="contact.html" class="contact-btn">Contact Me</a>
+          <a href="contact.html" class="contact-btn">Contact Us</a>
           <a href="feedback.html" class="feedback-btn">Send Feedback</a>
         </nav>
       </div>
     </div>
   </header>
-
-
   <div class="main-content">
     <div class="container">
       <div class="page-header">
         <h1 class="page-title">PDF Rotator - Rotate PDF Pages Online Free</h1>
         <p class="page-subtitle">Rotate PDF 90 degrees, 180 degrees or 270 degrees clockwise or counter-clockwise. Fix sideways PDF, flip PDF pages and save. All processing happens locally in your browser - no upload required. Best free PDF rotator with no registration needed.</p>
       </div>
-
       <div class="steps-container">
         <div class="steps-wrapper">
           <el-steps :active="Number(currentStep)" finish-status="success" align-center>
@@ -1214,9 +255,8 @@
           </el-steps>
         </div>
       </div>
-
       <div class="tool-card">
-        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick">
+        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick" type="border-card">
           <el-tab-pane label="Upload" name="0">
             <div class="tab-content">
               <el-upload
@@ -1232,34 +272,29 @@
                 :limit="1"
                 :multiple="false"
               >
-                <i class="el-icon-upload upload-icon"></i>
+                <div class="upload-icon">📁</div>
                 <div class="upload-text">Drag & drop PDF files here</div>
-                <div class="upload-hint">or <strong>browse files</strong> from your device. Supports PDF format only, max 50MB.</div>
+                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
               </el-upload>
-
               <div v-if="selectedFile" class="file-list-section">
                 <div class="file-list-header">
                   <div class="file-list-title">
                     <i class="el-icon-file-text"></i>
                     Selected PDF
                   </div>
-                  <button class="clear-all-btn" @click="clearFile">Clear</button>
+                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearFile">Clear All</el-button>
                 </div>
                 <div class="file-item">
                   <span class="file-name">{{ selectedFile.name }}</span>
                   <span class="file-info">{{ formatFileSize(selectedFile.size) }}</span>
-                  <button class="delete-btn" @click="clearFile">Remove</button>
+                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="clearFile"></el-button>
                 </div>
               </div>
-
               <div class="action-section">
-                <button class="btn btn-primary" @click="goToNext" :disabled="!selectedFile">
-                  Continue
-                </button>
+                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
               </div>
             </div>
           </el-tab-pane>
-
           <el-tab-pane label="Rotation" name="1">
             <div class="tab-content">
               <div class="options-section">
@@ -1280,28 +315,24 @@
                     <span>90° Counter-Clockwise</span>
                   </button>
                 </div>
-
                 <div class="output-options" style="margin-top: 20px;">
                   <div class="option-hint">Click on pages in the preview below to select which pages to rotate</div>
                 </div>
               </div>
-
               <div v-if="pagePreviews.length > 0" class="options-section">
                 <div class="options-title">Page Select</div>
-                <div class="pages-preview">
-                  <div v-for="(page, idx) in pagePreviews" :key="idx" class="page-item" :class="{ 'selected': selectedPages.includes(idx + 1) }" @click="togglePage(idx + 1)">
-                    <img :src="page" class="page-preview">
-                    <div class="page-num">{{ idx + 1 }}</div>
-                    <div v-if="selectedPages.includes(idx + 1)" class="rotate-indicator">{{ form.rotation }}°</div>
+                <div class="page-preview-grid">
+                  <div v-for="(page, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{ 'selected': selectedPages.includes(idx + 1) }" @click="togglePage(idx + 1)">
+                    <img :src="page" class="page-preview-image">
+                    <div class="page-number">{{ idx + 1 }}</div>
+                    <div v-if="selectedPages.includes(idx + 1)" class="selected-overlay">✓</div>
                   </div>
                 </div>
               </div>
-
               <div class="action-section">
-                <button class="btn btn-secondary" @click="goToPrev" :disabled="rotating">Back</button>
-                <button class="btn btn-primary" @click="rotatePDF" :disabled="rotating || !selectedFile">{{ rotating ? 'Rotating...' : 'Rotate PDF' }}</button>
+                <el-button type="default" @click="goToPrev" :disabled="rotating">Back</el-button>
+                <el-button type="primary" @click="rotatePDF" :disabled="rotating || !selectedFile">{{ rotating ? 'Rotating...' : 'Rotate PDF' }}</el-button>
               </div>
-
               <div v-if="rotating" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
                 <div class="progress-bar">
@@ -1310,7 +341,6 @@
               </div>
             </div>
           </el-tab-pane>
-
           <el-tab-pane label="Result" name="2">
             <div class="tab-content">
               <div class="result-content" v-if="done">
@@ -1318,41 +348,34 @@
                 <p class="result-desc">Your PDF has been rotated by {{ form.rotation }}°</p>
                 
                 <div class="result-preview">
-                  <div v-for="(page, i) in resultPreviews" :key="i" class="result-page clickable" @click="openPreview(page)">
-                    <img :src="page" class="result-preview-img">
-                    <div class="result-page-num">{{ i + 1 }}</div>
+                  <div v-for="(page, i) in resultPreviews" :key="i" class="page-preview-item clickable" @click="openPreview(page)">
+                    <img :src="page" class="page-preview-image">
+                    <div class="page-number">{{ i + 1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>
                   </div>
                 </div>
-
                 <div class="filename-input">
                   <label>File Name:</label>
-                  <input v-model="downloadFileName" type="text" placeholder="Enter file name" />
+                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
                 </div>
                 
-                <button class="download-btn" @click="download">Download PDF</button>
+                <el-button type="primary" size="large" @click="download">Download PDF</el-button>
                 
                 <div class="recommend-section">
                   <p>Need to reorder PDF pages?</p>
                   <a href="pdf-page-reorder.html" class="recommend-link">Try our Page Reorder Tool →</a>
                 </div>
               </div>
-
-              <div v-if="showPreviewModal" class="preview-modal" @click="closePreview">
-                <div class="modal-content" @click.stop>
-                  <button class="modal-close" @click="closePreview">×</button>
-                  <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview">
-                </div>
-              </div>
-
+              <el-dialog title="PDF Preview" :visible.sync="showPreviewModal" @close="closePreview" width="800px" :close-on-click-modal="true">
+                <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
+              </el-dialog>
               <div class="action-section">
-                <button class="btn btn-secondary" @click="reset">Start Over</button>
+                <el-button type="default" @click="reset">Start Over</el-button>
               </div>
             </div>
           </el-tab-pane>
         </el-tabs>
       </div>
-
       <div class="instructions">
         <h2 class="instructions-title">Why Choose PDFMaster?</h2>
         <div class="steps">
@@ -1383,7 +406,6 @@
           </div>
         </div>
       </div>
-
       <div class="privacy-section">
         <h2 class="section-title">🔒 Your Privacy is Our Priority</h2>
         <div class="privacy-content">
@@ -1391,97 +413,81 @@
           <p>Our PDF rotator uses client-side JavaScript libraries to process your files directly in your browser. No data is transmitted over the internet, ensuring complete privacy and security.</p>
         </div>
       </div>
-
       <div class="technology-section">
         <h2 class="section-title">How PDF Rotation Works</h2>
         <div class="tech-content">
-          <div class="tech-item">
-            <div class="tech-item-icon">🔄</div>
+          <el-card class="tech-card" shadow="hover">
+            <!-- <div class="tech-item-icon"></div> -->
             <h3>Smart Orientation Detection</h3>
             <p>Our algorithm analyzes page orientation metadata and visual cues. For scanned documents, we detect text direction to suggest optimal rotation angles.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">⚡</div>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
+            <!-- <div class="tech-item-icon"></div> -->
             <h3>Batch Rotation Engine</h3>
             <p>Multiple pages rotate in parallel using Web Workers. Large documents with hundreds of pages process efficiently without blocking the browser.</p>
-          </div>
-          <div class="tech-item">
-            <div class="tech-item-icon">🧠</div>
+          </el-card>
+          <el-card class="tech-card" shadow="hover">
+            <!-- <div class="tech-item-icon">🧠</div> -->
             <h3>Memory-Efficient Processing</h3>
             <p>Pages are processed and rendered on-demand. Preview images are cached intelligently to balance responsiveness and memory usage.</p>
-          </div>
+          </el-card>
         </div>
       </div>
-
       <div class="guide-section">
         <h2 class="section-title">Pro Tips for Better PDF Rotation</h2>
         <div class="guide-content">
-          <div class="guide-item">
-            <div class="guide-item-icon">🔍</div>
-            <h3>Preview First</h3>
-            <p>Always preview pages before rotating to ensure you're rotating the correct pages and direction.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">📐</div>
-            <h3>Use Selection Mode</h3>
-            <p>Click on specific pages to rotate only those pages. This is useful when only some pages need rotation.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">✅</div>
-            <h3>Verify After Rotation</h3>
-            <p>Check the downloaded PDF to ensure all pages are correctly oriented before sharing or printing.</p>
-          </div>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Preview First</h3>
+            <p class="guide-desc">Always preview pages before rotating to ensure you're rotating the correct pages and direction.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Use Selection Mode</h3>
+            <p class="guide-desc">Click on specific pages to rotate only those pages. This is useful when only some pages need rotation.</p>
+          </el-card>
+          <el-card class="guide-card" shadow="hover">
+            <h3 class="guide-title">Verify After Rotation</h3>
+            <p class="guide-desc">Check the downloaded PDF to ensure all pages are correctly oriented before sharing or printing.</p>
+          </el-card>
         </div>
       </div>
-
       <div class="faq-section">
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <div class="faq-item">
-          <h3>Can I rotate specific pages only?</h3>
-          <p>Yes, you can rotate PDF pages selectively by clicking on individual pages in the preview. If no pages are selected, all pages will be rotated by default.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Is there a file size limit?</h3>
-          <p>Yes, the maximum file size is 50MB. This ensures the PDF rotator works efficiently in your browser without performance issues.</p>
-        </div>
-        <div class="faq-item">
-          <h3>What rotation angles are supported?</h3>
-          <p>We support 90°, 180°, and 270° rotation. Rotate PDF 90 degrees clockwise, 180 degrees to flip upside down, or 270 degrees counter-clockwise.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Will rotating affect the file quality?</h3>
-          <p>No, rotating PDF pages is a lossless operation. You can rotate PDF without losing quality - the content remains unchanged.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Is this tool free to use?</h3>
-          <p>Yes, our PDF rotator is completely free with no hidden fees. Rotate PDF online without registration or sign up required.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Do I need to upload my file?</h3>
-          <p>No, all processing happens locally in your browser. Rotate PDF online without upload - your documents stay private and secure.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I use this tool on mobile devices?</h3>
-          <p>Yes! Our PDF rotator works perfectly on iPhone and Android devices. Just open your browser and start rotating - no app installation required.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Which browsers are supported?</h3>
-          <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Can I rotate password-protected PDFs?</h3>
-          <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-        </div>
-        <div class="faq-item">
-          <h3>How to rotate PDF on Mac for free?</h3>
-          <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF, and rotate pages for free. No software to install.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Why choose PDFMaster for rotating PDFs?</h3>
-          <p>PDFMaster offers 100% free rotation with no watermarks, local processing for complete privacy, and support for multiple rotation angles. Your files stay secure on your device.</p>
-        </div>
+        <el-collapse accordion>
+<el-collapse-item title="Can I rotate specific pages only?">
+            <p>Yes, you can rotate PDF pages selectively by clicking on individual pages in the preview. If no pages are selected, all pages will be rotated by default.</p>
+          </el-collapse-item>
+        <el-collapse-item title="Is there a file size limit?">
+            <p>Yes, the maximum file size is 50MB. This ensures the PDF rotator works efficiently in your browser without performance issues.</p>
+          </el-collapse-item>
+        <el-collapse-item title="What rotation angles are supported?">
+            <p>We support 90°, 180°, and 270° rotation. Rotate PDF 90 degrees clockwise, 180 degrees to flip upside down, or 270 degrees counter-clockwise.</p>
+          </el-collapse-item>
+        <el-collapse-item title="Will rotating affect the file quality?">
+            <p>No, rotating PDF pages is a lossless operation. You can rotate PDF without losing quality - the content remains unchanged.</p>
+          </el-collapse-item>
+        <el-collapse-item title="Is this tool free to use?">
+            <p>Yes, our PDF rotator is completely free with no hidden fees. Rotate PDF online without registration or sign up required.</p>
+          </el-collapse-item>
+        <el-collapse-item title="Do I need to upload my file?">
+            <p>No, all processing happens locally in your browser. Rotate PDF online without upload - your documents stay private and secure.</p>
+          </el-collapse-item>
+        <el-collapse-item title="Can I use this tool on mobile devices?">
+            <p>Yes! Our PDF rotator works perfectly on iPhone and Android devices. Just open your browser and start rotating - no app installation required.</p>
+          </el-collapse-item>
+        <el-collapse-item title="Which browsers are supported?">
+            <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
+          </el-collapse-item>
+        <el-collapse-item title="Can I rotate password-protected PDFs?">
+            <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
+          </el-collapse-item>
+        <el-collapse-item title="How to rotate PDF on Mac for free?">
+            <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF, and rotate pages for free. No software to install.</p>
+          </el-collapse-item>
+        <el-collapse-item title="Why choose PDFMaster for rotating PDFs?">
+            <p>PDFMaster offers 100% free rotation with no watermarks, local processing for complete privacy, and support for multiple rotation angles. Your files stay secure on your device.</p>
+          </el-collapse-item>
+        </el-collapse>
       </div>
-
       <div class="tutorial-section">
         <h2 class="section-title">How to Rotate PDF Pages Online</h2>
         <div class="tutorial-step">
@@ -1506,7 +512,6 @@
           </div>
         </div>
       </div>
-
       <div class="blog-section">
         <h2 class="section-title">PDF Page Orientation - Top Use Cases</h2>
         <div class="blog-card">
@@ -1545,30 +550,8 @@
           <button class="cta-button" @click="goToUpload">Fix PDF Orientation</button>
         </div>
       </div>
-
-      <div class="guide-section">
-        <h2 class="section-title">Pro Tips for Better PDF Rotation</h2>
-        <div class="guide-content">
-          <div class="guide-item">
-            <div class="guide-item-icon">👁️</div>
-            <h3>Preview Thumbnails</h3>
-            <p>Use page thumbnails to identify which pages need rotation before applying changes.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">📋</div>
-            <h3>Select All Option</h3>
-            <p>Use the "Rotate All" option to apply the same rotation to all pages in your document.</p>
-          </div>
-          <div class="guide-item">
-            <div class="guide-item-icon">✅</div>
-            <h3>Verify Output</h3>
-            <p>Always check the final PDF to ensure all pages are correctly oriented.</p>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
-
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -1601,7 +584,6 @@
     </div>
   </footer>
 </div>
-
 <script>
 new Vue({
   el: '#app',
@@ -1627,6 +609,14 @@ new Vue({
   },
   methods: {
     goToNext() { 
+      if (!this.selectedFile) {
+        this.$notify({
+          title: '提示',
+          message: 'Please upload a PDF file first',
+          type: 'warning'
+        });
+        return;
+      }
       this.currentStep = '1'
       this.generatePagePreviews()
     },
@@ -1638,14 +628,14 @@ new Vue({
     handleTabClick(tab) {
       const targetStep = tab.name
       if (targetStep !== '0' && !this.selectedFile) {
-        this.$message.warning('Please upload a PDF first')
+        this.$notify({ title: '提示', message: 'Please upload a PDF first', type: 'warning' })
         this.$nextTick(() => {
           this.currentStep = '0'
         })
         return
       }
       if (targetStep === '2' && !this.done) {
-        this.$message.warning('Please complete rotation first')
+        this.$notify({ title: '提示', message: 'Please complete rotation first', type: 'warning' })
         this.$nextTick(() => {
           this.currentStep = '1'
         })
@@ -1653,17 +643,21 @@ new Vue({
       }
     },
     handleExceed() {
-      this.$message.warning('You can upload only one file at a time')
+      this.$notify({ title: '提示', message: 'You can upload only one file at a time', type: 'warning' })
     },
     handleFileChange(file) {
       const raw = file.raw
       if (!raw.name.toLowerCase().endsWith('.pdf')) {
-        this.$message.error('Only PDF files are allowed')
+        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
         return
       }
       const maxSize = 50 * 1024 * 1024
       if (raw.size > maxSize) {
-        this.$message.error('File size cannot exceed 50MB')
+        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' })
+        return
+      }
+      if (this.selectedFile) {
+        this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' })
         return
       }
       this.selectedFile = {
@@ -1736,7 +730,6 @@ new Vue({
       this.rotating = true
       this.progress = 0
       this.progressText = 'Loading PDF...'
-
       try {
         const arrayBuffer = await this.selectedFile.file.arrayBuffer()
         const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer)
@@ -1775,7 +768,7 @@ new Vue({
         
       } catch (error) {
         console.error('Error rotating PDF:', error)
-        this.$message.error('Failed to rotate PDF. Please try again.')
+        this.$notify({ title: '错误', message: 'Failed to rotate PDF. Please try again.', type: 'error' })
         this.rotating = false
       }
     },
