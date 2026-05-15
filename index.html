@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -866,23 +866,154 @@
     /* Responsive Design */
     @media (max-width: 768px) {
       .hero-title {
-        font-size: 32px;
+        font-size: 28px;
       }
       
       .hero-subtitle {
-        font-size: 16px;
+        font-size: 15px;
       }
       
       .section-title {
-        font-size: 26px;
+        font-size: 24px;
       }
       
       .cta-title {
-        font-size: 26px;
+        font-size: 24px;
       }
       
-      .header-links a:not(.contact-btn) {
+      .header {
+        padding: 10px 0;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+      
+      .logo {
+        justify-content: center;
+      }
+      
+      .logo-text {
+        font-size: 20px;
+      }
+      
+      .logo-image {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .search-container {
+        max-width: 100%;
+        width: 100%;
+      }
+      
+      .search-input {
+        font-size: 13px;
+        padding: 10px 45px 10px 35px;
+      }
+      
+      .search-btn {
+        padding: 6px 10px;
+      }
+      
+      .header-links {
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .header-links a {
+        padding: 8px 14px;
+        font-size: 12px;
+      }
+      
+      .header-links a:not(.contact-btn):not(.feedback-btn) {
         display: none;
+      }
+      
+      .contact-btn,
+      .feedback-btn {
+        padding: 8px 18px !important;
+        font-size: 12px !important;
+        margin-left: 0;
+      }
+      
+      .tools-grid {
+        padding: 0 10px;
+        gap: 16px;
+      }
+      
+      .tool-card {
+        padding: 16px;
+        min-height: auto;
+      }
+      
+      .tool-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 12px;
+      }
+      
+      .tool-icon {
+        font-size: 24px;
+      }
+      
+      .tool-card h3 {
+        font-size: 15px;
+      }
+      
+      .tool-card p {
+        font-size: 12px;
+      }
+      
+      .hero-section {
+        padding: 50px 15px 70px;
+      }
+      
+      .hero-features {
+        gap: 12px;
+      }
+      
+      .hero-feature {
+        padding: 10px 16px;
+        font-size: 12px;
+      }
+      
+      .features-grid {
+        gap: 20px;
+      }
+      
+      .feature-card {
+        padding: 24px 16px;
+      }
+      
+      .feature-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+      }
+      
+      .feature-card h3 {
+        font-size: 16px;
+      }
+      
+      .feature-card p {
+        font-size: 13px;
+      }
+      
+      .cta-section {
+        padding: 50px 15px;
+      }
+      
+      .cta-btn {
+        padding: 12px 30px;
+        font-size: 14px;
+      }
+      
+      .footer-content {
+        gap: 30px;
       }
     }
   </style>
@@ -1168,6 +1299,7 @@
           <li><a href="about.html">About</a></li>
           <li><a href="privacy.html">Privacy Policy</a></li>
           <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="cookie.html">Cookie Policy</a></li>
           <li><a href="./contact.html">Contact Us</a></li>
         </ul>
       </div>
