@@ -301,7 +301,7 @@
                 <div class="result-title">Split Completed!</div>
                 <p class="result-desc">Your PDF has been split into {{ splitResults.length }} file(s)</p>
                 <div class="result-preview">
-                  <div v-for="(r, i) in splitResults.slice(0, 6)" :key="i" class="page-preview-item clickable" @click="openPreview(r)">
+                  <div v-for="(r, i) in splitResults.slice(0, 6)" :key="i" class="page-preview-item clickable" @click="openPreview(r)" @touchstart.prevent="openPreview(r)">
                     <img :src="r.thumbnail" class="page-preview-image">
                     <div class="page-number">{{ i+1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>

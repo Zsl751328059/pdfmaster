@@ -389,7 +389,7 @@
                 <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
                 
                 <div class="result-preview" v-if="resultPreviews.length > 0">
-                  <div v-for="(preview, i) in resultPreviews.slice(0, 5)" :key="i" class="page-preview-item clickable" @click="openPreview(preview)">
+                  <div v-for="(preview, i) in resultPreviews.slice(0, 5)" :key="i" class="page-preview-item clickable" @click="openPreview(preview)" @touchstart.prevent="openPreview(preview)">
                     <img :src="preview.thumbnail" class="page-preview-image">
                     <div class="page-number">{{ i + 1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>

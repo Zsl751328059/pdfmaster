@@ -331,7 +331,7 @@
                 <div class="result-title">Conversion Completed!</div>
                 <p class="result-desc">Successfully converted {{ selectedFiles.length }} image(s) to PDF</p>
                 <div class="result-preview">
-                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)">
+                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)" @touchstart.prevent="openPreview(t)">
                     <img :src="t" class="page-preview-image">
                     <div class="page-number">{{ i+1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>

@@ -348,7 +348,7 @@
                 <p class="result-desc">Your PDF has been rotated by {{ form.rotation }}°</p>
                 
                 <div class="result-preview">
-                  <div v-for="(page, i) in resultPreviews" :key="i" class="page-preview-item clickable" @click="openPreview(page)">
+                  <div v-for="(page, i) in resultPreviews" :key="i" class="page-preview-item clickable" @click="openPreview(page)" @touchstart.prevent="openPreview(page)">
                     <img :src="page" class="page-preview-image">
                     <div class="page-number">{{ i + 1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>

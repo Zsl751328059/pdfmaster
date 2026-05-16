@@ -453,6 +453,9 @@ a { text-decoration: none; color: inherit; }
 .page-preview-item.clickable {
   cursor: zoom-in;
   transition: all 0.3s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
 }
 .page-preview-item.clickable:hover {
   transform: scale(1.05);

@@ -317,7 +317,7 @@
                 <div class="result-title">Conversion Completed!</div>
                 <p class="result-desc">Successfully converted {{ convertedImages.length }} page(s) to {{ form.format.toUpperCase() }} format</p>
                 <div class="result-preview">
-                  <div v-for="(img, idx) in convertedImages.slice(0, 6)" :key="idx" class="page-preview-item clickable" @click="openPreview(img)">
+                  <div v-for="(img, idx) in convertedImages.slice(0, 6)" :key="idx" class="page-preview-item clickable" @click="openPreview(img)" @touchstart.prevent="openPreview(img)">
                     <img :src="img.data" class="page-preview-image">
                     <div class="preview-overlay">Click to zoom</div>
                   </div>

@@ -445,7 +445,7 @@
                     v-for="(thumb, idx) in resultPreviews" 
                     :key="idx" 
                     class="page-preview-item clickable"
-                    @click="openPreview(idx)"
+                    @click="openPreview(idx)" @touchstart.prevent="openPreview(idx)"
                   >
                     <img :src="thumb" class="page-preview-image">
                     <div class="page-number">{{ idx + 1 }}</div>
