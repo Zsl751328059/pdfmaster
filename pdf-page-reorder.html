@@ -254,6 +254,8 @@
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+  <script src="./lib/preview-utils.js"></script>
+  <script src="./lib/components/preview-modal.js"></script>
   <script src="./lib/sortablejs/Sortable.min.js"></script>
 
 
@@ -315,7 +317,7 @@
                   accept=".pdf"
                   drag
                 >
-                  <div class="upload-icon">📁</div>
+                  <i class="el-icon-folder-opened upload-icon"></i>
                   <div class="upload-text">Drag & drop PDF here, or click to browse</div>
                   <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
                 </el-upload>
@@ -389,7 +391,7 @@
                 <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
                 
                 <div class="result-preview" v-if="resultPreviews.length > 0">
-                  <div v-for="(preview, i) in resultPreviews.slice(0, 5)" :key="i" class="page-preview-item clickable" @click="openPreview(preview)" @touchstart.prevent="openPreview(preview)">
+                  <div v-for="(preview, i) in resultPreviews.slice(0, 5)" :key="i" class="page-preview-item clickable" @click="openPreview(preview)" >
                     <img :src="preview.thumbnail" class="page-preview-image">
                     <div class="page-number">{{ i + 1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>
@@ -607,13 +609,12 @@
     </div>
   </div>
 
-<div :class="{ show: showPreviewModal }" class="preview-modal" @click.self="closePreview">
-    <div class="modal-content">
-      <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
-      <div class="modal-title">PDF Preview</div>
-      <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
-    </div>
-  </div>
+<preview-modal 
+    :visible="showPreviewModal" 
+    :image-src="currentPreviewImage" 
+    title="PDF Preview"
+    @close="closePreview" 
+  ></preview-modal>
 
   <footer class="footer">
     <div class="container">
@@ -942,39 +943,17 @@ new Vue({
     },
     
     async openPreview(preview) {
-      if (!this.resultBlob) return;
-      
-      try {
-        const arrayBuffer = await this.resultBlob.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        const page = await pdf.getPage(preview.pageNumber);
-        const viewport = page.getViewport({ scale: 1.5 });
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        
-        const renderContext = {
-          canvasContext: ctx,
-          viewport: viewport
-        };
-        
-        await page.render(renderContext).promise;
-        this.currentPreviewImage = canvas.toDataURL('image/png');
-        await pdf.destroy();
-        
-        this.showPreviewModal = true;
-      } catch (error) {
-        console.error('Error opening preview:', error);
-        this.currentPreviewImage = preview.thumbnail;
-        this.showPreviewModal = true;
-      }
+      PreviewUtils.openPreview({
+        image: preview,
+        previews: this.resultPreviews,
+        resultBlob: this.resultBlob,
+        vm: this,
+        usePageNumber: true
+      })
     },
     
     closePreview() {
-      this.showPreviewModal = false;
-      this.currentPreviewImage = null;
+      PreviewUtils.closePreview(this)
     }
   }
 });

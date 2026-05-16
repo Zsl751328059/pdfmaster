@@ -205,6 +205,10 @@ a { text-decoration: none; color: inherit; }
   font-size: 48px !important;
   color: #409EFF !important;
   margin-bottom: 16px !important;
+  width: 48px;
+  height: 48px;
+  display: inline-block;
+  vertical-align: middle;
 }
 .upload-text {
   font-size: 18px !important;
@@ -488,9 +492,6 @@ a { text-decoration: none; color: inherit; }
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  display: none;
-}
-.preview-modal.show {
   display: flex;
 }
 

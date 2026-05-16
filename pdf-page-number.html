@@ -202,21 +202,7 @@
       font-weight: 500;
       color: #606266;
     }
-    .preview-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    .preview-modal.show {
-      display: flex;
-    }
+
     .modal-content {
       position: relative;
       max-width: 90%;
@@ -251,6 +237,8 @@
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+  <script src="./lib/preview-utils.js"></script>
+  <script src="./lib/components/preview-modal.js"></script>
 
   
  
@@ -312,7 +300,7 @@
                 :limit="1"
                 :multiple="false"
               >
-                <div class="upload-icon">📁</div>
+                <i class="el-icon-folder-opened upload-icon"></i>
                 <div class="upload-text">Drag & drop PDF here, or click to browse</div>
                 <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
               </el-upload>
@@ -445,7 +433,7 @@
                     v-for="(thumb, idx) in resultPreviews" 
                     :key="idx" 
                     class="page-preview-item clickable"
-                    @click="openPreview(idx)" @touchstart.prevent="openPreview(idx)"
+                    @click="openPreview(idx)" 
                   >
                     <img :src="thumb" class="page-preview-image">
                     <div class="page-number">{{ idx + 1 }}</div>
@@ -470,13 +458,12 @@
         </el-tabs>
       </div>
 
-      <div :class="{ show: showPreviewModal }" class="preview-modal" @click.self="closePreview">
-        <div class="modal-content">
-          <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
-          <div class="modal-title">PDF Preview</div>
-          <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
-        </div>
-      </div>
+      <preview-modal 
+        :visible="showPreviewModal" 
+        :image-src="currentPreviewImage" 
+        title="PDF Preview"
+        @close="closePreview" 
+      ></preview-modal>
 
       <div class="instructions">
         <h2 class="instructions-title">Why Choose PDFMaster?</h2>
@@ -854,14 +841,27 @@ new Vue({
         this.progress = 20;
         this.progressText = 'Adding page numbers...';
         
+        let font;
+        try {
+          font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+          console.log('Font embedded successfully');
+        } catch (error) {
+          console.error('Font embedding failed:', error);
+          font = await pdfDoc.embedFont(PDFLib.StandardFonts.Courier);
+        }
+        
+        console.log('Total pages:', pages.length);
+        
         for (let i = 0; i < pages.length; i++) {
           const page = pages[i];
           const pageNum = this.form.startNumber + i;
           const content = this.formatPageNumber(pageNum, pages.length);
+          console.log(`Page ${i + 1}: content="${content}"`);
           
           const { width, height } = page.getSize();
           let x, y;
-          const margin = 40;
+          const margin = 60;
+          const fontSize = this.form.fontSize;
           
           switch (this.form.position) {
             case 'top-left':
@@ -878,23 +878,33 @@ new Vue({
               break;
             case 'bottom-left':
               x = margin;
-              y = margin;
+              y = 25 + fontSize;
               break;
             case 'bottom-center':
               x = width / 2;
-              y = margin;
+              y = 25 + fontSize;
               break;
             case 'bottom-right':
               x = width - margin;
-              y = margin;
+              y = 25 + fontSize;
               break;
+            default:
+              x = width / 2;
+              y = 25 + fontSize;
+          }
+          
+          let finalX = x;
+          if (this.form.position.includes('center')) {
+            finalX = x - (content.length * fontSize * 0.35);
+          } else if (this.form.position.includes('right')) {
+            finalX = x - (content.length * fontSize * 0.5);
           }
           
           page.drawText(content, {
-            x: this.form.position.includes('center') ? x - (content.length * this.form.fontSize * 0.35) : x,
+            x: finalX,
             y: y,
-            size: this.form.fontSize,
-            font: await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica),
+            size: fontSize,
+            font: font,
           });
           
           this.progress = 20 + Math.round(((i + 1) / pages.length) * 60);
@@ -904,8 +914,14 @@ new Vue({
         this.progressText = 'Generating output...';
         
         const pdfBytes = await pdfDoc.save();
+        console.log('PDF saved, size:', pdfBytes.length);
+        
+        if (this.resultBlob) {
+          console.log('Old resultBlob exists, replacing...');
+        }
         this.resultBlob = new Blob([pdfBytes], { type: 'application/pdf' });
         
+        console.log('Generating previews...');
         await this.generateResultPreviews(pdfBytes);
         
         setTimeout(() => {
@@ -975,10 +991,18 @@ new Vue({
     
     async generateResultPreviews(pdfBytes) {
       this.resultPreviews = [];
-      const pdf = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+      console.log('Generating previews from PDF size:', pdfBytes.length);
+      
+      const uniqueId = Date.now();
+      const pdf = await pdfjsLib.getDocument({ 
+        data: pdfBytes,
+        cache: false
+      }).promise;
+      console.log('PDF loaded for previews, pages:', pdf.numPages);
       const maxPages = Math.min(5, pdf.numPages);
       
       for (let i = 1; i <= maxPages; i++) {
+        console.log(`Rendering page ${i}...`);
         const page = await pdf.getPage(i);
         const viewport = page.getViewport({ scale: 0.6 });
         const canvas = document.createElement('canvas');
@@ -987,39 +1011,71 @@ new Vue({
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        this.resultPreviews.push(canvas.toDataURL());
+        
+        const renderTask = page.render({ canvasContext: ctx, viewport });
+        await renderTask.promise;
+        console.log(`Page ${i} rendered`);
+        
+        const dataUrl = canvas.toDataURL();
+        console.log(`Preview ${i} generated: ${dataUrl.length} bytes`);
+        this.resultPreviews.push(dataUrl);
+        
+        canvas.width = 0;
+        canvas.height = 0;
       }
       await pdf.destroy();
     },
     
-    async openPreview(index) {
-      if (!this.resultBlob) return;
+    drawPageNumber(ctx, content, canvasWidth, canvasHeight, scale) {
+      const margin = 15;
+      const fontSize = 12;
+      ctx.font = `${fontSize}px Helvetica`;
+      ctx.fillStyle = '#333333';
       
-      try {
-        const arrayBuffer = await this.resultBlob.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        const page = await pdf.getPage(index + 1);
-        const viewport = page.getViewport({ scale: 1.5 });
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        this.currentPreviewImage = canvas.toDataURL();
-        await pdf.destroy();
-      } catch (error) {
-        console.error('Preview error:', error);
-        this.currentPreviewImage = this.resultPreviews[index];
+      let x, y;
+      switch (this.form.position) {
+        case 'top-left':
+          x = margin;
+          y = margin + fontSize;
+          break;
+        case 'top-center':
+          x = canvasWidth / 2 - (content.length * fontSize * 0.35);
+          y = margin + fontSize;
+          break;
+        case 'top-right':
+          x = canvasWidth - margin - (content.length * fontSize * 0.5);
+          y = margin + fontSize;
+          break;
+        case 'bottom-left':
+          x = margin;
+          y = canvasHeight - margin;
+          break;
+        case 'bottom-center':
+          x = canvasWidth / 2 - (content.length * fontSize * 0.35);
+          y = canvasHeight - margin;
+          break;
+        case 'bottom-right':
+          x = canvasWidth - margin - (content.length * fontSize * 0.5);
+          y = canvasHeight - margin;
+          break;
+        default:
+          x = canvasWidth / 2 - (content.length * fontSize * 0.35);
+          y = canvasHeight - margin;
       }
-      this.showPreviewModal = true;
+      
+      ctx.fillText(content, x, y);
+    },
+    
+    async openPreview(index) {
+      PreviewUtils.openPreviewByIndex({
+        index: index,
+        resultBlob: this.resultBlob,
+        vm: this
+      })
     },
     
     closePreview() {
-      this.showPreviewModal = false;
-      this.currentPreviewImage = '';
+      PreviewUtils.closePreview(this)
     },
     
     download() {

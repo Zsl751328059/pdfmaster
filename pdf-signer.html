@@ -114,6 +114,8 @@
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+  <script src="./lib/preview-utils.js"></script>
+  <script src="./lib/components/preview-modal.js"></script>
   
   <style>
     .output-options {
@@ -278,7 +280,7 @@
                 action="#"
                 :multiple="false"
               >
-                <div class="upload-icon">📁</div>
+                <i class="el-icon-folder-opened upload-icon"></i>
                 <div class="upload-text">Drag & drop PDF files here</div>
                 <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
               </el-upload>
@@ -392,7 +394,7 @@
                 <p class="result-desc">Your PDF has been signed and is ready to download</p>
                 
                 <div class="result-preview">
-                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)" @touchstart.prevent="openPreview(t)">
+                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)" >
                     <img :src="t" class="page-preview-image">
                     <div class="page-number">{{ i+1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>
@@ -411,13 +413,12 @@
                   <a href="pdf-watermark.html" class="recommend-link">Try our PDF Watermark Tool →</a>
                 </div>
               </div>
-              <div :class="{ show: showPreviewModal }" class="preview-modal" @click.self="closePreview">
-                <div class="modal-content">
-                  <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
-                  <div class="modal-title">PDF Preview</div>
-                  <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
-                </div>
-              </div>
+              <preview-modal 
+                :visible="showPreviewModal" 
+                :image-src="currentPreviewImage" 
+                title="PDF Preview"
+                @close="closePreview" 
+              ></preview-modal>
               <div class="action-section">
                 <el-button type="default" @click="reset">Start Over</el-button>
               </div>
@@ -907,32 +908,15 @@ new Vue({
       }
     },
     async openPreview(img) {
-      const idx = this.previews.indexOf(img)
-      try {
-        if (idx !== -1 && this.resultBlob) {
-          const arrayBuffer = await this.resultBlob.arrayBuffer()
-          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-          const page = await pdf.getPage(idx + 1)
-          const vp = page.getViewport({ scale: 1.5 })
-          const c = document.createElement('canvas')
-          const ctx = c.getContext('2d')
-          c.width = vp.width
-          c.height = vp.height
-          await page.render({ canvasContext: ctx, viewport: vp }).promise
-          this.currentPreviewImage = c.toDataURL()
-          pdf.destroy()
-        } else {
-          this.currentPreviewImage = img
-        }
-      } catch (error) {
-        console.warn('Preview rendering failed, using thumbnail:', error)
-        this.currentPreviewImage = img
-      }
-      this.showPreviewModal = true
+      PreviewUtils.openPreview({
+        image: img,
+        previews: this.previews,
+        resultBlob: this.resultBlob,
+        vm: this
+      })
     },
     closePreview() {
-      this.showPreviewModal = false
-      this.currentPreviewImage = null
+      PreviewUtils.closePreview(this)
     },
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'

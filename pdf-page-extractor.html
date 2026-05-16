@@ -165,6 +165,8 @@
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+  <script src="./lib/preview-utils.js"></script>
+  <script src="./lib/components/preview-modal.js"></script>
 
 </head>
 
@@ -224,7 +226,7 @@
                 :limit="1"
                 :multiple="false"
               >
-                <div class="upload-icon">📁</div>
+                <i class="el-icon-folder-opened upload-icon"></i>
                 <div class="upload-text">Drag & drop PDF here, or click to browse</div>
                 <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
               </el-upload>
@@ -313,7 +315,7 @@
                     v-for="(thumb, idx) in resultThumbnails" 
                     :key="idx" 
                     class="page-preview-item clickable"
-                    @click="openPreview(idx)" @touchstart.prevent="openPreview(idx)"
+                    @click="openPreview(idx)" 
                   >
                     <img :src="thumb" class="page-preview-image" :alt="`Page ${idx + 1}`">
                     <div class="page-number">{{ idx + 1 }}</div>
@@ -588,13 +590,12 @@
     </div>
   </footer>
 
-<div :class="{ show: previewVisible }" class="preview-modal" @click.self="previewVisible = false">
-    <div class="modal-content">
-      <button class="modal-close" @click="previewVisible = false" aria-label="Close preview">×</button>
-      <div class="modal-title">PDF Preview</div>
-      <canvas ref="previewCanvas" class="modal-image" style="max-width: 100%; max-height: calc(90vh - 80px);" ></canvas>
-    </div>
-  </div>
+<preview-modal 
+    :visible="showPreviewModal" 
+    :image-src="currentPreviewImage" 
+    title="PDF Preview"
+    @close="closePreview" 
+  ></preview-modal>
 </div>
 
 <script>
@@ -612,13 +613,14 @@ new Vue({
         progress: 0,
         extractedBlob: null,
         resultThumbnails: [],
-        previewVisible: false,
+        showPreviewModal: false,
+        currentPreviewImage: '',
         pdfDoc: null,
         downloadFileName: 'extracted_pages.pdf'
       };
     },
     mounted() {
-      this.previewVisible = false;
+      this.showPreviewModal = false;
       window.addEventListener('beforeunload', this.handleBeforeUnload)
     },
     beforeDestroy() {
@@ -827,40 +829,14 @@ new Vue({
       URL.revokeObjectURL(url);
     },
     async openPreview(index) {
-      if (!this.extractedBlob) return;
-      
-      try {
-        const arrayBuffer = await this.extractedBlob.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        const page = await pdf.getPage(index + 1);
-        const viewport = page.getViewport({ scale: 1.5 });
-        
-        this.previewVisible = true;
-        await this.$nextTick();
-        
-        const canvasRef = this.$refs.previewCanvas;
-        if (!canvasRef) {
-          console.error('Preview canvas not found');
-          await pdf.destroy();
-          return;
-        }
-        const canvas = Array.isArray(canvasRef) ? canvasRef[0] : canvasRef;
-        if (!canvas || typeof canvas.getContext !== 'function') {
-          console.error('Invalid canvas element');
-          await pdf.destroy();
-          return;
-        }
-        
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        await pdf.destroy();
-      } catch (error) {
-        console.error('Preview error:', error);
-      }
+      PreviewUtils.openPreviewByIndex({
+        index: index,
+        resultBlob: this.extractedBlob,
+        vm: this
+      })
+    },
+    closePreview() {
+      PreviewUtils.closePreview(this)
     },
     clearFile() {
       this.selectedFile = null;
@@ -870,7 +846,7 @@ new Vue({
       this.resultThumbnails = [];
       this.currentStep = 0;
       this.activeTab = 'upload';
-      this.previewVisible = false;
+      this.showPreviewModal = false;
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = [];
       }

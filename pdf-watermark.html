@@ -329,6 +329,8 @@
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+  <script src="./lib/preview-utils.js"></script>
+  <script src="./lib/components/preview-modal.js"></script>
 
 
 </head>
@@ -387,7 +389,7 @@
                 :limit="1"
                 action="#"
               >
-                <div class="upload-icon">📁</div>
+                <i class="el-icon-folder-opened upload-icon"></i>
                 <div class="upload-text">Drag & drop PDF file here</div>
                 <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
               </el-upload>
@@ -487,7 +489,7 @@
                     :on-change="handleImageChange"
                     action="#"
                   >
-                    <div class="upload-icon">📁</div>
+                    <i class="el-icon-folder-opened upload-icon"></i>
                     <div class="upload-text">Drag & drop image here</div>
                     <div class="upload-hint">Supports JPG, PNG up to <strong>50MB</strong> - Free, no watermarks</div>
                   </el-upload>
@@ -536,7 +538,7 @@
                 <div class="result-title">Watermark Added Successfully!</div>
                 <p class="result-desc">Your PDF has been watermarked successfully</p>
                 <div class="result-preview">
-                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)" @touchstart.prevent="openPreview(t)">
+                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)" >
                     <img :src="t" class="page-preview-image">
                     <div class="page-number">{{ i+1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>
@@ -553,13 +555,12 @@
                 </div>
               </div>
 
-              <div v-show="showPreviewModal" class="preview-modal" @click.self="closePreview">
-                <div class="modal-content">
-                  <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
-                  <div class="modal-title">PDF Preview</div>
-                  <img :src="currentPreviewImage" class="modal-image" alt="PDF Preview" />
-                </div>
-              </div>
+              <preview-modal 
+                :visible="showPreviewModal" 
+                :image-src="currentPreviewImage" 
+                title="PDF Preview"
+                @close="closePreview" 
+              ></preview-modal>
 
               <div class="action-section">
                 <el-button type="default" @click="reset">Start Over</el-button>
@@ -902,27 +903,15 @@ new Vue({
       this.$notify({ title: '提示', message: 'Only one PDF file can be processed at a time', type: 'warning' })
     },
     async openPreview(image) {
-      const idx = this.previews.indexOf(image)
-      if (idx !== -1 && this.resultBlob) {
-        const arrayBuffer = await this.resultBlob.arrayBuffer()
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const page = await pdf.getPage(idx + 1)
-        const vp = page.getViewport({ scale: 1.5 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.currentPreviewImage = c.toDataURL()
-        pdf.destroy()
-      } else {
-        this.currentPreviewImage = image
-      }
-      this.showPreviewModal = true
+      PreviewUtils.openPreview({
+        image: image,
+        previews: this.previews,
+        resultBlob: this.resultBlob,
+        vm: this
+      })
     },
     closePreview() {
-      this.showPreviewModal = false
-      this.currentPreviewImage = ''
+      PreviewUtils.closePreview(this)
     },
     handleTabClick(tab) {
       const targetStep = tab.name
