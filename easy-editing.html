@@ -9,95 +9,243 @@
   
   <link rel="canonical" href="https://pdfeasz.com/easy-editing.html">
   
-  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui/lib/theme-chalk/index.css">
-  <script src="https://cdn.jsdelivr.net/npm/element-ui/lib/index.js"></script>
+  <script src="./lib/vue/vue.js"></script>
+  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
+  <script src="./lib/element-ui/index.js"></script>
+  <link rel="stylesheet" href="./common.css">
   
-  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #303133;
+      line-height: 1.5;
+    }
+    a {
+      text-decoration: none;
+    }
+    .container {
+      max-width: 1600px;
+      width: 98%;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-content {
+      flex: 1;
+      padding: 20px 0;
+    }
+    .content-section {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+    .content-section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+    .content-section p {
+      font-size: 16px;
+      color: #444;
+      margin-bottom: 12px;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+    .feature-list li {
+      padding: 10px 0;
+      padding-left: 28px;
+      position: relative;
+      font-size: 16px;
+    }
+    .feature-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #409EFF;
+      font-weight: bold;
+    }
+    .info-badge {
+      background: linear-gradient(135deg, #409EFF 0%, #66B1FF 100%);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .info-badge p {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+    .site-link-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .site-link-box a {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .related-links {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+    .related-links h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+    .related-links ul {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .related-links li a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      color: #409EFF;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .related-links li a:hover {
+      background: #ecf5ff;
+      transform: translateY(-2px);
+    }
+    .page-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #222;
+      margin: 20px 0 30px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Easy PDF Editing</h1>
-    <p>Designed for Everyone</p>
-  </div>
-  
-  <div class="container">
-    <div class="content-section">
-      <h2>Intuitive Tools for All</h2>
-      <p>PDFMaster is designed with simplicity in mind. Our intuitive interface makes PDF editing accessible to everyone, regardless of technical expertise. Upload any PDF and start editing immediately.</p>
-      <p>No complicated tutorials or training required. Just upload, edit, and save. We've designed our tools to be self-explanatory, so you can get started right away without any learning curve.</p>
-      
-      <div class="info-badge">
-        <p>🎯 No technical expertise needed</p>
+<div id="app" class="app">
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <img src="./assets/logo.png" alt="PDFMaster logo" class="logo-image">
+          <span class="logo-text">PDFMaster</span>
+        </div>
+        <nav class="header-links">
+          <a href="index.html" class="back-btn">
+            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            Back to Home
+          </a>
+        </nav>
       </div>
     </div>
-    
-    <div class="content-section">
-      <h2>User-Friendly Features</h2>
-      <ul class="feature-list">
-        <li>Simple drag-and-drop interface for easy file uploads</li>
-        <li>Clear visual feedback for all operations</li>
-        <li>Contextual tooltips that guide you through each step</li>
-        <li>Step-by-step guidance for complex operations</li>
-        <li>Undo/redo support for easy mistake correction</li>
-        <li>Responsive design that works on all devices</li>
-        <li>Intuitive toolbar with commonly used functions</li>
-        <li>Real-time preview of changes</li>
-      </ul>
-    </div>
-    
-    <div class="content-section">
-      <h2>No Learning Curve</h2>
-      <p>We believe great tools should be easy to use. That's why we've designed PDFMaster to be intuitive from the moment you first visit. Whether you're a beginner or a power user, you'll feel at home.</p>
-      <p>Our goal is to make PDF editing accessible to everyone. You shouldn't need a degree in computer science to edit a PDF document. With PDFMaster, you can accomplish your tasks quickly and easily.</p>
-    </div>
-    
-    <div class="content-section">
-      <h2>Frequently Asked Questions</h2>
+  </header>
+
+  <div class="main-content">
+    <div class="container">
+      <h1 class="page-title">Easy PDF Editing</h1>
       
-      <el-collapse-item title="Q: Do I need technical skills to use PDFMaster?">
-            <p>A: No! PDFMaster is designed for users of all skill levels. Our intuitive interface makes it easy for anyone to edit PDFs without technical expertise.</p>
-          </el-collapse-item>
+      <div class="content-section">
+        <h2>Intuitive Tools for All</h2>
+        <p>PDFMaster is designed with simplicity in mind. Our intuitive interface makes PDF editing accessible to everyone, regardless of technical expertise. Upload any PDF and start editing immediately.</p>
+        <p>No complicated tutorials or training required. Just upload, edit, and save. We've designed our tools to be self-explanatory, so you can get started right away without any learning curve.</p>
+        
+        <div class="info-badge">
+          <p>🎯 No technical expertise needed</p>
+        </div>
+      </div>
       
-      <el-collapse-item title="Q: Is there a tutorial I need to watch?">
-            <p>A: No tutorials are required. Our interface is designed to be self-explanatory. Just upload your PDF and start editing.</p>
-          </el-collapse-item>
+      <div class="content-section">
+        <h2>User-Friendly Features</h2>
+        <ul class="feature-list">
+          <li>Simple drag-and-drop interface for easy file uploads</li>
+          <li>Clear visual feedback for all operations</li>
+          <li>Contextual tooltips that guide you through each step</li>
+          <li>Step-by-step guidance for complex operations</li>
+          <li>Undo/redo support for easy mistake correction</li>
+          <li>Responsive design that works on all devices</li>
+          <li>Intuitive toolbar with commonly used functions</li>
+          <li>Real-time preview of changes</li>
+        </ul>
+      </div>
       
-      <el-collapse-item title="Q: Can I undo mistakes?">
-            <p>A: Yes! We support undo/redo functionality, so you can easily correct any mistakes.</p>
-          </el-collapse-item>
+      <div class="content-section">
+        <h2>No Learning Curve</h2>
+        <p>We believe great tools should be easy to use. That's why we've designed PDFMaster to be intuitive from the moment you first visit. Whether you're a beginner or a power user, you'll feel at home.</p>
+        <p>Our goal is to make PDF editing accessible to everyone. You shouldn't need a degree in computer science to edit a PDF document. With PDFMaster, you can accomplish your tasks quickly and easily.</p>
+      </div>
       
-      <el-collapse-item title="Q: Does it work on mobile devices?">
-            <p>A: Yes! PDFMaster is fully responsive and works on smartphones, tablets, and desktop computers.</p>
-          </el-collapse-item>
+      <div class="content-section">
+        <h2>Frequently Asked Questions</h2>
+        
+        <el-collapse-item title="Q: Do I need technical skills to use PDFMaster?">
+              <p>A: No! PDFMaster is designed for users of all skill levels. Our intuitive interface makes it easy for anyone to edit PDFs without technical expertise.</p>
+            </el-collapse-item>
+        
+        <el-collapse-item title="Q: Is there a tutorial I need to watch?">
+              <p>A: No tutorials are required. Our interface is designed to be self-explanatory. Just upload your PDF and start editing.</p>
+            </el-collapse-item>
+        
+        <el-collapse-item title="Q: Can I undo mistakes?">
+              <p>A: Yes! We support undo/redo functionality, so you can easily correct any mistakes.</p>
+            </el-collapse-item>
+        
+        <el-collapse-item title="Q: Does it work on mobile devices?">
+              <p>A: Yes! PDFMaster is fully responsive and works on smartphones, tablets, and desktop computers.</p>
+            </el-collapse-item>
+      </div>
+      
+      <div class="site-link-box">
+        <a href="https://pdfeasz.com" target="_blank">
+          <i class="el-icon-home"></i>
+          Visit pdfeasz.com for free PDF tools
+        </a>
+      </div>
+      
+      <div class="related-links">
+        <h3>Explore Other Features</h3>
+        <ul>
+          <li><a href="privacy-first.html"><i class="el-icon-lock"></i> Privacy First</a></li>
+          <li><a href="lightning-fast.html"><i class="el-icon-lightning"></i> Lightning Fast</a></li>
+          <li><a href="sign-pdfs.html"><i class="el-icon-pencil"></i> Sign PDFs</a></li>
+          <li><a href="completely-free.html"><i class="el-icon-gift"></i> Completely Free</a></li>
+        </ul>
+      </div>
+      
+      <p style="text-align: center; margin-top: 30px; color: #999; font-size: 14px;">
+        Visit our website: <a href="https://pdfeasz.com" target="_blank" style="color: #1e70bf; text-decoration: none;">pdfeasz.com</a>
+      </p>
     </div>
-    
-    <div class="site-link-box">
-      <a href="https://pdfeasz.com" target="_blank">
-        <i class="el-icon-home"></i>
-        Visit pdfeasz.com for free PDF tools
-      </a>
-    </div>
-    
-    <div class="related-links">
-      <h3>Explore Other Features</h3>
-      <ul>
-        <li><a href="privacy-first.html"><i class="el-icon-lock"></i> Privacy First</a></li>
-        <li><a href="lightning-fast.html"><i class="el-icon-lightning"></i> Lightning Fast</a></li>
-        <li><a href="sign-pdfs.html"><i class="el-icon-pencil"></i> Sign PDFs</a></li>
-        <li><a href="completely-free.html"><i class="el-icon-gift"></i> Completely Free</a></li>
-      </ul>
-    </div>
-    
-    <a href="index.html" class="back-link">
-      <i class="el-icon-arrow-left"></i>
-      Back to Home
-    </a>
-    
-    <p style="text-align: center; margin-top: 30px; color: #999; font-size: 14px;">
-      Visit our website: <a href="https://pdfeasz.com" target="_blank" style="color: #1e70bf; text-decoration: none;">pdfeasz.com</a>
-    </p>
   </div>
-  
+</div>
 </body>
 </html>

@@ -163,8 +163,7 @@
   <script src="./lib/element-ui/index.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="./lib/jszip/jszip.min.js"></script>
   <!-- Using JSZip for DOCX generation - more stable in browser -->
 
 </head>
@@ -280,7 +279,7 @@
                   <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
                 </div>
                 
-                <el-button type="primary" @click="download">
+                <el-button type="primary" size="large" @click="download">
                   <i class="el-icon-download" style="margin-right: 8px;"></i>
                   Download Word Document
                 </el-button>
@@ -512,7 +511,7 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>

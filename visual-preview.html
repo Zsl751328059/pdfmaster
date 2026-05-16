@@ -9,73 +9,212 @@
   
   <link rel="canonical" href="https://pdfeasz.com/visual-preview.html">
   
-  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui/lib/theme-chalk/index.css">
-  <script src="https://cdn.jsdelivr.net/npm/element-ui/lib/index.js"></script>
+  <script src="./lib/vue/vue.js"></script>
+  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
+  <script src="./lib/element-ui/index.js"></script>
+  <link rel="stylesheet" href="./common.css">
   
-  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #303133;
+      line-height: 1.5;
+    }
+    a {
+      text-decoration: none;
+    }
+    .container {
+      max-width: 1600px;
+      width: 98%;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-content {
+      flex: 1;
+      padding: 20px 0;
+    }
+    .content-section {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+    .content-section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+    .content-section p {
+      font-size: 16px;
+      color: #444;
+      margin-bottom: 12px;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+    .feature-list li {
+      padding: 10px 0;
+      padding-left: 28px;
+      position: relative;
+      font-size: 16px;
+    }
+    .feature-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #409EFF;
+      font-weight: bold;
+    }
+    .site-link-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .site-link-box a {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .related-links {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+    .related-links h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+    .related-links ul {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .related-links li a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      color: #409EFF;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .related-links li a:hover {
+      background: #ecf5ff;
+      transform: translateY(-2px);
+    }
+    .page-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #222;
+      margin: 20px 0 30px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Visual Preview</h1>
-    <p>See Before You Process</p>
-  </div>
-  
-  <div class="container">
-    <div class="content-section">
-      <h2>Visual Page Selection</h2>
-      <p>PDFMaster provides visual preview of your PDF pages before processing. This allows you to see exactly what you're working with and make informed decisions about which pages to include or exclude.</p>
-      <p>Our visual preview feature gives you complete control over your document processing. You can easily select, reorder, or remove pages with a simple click.</p>
+<div id="app" class="app">
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <img src="./assets/logo.png" alt="PDFMaster logo" class="logo-image">
+          <span class="logo-text">PDFMaster</span>
+        </div>
+        <nav class="header-links">
+          <a href="index.html" class="back-btn">
+            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            Back to Home
+          </a>
+        </nav>
+      </div>
     </div>
-    
-    <div class="content-section">
-      <h2>Preview Features</h2>
-      <ul class="feature-list">
-        <li>Visual page thumbnails for easy identification</li>
-        <li>Page selection interface with checkboxes</li>
-        <li>Reorder pages visually with drag-and-drop</li>
-        <li>Zoom and pan support for detailed viewing</li>
-        <li>Annotation preview for marked documents</li>
-        <li>Real-time previews of changes</li>
-        <li>Page number display for easy navigation</li>
-        <li>Multiple page selection modes</li>
-      </ul>
-    </div>
-    
-    <div class="content-section">
-      <h2>Frequently Asked Questions</h2>
+  </header>
+
+  <div class="main-content">
+    <div class="container">
+      <h1 class="page-title">Visual Preview</h1>
       
-      <el-collapse-item title="Q: Can I preview pages before processing?">
-            <p>A: Yes! PDFMaster provides visual preview of all pages, so you can see exactly what you're working with.</p>
-          </el-collapse-item>
+      <div class="content-section">
+        <h2>Visual Page Selection</h2>
+        <p>PDFMaster provides visual preview of your PDF pages before processing. This allows you to see exactly what you're working with and make informed decisions about which pages to include or exclude.</p>
+        <p>Our visual preview feature gives you complete control over your document processing. You can easily select, reorder, or remove pages with a simple click.</p>
+      </div>
       
-      <el-collapse-item title="Q: Can I reorder pages visually?">
-            <p>A: Yes! You can easily reorder pages using our drag-and-drop interface.</p>
-          </el-collapse-item>
+      <div class="content-section">
+        <h2>Preview Features</h2>
+        <ul class="feature-list">
+          <li>Visual page thumbnails for easy identification</li>
+          <li>Page selection interface with checkboxes</li>
+          <li>Reorder pages visually with drag-and-drop</li>
+          <li>Zoom and pan support for detailed viewing</li>
+          <li>Annotation preview for marked documents</li>
+          <li>Real-time previews of changes</li>
+          <li>Page number display for easy navigation</li>
+          <li>Multiple page selection modes</li>
+        </ul>
+      </div>
+      
+      <div class="content-section">
+        <h2>Frequently Asked Questions</h2>
+        
+        <el-collapse-item title="Q: Can I preview pages before processing?">
+              <p>A: Yes! PDFMaster provides visual preview of all pages, so you can see exactly what you're working with.</p>
+            </el-collapse-item>
+        
+        <el-collapse-item title="Q: Can I reorder pages visually?">
+              <p>A: Yes! You can easily reorder pages using our drag-and-drop interface.</p>
+            </el-collapse-item>
+      </div>
+      
+      <div class="site-link-box">
+        <a href="https://pdfeasz.com" target="_blank">
+          <i class="el-icon-home"></i>
+          Visit pdfeasz.com for free PDF tools
+        </a>
+      </div>
+      
+      <div class="related-links">
+        <h3>Explore Other Features</h3>
+        <ul>
+          <li><a href="easy-editing.html"><i class="el-icon-edit"></i> Easy Editing</a></li>
+          <li><a href="sign-pdfs.html"><i class="el-icon-pencil"></i> Sign PDFs</a></li>
+          <li><a href="web-access.html"><i class="el-icon-monitor"></i> Web Access</a></li>
+          <li><a href="completely-free.html"><i class="el-icon-gift"></i> Completely Free</a></li>
+        </ul>
+      </div>
+      
+      <p style="text-align: center; margin-top: 30px; color: #999; font-size: 14px;">
+        Visit our website: <a href="https://pdfeasz.com" target="_blank" style="color: #1e70bf; text-decoration: none;">pdfeasz.com</a>
+      </p>
     </div>
-    
-    <div class="site-link-box">
-      <a href="https://pdfeasz.com" target="_blank">
-        <i class="el-icon-home"></i>
-        Visit pdfeasz.com for free PDF tools
-      </a>
-    </div>
-    
-    <div class="related-links">
-      <h3>Explore Other Features</h3>
-      <ul>
-        <li><a href="easy-editing.html"><i class="el-icon-edit"></i> Easy Editing</a></li>
-        <li><a href="sign-pdfs.html"><i class="el-icon-pencil"></i> Sign PDFs</a></li>
-        <li><a href="web-access.html"><i class="el-icon-monitor"></i> Web Access</a></li>
-        <li><a href="completely-free.html"><i class="el-icon-gift"></i> Completely Free</a></li>
-      </ul>
-    </div>
-    
-    <a href="index.html" class="back-link">
-      <i class="el-icon-arrow-left"></i>
-      Back to Home
-    </a>
   </div>
-  
+</div>
 </body>
 </html>
