@@ -940,17 +940,28 @@ new Vue({
     },
     downloadAll() {
       const prefix = this.downloadFileName.trim() || 'split'
-      this.splitResults.forEach((result, index) => {
-        setTimeout(() => {
-          const url = URL.createObjectURL(result.blob)
-          const a = document.createElement('a')
-          a.href = url
-          const ext = result.name.split('.').pop()
-          a.download = `${prefix}-${index + 1}.${ext}`
-          a.click()
-          URL.revokeObjectURL(url)
-        }, index * 200)
-      })
+      const results = this.splitResults
+      
+      const downloadFile = (index) => {
+        if (index >= results.length) return
+        
+        const result = results[index]
+        const url = URL.createObjectURL(result.blob)
+        const a = document.createElement('a')
+        a.href = url
+        const ext = result.name.split('.').pop()
+        a.download = `${prefix}-${index + 1}.${ext}`
+        
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        
+        URL.revokeObjectURL(url)
+        
+        setTimeout(() => downloadFile(index + 1), 500)
+      }
+      
+      downloadFile(0)
     },
     reset() {
       this.selectedFiles.forEach(file => { this.destroyFileResources(file) })
