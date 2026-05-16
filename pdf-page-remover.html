@@ -354,7 +354,7 @@
                   <a href="pdf-page-extractor.html" class="recommend-link">Try our Page Extractor Tool →</a>
                 </div>
               </div>
-              <div v-if="showPreviewModal" class="preview-modal" @click.self="closePreview">
+              <div :class="{ show: showPreviewModal }" class="preview-modal" @click.self="closePreview">
                 <div class="modal-content">
                   <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
                   <div class="modal-title">PDF Preview</div>
@@ -548,7 +548,7 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>
@@ -774,31 +774,36 @@ new Vue({
       const pageIdx = this.pagePreviews.indexOf(img)
       const resultIdx = this.resultPreviews.indexOf(img)
       
-      if (pageIdx >= 0 && this.selectedFile) {
-        const arrayBuffer = await this.selectedFile.file.arrayBuffer()
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const page = await pdf.getPage(pageIdx + 1)
-        const vp = page.getViewport({ scale: 1.5 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.currentPreviewImage = c.toDataURL()
-        pdf.destroy()
-      } else if (resultIdx >= 0 && this.resultBlob) {
-        const arrayBuffer = await this.resultBlob.arrayBuffer()
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const page = await pdf.getPage(resultIdx + 1)
-        const vp = page.getViewport({ scale: 1.5 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.currentPreviewImage = c.toDataURL()
-        pdf.destroy()
-      } else {
+      try {
+        if (pageIdx >= 0 && this.selectedFile) {
+          const arrayBuffer = await this.selectedFile.file.arrayBuffer()
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+          const page = await pdf.getPage(pageIdx + 1)
+          const vp = page.getViewport({ scale: 1.5 })
+          const c = document.createElement('canvas')
+          const ctx = c.getContext('2d')
+          c.width = vp.width
+          c.height = vp.height
+          await page.render({ canvasContext: ctx, viewport: vp }).promise
+          this.currentPreviewImage = c.toDataURL()
+          pdf.destroy()
+        } else if (resultIdx >= 0 && this.resultBlob) {
+          const arrayBuffer = await this.resultBlob.arrayBuffer()
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+          const page = await pdf.getPage(resultIdx + 1)
+          const vp = page.getViewport({ scale: 1.5 })
+          const c = document.createElement('canvas')
+          const ctx = c.getContext('2d')
+          c.width = vp.width
+          c.height = vp.height
+          await page.render({ canvasContext: ctx, viewport: vp }).promise
+          this.currentPreviewImage = c.toDataURL()
+          pdf.destroy()
+        } else {
+          this.currentPreviewImage = img
+        }
+      } catch (error) {
+        console.warn('Preview rendering failed, using thumbnail:', error)
         this.currentPreviewImage = img
       }
       this.showPreviewModal = true

@@ -467,7 +467,7 @@
         </el-tabs>
       </div>
 
-      <div v-if="showPreviewModal" class="preview-modal" @click.self="closePreview">
+      <div :class="{ show: showPreviewModal }" class="preview-modal" @click.self="closePreview">
         <div class="modal-content">
           <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
           <div class="modal-title">PDF Preview</div>
@@ -693,7 +693,7 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>

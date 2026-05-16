@@ -169,7 +169,7 @@
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-  <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.11.0/dist/browser-image-compression.min.js"></script>
+  <script src="./lib/browser-image-compression/browser-image-compression.js"></script>
 
   <style>
     .compression-stats {
@@ -377,7 +377,7 @@
                 </div>
               </div>
 
-              <div v-if="showPreviewModal" class="preview-modal" @click.self="closePreview">
+              <div :class="{ show: showPreviewModal }" class="preview-modal" @click.self="closePreview">
                 <div class="modal-content">
                   <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
                   <div class="modal-title">PDF Preview</div>
@@ -630,7 +630,7 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>
@@ -757,19 +757,24 @@ new Vue({
     },
     async openPreview(image) {
       const idx = this.previews.indexOf(image)
-      if (idx !== -1 && this.resultBlob) {
-        const arrayBuffer = await this.resultBlob.arrayBuffer()
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const page = await pdf.getPage(idx + 1)
-        const vp = page.getViewport({ scale: 1.5 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.currentPreviewImage = c.toDataURL()
-        pdf.destroy()
-      } else {
+      try {
+        if (idx !== -1 && this.resultBlob) {
+          const arrayBuffer = await this.resultBlob.arrayBuffer()
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+          const page = await pdf.getPage(idx + 1)
+          const vp = page.getViewport({ scale: 1.5 })
+          const c = document.createElement('canvas')
+          const ctx = c.getContext('2d')
+          c.width = vp.width
+          c.height = vp.height
+          await page.render({ canvasContext: ctx, viewport: vp }).promise
+          this.currentPreviewImage = c.toDataURL()
+          pdf.destroy()
+        } else {
+          this.currentPreviewImage = image
+        }
+      } catch (error) {
+        console.warn('Preview rendering failed, using thumbnail:', error)
         this.currentPreviewImage = image
       }
       this.showPreviewModal = true

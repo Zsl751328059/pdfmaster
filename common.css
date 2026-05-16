@@ -482,16 +482,15 @@ a { text-decoration: none; color: inherit; }
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.7);
-  display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.2s ease;
+  display: none;
 }
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.preview-modal.show {
+  display: flex;
 }
+
 .modal-content {
   background: white;
   padding: 20px;
@@ -502,13 +501,8 @@ a { text-decoration: none; color: inherit; }
   overflow: auto;
   position: relative;
   display: inline-block;
-  animation: slideIn 0.2s ease;
 }
-@keyframes slideIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-.modal-title {
+  .modal-title {
   position: absolute;
   top: 10px;
   left: 20px;
@@ -758,6 +752,8 @@ a { text-decoration: none; color: inherit; }
   gap: 10px;
   justify-content: center;
   margin-bottom: 24px;
+  min-height: 0;
+  overflow: hidden;
 }
 .download-btn {
   padding: 16px 40px;
@@ -1244,14 +1240,94 @@ a { text-decoration: none; color: inherit; }
 .dialog-footer { text-align: center; }
 
 @media (max-width: 768px) {
-  .steps { grid-template-columns: repeat(2, 1fr); }
+  .steps { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .step { margin-bottom: 12px; }
   .action-section { flex-direction: column; }
-  .merge-mode-options { flex-direction: column; }
+  .merge-mode-options { flex-direction: column; gap: 12px; }
+  .mode-option { padding: 16px; }
+  .mode-icon { font-size: 32px; margin-bottom: 12px; }
+  .mode-title { font-size: 16px; }
   .tab-content { padding: 16px; }
+  .header { padding: 12px 0; }
   .header-content { flex-direction: column; gap: 12px; }
-  .header-links { gap: 8px; flex-wrap: wrap; justify-content: center; }
-  .header-links a { padding: 6px 12px; font-size: 12px; }
+  .logo { flex-shrink: 0; }
   .logo-text { font-size: 20px; }
   .logo-image { width: 36px; height: 36px; }
-  .footer-content { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .header-links { 
+    margin-left: 0; 
+    gap: 8px; 
+    flex-wrap: wrap; 
+    justify-content: center;
+  }
+  .header-links a { 
+    padding: 6px 14px; 
+    font-size: 12px; 
+    white-space: nowrap;
+  }
+  .contact-btn { padding: 8px 18px !important; font-size: 12px !important; }
+  .feedback-btn { padding: 8px 18px !important; font-size: 12px !important; }
+  .back-btn { padding: 8px 16px !important; font-size: 12px !important; }
+  .footer-content { grid-template-columns: 1fr; gap: 20px; }
+  .footer-section { text-align: center; }
+  .main-content { max-width: 100%; padding: 16px 0; }
+  .page-header { margin-bottom: 20px; }
+  .page-title { font-size: 22px; }
+  .page-subtitle { padding: 16px 20px; font-size: 14px; }
+  .upload-area { padding: 24px 16px !important; min-height: 160px !important; }
+  .upload-icon { font-size: 36px !important; }
+  .upload-text { font-size: 16px !important; }
+  .action-buttons { flex-direction: column; }
+  .action-buttons .el-button { width: 100%; }
+  .tech-content { grid-template-columns: 1fr; gap: 16px; }
+  .tech-card { padding: 20px; }
+  .tech-card-icon { font-size: 24px; }
+  .tech-card h3 { font-size: 15px; }
+  .guide-content { grid-template-columns: 1fr; gap: 16px; }
+  .guide-card { padding: 20px; }
+  .guide-icon-wrapper { width: 56px; height: 56px; margin-bottom: 12px; }
+  .guide-icon { font-size: 24px; }
+  .guide-title { font-size: 15px; }
+  .guide-desc { font-size: 13px; }
+  .instructions { padding: 20px; }
+  .instructions-title { font-size: 18px; }
+  .faq-section { padding: 16px; }
+  .faq-section .el-collapse-item__header {
+    font-size: 14px !important;
+    padding: 14px 0 !important;
+    white-space: normal !important;
+    line-height: 1.5 !important;
+  }
+  .faq-section .el-collapse-item__arrow {
+    flex-shrink: 0 !important;
+    margin-left: 8px !important;
+  }
+  .faq-section .el-collapse-item__content {
+    padding: 10px 0 16px !important;
+    font-size: 13px !important;
+  }
+  .tutorial-section { padding: 20px; }
+  .tutorial-step { flex-direction: column; gap: 12px; }
+  .blog-section { padding: 20px; }
+  .blog-card { flex-direction: column; gap: 12px; }
+  .blog-card h3 { width: 100%; }
+  .blog-card p { width: 100%; }
+  .cta-box { padding: 24px 16px; }
+  .cta-box h3 { font-size: 18px; }
+  .cta-box p { font-size: 13px; }
+  .cta-button {
+    padding: 12px 20px !important;
+    font-size: 14px !important;
+    white-space: normal !important;
+    line-height: 1.4 !important;
+    display: inline-block !important;
+    max-width: 100% !important;
+    word-break: break-word !important;
+  }
+  .privacy-section { padding: 24px 16px; }
+  .privacy-section .section-title { font-size: 20px; }
+  .privacy-content { font-size: 14px; }
+  .section-title { font-size: 18px; margin-bottom: 16px; }
+  .preview-header { flex-direction: column; align-items: flex-start; }
+  .preview-hint { text-align: left; margin-top: 8px; }
+  .page-preview-item { width: 60px; height: 90px; }
 }
