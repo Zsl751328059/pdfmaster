@@ -401,7 +401,7 @@
                 </div>
               </div>
 
-              <div v-if="showPreviewModal" class="preview-modal" @click.self="closePreview">
+              <div :class="{ show: showPreviewModal }" class="preview-modal" @click.self="closePreview">
                 <div class="modal-content">
                   <button class="modal-close" @click="closePreview" aria-label="Close preview">×</button>
                   <div class="modal-title">PDF Preview</div>
@@ -664,6 +664,7 @@
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
             <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>
@@ -711,13 +712,6 @@
     </div>
   </footer>
 </div>
-
-<el-dialog title="🔒 Privacy Notice" :visible.sync="showCookieConsent" width="600px" :close-on-click-modal="false" :show-close="false" append-to-body>
-  <p>We use localStorage only to remember that you've seen this notice. No cookies, no tracking, no analytics. Your files stay private and secure.</p>
-  <div slot="footer" class="dialog-footer">
-    <el-button type="primary" @click="closeCookieNotice">Got it</el-button>
-  </div>
-</el-dialog>
 
 <script>
 
@@ -781,13 +775,11 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       showPreviewModal: false,
       currentPreviewImage: '',
       renderQueue: [],
-      isRendering: false,
-      showCookieConsent: false
+      isRendering: false
     }
   },
   mounted() {
     window.addEventListener('beforeunload', this.handleBeforeUnload)
-    this.checkCookieConsent()
   },
   beforeDestroy() {
     window.removeEventListener('beforeunload', this.handleBeforeUnload)
@@ -816,19 +808,24 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
     
     async openPreview(image) {
       const idx = this.previews.indexOf(image)
-      if (idx !== -1 && this.resultBlob) {
-        const arrayBuffer = await this.resultBlob.arrayBuffer()
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const page = await pdf.getPage(idx + 1)
-        const vp = page.getViewport({ scale: 1.5 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.currentPreviewImage = c.toDataURL()
-        pdf.destroy()
-      } else {
+      try {
+        if (idx !== -1 && this.resultBlob) {
+          const arrayBuffer = await this.resultBlob.arrayBuffer()
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+          const page = await pdf.getPage(idx + 1)
+          const vp = page.getViewport({ scale: 1.5 })
+          const c = document.createElement('canvas')
+          const ctx = c.getContext('2d')
+          c.width = vp.width
+          c.height = vp.height
+          await page.render({ canvasContext: ctx, viewport: vp }).promise
+          this.currentPreviewImage = c.toDataURL()
+          pdf.destroy()
+        } else {
+          this.currentPreviewImage = image
+        }
+      } catch (error) {
+        console.warn('Preview rendering failed, using thumbnail:', error)
         this.currentPreviewImage = image
       }
       this.showPreviewModal = true
@@ -836,30 +833,6 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
     closePreview() {
       this.showPreviewModal = false
       this.currentPreviewImage = ''
-    },
-    checkCookieConsent() {
-      const consent = localStorage.getItem('cookieConsent');
-      if (!consent) {
-        setTimeout(() => {
-          this.showCookieConsent = true
-        }, 500);
-      }
-    },
-    closeCookieNotice() {
-      localStorage.setItem('cookieConsent', 'accepted');
-      this.showCookieConsent = false
-    },
-    checkCookieConsent() {
-      const consent = localStorage.getItem('cookieConsent');
-      if (!consent) {
-        setTimeout(() => {
-          this.showCookieConsent = true
-        }, 500);
-      }
-    },
-    closeCookieNotice() {
-      localStorage.setItem('cookieConsent', 'accepted');
-      this.showCookieConsent = false
     },
     triggerUpload() {
       const uploadInput = this.$refs.upload.$el.querySelector('input[type="file"]')

@@ -2,26 +2,22 @@ const CACHE_NAME = 'pdfmaster-cache-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/pdf-merger.html',
-  '/pdf-compressor.html',
-  '/pdf-splitter.html',
-  '/image-to-pdf.html',
+  '/manifest.json',
+  '/assets/logo.png',
+  '/common.css',
   '/lib/vue/vue.js',
   '/lib/element-ui/index.js',
   '/lib/element-ui/theme-chalk/index.css',
-  '/lib/pdf-lib/pdf-lib.min.js',
   '/lib/pdfjs-dist/build/pdf.js',
   '/lib/pdfjs-dist/build/pdf.worker.js',
-  '/assets/logo.png'
+  '/lib/jszip/jszip.min.js'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => {
-      self.skipWaiting();
-    })
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(ASSETS_TO_CACHE))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -35,39 +31,18 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    }).then(() => {
-      self.clients.claim();
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') {
-    return;
-  }
-
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+    caches.match(event.request)
+      .then((response) => {
+        if (response) {
+          return response;
         }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
-        return networkResponse;
-      }).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('/');
-        }
-      });
-    })
+        return fetch(event.request);
+      })
   );
 });

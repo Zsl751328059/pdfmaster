@@ -20,8 +20,6 @@
   <meta name="twitter:description" content="Learn more about PDFMaster, offering free PDF tools with secure local processing." />
   <meta name="twitter:image" content="https://pdfeasz.com/assets/share.png" />
 
-  <script src="./region-restriction.js"></script>
-  
   <script src="./lib/vue/vue.js"></script>
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
   <script src="./lib/element-ui/index.js"></script>
@@ -114,6 +112,12 @@
       color: #fff;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .back-link {
+      background: linear-gradient(135deg, #1e70bf, #337ecc);
     }
     .contact-link {
       background: linear-gradient(135deg, #409EFF, #337ecc);
@@ -321,6 +325,23 @@
     }
 
     @media (max-width:768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+      .logo {
+        align-items: center;
+      }
+      .user-section {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+      .header-link {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
       .mission-vision {
         grid-template-columns: 1fr;
       }
@@ -333,6 +354,9 @@
       }
       .about-section h3 {
         font-size: 20px;
+      }
+      .tool-title {
+        font-size: 24px;
       }
     }
   </style>
@@ -351,6 +375,10 @@
           <p class="logo-subtitle">Local PDF Tools</p>
         </div>
         <div class="user-section">
+          <a href="index.html" class="header-link back-link">
+            <i class="el-icon-arrow-left" style="font-size: 12px;"></i>
+            Back to Home
+          </a>
           <a href="contact.html" class="header-link contact-link">Contact Us</a>
           <a href="feedback.html" class="header-link feedback-link">Submit Feedback</a>
         </div>
@@ -360,12 +388,6 @@
 
   <div class="main-content">
     <div class="container">
-      <div class="breadcrumb-container" style="margin-bottom: 22px;">
-        <a href="index.html" style="display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; background: linear-gradient(135deg, #1e70bf, #337ecc); color: white; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 112, 191, 0.3);">
-          ← Back to Home
-        </a>
-      </div>
-
       <h1 class="tool-title">About PDFMaster</h1>
 
       <div class="about-section">

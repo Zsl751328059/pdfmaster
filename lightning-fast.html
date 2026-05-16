@@ -9,96 +9,244 @@
   
   <link rel="canonical" href="https://pdfeasz.com/lightning-fast.html">
   
-  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui/lib/theme-chalk/index.css">
-  <script src="https://cdn.jsdelivr.net/npm/element-ui/lib/index.js"></script>
+  <script src="./lib/vue/vue.js"></script>
+  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
+  <script src="./lib/element-ui/index.js"></script>
+  <link rel="stylesheet" href="./common.css">
   
-  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #303133;
+      line-height: 1.5;
+    }
+    a {
+      text-decoration: none;
+    }
+    .container {
+      max-width: 1600px;
+      width: 98%;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-content {
+      flex: 1;
+      padding: 20px 0;
+    }
+    .content-section {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+    .content-section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+    .content-section p {
+      font-size: 16px;
+      color: #444;
+      margin-bottom: 12px;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+    .feature-list li {
+      padding: 10px 0;
+      padding-left: 28px;
+      position: relative;
+      font-size: 16px;
+    }
+    .feature-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #409EFF;
+      font-weight: bold;
+    }
+    .info-badge {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .info-badge p {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+    .site-link-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .site-link-box a {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .related-links {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+    .related-links h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+    .related-links ul {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .related-links li a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      color: #409EFF;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .related-links li a:hover {
+      background: #ecf5ff;
+      transform: translateY(-2px);
+    }
+    .page-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #222;
+      margin: 20px 0 30px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Lightning Fast</h1>
-    <p>Instant Results, No Waiting</p>
-  </div>
-  
-  <div class="container">
-    <div class="content-section">
-      <h2>Optimized for Speed</h2>
-      <p>PDFMaster uses cutting-edge algorithms optimized for maximum performance. Our tools process your PDFs in milliseconds, giving you instant results without frustrating waiting times.</p>
-      <p>Whether you're merging, compressing, or converting PDFs, experience the fastest PDF processing available. We've optimized every aspect of our processing pipeline to ensure you get results instantly.</p>
-      
-      <div class="info-badge">
-        <p>⚡ Process PDFs in milliseconds</p>
+<div id="app" class="app">
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <img src="./assets/logo.png" alt="PDFMaster logo" class="logo-image">
+          <span class="logo-text">PDFMaster</span>
+        </div>
+        <nav class="header-links">
+          <a href="index.html" class="back-btn">
+            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            Back to Home
+          </a>
+        </nav>
       </div>
     </div>
-    
-    <div class="content-section">
-      <h2>Performance Optimizations</h2>
-      <p>We've optimized every aspect of our PDF processing pipeline to deliver exceptional speed:</p>
-      <ul class="feature-list">
-        <li>WebAssembly-powered processing for near-native performance</li>
-        <li>Memory-efficient algorithms that minimize resource usage</li>
-        <li>Parallel processing support for multi-core systems</li>
-        <li>Smart caching mechanism to speed up repeated operations</li>
-        <li>Optimized file handling for faster I/O operations</li>
-        <li>Minimal overhead architecture for maximum throughput</li>
-        <li>Asynchronous processing that doesn't block your browser</li>
-        <li>Advanced compression algorithms for faster downloads</li>
-      </ul>
-    </div>
-    
-    <div class="content-section">
-      <h2>Why Speed Matters</h2>
-      <p>In today's fast-paced world, time is valuable. Waiting for slow PDF processing can disrupt your workflow and reduce productivity. With PDFMaster, you get instant results so you can focus on what matters.</p>
-      <p>Whether you're a busy professional working on important documents or a student preparing assignments, every second counts. Our fast processing ensures you can complete your tasks quickly and move on to the next thing.</p>
-    </div>
-    
-    <div class="content-section">
-      <h2>Frequently Asked Questions</h2>
+  </header>
+
+  <div class="main-content">
+    <div class="container">
+      <h1 class="page-title">Lightning Fast</h1>
       
-      <el-collapse-item title="Q: How fast is PDFMaster compared to other tools?">
-            <p>A: PDFMaster is significantly faster than most online PDF tools. Thanks to our WebAssembly-powered processing and optimized algorithms, we can process most PDFs in under a second.</p>
-          </el-collapse-item>
+      <div class="content-section">
+        <h2>Optimized for Speed</h2>
+        <p>PDFMaster uses cutting-edge algorithms optimized for maximum performance. Our tools process your PDFs in milliseconds, giving you instant results without frustrating waiting times.</p>
+        <p>Whether you're merging, compressing, or converting PDFs, experience the fastest PDF processing available. We've optimized every aspect of our processing pipeline to ensure you get results instantly.</p>
+        
+        <div class="info-badge">
+          <p>⚡ Process PDFs in milliseconds</p>
+        </div>
+      </div>
       
-      <el-collapse-item title="Q: Does speed affect quality?">
-            <p>A: No. Our fast processing doesn't compromise on quality. Your PDFs will maintain their original quality while being processed quickly.</p>
-          </el-collapse-item>
+      <div class="content-section">
+        <h2>Performance Optimizations</h2>
+        <p>We've optimized every aspect of our PDF processing pipeline to deliver exceptional speed:</p>
+        <ul class="feature-list">
+          <li>WebAssembly-powered processing for near-native performance</li>
+          <li>Memory-efficient algorithms that minimize resource usage</li>
+          <li>Parallel processing support for multi-core systems</li>
+          <li>Smart caching mechanism to speed up repeated operations</li>
+          <li>Optimized file handling for faster I/O operations</li>
+          <li>Minimal overhead architecture for maximum throughput</li>
+          <li>Asynchronous processing that doesn't block your browser</li>
+          <li>Advanced compression algorithms for faster downloads</li>
+        </ul>
+      </div>
       
-      <el-collapse-item title="Q: Do larger files take longer?">
-            <p>A: While larger files naturally take more time, our optimized algorithms ensure even large PDFs are processed as quickly as possible.</p>
-          </el-collapse-item>
+      <div class="content-section">
+        <h2>Why Speed Matters</h2>
+        <p>In today's fast-paced world, time is valuable. Waiting for slow PDF processing can disrupt your workflow and reduce productivity. With PDFMaster, you get instant results so you can focus on what matters.</p>
+        <p>Whether you're a busy professional working on important documents or a student preparing assignments, every second counts. Our fast processing ensures you can complete your tasks quickly and move on to the next thing.</p>
+      </div>
       
-      <el-collapse-item title="Q: Is there a difference in speed between devices?">
-            <p>A: Processing speed can vary slightly depending on your device's capabilities, but our optimizations ensure fast performance across all modern devices.</p>
-          </el-collapse-item>
+      <div class="content-section">
+        <h2>Frequently Asked Questions</h2>
+        
+        <el-collapse-item title="Q: How fast is PDFMaster compared to other tools?">
+              <p>A: PDFMaster is significantly faster than most online PDF tools. Thanks to our WebAssembly-powered processing and optimized algorithms, we can process most PDFs in under a second.</p>
+            </el-collapse-item>
+        
+        <el-collapse-item title="Q: Does speed affect quality?">
+              <p>A: No. Our fast processing doesn't compromise on quality. Your PDFs will maintain their original quality while being processed quickly.</p>
+            </el-collapse-item>
+        
+        <el-collapse-item title="Q: Do larger files take longer?">
+              <p>A: While larger files naturally take more time, our optimized algorithms ensure even large PDFs are processed as quickly as possible.</p>
+            </el-collapse-item>
+        
+        <el-collapse-item title="Q: Is there a difference in speed between devices?">
+              <p>A: Processing speed can vary slightly depending on your device's capabilities, but our optimizations ensure fast performance across all modern devices.</p>
+            </el-collapse-item>
+      </div>
+      
+      <div class="site-link-box">
+        <a href="https://pdfeasz.com" target="_blank">
+          <i class="el-icon-home"></i>
+          Visit pdfeasz.com for free PDF tools
+        </a>
+      </div>
+      
+      <div class="related-links">
+        <h3>Explore Other Features</h3>
+        <ul>
+          <li><a href="privacy-first.html"><i class="el-icon-lock"></i> Privacy First</a></li>
+          <li><a href="easy-editing.html"><i class="el-icon-edit"></i> Easy Editing</a></li>
+          <li><a href="visual-preview.html"><i class="el-icon-view"></i> Visual Preview</a></li>
+          <li><a href="web-access.html"><i class="el-icon-monitor"></i> Web Access</a></li>
+        </ul>
+      </div>
+      
+      <p style="text-align: center; margin-top: 30px; color: #999; font-size: 14px;">
+        Visit our website: <a href="https://pdfeasz.com" target="_blank" style="color: #1e70bf; text-decoration: none;">pdfeasz.com</a>
+      </p>
     </div>
-    
-    <div class="site-link-box">
-      <a href="https://pdfeasz.com" target="_blank">
-        <i class="el-icon-home"></i>
-        Visit pdfeasz.com for free PDF tools
-      </a>
-    </div>
-    
-    <div class="related-links">
-      <h3>Explore Other Features</h3>
-      <ul>
-        <li><a href="privacy-first.html"><i class="el-icon-lock"></i> Privacy First</a></li>
-        <li><a href="easy-editing.html"><i class="el-icon-edit"></i> Easy Editing</a></li>
-        <li><a href="visual-preview.html"><i class="el-icon-view"></i> Visual Preview</a></li>
-        <li><a href="web-access.html"><i class="el-icon-monitor"></i> Web Access</a></li>
-      </ul>
-    </div>
-    
-    <a href="index.html" class="back-link">
-      <i class="el-icon-arrow-left"></i>
-      Back to Home
-    </a>
-    
-    <p style="text-align: center; margin-top: 30px; color: #999; font-size: 14px;">
-      Visit our website: <a href="https://pdfeasz.com" target="_blank" style="color: #1e70bf; text-decoration: none;">pdfeasz.com</a>
-    </p>
   </div>
-  
+</div>
 </body>
 </html>
