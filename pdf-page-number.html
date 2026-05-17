@@ -158,8 +158,9 @@
   }
   </script>
   
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <link rel="stylesheet" href="./common.css">
+  <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
+  <link rel="stylesheet" href="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.css">
+  <link rel="stylesheet" href="/css/common.css">
   
   <style>
     .position-options {
@@ -202,48 +203,432 @@
       font-weight: 500;
       color: #606266;
     }
-
-    .modal-content {
-      position: relative;
-      max-width: 90%;
-      max-height: 90%;
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 32px;
-      height: 32px;
-      border: none;
-      background: #f5f5f5;
-      border-radius: 50%;
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-image {
-      max-width: 100%;
-      max-height: 80vh;
-      border-radius: 8px;
-    }
   </style>
-  <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
-  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
-  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-  <script src="./lib/preview-utils.js"></script>
-  <script src="./lib/components/preview-modal.js"></script>
+  <script src="/lib/vue/vue.js" defer></script>
+  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.js" defer></script>
+  <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
+  <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
+  <script src="/lib/preview-utils.js" defer></script>
+  <script src="/lib/components/preview-modal.js" defer></script>
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('Global error:', message, source, lineno, colno, error);
+      if (message.includes('PDF') || message.includes('pdf')) {
+        alert('An error occurred while processing PDF files. Please try again with different files.');
+      }
+      return true;
+    };
 
-  
- 
+    document.addEventListener('DOMContentLoaded', function() {    
+      console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║   Powered by PDFMaster - https://pdfeasz.com                  ║
+║   Open-source under MIT License. Copyright © 2026             ║
+║   Unauthorized removal of this notice is prohibited.          ║
+╚═══════════════════════════════════════════════════════════════╝
+      `);
+
+      if (typeof Vue === 'undefined') {
+        setTimeout(function() {
+          window.location.reload();
+        }, 1000);
+        return;
+      }
+      
+      Vue.config.errorHandler = function(err, vm, info) {
+        console.error('Vue error:', err, info);
+        if (err.message && (err.message.includes('PDF') || err.message.includes('pdf'))) {
+          vm.$message.error('An error occurred while processing PDF files. Please try again.')
+        } else {
+          vm.$message.error('An unexpected error occurred. Please refresh the page and try again.')
+        }
+      };
+      
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
+      }
+      
+      new Vue({
+        el: '#app',
+        data() {
+          return {
+            selectedFiles: [],
+            pageCount: 0,
+            form: {
+              position: 'bottom-center',
+              fontSize: 12,
+              startNumber: 1,
+              format: 'number'
+            },
+            showDrawer: false,
+            drawerStage: 'options',
+            processing: false,
+            done: false,
+            progress: 0,
+            progressText: '',
+            resultBlob: null,
+            resultPreviews: [],
+            downloadFileName: 'page-numbered.pdf',
+            showPreviewModal: false,
+            currentPreviewImage: ''
+          };
+        },
+        mounted() {
+          window.addEventListener('beforeunload', this.handleBeforeUnload)
+          this.showPreviewModal = false
+          this.currentPreviewImage = ''
+        },
+        beforeDestroy() {
+          window.removeEventListener('beforeunload', this.handleBeforeUnload)
+          this.cleanupAllResources()
+        },
+        methods: {
+          handleBeforeUnload() {
+            this.cleanupAllResources()
+          },
+          cleanupAllResources() {
+            if (this.resultBlob) {
+              this.resultBlob = null
+            }
+            
+            this.resultPreviews.forEach(url => {
+              if (url && url.startsWith('blob:')) {
+                URL.revokeObjectURL(url)
+              }
+            })
+            this.resultPreviews = []
+            this.currentPreviewImage = ''
+          },
+          beforeUpload(file) {
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+              this.$message.error('Only PDF files are allowed');
+              return false;
+            }
+            const maxSize = 50 * 1024 * 1024;
+            if (file.size > maxSize) {
+              this.$message.error('File size cannot exceed 50MB');
+              return false;
+            }
+            return true;
+          },
+          handleDrop(e) {
+            e.preventDefault();
+          },
+          async handleFileChange({ file, onSuccess }) {
+            const raw = file;
+            if (!raw.name.toLowerCase().endsWith('.pdf')) {
+              this.$message.error('Only PDF files are allowed');
+              return;
+            }
+            
+            const maxSize = 50 * 1024 * 1024;
+            if (raw.size > maxSize) {
+              this.$message.error('File size cannot exceed 50MB');
+              return;
+            }
+            
+            await this.processFile(raw);
+            onSuccess('success');
+          },
+          async processFile(file) {
+            if (file.type !== 'application/pdf') {
+              this.$message.error('Please upload a PDF file');
+              return;
+            }
+            if (file.size > 50 * 1024 * 1024) {
+              this.$message.error('File size exceeds 50MB limit');
+              return;
+            }
+            
+            this.selectedFiles = [{ file, name: file.name, size: file.size, pageCount: 0 }];
+            
+            try {
+              const arrayBuffer = await file.arrayBuffer();
+              const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+              this.pageCount = pdf.numPages;
+              if (this.selectedFiles[0]) {
+                this.selectedFiles[0].pageCount = this.pageCount;
+              }
+              await pdf.destroy();
+            } catch (error) {
+              console.error('Error loading PDF:', error);
+            }
+          },
+          
+          clearAllFiles() {
+            this.selectedFiles = [];
+            this.pageCount = 0;
+            this.cleanupAllResources();
+          },
+          
+          removeFile(idx) {
+            this.selectedFiles.splice(idx, 1);
+            if (this.selectedFiles.length === 0) {
+              this.pageCount = 0;
+            }
+          },
+          
+          handleDrawerClose() {
+            this.showDrawer = false;
+            this.drawerStage = 'options';
+            this.done = false;
+            this.resultBlob = null;
+            this.resultPreviews = [];
+          },
+          
+          async addPageNumbers() {
+            if (!this.selectedFiles.length) return;
+            
+            const file = this.selectedFiles[0].file;
+            
+            this.processing = true;
+            this.done = false;
+            this.drawerStage = 'progress';
+            this.progress = 0;
+            this.progressText = 'Loading PDF...';
+            
+            try {
+              const PDFDocument = PDFLib.PDFDocument || PDFLib;
+              const arrayBuffer = await file.arrayBuffer();
+              const pdfDoc = await PDFDocument.load(arrayBuffer);
+              const pages = pdfDoc.getPages();
+              
+              this.progress = 20;
+              this.progressText = 'Adding page numbers...';
+              
+              let font;
+              try {
+                font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+              } catch (error) {
+                font = await pdfDoc.embedFont(PDFLib.StandardFonts.Courier);
+              }
+              
+              for (let i = 0; i < pages.length; i++) {
+                const page = pages[i];
+                const pageNum = this.form.startNumber + i;
+                const content = this.formatPageNumber(pageNum, pages.length);
+                
+                const { width, height } = page.getSize();
+                let x, y;
+                const margin = 60;
+                const fontSize = this.form.fontSize;
+                
+                switch (this.form.position) {
+                  case 'top-left':
+                    x = margin;
+                    y = height - margin;
+                    break;
+                  case 'top-center':
+                    x = width / 2;
+                    y = height - margin;
+                    break;
+                  case 'top-right':
+                    x = width - margin;
+                    y = height - margin;
+                    break;
+                  case 'bottom-left':
+                    x = margin;
+                    y = 25 + fontSize;
+                    break;
+                  case 'bottom-center':
+                    x = width / 2;
+                    y = 25 + fontSize;
+                    break;
+                  case 'bottom-right':
+                    x = width - margin;
+                    y = 25 + fontSize;
+                    break;
+                  default:
+                    x = width / 2;
+                    y = 25 + fontSize;
+                }
+                
+                let finalX = x;
+                if (this.form.position.includes('center')) {
+                  finalX = x - (content.length * fontSize * 0.35);
+                } else if (this.form.position.includes('right')) {
+                  finalX = x - (content.length * fontSize * 0.5);
+                }
+                
+                page.drawText(content, {
+                  x: finalX,
+                  y: y,
+                  size: fontSize,
+                  font: font,
+                });
+                
+                this.progress = 20 + Math.round(((i + 1) / pages.length) * 60);
+              }
+              
+              this.progress = 90;
+              this.progressText = 'Generating output...';
+              
+              const pdfBytes = await pdfDoc.save();
+              this.resultBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+              
+              await this.generateResultPreviews(pdfBytes);
+              
+              setTimeout(() => {
+                this.processing = false;
+                this.done = true;
+                this.progress = 100;
+                this.drawerStage = 'result';
+              }, 300);
+              
+            } catch (error) {
+              this.processing = false;
+              this.drawerStage = 'options';
+              this.$message.error('Failed to add page numbers');
+              console.error(error);
+            }
+          },
+          
+          formatPageNumber(num, total) {
+            switch (this.form.format) {
+              case 'fraction':
+                return `${num}/${total}`;
+              case 'page-x-of-y':
+                return `Page ${num} of ${total}`;
+              case 'roman':
+                return this.toRoman(num);
+              case 'alpha':
+                return this.toAlpha(num);
+              default:
+                return num.toString();
+            }
+          },
+          
+          toRoman(num) {
+            const romanNumerals = [
+              { value: 1000, numeral: 'M' },
+              { value: 900, numeral: 'CM' },
+              { value: 500, numeral: 'D' },
+              { value: 400, numeral: 'CD' },
+              { value: 100, numeral: 'C' },
+              { value: 90, numeral: 'XC' },
+              { value: 50, numeral: 'L' },
+              { value: 40, numeral: 'XL' },
+              { value: 10, numeral: 'X' },
+              { value: 9, numeral: 'IX' },
+              { value: 5, numeral: 'V' },
+              { value: 4, numeral: 'IV' },
+              { value: 1, numeral: 'I' }
+            ];
+            let result = '';
+            for (const { value, numeral } of romanNumerals) {
+              while (num >= value) {
+                result += numeral;
+                num -= value;
+              }
+            }
+            return result;
+          },
+          
+          toAlpha(num) {
+            let result = '';
+            while (num > 0) {
+              num--;
+              result = String.fromCharCode(65 + (num % 26)) + result;
+              num = Math.floor(num / 26);
+            }
+            return result;
+          },
+          
+          async generateResultPreviews(pdfBytes) {
+            this.resultPreviews = [];
+            
+            const pdf = await pdfjsLib.getDocument({ 
+              data: pdfBytes,
+              cache: false
+            }).promise;
+            const maxPages = Math.min(5, pdf.numPages);
+            
+            for (let i = 1; i <= maxPages; i++) {
+              const page = await pdf.getPage(i);
+              const viewport = page.getViewport({ scale: 0.6 });
+              const canvas = document.createElement('canvas');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              
+              const renderTask = page.render({ canvasContext: ctx, viewport });
+              await renderTask.promise;
+              
+              const dataUrl = canvas.toDataURL();
+              this.resultPreviews.push(dataUrl);
+              
+              canvas.width = 0;
+              canvas.height = 0;
+            }
+            await pdf.destroy();
+          },
+          
+          async openPreview(index) {
+            PreviewUtils.openPreviewByIndex({
+              index: index,
+              resultBlob: this.resultBlob,
+              vm: this
+            })
+          },
+          
+          closePreview() {
+            PreviewUtils.closePreview(this)
+          },
+          
+          download() {
+            const url = URL.createObjectURL(this.resultBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            let fileName = this.downloadFileName.trim() || 'page-numbered.pdf';
+            if (!fileName.toLowerCase().endsWith('.pdf')) {
+              fileName += '.pdf';
+            }
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+          },
+          
+          reset() {
+            this.showDrawer = false;
+            this.drawerStage = 'options';
+            this.clearAllFiles();
+            this.form = {
+              position: 'bottom-center',
+              fontSize: 12,
+              startNumber: 1,
+              format: 'number'
+            };
+            this.downloadFileName = 'page-numbered.pdf';
+            this.processing = false;
+            this.done = false;
+            this.resultBlob = null;
+            this.resultPreviews = [];
+          },
+          
+          formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+          }
+        },
+        watch: {
+          showDrawer(newVal) {
+            if (newVal) {
+              this.drawerStage = 'options';
+              this.processing = false;
+              this.done = false;
+            }
+          }
+        }
+      });
+    });
+  </script>
 </head>
-
 <body>
 <div id="app" class="app">
   <header class="header">
@@ -253,18 +638,20 @@
           <img src="/assets/logo.png" alt="PDFMaster logo" class="logo-image">
           <span class="logo-text">PDFMaster</span>
         </div>
-        <div class="header-links">
+        <nav class="header-links">
           <a href="index.html" class="back-btn">
-            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M19 12H5"></path>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
             Back to Home
           </a>
           <a href="contact.html" class="contact-btn">Contact Us</a>
-          <a href="feedback.html" class="feedback-btn">Feedback</a>
-        </div>
+          <a href="feedback.html" class="feedback-btn">Send Feedback</a>
+        </nav>
       </div>
     </div>
   </header>
-
 
   <div class="main-content">
     <div class="container">
@@ -273,61 +660,62 @@
         <p class="page-subtitle">Add page numbers to PDF documents online. Insert page numbers in PDF with custom position, font size, format, and start number. Number PDF pages without losing quality. Free PDF page number adder no sign up, secure local processing.</p>
       </div>
 
-      <div class="steps-container">
-        <div class="steps-wrapper">
-          <el-steps :active="Number(currentStep)" finish-status="success" align-center>
-            <el-step title="Upload PDF" icon="el-icon-upload"></el-step>
-            <el-step title="Customize" icon="el-icon-setting"></el-step>
-            <el-step title="Download" icon="el-icon-download"></el-step>
-          </el-steps>
-        </div>
-      </div>
+      <a-card class="tool-card" hoverable>
+        <a-upload
+          ref="upload"
+          class="upload-area"
+          :multiple="true"
+          :file-list="[]"
+          accept=".pdf"
+          :custom-request="handleFileChange"
+          :before-upload="beforeUpload"
+          @drop="handleDrop"
+        >
+          <div class="upload-content">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <div class="upload-text">Drag & drop PDF file here</div>
+            <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
+          </div>
+        </a-upload>
 
-      <div class="tool-card">
-        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick" type="border-card">
-          <el-tab-pane label="Upload" name="0">
-            <div class="tab-content">
-              <el-upload
-                ref="upload"
-                class="upload-area"
-                drag
-                :auto-upload="false"
-                accept=".pdf"
-                :on-change="handleFileChange"
-                :on-exceed="handleExceed"
-                action="#"
-                :show-file-list="false"
-                :limit="1"
-                :multiple="false"
-              >
-                <i class="el-icon-folder-opened upload-icon"></i>
-                <div class="upload-text">Drag & drop PDF here, or click to browse</div>
-                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
-              </el-upload>
-
-              <div v-if="selectedFile" class="file-list-section">
-                <div class="file-list-header">
-                  <div class="file-list-title">
-                    <i class="el-icon-file-text"></i>
-                    Uploaded File
-                  </div>
-                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearFile">Clear All</el-button>
-                </div>
-                <div class="file-item">
-                  <span class="file-name">{{ selectedFile && selectedFile.name }}</span>
-                  <span class="file-info">{{ selectedFile && formatFileSize(selectedFile.size) }} | {{ pageCount }} pages</span>
-                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="clearFile"></el-button>
-                </div>
-              </div>
-
-              <div class="action-section">
-                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
-              </div>
+        <div v-if="selectedFiles.length" class="file-list-section">
+          <div class="file-list-header">
+            <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
+          </div>
+          <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
+            <i class="anticon anticon-file-text file-icon"></i>
+            <div class="file-info">
+              <span class="file-name" :title="file.name">{{ file.name }}</span>
+              <span class="file-details">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
             </div>
-          </el-tab-pane>
+            <button class="remove-btn" @click="removeFile(idx)" aria-label="Remove file">
+              Remove
+            </button>
+          </div>
+        </div>
 
-          <el-tab-pane label="Options" name="1">
-            <div class="tab-content">
+        <div v-if="selectedFiles.length" class="action-section">
+          <a-button type="primary" @click="showDrawer = true">
+            Continue <i class="anticon anticon-right"></i>
+          </a-button>
+        </div>
+
+        <a-drawer
+          :title="drawerStage === 'options' ? 'Customize Page Numbers' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
+          :visible="showDrawer"
+          :width="600"
+          :closable="true"
+          :mask-closable="true"
+          @close="handleDrawerClose"
+        >
+          <div class="drawer-content">
+            <div v-if="drawerStage === 'options'" class="options-section">
+              <div class="options-title">Customize Page Numbers</div>
+              <div class="mode-description">Set position, font size, format, and start number for your page numbers</div>
               <div class="options-group">
                 <label>Position</label>
                 <div class="position-options">
@@ -389,7 +777,7 @@
 
               <div class="options-group">
                 <label>Start Number: {{ form.startNumber }}</label>
-                <el-input-number v-model="form.startNumber" :min="1" :max="9999"></el-input-number>
+                <a-input-number v-model="form.startNumber" :min="1" :max="9999"></a-input-number>
               </div>
 
               <div class="options-group">
@@ -403,190 +791,272 @@
                 </el-select>
               </div>
 
-              <div class="action-section">
-                <el-button type="default" @click="goToPrev">Back</el-button>
-                <el-button type="primary" @click="addPageNumbers" :disabled="processing">
-                  {{ processing ? 'Adding Page Numbers...' : 'Add Page Numbers' }}
-                </button>
-              </div>
-
-              <div v-if="processing" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{width: progress + '%'}"></div>
-                </div>
+              <div class="drawer-actions">
+                <a-button @click="handleDrawerClose">Cancel</a-button>
+                <a-button type="primary" @click="addPageNumbers">Add Page Numbers</a-button>
               </div>
             </div>
-          </el-tab-pane>
 
-          <el-tab-pane label="Result" name="2">
-            <div class="tab-content">
-              <div class="result-content" v-if="resultBlob">
-                <div class="result-title">
-                  <i class="el-icon-check-circle" style="margin-right: 8px;"></i>
-                  Page Numbers Added Successfully
+            <div v-if="drawerStage === 'progress'" class="progress-section">
+              <div class="progress-text">{{ progressText }}</div>
+              <div class="progress-bar">
+                <div class="progress-fill" :style="{width: progress + '%'}"></div>
+              </div>
+            </div>
+
+            <div v-if="drawerStage === 'result'" class="result-content">
+              <div class="result-title">
+                <i class="el-icon-check-circle" style="margin-right: 8px;"></i>
+                Page Numbers Added Successfully
+              </div>
+              <p class="result-desc">Your PDF now has page numbers added</p>
+              <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
+              <div v-if="resultPreviews.length > 0" class="result-preview">
+                <div 
+                  v-for="(thumb, idx) in resultPreviews" 
+                  :key="idx" 
+                  class="page-preview-item clickable"
+                  @click="openPreview(idx)" 
+                >
+                  <img :src="thumb" class="page-preview-image">
+                  <div class="page-number">{{ idx + 1 }}</div>
+                  <div class="preview-overlay">Click to zoom</div>
                 </div>
-                <p class="result-desc">Your PDF now has page numbers added</p>
-                <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
-                <div v-if="resultPreviews.length > 0" class="result-preview">
-                  <div 
-                    v-for="(thumb, idx) in resultPreviews" 
-                    :key="idx" 
-                    class="page-preview-item clickable"
-                    @click="openPreview(idx)" 
-                  >
-                    <img :src="thumb" class="page-preview-image">
-                    <div class="page-number">{{ idx + 1 }}</div>
-                    <div class="preview-overlay">Click to zoom</div>
-                  </div>
-                </div>
+              </div>
+              <div class="download-section">
                 <div class="filename-input">
                   <label>File Name:</label>
-                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
                 </div>
-                <el-button type="primary" size="large" @click="download">
-                  <i class="el-icon-download" style="margin-right: 8px;"></i>
+                <a-button type="primary" size="large" @click="download">
+                  <i class="anticon anticon-download" style="margin-right: 8px;"></i>
                   Download PDF
-                </el-button>
+                </a-button>
+              </div>
+              <div class="recommend-section">
+                <p>Need to add margins? <a href="pdf-margin.html" class="recommend-link">Try our Add Margins Tool →</a></p>
               </div>
 
-              <div class="action-section">
-                <el-button type="default" @click="reset">Start Over</el-button>
+              <div class="action-section center">
+                <a-button type="default" @click="reset">Start Over</a-button>
               </div>
             </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
+          </div>
+        </a-drawer>
 
-      <preview-modal 
-        :visible="showPreviewModal" 
-        :image-src="currentPreviewImage" 
-        title="PDF Preview"
-        @close="closePreview" 
-      ></preview-modal>
+        <a-drawer
+          title="PDF Preview"
+          :visible="showPreviewModal"
+          :width="500"
+          placement="left"
+          @close="closePreview"
+        >
+          <div class="preview-drawer-content">
+            <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" alt="PDF Preview" />
+            <div v-else class="preview-empty">No preview available</div>
+          </div>
+        </a-drawer>
+      </a-card>
 
-      <div class="instructions">
-        <h2 class="instructions-title">Why Choose PDFMaster?</h2>
+      <a-card class="instructions-card" hoverable>
+        <h2 class="section-title">Why Add Page Numbers Here?</h2>
         <div class="steps">
           <div class="step">
-            <div class="step-number">💰</div>
-            <div class="step-title">Completely Free</div>
-            <div class="step-desc">No hidden fees, 100% free</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="step-title">Truly Free & Unlimited</div>
+            <div class="step-desc">50MB per file | Others limit to 2-5MB</div>
           </div>
           <div class="step">
-            <div class="step-number">🔐</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <div class="step-title">100% Private</div>
+            <div class="step-desc">No server uploads | Others upload secretly</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+            <div class="step-title">No Watermarks</div>
+            <div class="step-desc">Clean output | Others force watermarks</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+            </div>
+            <div class="step-title">Customizable</div>
+            <div class="step-desc">Position, font, format | Others limited</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
             <div class="step-title">No Registration</div>
-            <div class="step-desc">No login required</div>
+            <div class="step-desc">Start instantly | Others force sign-up</div>
           </div>
           <div class="step">
-            <div class="step-number">⚡</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                <path d="M22 12a14.5 14.5 0 0 1 0 20 14.5 14.5 0 0 1 0-20"></path>
+              </svg>
+            </div>
             <div class="step-title">Fast Processing</div>
-            <div class="step-desc">Process in seconds</div>
-          </div>
-          <div class="step">
-            <div class="step-number">📄</div>
-            <div class="step-title">Custom Options</div>
-            <div class="step-desc">Adjust position & format</div>
-          </div>
-          <div class="step">
-            <div class="step-number">✏️</div>
-            <div class="step-title">Font Size</div>
-            <div class="step-desc">Adjustable font size</div>
+            <div class="step-desc">Local in-browser | Others wait for servers</div>
           </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="privacy-section">
+      <a-card class="privacy-card" hoverable>
         <h2 class="section-title">Local Processing - Your Privacy, Protected</h2>
         <div class="privacy-content">
           <p>What does <strong>"local processing"</strong> mean? When you use our PDF Page Numberer, <strong>all file processing happens directly in your web browser</strong>, right on your device. Your files <strong>never leave your computer or mobile device</strong> - they are <strong>not uploaded to any external server</strong>.</p>
           <p>This means your sensitive documents stay <strong>private and secure</strong>. There's <strong>no risk of data breaches</strong>, <strong>no third-party access</strong>, and <strong>no server logs</strong> containing your information. Even if you're offline, our tool continues to work because everything runs locally in your browser.</p>
           <p>Unlike other online tools that require uploading your files to remote servers, PDFMaster processes everything locally. You can add page numbers to confidential contracts, personal documents, or sensitive business files with <strong>complete peace of mind</strong>.</p>
         </div>
-      </div>
+      </a-card>
 
-      <div class="technology-section">
+      <a-card class="technology-card" hoverable>
         <h2 class="section-title">Professional Page Numbering Technology</h2>
         <div class="tech-content">
-          <el-card class="tech-card" shadow="hover">
+          <div class="tech-card-wrapper">
+            <div class="tech-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
             <h3>Multi-Format Numbering Engine</h3>
             <p>Supports academic and publishing standards: Arabic (1,2,3), Roman (I,II,III), letters (A,B,C), and custom formats. Includes chapter-based numbering (1-1, 1-2) and front matter support (i, ii, iii).</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
+          </div>
+          <div class="tech-card-wrapper">
+            <div class="tech-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="9" x2="15" y2="9"></line>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+              </svg>
+            </div>
             <h3>Publication-Grade Positioning</h3>
             <p>6 standard positions (top-left, top-center, top-right, bottom-left, bottom-center, bottom-right) plus custom X/Y offsets. Supports running headers/footers with automatic chapter titles.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
+          </div>
+          <div class="tech-card-wrapper">
+            <div class="tech-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+              </svg>
+            </div>
             <h3>Font Embedding System</h3>
             <p>OpenType font embedding with Unicode support for multilingual numbering. Preserves font metrics to ensure professional typography across all PDF viewers.</p>
-          </el-card>
+          </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="guide-section">
+      <a-card class="guide-card-container" hoverable>
         <h2 class="section-title">Pro Tips for Better Page Numbering</h2>
         <div class="guide-content">
-          <el-card class="guide-card" shadow="hover">
+          <div class="guide-card-wrapper">
+            <div class="guide-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </div>
             <h3 class="guide-title">Choose Appropriate Style</h3>
             <p class="guide-desc">Select a numbering style that matches your document type - Roman numerals for front matter, regular numbers for main content.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </div>
+          <div class="guide-card-wrapper">
+            <div class="guide-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
             <h3 class="guide-title">Position Wisely</h3>
             <p class="guide-desc">Place page numbers in a consistent location (header or footer) for professional-looking documents.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </div>
+          <div class="guide-card-wrapper">
+            <div class="guide-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path>
+              </svg>
+            </div>
             <h3 class="guide-title">Preview Before Saving</h3>
             <p class="guide-desc">Always preview page numbers before saving to ensure they appear correctly on all pages.</p>
-          </el-card>
+          </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="faq-section">
+      <a-card class="faq-card" hoverable>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <el-collapse accordion>
-          <el-collapse-item title="How to add page numbers to PDF online free?">
+        <a-collapse :default-active-key="[]">
+          <a-collapse-panel key="1" header="How to add page numbers to PDF online free?">
             <p>Upload your PDF, customize the page number position, font size, format, and start number, then click Add Page Numbers. Our free PDF page number adder works online without any software installation.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I add page numbers to bottom of PDF or top of PDF?">
+          </a-collapse-panel>
+          <a-collapse-panel key="2" header="Can I add page numbers to bottom of PDF or top of PDF?">
             <p>Yes! You can choose from 6 positions: top-left, top-center, top-right, bottom-left, bottom-center, and bottom-right.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is this PDF page numberer free?">
+          </a-collapse-panel>
+          <a-collapse-panel key="3" header="Is this PDF page numberer free?">
             <p>Yes! Our PDF page numberer is completely free with no sign up required. No watermark, no usage limits.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I start page numbers from a specific page?">
+          </a-collapse-panel>
+          <a-collapse-panel key="4" header="Can I start page numbers from a specific page?">
             <p>Yes! You can set the starting number to any value you like, allowing you to add page numbers starting from specific page.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Will adding page numbers reduce PDF quality?">
+          </a-collapse-panel>
+          <a-collapse-panel key="5" header="Will adding page numbers reduce PDF quality?">
             <p>No! We add page numbers to PDF without losing quality. Your original content remains intact.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I add page numbers to scanned PDF?">
+          </a-collapse-panel>
+          <a-collapse-panel key="6" header="Can I add page numbers to scanned PDF?">
             <p>Yes! Our tool works with all PDF types including scanned PDFs. The page numbers will be added as overlay text.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I use this tool on iPhone or Android?">
+          </a-collapse-panel>
+          <a-collapse-panel key="7" header="Can I use this tool on iPhone or Android?">
             <p>Yes! Our PDF page number tool works perfectly on iPhone and Android devices. Just open your browser and start adding page numbers - no app installation required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="How to add page numbers to PDF on Mac for free?">
+          </a-collapse-panel>
+          <a-collapse-panel key="8" header="How to add page numbers to PDF on Mac for free?">
             <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and add page numbers for free. No software to install, no watermarks added.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I add page numbers to PDF without Adobe?">
+          </a-collapse-panel>
+          <a-collapse-panel key="9" header="Can I add page numbers to PDF without Adobe?">
             <p>Absolutely! PDFMaster works in any web browser. No Adobe Acrobat or other software required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Which browsers are supported?">
+          </a-collapse-panel>
+          <a-collapse-panel key="10" header="Which browsers are supported?">
             <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I add page numbers to password-protected PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="11" header="Can I add page numbers to password-protected PDFs?">
             <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is there a file size limit?">
+          </a-collapse-panel>
+          <a-collapse-panel key="12" header="Is there a file size limit?">
             <p>Yes, each file must be under 50MB. This ensures efficient processing in your browser without performance issues.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Why choose PDFMaster for adding page numbers?">
+          </a-collapse-panel>
+          <a-collapse-panel key="13" header="Why choose PDFMaster for adding page numbers?">
             <p>PDFMaster offers 100% free page numbering with no watermarks, local processing for complete privacy, and multiple customization options. Your files stay secure on your device.</p>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
+          </a-collapse-panel>
+        </a-collapse>
+      </a-card>
 
-      <div class="tutorial-section">
+      <a-card class="tutorial-card" hoverable>
         <h2 class="section-title">How to Add Page Numbers to PDF Step by Step</h2>
         <div class="tutorial-step">
           <div class="tutorial-number">1</div>
@@ -616,46 +1086,51 @@
             <p>Download your paginated PDF document. Works on Windows, Mac, iPhone, and Android.</p>
           </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="blog-section">
+      <a-card class="blog-card-container" hoverable>
         <h2 class="section-title">PDF Page Numbering - Top Use Cases</h2>
-        <div class="blog-card">
-          <div class="blog-icon">📚</div>
-          <h3>Online Page Numbering Tool</h3>
-          <p>Insert page numbers into PDFs online for free without software. No sign-up required, no watermarks added.</p>
+        <div class="blog-cards-grid">
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-book-open blog-icon"></i>
+            <h3>Online Page Numbering Tool</h3>
+            <p>Insert page numbers into PDFs online for free without software. No sign-up required, no watermarks added.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-target blog-icon"></i>
+            <h3>Custom Placement Options</h3>
+            <p>Place page numbers at the bottom or top of your PDF. Choose from 6 convenient positions for perfect alignment.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-bar-chart blog-icon"></i>
+            <h3>Advanced Customization</h3>
+            <p>Customize page numbers with adjustable font size, number format, and start value. Paginate documents precisely.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-lock blog-icon"></i>
+            <h3>Secure & Private</h3>
+            <p>Insert page numbers securely in PDF documents. Process confidential files with complete privacy protection.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-diamond blog-icon"></i>
+            <h3>High Quality Results</h3>
+            <p>Insert page numbers without losing quality. Your original content remains intact throughout the process.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-mobile blog-icon"></i>
+            <h3>Works on Any Device</h3>
+            <p>Insert page numbers on Windows, Mac, iPhone, and Android. No software installation needed.</p>
+          </div>
         </div>
-        <div class="blog-card">
-          <div class="blog-icon">🎯</div>
-          <h3>Custom Placement Options</h3>
-          <p>Place page numbers at the bottom or top of your PDF. Choose from 6 convenient positions for perfect alignment.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">📊</div>
-          <h3>Advanced Customization</h3>
-          <p>Customize page numbers with adjustable font size, number format, and start value. Paginate documents precisely.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🔒</div>
-          <h3>Secure & Private</h3>
-          <p>Insert page numbers securely in PDF documents. Process confidential files with complete privacy protection.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">💎</div>
-          <h3>High Quality Results</h3>
-          <p>Insert page numbers without losing quality. Your original content remains intact throughout the process.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">📱</div>
-          <h3>Works on Any Device</h3>
-          <p>Insert page numbers on Windows, Mac, iPhone, and Android. No software installation needed.</p>
-        </div>
+      </a-card>
+
+      <a-card class="cta-card" hoverable>
         <div class="cta-box">
           <h3>Ready to Number Your PDF?</h3>
           <p>Try our free PDF numbering tool with no registration required. Process locally in browser only!</p>
-          <button class="cta-button" @click="currentStep = '0'">Add Page Numbers Now</button>
+          <button class="cta-button" @click="reset">Add Page Numbers Now</button>
         </div>
-      </div>
+      </a-card>
     </div>
   </div>
 
@@ -683,445 +1158,54 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+      <div class="footer-credits">
+        <div class="credits-header">
+          <span class="credits-icon">💡</span>
+          <span class="credits-title">Built with Open Source</span>
+        </div>
+        <div class="libraries-list">
+          <div class="library-item">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Vue.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://element.eleme.io/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Element UI</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://pdf-lib.js.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDFLib</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDF.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge apache">Apache 2.0</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </div>
-
-<script>
-new Vue({
-  el: '#app',
-  data() {
-    return {
-      currentStep: '0',
-      selectedFile: null,
-      pageCount: 0,
-      form: {
-        position: 'bottom-center',
-        fontSize: 12,
-        startNumber: 1,
-        format: 'number'
-      },
-      resultBlob: null,
-      processing: false,
-      progress: 0,
-      progressText: '',
-      resultPreviews: [],
-      downloadFileName: 'page-numbered.pdf',
-      showPreviewModal: false,
-      currentPreviewImage: ''
-    };
-  },
-  mounted() {
-    window.addEventListener('beforeunload', this.handleBeforeUnload)
-    this.showPreviewModal = false
-    this.currentPreviewImage = ''
-  },
-  beforeDestroy() {
-    window.removeEventListener('beforeunload', this.handleBeforeUnload)
-    this.cleanupAllResources()
-  },
-  methods: {
-    handleBeforeUnload() {
-      this.cleanupAllResources()
-    },
-    cleanupAllResources() {
-      if (this.selectedFile && this.selectedFile.pdfInstance) {
-        try {
-          this.selectedFile.pdfInstance.destroy()
-        } catch (e) {}
-        this.selectedFile.pdfInstance = null
-      }
-      
-      if (this.resultBlob) {
-        this.resultBlob = null
-      }
-      
-      this.resultPreviews.forEach(url => {
-        if (url && url.startsWith('blob:')) {
-          URL.revokeObjectURL(url)
-        }
-      })
-      this.resultPreviews = []
-      this.currentPreviewImage = ''
-    },
-    goToNext() { 
-      if (!this.selectedFile) {
-        this.$notify({
-          title: '提示',
-          message: 'Please upload a PDF file first',
-          type: 'warning'
-        });
-        return;
-      }
-      this.currentStep = '1'; 
-    },
-    goToPrev() { this.currentStep = '0'; },
-    
-    handleExceed() {
-      this.$notify({ title: '提示', message: 'You can upload only one file at a time', type: 'warning' });
-    },
-    async handleFileChange(file) {
-      const raw = file.raw;
-      if (!raw.name.toLowerCase().endsWith('.pdf')) {
-        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' });
-        return;
-      }
-      
-      const maxSize = 50 * 1024 * 1024;
-      if (raw.size > maxSize) {
-        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' });
-        return;
-      }
-      
-      if (this.selectedFile) {
-        this.$notify({ title: '提示', message: 'You can upload only one file at a time', type: 'warning' });
-        return;
-      }
-      
-      this.processFile(raw);
-    },
-    async processFile(file) {
-      if (file.type !== 'application/pdf') {
-        this.$notify({ title: '错误', message: 'Please upload a PDF file', type: 'error' });
-        return;
-      }
-      if (file.size > 50 * 1024 * 1024) {
-        this.$notify({ title: '错误', message: 'File size exceeds 50MB limit', type: 'error' });
-        return;
-      }
-      
-      this.selectedFile = file;
-      
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        this.pageCount = pdf.numPages;
-        await pdf.destroy();
-      } catch (error) {
-        console.error('Error loading PDF:', error);
-      }
-    },
-    
-    handleTabClick(tab) {
-      const targetStep = tab.name;
-      if (targetStep !== '0' && !this.selectedFile) {
-        this.$notify({ title: '提示', message: 'Please upload a file first', type: 'warning' });
-        this.$nextTick(() => {
-          this.currentStep = '0';
-        });
-        return;
-      }
-      if (targetStep === '2' && !this.resultBlob) {
-        this.$notify({ title: '提示', message: 'Please add page numbers first', type: 'warning' });
-        this.$nextTick(() => {
-          this.currentStep = '1';
-        });
-        return;
-      }
-    },
-    
-    async addPageNumbers() {
-      if (!this.selectedFile) return;
-      
-      this.processing = true;
-      this.progress = 0;
-      this.progressText = 'Loading PDF...';
-      
-      try {
-        const PDFDocument = PDFLib.PDFDocument || PDFLib;
-        const arrayBuffer = await this.selectedFile.arrayBuffer();
-        const pdfDoc = await PDFDocument.load(arrayBuffer);
-        const pages = pdfDoc.getPages();
-        
-        this.progress = 20;
-        this.progressText = 'Adding page numbers...';
-        
-        let font;
-        try {
-          font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
-          console.log('Font embedded successfully');
-        } catch (error) {
-          console.error('Font embedding failed:', error);
-          font = await pdfDoc.embedFont(PDFLib.StandardFonts.Courier);
-        }
-        
-        console.log('Total pages:', pages.length);
-        
-        for (let i = 0; i < pages.length; i++) {
-          const page = pages[i];
-          const pageNum = this.form.startNumber + i;
-          const content = this.formatPageNumber(pageNum, pages.length);
-          console.log(`Page ${i + 1}: content="${content}"`);
-          
-          const { width, height } = page.getSize();
-          let x, y;
-          const margin = 60;
-          const fontSize = this.form.fontSize;
-          
-          switch (this.form.position) {
-            case 'top-left':
-              x = margin;
-              y = height - margin;
-              break;
-            case 'top-center':
-              x = width / 2;
-              y = height - margin;
-              break;
-            case 'top-right':
-              x = width - margin;
-              y = height - margin;
-              break;
-            case 'bottom-left':
-              x = margin;
-              y = 25 + fontSize;
-              break;
-            case 'bottom-center':
-              x = width / 2;
-              y = 25 + fontSize;
-              break;
-            case 'bottom-right':
-              x = width - margin;
-              y = 25 + fontSize;
-              break;
-            default:
-              x = width / 2;
-              y = 25 + fontSize;
-          }
-          
-          let finalX = x;
-          if (this.form.position.includes('center')) {
-            finalX = x - (content.length * fontSize * 0.35);
-          } else if (this.form.position.includes('right')) {
-            finalX = x - (content.length * fontSize * 0.5);
-          }
-          
-          page.drawText(content, {
-            x: finalX,
-            y: y,
-            size: fontSize,
-            font: font,
-          });
-          
-          this.progress = 20 + Math.round(((i + 1) / pages.length) * 60);
-        }
-        
-        this.progress = 90;
-        this.progressText = 'Generating output...';
-        
-        const pdfBytes = await pdfDoc.save();
-        console.log('PDF saved, size:', pdfBytes.length);
-        
-        if (this.resultBlob) {
-          console.log('Old resultBlob exists, replacing...');
-        }
-        this.resultBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-        
-        console.log('Generating previews...');
-        await this.generateResultPreviews(pdfBytes);
-        
-        setTimeout(() => {
-          this.processing = false;
-          this.progress = 100;
-          this.currentStep = '2';
-          this.$notify({ title: '成功', message: 'Page numbers added successfully!', type: 'success' });
-        }, 300);
-        
-      } catch (error) {
-        this.processing = false;
-        this.$notify({ title: '错误', message: 'Failed to add page numbers', type: 'error' });
-        console.error(error);
-      }
-    },
-    
-    formatPageNumber(num, total) {
-      switch (this.form.format) {
-        case 'fraction':
-          return `${num}/${total}`;
-        case 'page-x-of-y':
-          return `Page ${num} of ${total}`;
-        case 'roman':
-          return this.toRoman(num);
-        case 'alpha':
-          return this.toAlpha(num);
-        default:
-          return num.toString();
-      }
-    },
-    
-    toRoman(num) {
-      const romanNumerals = [
-        { value: 1000, numeral: 'M' },
-        { value: 900, numeral: 'CM' },
-        { value: 500, numeral: 'D' },
-        { value: 400, numeral: 'CD' },
-        { value: 100, numeral: 'C' },
-        { value: 90, numeral: 'XC' },
-        { value: 50, numeral: 'L' },
-        { value: 40, numeral: 'XL' },
-        { value: 10, numeral: 'X' },
-        { value: 9, numeral: 'IX' },
-        { value: 5, numeral: 'V' },
-        { value: 4, numeral: 'IV' },
-        { value: 1, numeral: 'I' }
-      ];
-      let result = '';
-      for (const { value, numeral } of romanNumerals) {
-        while (num >= value) {
-          result += numeral;
-          num -= value;
-        }
-      }
-      return result;
-    },
-    
-    toAlpha(num) {
-      let result = '';
-      while (num > 0) {
-        num--;
-        result = String.fromCharCode(65 + (num % 26)) + result;
-        num = Math.floor(num / 26);
-      }
-      return result;
-    },
-    
-    async generateResultPreviews(pdfBytes) {
-      this.resultPreviews = [];
-      console.log('Generating previews from PDF size:', pdfBytes.length);
-      
-      const uniqueId = Date.now();
-      const pdf = await pdfjsLib.getDocument({ 
-        data: pdfBytes,
-        cache: false
-      }).promise;
-      console.log('PDF loaded for previews, pages:', pdf.numPages);
-      const maxPages = Math.min(5, pdf.numPages);
-      
-      for (let i = 1; i <= maxPages; i++) {
-        console.log(`Rendering page ${i}...`);
-        const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 0.6 });
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        const renderTask = page.render({ canvasContext: ctx, viewport });
-        await renderTask.promise;
-        console.log(`Page ${i} rendered`);
-        
-        const dataUrl = canvas.toDataURL();
-        console.log(`Preview ${i} generated: ${dataUrl.length} bytes`);
-        this.resultPreviews.push(dataUrl);
-        
-        canvas.width = 0;
-        canvas.height = 0;
-      }
-      await pdf.destroy();
-    },
-    
-    drawPageNumber(ctx, content, canvasWidth, canvasHeight, scale) {
-      const margin = 15;
-      const fontSize = 12;
-      ctx.font = `${fontSize}px Helvetica`;
-      ctx.fillStyle = '#333333';
-      
-      let x, y;
-      switch (this.form.position) {
-        case 'top-left':
-          x = margin;
-          y = margin + fontSize;
-          break;
-        case 'top-center':
-          x = canvasWidth / 2 - (content.length * fontSize * 0.35);
-          y = margin + fontSize;
-          break;
-        case 'top-right':
-          x = canvasWidth - margin - (content.length * fontSize * 0.5);
-          y = margin + fontSize;
-          break;
-        case 'bottom-left':
-          x = margin;
-          y = canvasHeight - margin;
-          break;
-        case 'bottom-center':
-          x = canvasWidth / 2 - (content.length * fontSize * 0.35);
-          y = canvasHeight - margin;
-          break;
-        case 'bottom-right':
-          x = canvasWidth - margin - (content.length * fontSize * 0.5);
-          y = canvasHeight - margin;
-          break;
-        default:
-          x = canvasWidth / 2 - (content.length * fontSize * 0.35);
-          y = canvasHeight - margin;
-      }
-      
-      ctx.fillText(content, x, y);
-    },
-    
-    async openPreview(index) {
-      PreviewUtils.openPreviewByIndex({
-        index: index,
-        resultBlob: this.resultBlob,
-        vm: this
-      })
-    },
-    
-    closePreview() {
-      PreviewUtils.closePreview(this)
-    },
-    
-    download() {
-      const url = URL.createObjectURL(this.resultBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      let fileName = this.downloadFileName.trim() || 'page-numbered.pdf';
-      if (!fileName.toLowerCase().endsWith('.pdf')) {
-        fileName += '.pdf';
-      }
-      a.download = fileName;
-      a.click();
-      URL.revokeObjectURL(url);
-    },
-    
-    clearFile() {
-      this.selectedFile = null;
-      this.pageCount = 0;
-      this.resultBlob = null;
-      this.resultPreviews = [];
-      if (this.$refs.upload) {
-        this.$refs.upload.uploadFiles = [];
-      }
-    },
-    
-    reset() {
-      this.clearFile();
-      this.currentStep = '0';
-      this.form = {
-        position: 'bottom-center',
-        fontSize: 12,
-        startNumber: 1,
-        format: 'number'
-      };
-      this.downloadFileName = 'page-numbered.pdf';
-    },
-    
-    formatFileSize(bytes) {
-      if (bytes === 0) return '0 Bytes';
-      const k = 1024;
-      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
-  }
-});
-</script>
 </body>
 </html>

@@ -158,8 +158,9 @@
   }
   </script>
   
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <link rel="stylesheet" href="./common.css">
+  <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
+  <link rel="stylesheet" href="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.css">
+  <link rel="stylesheet" href="/css/common.css">
   
   <style>
     .pages-container {
@@ -242,47 +243,63 @@
     .page-preview-item.clickable:hover .preview-overlay {
       opacity: 1;
     }
-    .file-count-hint {
-      text-align: center;
-      color: #909399;
-      font-size: 14px;
-      margin-top: 16px;
+    .sortable-ghost {
+      opacity: 0.4;
+      background: #409EFF !important;
+    }
+    .sortable-chosen {
+      transform: scale(1.05);
+    }
+    .sortable-drag {
+      opacity: 0.8;
     }
   </style>
-  <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
-  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
-  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-  <script src="./lib/preview-utils.js"></script>
-  <script src="./lib/components/preview-modal.js"></script>
-  <script src="./lib/sortablejs/Sortable.min.js"></script>
+  <script src="/lib/vue/vue.js" defer></script>
+  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.js" defer></script>
+  <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
+  <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
+  <script src="/lib/preview-utils.js" defer></script>
+  <script src="/lib/sortablejs/Sortable.min.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║   Powered by PDFMaster - https://pdfeasz.com                  ║
+║   Open-source under MIT License. Copyright © 2026             ║
+║   Unauthorized removal of this notice is prohibited.          ║
+╚═══════════════════════════════════════════════════════════════╝
+      `);
 
-
-
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
+      }
+    });
+  </script>
 </head>
-
 <body>
 <div id="app" class="app">
   <header class="header">
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="./assets/logo.png" alt="PDFMaster logo" class="logo-image">
+          <img src="/assets/logo.png" alt="PDFMaster Logo - Free Online PDF Tools" class="logo-image">
           <span class="logo-text">PDFMaster</span>
         </div>
-        <div class="header-links">
+        <nav class="header-links">
           <a href="index.html" class="back-btn">
-            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M19 12H5"></path>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
             Back to Home
           </a>
           <a href="contact.html" class="contact-btn">Contact Us</a>
-          <a href="feedback.html" class="feedback-btn">Feedback</a>
-        </div>
+          <a href="feedback.html" class="feedback-btn">Send Feedback</a>
+        </nav>
       </div>
     </div>
   </header>
-
 
   <div class="main-content">
     <div class="container">
@@ -291,69 +308,70 @@
         <p class="page-subtitle">Reorder PDF pages online free with drag and drop. Rearrange PDF pages in custom order. Change PDF page order without losing quality. Free PDF page reorder no sign up, secure local processing.</p>
       </div>
 
-      <div class="steps-container">
-        <div class="steps-wrapper">
-          <el-steps :active="Number(currentStep)" finish-status="success" align-center>
-            <el-step title="Upload PDF" icon="el-icon-upload"></el-step>
-            <el-step title="Reorder" icon="el-icon-sort"></el-step>
-            <el-step title="Download" icon="el-icon-download"></el-step>
-          </el-steps>
-        </div>
-      </div>
+      <a-card class="tool-card" hoverable>
+        <a-upload
+          ref="upload"
+          class="upload-area"
+          :multiple="false"
+          :file-list="[]"
+          accept=".pdf"
+          :custom-request="handleFileChange"
+          :before-upload="beforeUpload"
+          @drop="handleDrop"
+        >
+          <div class="upload-content">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <div class="upload-text">Drag & drop PDF file here</div>
+            <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
+          </div>
+        </a-upload>
 
-      <div class="tool-card">
-        <el-tabs stretch type="border-card" v-model="currentStep" @tab-click="handleTabClick">
-          <el-tab-pane label="Upload" name="0">
-            <div class="tab-content">
-              <div class="upload-area">
-                <el-upload
-                  ref="upload"
-                  class="upload-dragger"
-                  action="#"
-                  :limit="1"
-                  :on-exceed="handleExceed"
-                  :auto-upload="false"
-                  :on-change="handleFileChange"
-                  accept=".pdf"
-                  drag
-                >
-                  <i class="el-icon-folder-opened upload-icon"></i>
-                  <div class="upload-text">Drag & drop PDF here, or click to browse</div>
-                  <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
-                </el-upload>
-              </div>
-
-              <div v-if="selectedFile" class="file-list-section">
-                <div class="file-list-header">
-                  <div class="file-list-title">
-                    <i class="el-icon-file-text"></i>
-                    Uploaded File
-                  </div>
-                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearFile">Clear All</el-button>
-                </div>
-                <div class="file-item">
-                  <span class="file-name">{{ selectedFile && selectedFile.name }}</span>
-                  <span class="file-info">{{ selectedFile && formatFileSize(selectedFile.size) }} | {{ pageCount }} pages</span>
-                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="clearFile"></el-button>
-                </div>
-              </div>
-
-              <div class="action-section">
-                <el-button type="primary" @click="goToNext">
-                  Continue <i class="el-icon-right"></i>
-                </el-button>
-              </div>
+        <div v-if="selectedFiles.length" class="file-list-section">
+          <div class="file-list-header">
+            <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
+          </div>
+          <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
+            <i class="anticon anticon-file-text file-icon"></i>
+            <div class="file-info">
+              <span class="file-name" :title="file.name">{{ file.name }}</span>
+              <span class="file-details">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
             </div>
-          </el-tab-pane>
+            <button class="remove-btn" @click="removeFile(idx)" aria-label="Remove file">
+              Remove
+            </button>
+          </div>
+        </div>
 
-          <el-tab-pane label="Reorder" name="1">
-            <div class="tab-content">
+        <div v-if="selectedFiles.length" class="action-section">
+          <a-button type="primary" @click="showDrawer = true">
+            Continue <i class="anticon anticon-right"></i>
+          </a-button>
+        </div>
+
+        <a-drawer
+          :title="drawerStage === 'reorder' ? 'Reorder Pages' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
+          :visible="showDrawer"
+          :width="700"
+          :closable="true"
+          :mask-closable="true"
+          @close="handleDrawerClose"
+        >
+          <div class="drawer-content">
+            <div v-if="drawerStage === 'reorder'" class="options-section">
               <div v-if="pages.length === 0" class="upload-area" style="pointer-events: none;">
                 <i class="el-icon-image upload-icon"></i>
                 <div class="upload-text">Loading page thumbnails...</div>
               </div>
 
               <div v-else class="pages-container">
+                <div class="preview-header">
+                  <div class="preview-title">Reorder Pages</div>
+                  <div class="preview-hint">👆 Drag and drop to reorder</div>
+                </div>
                 <div ref="pagesList" class="page-preview-grid">
                   <div 
                     v-for="(page, index) in pages" 
@@ -363,258 +381,284 @@
                   >
                     <div class="page-number">{{ index + 1 }}</div>
                     <img :src="page.thumbnail" class="page-preview-image" :alt="'Page ' + (index + 1)">
-                    <div class="page-order">Page {{ page.originalNumber }}</div>
+                    <div class="page-order">Original {{ page.originalNumber }}</div>
                   </div>
                 </div>
               </div>
 
-              <div class="action-section">
-                <el-button type="default" @click="goToPrev" :disabled="processing">Back</el-button>
-                <el-button type="primary" @click="reorderPages" :disabled="processing">{{ processing ? 'Reordering...' : 'Apply Reorder' }}</el-button>
-              </div>
-
-              <div v-if="processing" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <el-progress :percentage="progress" :status="progress === 100 ? 'success' : 'active'" :show-text="false" style="margin-top: 16px;" />
+              <div v-if="pages.length > 0" class="drawer-actions">
+                <a-button @click="handleDrawerClose">Cancel</a-button>
+                <a-button type="primary" @click="reorderPages" :disabled="processing">{{ processing ? 'Reordering...' : 'Apply Reorder' }}</a-button>
               </div>
             </div>
-          </el-tab-pane>
 
-          <el-tab-pane label="Result" name="2">
-            <div class="tab-content">
-              <div class="result-content" v-if="resultBlob">
-                <div class="result-title">
-                  <i class="el-icon-check-circle" style="margin-right: 8px;"></i>
-                  Pages Reordered Successfully
-                </div>
-                <p class="result-desc">Your PDF pages have been reordered</p>
-                <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
-                
-                <div class="result-preview" v-if="resultPreviews.length > 0">
-                  <div v-for="(preview, i) in resultPreviews.slice(0, 5)" :key="i" class="page-preview-item clickable" @click="openPreview(preview)" >
-                    <img :src="preview.thumbnail" class="page-preview-image">
-                    <div class="page-number">{{ i + 1 }}</div>
-                    <div class="preview-overlay">Click to zoom</div>
-                  </div>
-                </div>
+            <div v-if="drawerStage === 'progress'" class="progress-section">
+              <div class="progress-text">{{ progressText }}</div>
+              <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+            </div>
 
+            <div v-if="drawerStage === 'result'" class="result-content">
+              <div class="result-title">Pages Reordered Successfully!</div>
+              <p class="result-desc">Your PDF pages have been reordered</p>
+              <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
+              
+              <div class="result-preview" v-if="resultPreviews.length > 0">
+                <div v-for="(page, i) in resultPreviews.slice(0, 5)" :key="i" class="page-preview-item clickable" @click="openPreview(page)">
+                  <img :src="page" class="page-preview-image">
+                  <div class="page-number">{{ i + 1 }}</div>
+                  <div class="preview-overlay">Click to zoom</div>
+                </div>
+              </div>
+              <div class="download-section">
                 <div class="filename-input">
                   <label>File Name:</label>
-                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
                 </div>
-
-                <el-button type="primary" size="large" @click="download">
-                  <i class="el-icon-download" style="margin-right: 8px;"></i>
+                <a-button type="primary" size="large" @click="download">
+                  <i class="anticon anticon-download" style="margin-right: 8px;"></i>
                   Download PDF
-                </button>
+                </a-button>
+              </div>
+              <div class="recommend-section">
+                <p>Need to merge PDFs? <a href="pdf-merger.html" class="recommend-link">Try our PDF Merger Tool →</a></p>
               </div>
 
-              <div class="action-section">
-                <el-button type="default" @click="reset">Start Over</button>
+              <div class="action-section center">
+                <a-button type="default" @click="reset">Start Over</a-button>
               </div>
             </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
+          </div>
+        </a-drawer>
 
-      <div class="instructions">
-        <h2 class="instructions-title">Why Reorder Here?</h2>
+        <a-drawer
+          title="PDF Preview"
+          :visible="showPreviewModal"
+          :width="500"
+          placement="left"
+          @close="closePreview"
+        >
+          <div class="preview-drawer-content">
+            <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" alt="PDF Preview" />
+            <div v-else class="preview-empty">No preview available</div>
+          </div>
+        </a-drawer>
+      </a-card>
+
+      <a-card class="instructions-card" hoverable>
+        <h2 class="section-title">Why Reorder Here?</h2>
         <div class="steps">
           <div class="step">
-            <i class="el-icon-check step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
             <div class="step-title">Drag & Drop Reorder</div>
             <div class="step-desc">Visual interface | Easy sorting</div>
           </div>
           <div class="step">
-            <i class="el-icon-lock step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
             <div class="step-title">100% Private</div>
             <div class="step-desc">No server uploads | Locally processed</div>
           </div>
           <div class="step">
-            <i class="el-icon-close step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
             <div class="step-title">No Watermarks</div>
             <div class="step-desc">Clean output | No branding</div>
           </div>
           <div class="step">
-            <i class="el-icon-edit step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+            </div>
             <div class="step-title">Visual Preview</div>
             <div class="step-desc">See before reorder | Verify order</div>
           </div>
           <div class="step">
-            <i class="el-icon-user step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
             <div class="step-title">No Registration</div>
             <div class="step-desc">Start immediately | No sign-up</div>
           </div>
+          <div class="step">
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                <path d="M22 12a14.5 14.5 0 0 1 0 20 14.5 14.5 0 0 1 0-20"></path>
+              </svg>
+            </div>
+            <div class="step-title">Fast Processing</div>
+            <div class="step-desc">Local in-browser | No server wait</div>
+          </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="privacy-section">
-        <h2 class="section-title">Local Processing - Your Privacy, Protected</h2>
+      <a-card class="privacy-card" hoverable>
+        <h2 class="section-title">Your Files Never Leave Your Device</h2>
         <div class="privacy-content">
-          <p>What does <strong>"local processing"</strong> mean? When you use our PDF Page Reorder tool, <strong>all file processing happens directly in your web browser</strong>, right on your device. Your files <strong>never leave your computer or mobile device</strong> - they are <strong>not uploaded to any external server</strong>.</p>
-          <p>This means your sensitive documents stay <strong>private and secure</strong>. There's <strong>no risk of data breaches</strong>, <strong>no third-party access</strong>, and <strong>no server logs</strong> containing your information. Even if you're offline, our tool continues to work because everything runs locally in your browser.</p>
-          <p>Unlike other online tools that require uploading your files to remote servers, PDFMaster processes everything locally. You can reorder pages in confidential contracts, personal documents, or sensitive business files with <strong>complete peace of mind</strong>.</p>
+          <p><strong>🔒 Zero Server Uploads.</strong> Every PDF page reorder happens right in your browser. No data ever touches our servers. Imagine: your confidential contract, unpublished research, or personal photos - we can't see them, even if we wanted to.</p>
+          <p><strong>🚫 No Tracking, No Logs.</strong> We don't collect your email, IP address, or any personal data. No cookies, no analytics, no ads. Just a simple tool that works and forgets.</p>
+          <p><strong>✅ Trusted by Professionals.</strong> Lawyers, researchers, and business teams rely on PDFMaster for their most sensitive documents. Your privacy isn't an afterthought - it's built into every line of code.</p>
+          <p><strong>❌ The Essential Difference:</strong> 99% of "online PDF tools" upload your files to their servers for processing, even if they claim to "delete" them afterwards. Our code is completely open source - you can right-click and view the source to confirm there are no upload requests.</p>
         </div>
-      </div>
+      </a-card>
 
-      <div class="technology-section">
+      <a-card class="technology-card" hoverable>
         <h2 class="section-title">Powered by Industry-Leading Technology</h2>
         <div class="tech-content">
-          <el-card class="tech-card" shadow="hover">
-            <h3>Advanced Drag-and-Drop Engine</h3>
-            <p>Our proprietary drag-and-drop system uses GPU-accelerated animations for buttery-smooth interactions. Real-time visual feedback with ghost elements and drop zone highlighting makes page organization effortless.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
-            <h3>Smart Page Reordering Algorithm</h3>
-            <p>Pages are reordered in memory with a non-destructive approach. Our algorithm maintains page metadata, annotations, and interactive elements while allowing unlimited undo/redo operations.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
-            <h3>Memory-Optimized Architecture</h3>
-            <p>Intelligent memory management prevents browser slowdowns with large documents. Preview images are dynamically loaded and released based on viewport visibility, ensuring smooth performance even with 100+ page documents.</p>
-          </el-card>
+          <a-card class="tech-card" hoverable>
+            <h3>PDF-lib Engine</h3>
+            <p>We use <strong>PDF-lib</strong>, the most trusted open-source PDF library. Your files are reordered using battle-tested code that powers thousands of applications. <strong>No garbled text, no missing content.</strong></p>
+          </a-card>
+          <a-card class="tech-card" hoverable>
+            <h3>PDF.js Rendering</h3>
+            <p>Built on Mozilla's <strong>PDF.js</strong> engine for accurate parsing. Every font, image, and annotation is preserved exactly as the original. <strong>What you see is what you get.</strong></p>
+          </a-card>
+          <a-card class="tech-card" hoverable>
+            <h3>Sortable.js Drag-and-Drop</h3>
+            <p>Powered by <strong>Sortable.js</strong> for smooth drag-and-drop interactions. Real-time visual feedback makes page reordering intuitive and precise.</p>
+          </a-card>
         </div>
-      </div>
+      </a-card>
 
-      <div class="guide-section">
+      <a-card class="guide-card-container" hoverable>
         <h2 class="section-title">Pro Tips for Better Page Reordering</h2>
         <div class="guide-content">
-          <el-card class="guide-card" shadow="hover">
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Preview Pages First</h3>
             <p class="guide-desc">Take a moment to preview all pages before reordering. This helps you visualize the final document structure.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </a-card>
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Use Drag and Drop</h3>
-            <p class="guide-desc">Drag pages to quickly rearrange them. You can also use the move buttons for precise positioning.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+            <p class="guide-desc">Drag pages to quickly rearrange them. The visual feedback makes it easy to get the perfect order.</p>
+          </a-card>
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Verify Order Before Saving</h3>
             <p class="guide-desc">Double-check the page order before downloading. This ensures your document is correctly structured.</p>
-          </el-card>
+          </a-card>
         </div>
-      </div>
+      </a-card>
 
-      <div class="faq-section">
+      <a-card class="faq-card" hoverable>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <el-collapse accordion>
-          <el-collapse-item title="How to reorder pages in PDF?">
+        <a-collapse :default-active-key="[]">
+          <a-collapse-panel key="1" header="How to reorder pages in PDF?">
             <p>Upload your PDF, drag and drop page thumbnails to rearrange them in custom order, then click Apply Reorder. Our free PDF page reorder tool works online without software.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I reorder PDF pages for free?">
+          </a-collapse-panel>
+          <a-collapse-panel key="2" header="Can I reorder PDF pages for free?">
             <p>Yes! Our PDF page reorder tool is completely free with no sign up required. Reorder PDF pages online free with unlimited usage.</p>
-          </el-collapse-item>
-          <el-collapse-item title="How to rearrange PDF pages online?">
+          </a-collapse-panel>
+          <a-collapse-panel key="3" header="How to rearrange PDF pages online?">
             <p>Simply upload your PDF, use drag and drop to rearrange pages, and download the reordered PDF. All processing happens locally in your browser.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I reorder PDF pages without Adobe Acrobat?">
+          </a-collapse-panel>
+          <a-collapse-panel key="4" header="Can I reorder PDF pages without Adobe Acrobat?">
             <p>Absolutely! Our free PDF page reorder tool works online without any software installation, including Adobe Acrobat.</p>
-          </el-collapse-item>
-          <el-collapse-item title="What's the best free PDF page reorder tool?">
+          </a-collapse-panel>
+          <a-collapse-panel key="5" header="What's the best free PDF page reorder tool?">
             <p>PDFMaster offers the best free PDF page reorder with drag and drop interface, visual preview, secure local processing, and no sign up required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Will reordering PDF pages reduce quality?">
+          </a-collapse-panel>
+          <a-collapse-panel key="6" header="Will reordering PDF pages reduce quality?">
             <p>No! We reorder PDF pages without losing quality. Your original content remains intact.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I reorder scanned PDF pages?">
+          </a-collapse-panel>
+          <a-collapse-panel key="7" header="Can I reorder scanned PDF pages?">
             <p>Yes! Our tool works with all PDF types including scanned PDFs. Reorder scanned PDF pages with ease.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I use this tool on mobile devices?">
+          </a-collapse-panel>
+          <a-collapse-panel key="8" header="Can I use this tool on mobile devices?">
             <p>Yes! Our PDF page reorder tool works perfectly on iPhone and Android devices. Just open your browser and start reordering - no app installation required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I reorder PDF pages on Mac for free?">
+          </a-collapse-panel>
+          <a-collapse-panel key="9" header="Can I reorder PDF pages on Mac for free?">
             <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and reorder pages for free. No software to install.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Which browsers are supported?">
+          </a-collapse-panel>
+          <a-collapse-panel key="10" header="Which browsers are supported?">
             <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I reorder password-protected PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="11" header="Can I reorder password-protected PDFs?">
             <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Why choose PDFMaster for reordering pages?">
+          </a-collapse-panel>
+          <a-collapse-panel key="12" header="Why choose PDFMaster for reordering pages?">
             <p>PDFMaster offers 100% free page reordering with no watermarks, local processing for complete privacy, and easy drag-and-drop interface. Your files stay secure on your device.</p>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
+          </a-collapse-panel>
+        </a-collapse>
+      </a-card>
 
-      <div class="tutorial-section">
+      <a-card class="tutorial-card" hoverable>
         <h2 class="section-title">How to Reorder PDF Pages Step by Step</h2>
         <div class="tutorial-step">
           <div class="tutorial-number">1</div>
           <div class="tutorial-content">
-            <h3>Reorder PDF pages online free</h3>
-            <p>Upload your PDF file. Free PDF page reorder no sign up required.</p>
+            <h3>Upload PDF file</h3>
+            <p>Drag and drop your PDF file into the upload area, or click to browse and select files from your device.</p>
           </div>
         </div>
         <div class="tutorial-step">
           <div class="tutorial-number">2</div>
           <div class="tutorial-content">
-            <h3>Rearrange PDF pages manually</h3>
-            <p>Drag and drop page thumbnails to sort PDF pages in custom order.</p>
+            <h3>Reorder pages</h3>
+            <p>Drag and drop page thumbnails to rearrange them in your desired order.</p>
           </div>
         </div>
         <div class="tutorial-step">
           <div class="tutorial-number">3</div>
           <div class="tutorial-content">
-            <h3>Apply page reorder</h3>
-            <p>Click "Apply Reorder" to change PDF page order. All processing is secure and private.</p>
+            <h3>Download PDF</h3>
+            <p>Click Apply Reorder and wait for processing. Once complete, your reordered PDF will be ready to download.</p>
           </div>
         </div>
-        <div class="tutorial-step">
-          <div class="tutorial-number">4</div>
-          <div class="tutorial-content">
-            <h3>Download reordered PDF</h3>
-            <p>Reorder and save PDF pages without losing quality.</p>
-          </div>
-        </div>
-      </div>
+      </a-card>
 
-      <div class="blog-section">
+      <a-card class="blog-card-container" hoverable>
         <h2 class="section-title">PDF Page Organization - Top Use Cases</h2>
-        <div class="blog-card">
-          <div class="blog-icon">🖱️</div>
-          <h3>Drag-and-Drop Organization</h3>
-          <p>Organize PDF pages online for free with intuitive drag and drop. No sign-up required, no watermarks added.</p>
+        <div class="blog-cards-grid">
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-mouse blog-icon"></i>
+            <h3>Drag-and-Drop Organization</h3>
+            <p>Organize PDF pages online for free with intuitive drag and drop. No sign-up required, no watermarks added.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-sort-desc blog-icon"></i>
+            <h3>Custom Page Sequence</h3>
+            <p>Rearrange PDF pages manually to arrange content in any order you prefer. Full control over document structure.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-printer blog-icon"></i>
+            <h3>Prepare for Printing</h3>
+            <p>Arrange pages before printing to ensure correct page sequence. Avoid printing mistakes and wasted paper.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-file-text blog-icon"></i>
+            <h3>Fix Scanned Documents</h3>
+            <p>Organize scanned PDF pages with ease. Perfect for digitized documents that need proper sequencing.</p>
+          </div>
         </div>
-        <div class="blog-card">
-          <div class="blog-icon">🎯</div>
-          <h3>Custom Page Sequence</h3>
-          <p>Rearrange PDF pages manually to arrange content in any order you prefer. Full control over document structure.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🖨️</div>
-          <h3>Prepare for Printing</h3>
-          <p>Arrange pages before printing to ensure correct page sequence. Avoid printing mistakes and wasted paper.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">📄</div>
-          <h3>Fix Scanned Documents</h3>
-          <p>Organize scanned PDF pages with ease. Perfect for digitized documents that need proper sequencing.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🔒</div>
-          <h3>Secure & Private</h3>
-          <p>Organize PDF pages securely online. All processing stays on your device for complete privacy.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">💎</div>
-          <h3>High Quality Results</h3>
-          <p>Organize PDF pages without losing quality. Your content remains intact throughout the process.</p>
-        </div>
+      </a-card>
+
+      <a-card class="cta-card" hoverable>
         <div class="cta-box">
           <h3>Ready to Organize PDF Pages?</h3>
           <p>Try our free PDF page organizer. Arrange and save PDF pages without software!</p>
-          <button class="cta-button" @click="currentStep = '0'">Organize Pages Now</button>
+          <button class="cta-button" @click="goToUpload">Organize Pages Now</button>
         </div>
-      </div>
+      </a-card>
 
     </div>
   </div>
-
-<preview-modal 
-    :visible="showPreviewModal" 
-    :image-src="currentPreviewImage" 
-    title="PDF Preview"
-    @close="closePreview" 
-  ></preview-modal>
 
   <footer class="footer">
     <div class="container">
@@ -640,323 +684,461 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
-                </div>
-              </div>
-            </div>
+      </div>
+      <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+      <div class="footer-credits">
+        <div class="credits-header">
+          <span class="credits-icon">💡</span>
+          <span class="credits-title">Built with Open Source</span>
+        </div>
+        <div class="libraries-list">
+          <div class="library-item">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Vue.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://element.eleme.io/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Element UI</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://pdf-lib.js.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDFLib</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDF.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge apache">Apache 2.0</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </div>
 
 <script>
-new Vue({
-  el: '#app',
-  data() {
-    return {
-      currentStep: '0',
-      selectedFile: null,
-      pageCount: 0,
-      pages: [],
-      resultBlob: null,
-      processing: false,
-      progress: 0,
-      progressText: '',
-      isDragging: false,
-      resultPreviews: [],
-      downloadFileName: '',
-      showPreviewModal: false,
-      currentPreviewImage: null
+  window.onerror = function(message, source, lineno, colno, error) {
+    console.error('Global error:', message, source, lineno, colno, error);
+    if (message.includes('PDF') || message.includes('pdf')) {
+      alert('An error occurred while processing PDF files. Please try again with different files.');
+    }
+    return true;
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║   Powered by PDFMaster - https://pdfeasz.com                  ║
+║   Open-source under MIT License. Copyright © 2026             ║
+║   Unauthorized removal of this notice is prohibited.          ║
+╚═══════════════════════════════════════════════════════════════╝
+    `);
+
+    if (typeof Vue === 'undefined') {
+      setTimeout(function() {
+        window.location.reload();
+      }, 1000);
+      return;
+    }
+    
+    Vue.config.errorHandler = function(err, vm, info) {
+      console.error('Vue error:', err, info);
+      if (err.message && (err.message.includes('PDF') || err.message.includes('pdf'))) {
+        vm.$message.error('An error occurred while processing PDF files. Please try again.')
+      } else {
+        vm.$message.error('An unexpected error occurred. Please refresh the page and try again.')
+      }
     };
-  },
-  mounted() {
-    this.$nextTick(() => {
-      if (this.$refs.pagesList) {
-        Sortable.create(this.$refs.pagesList, {
-          animation: 200,
-          ghostClass: 'sortable-ghost',
-          chosenClass: 'sortable-chosen',
-          dragClass: 'sortable-drag',
-          onEnd: (evt) => {
-            const oldIndex = evt.oldIndex;
-            const newIndex = evt.newIndex;
-            const movedPage = this.pages.splice(oldIndex, 1)[0];
-            this.pages.splice(newIndex, 0, movedPage);
+    
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          selectedFiles: [],
+          pages: [],
+          resultBlob: null,
+          resultArrayBuffer: null,
+          processing: false,
+          progress: 0,
+          progressText: '',
+          showDrawer: false,
+          drawerStage: 'reorder',
+          resultPreviews: [],
+          downloadFileName: 'reordered.pdf',
+          showPreviewModal: false,
+          currentPreviewImage: ''
+        };
+      },
+      watch: {
+        showDrawer(newVal) {
+          if (newVal) {
+            this.drawerStage = 'reorder';
+            this.processing = false;
+            this.loadPagesWithRetry();
           }
-        });
-      }
-    });
-  },
-  methods: {
-    goToNext() { 
-      if (!this.selectedFile) {
-        this.$notify({
-          title: '提示',
-          message: 'Please upload a PDF file first',
-          type: 'warning'
-        });
-        return;
-      }
-      this.loadPages();
-      this.currentStep = '1'; 
-    },
-    goToPrev() { this.currentStep = '0'; },
-    
-    handleExceed() {
-      this.$notify({ title: '提示', message: 'You can upload only one file at a time', type: 'warning' });
-    },
-    handleFileChange(file) {
-      const rawFile = file.raw;
-      if (!rawFile || rawFile.type !== 'application/pdf') {
-        this.$notify({ title: '错误', message: 'Please upload a PDF file', type: 'error' });
-        return;
-      }
-      if (rawFile.size > 50 * 1024 * 1024) {
-        this.$notify({ title: '错误', message: 'File size exceeds 50MB limit', type: 'error' });
-        return;
-      }
-      if (this.selectedFile) {
-        this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' });
-        return;
-      }
-      this.processFile(rawFile);
-    },
-    async processFile(file) {
-      if (file.type !== 'application/pdf') {
-        this.$notify({ title: '错误', message: 'Please upload a PDF file', type: 'error' });
-        return;
-      }
-      if (file.size > 50 * 1024 * 1024) {
-        this.$notify({ title: '错误', message: 'File size exceeds 50MB limit', type: 'error' });
-        return;
-      }
-      
-      this.selectedFile = file;
-      
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        this.pageCount = pdf.numPages;
-        await pdf.destroy();
-      } catch (error) {
-        console.error('Error loading PDF:', error);
-      }
-    },
-    
-    async loadPages() {
-      if (!this.selectedFile) return;
-      
-      this.pages = [];
-      
-      try {
-        const arrayBuffer = await this.selectedFile.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 0.5 });
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          
-          await page.render({
-            canvasContext: ctx,
-            viewport: viewport
-          }).promise;
-          
-          this.pages.push({
-            id: i,
-            originalNumber: i,
-            thumbnail: canvas.toDataURL('image/png')
-          });
         }
-        
-        await pdf.destroy();
-        
-        this.$nextTick(() => {
-          if (this.$refs.pagesList) {
-            Sortable.create(this.$refs.pagesList, {
-              animation: 200,
-              ghostClass: 'sortable-ghost',
-              chosenClass: 'sortable-chosen',
-              dragClass: 'sortable-drag',
-              onEnd: (evt) => {
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-                const movedPage = this.pages.splice(oldIndex, 1)[0];
-                this.pages.splice(newIndex, 0, movedPage);
-              }
-            });
+      },
+      mounted() {
+        window.addEventListener('beforeunload', this.handleBeforeUnload);
+      },
+      beforeDestroy() {
+        window.removeEventListener('beforeunload', this.handleBeforeUnload);
+        this.cleanupAllResources();
+      },
+      methods: {
+        handleBeforeUnload() {
+          this.cleanupAllResources();
+        },
+        goToUpload() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        beforeUpload(file) {
+          if (!file.name.toLowerCase().endsWith('.pdf')) {
+            this.$message.error('Only PDF files are allowed');
+            return false;
           }
-        });
-        
-      } catch (error) {
-        console.error('Error loading pages:', error);
-      }
-    },
-    
-    handleTabClick(tab) {
-      const targetStep = tab.name;
-      if (targetStep !== '0' && !this.selectedFile) {
-        this.$notify({ title: '提示', message: 'Please upload a file first', type: 'warning' });
-        this.$nextTick(() => {
-          this.currentStep = '0';
-        });
-        return;
-      }
-      if (targetStep === '2' && !this.resultBlob) {
-        this.$notify({ title: '提示', message: 'Please reorder pages first', type: 'warning' });
-        this.$nextTick(() => {
-          this.currentStep = '1';
-        });
-        return;
-      }
-    },
-    
-    async reorderPages() {
-      if (!this.selectedFile || this.pages.length === 0) return;
-      
-      this.processing = true;
-      this.progress = 0;
-      this.progressText = 'Loading PDF...';
-      
-      try {
-        const PDFDocument = PDFLib.PDFDocument || PDFLib;
-        const arrayBuffer = await this.selectedFile.arrayBuffer();
-        const pdfDoc = await PDFDocument.load(arrayBuffer);
-        const pages = pdfDoc.getPages();
-        
-        this.progress = 20;
-        this.progressText = 'Reordering pages...';
-        
-        const pageOrder = this.pages.map(p => p.originalNumber - 1);
-        
-        const reorderedPages = [];
-        pageOrder.forEach(index => {
-          reorderedPages.push(pages[index]);
-        });
-        
-        const totalPages = pdfDoc.getPageCount();
-        for (let i = totalPages - 1; i >= 0; i--) {
-          pdfDoc.removePage(i);
-        }
-        
-        reorderedPages.forEach(page => {
-          pdfDoc.addPage(page);
-        });
-        
-        this.progress = 80;
-        this.progressText = 'Generating output...';
-        
-        const pdfBytes = await pdfDoc.save();
-        this.resultBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-        
-        this.progress = 95;
-        this.progressText = 'Generating previews...';
-        await this.generateResultPreviews();
-        
-        setTimeout(() => {
-          this.processing = false;
-          this.progress = 100;
-          this.currentStep = '2';
-          this.$notify({ title: '成功', message: 'Pages reordered successfully!', type: 'success' });
-        }, 300);
-        
-      } catch (error) {
-        this.processing = false;
-        this.$notify({ title: '错误', message: 'Failed to reorder pages', type: 'error' });
-        console.error(error);
-      }
-    },
-    
-    download() {
-      const url = URL.createObjectURL(this.resultBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      const fileName = this.downloadFileName.trim() || `reordered-${Date.now()}`;
-      a.download = `${fileName.replace(/\.[^.]+$/, '')}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-    },
-    
-    clearFile() {
-      this.selectedFile = null;
-      this.pageCount = 0;
-      this.pages = [];
-      this.resultBlob = null;
-      this.resultPreviews = [];
-      if (this.$refs.upload) {
-        this.$refs.upload.uploadFiles = [];
-      }
-    },
-    
-    reset() {
-      this.clearFile();
-      this.currentStep = '0';
-    },
-    
-    formatFileSize(bytes) {
-      if (bytes === 0) return '0 Bytes';
-      const k = 1024;
-      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    },
-    
-    async generateResultPreviews() {
-      this.resultPreviews = [];
-      if (!this.resultBlob) return;
-      
-      try {
-        const arrayBuffer = await this.resultBlob.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        const numPages = Math.min(pdf.numPages, 5);
-        
-        for (let i = 1; i <= numPages; i++) {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 0.6 });
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
+          const maxSize = 50 * 1024 * 1024;
+          if (file.size > maxSize) {
+            this.$message.error('File size cannot exceed 50MB');
+            return false;
+          }
+          return true;
+        },
+        handleDrop(e) {
+          e.preventDefault();
+        },
+        async handleFileChange({ file, onSuccess }) {
+          const raw = file;
+          if (!raw.name.toLowerCase().endsWith('.pdf')) {
+            this.$message.error('Only PDF files are allowed');
+            return;
+          }
           
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
+          const maxSize = 50 * 1024 * 1024;
+          if (raw.size > maxSize) {
+            this.$message.error('File size cannot exceed 50MB');
+            return;
+          }
           
-          const renderContext = {
-            canvasContext: ctx,
-            viewport: viewport
+          const item = {
+            name: raw.name,
+            file: raw,
+            size: raw.size,
+            pageCount: 0
           };
           
-          await page.render(renderContext).promise;
-          this.resultPreviews.push({
-            thumbnail: canvas.toDataURL('image/png'),
-            pageNumber: i
+          this.selectedFiles = [item];
+          if (onSuccess) {
+            onSuccess('success');
+          }
+        },
+        formatFileSize(bytes) {
+          if (bytes === 0) return '0 Bytes';
+          const k = 1024;
+          const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
+        removeFile(idx) {
+          const file = this.selectedFiles[idx];
+          if (file) {
+            this.destroyFileResources(file);
+          }
+          this.selectedFiles.splice(idx, 1);
+        },
+        clearAllFiles() {
+          this.selectedFiles.forEach(file => {
+            this.destroyFileResources(file);
           });
+          this.selectedFiles = [];
+          this.pages = [];
+          this.cleanupAllResources();
+        },
+        destroyFileResources(file) {
+          if (file.originalData) {
+            file.originalData = null;
+          }
+        },
+        handleDrawerClose() {
+          if (!this.processing) {
+            this.drawerStage = 'reorder';
+            this.done = false;
+            this.resultBlob = null;
+            this.resultPreviews = [];
+            this.showDrawer = false;
+          }
+        },
+        async waitForPdfJs() {
+          return new Promise((resolve) => {
+            if (typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument) {
+              resolve();
+              return;
+            }
+            const checkInterval = setInterval(() => {
+              if (typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument) {
+                clearInterval(checkInterval);
+                resolve();
+              }
+            }, 100);
+          });
+        },
+        async loadPages() {
+          if (!this.selectedFiles.length) return;
+          
+          this.pages = [];
+          const file = this.selectedFiles[0];
+          
+          try {
+            await this.waitForPdfJs();
+            
+            let arrayBuffer;
+            if (file.file && file.file.arrayBuffer) {
+              try {
+                arrayBuffer = await file.file.arrayBuffer();
+              } catch (e) {
+                throw new Error('Failed to read file data');
+              }
+            } else {
+              throw new Error('File data not available');
+            }
+            
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const viewport = page.getViewport({ scale: 0.5 });
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              
+              ctx.fillStyle = '#fff';
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              
+              await page.render({
+                canvasContext: ctx,
+                viewport: viewport
+              }).promise;
+              
+              this.pages.push({
+                id: i,
+                originalNumber: i,
+                thumbnail: canvas.toDataURL('image/png')
+              });
+            }
+            
+            await pdf.destroy();
+            
+          } catch (error) {
+            console.error('Error loading pages:', error);
+            this.$message.error('Failed to load pages: ' + error.message);
+          }
+        },
+        initSortable() {
+          const tryInit = () => {
+            if (this.$refs.pagesList && window.Sortable) {
+              Sortable.create(this.$refs.pagesList, {
+                animation: 200,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                onEnd: (evt) => {
+                  const oldIndex = evt.oldIndex;
+                  const newIndex = evt.newIndex;
+                  const movedPage = this.pages.splice(oldIndex, 1)[0];
+                  this.pages.splice(newIndex, 0, movedPage);
+                }
+              });
+            } else if (!window.Sortable) {
+              setTimeout(tryInit, 100);
+            }
+          };
+          this.$nextTick(tryInit);
+        },
+        async loadPagesWithRetry() {
+          await this.loadPages();
+          this.initSortable();
+        },
+        async reorderPages() {
+          if (!this.selectedFiles.length || this.pages.length === 0) return;
+          
+          const file = this.selectedFiles[0];
+          
+          this.processing = true;
+          this.progress = 0;
+          this.progressText = 'Loading PDF...';
+          
+          try {
+            const { PDFDocument } = window.PDFLib;
+            const arrayBuffer = file.originalData || await file.file.arrayBuffer();
+            const pdfDoc = await PDFDocument.load(arrayBuffer);
+            const pages = pdfDoc.getPages();
+            
+            this.progress = 20;
+            this.progressText = 'Reordering pages...';
+            
+            const pageOrder = this.pages.map(p => p.originalNumber - 1);
+            
+            const reorderedPages = [];
+            pageOrder.forEach(index => {
+              reorderedPages.push(pages[index]);
+            });
+            
+            const totalPages = pdfDoc.getPageCount();
+            for (let i = totalPages - 1; i >= 0; i--) {
+              pdfDoc.removePage(i);
+            }
+            
+            reorderedPages.forEach(page => {
+              pdfDoc.addPage(page);
+            });
+            
+            this.progress = 80;
+            this.progressText = 'Generating output...';
+            
+            const pdfBytes = await pdfDoc.save();
+            this.resultBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+            
+            this.progress = 95;
+            this.progressText = 'Generating previews...';
+            await this.generateResultPreviews();
+            
+            setTimeout(() => {
+              this.processing = false;
+              this.progress = 100;
+              this.drawerStage = 'result';
+            }, 300);
+            
+          } catch (error) {
+            this.processing = false;
+            this.drawerStage = 'reorder';
+            this.$message.error('Failed to reorder pages');
+            console.error(error);
+          }
+        },
+        download() {
+          const url = URL.createObjectURL(this.resultBlob);
+          const a = document.createElement('a');
+          a.href = url;
+          const fileName = this.downloadFileName.trim() || `reordered-${Date.now()}`;
+          a.download = `${fileName.replace(/\.[^.]+$/, '')}.pdf`;
+          a.click();
+          URL.revokeObjectURL(url);
+        },
+        cleanupAllResources() {
+          if (this.resultBlob) {
+            this.resultBlob = null;
+          }
+          if (this.resultArrayBuffer) {
+            this.resultArrayBuffer = null;
+          }
+          
+          this.resultPreviews.forEach(url => {
+            if (url && url.startsWith('blob:')) {
+              URL.revokeObjectURL(url);
+            }
+          });
+          this.resultPreviews = [];
+          this.currentPreviewImage = '';
+        },
+        reset() {
+          this.showDrawer = false;
+          this.drawerStage = 'reorder';
+          this.clearAllFiles();
+          this.downloadFileName = 'reordered.pdf';
+        },
+        async generateResultPreviews() {
+          this.resultPreviews = [];
+          if (!this.resultBlob) return;
+          
+          try {
+            const arrayBuffer = await this.resultBlob.arrayBuffer();
+            this.resultArrayBuffer = arrayBuffer;
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const numPages = Math.min(pdf.numPages, 5);
+            
+            for (let i = 1; i <= numPages; i++) {
+              const page = await pdf.getPage(i);
+              const viewport = page.getViewport({ scale: 0.8 });
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+
+              ctx.fillStyle = 'white';
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+              const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+              };
+
+              await page.render(renderContext).promise;
+              this.resultPreviews.push(canvas.toDataURL('image/png'));
+            }
+            
+            await pdf.destroy();
+          } catch (error) {
+            console.error('Error generating previews:', error);
+          }
+        },
+        async openPreview(img) {
+          const pageIndex = this.resultPreviews.indexOf(img);
+          if (pageIndex === -1 || !this.resultArrayBuffer) {
+            this.currentPreviewImage = img;
+            this.showPreviewModal = true;
+            return;
+          }
+          
+          try {
+            const pdf = await pdfjsLib.getDocument({ data: this.resultArrayBuffer }).promise;
+            const page = await pdf.getPage(pageIndex + 1);
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            
+            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+            this.currentPreviewImage = canvas.toDataURL('image/png');
+            
+            canvas.width = 0;
+            canvas.height = 0;
+            await pdf.destroy();
+          } catch (error) {
+            console.error('Error rendering preview:', error);
+            this.currentPreviewImage = img;
+          }
+          this.showPreviewModal = true;
+        },
+        closePreview() {
+          this.showPreviewModal = false;
+          this.currentPreviewImage = '';
         }
-        
-        await pdf.destroy();
-      } catch (error) {
-        console.error('Error generating previews:', error);
       }
-    },
-    
-    async openPreview(preview) {
-      PreviewUtils.openPreview({
-        image: preview,
-        previews: this.resultPreviews,
-        resultBlob: this.resultBlob,
-        vm: this,
-        usePageNumber: true
-      })
-    },
-    
-    closePreview() {
-      PreviewUtils.closePreview(this)
-    }
-  }
-});
+    });
+  });
 </script>
 </body>
 </html>

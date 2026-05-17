@@ -160,7 +160,8 @@
 
   
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <link rel="stylesheet" href="./common.css">
+  <link rel="stylesheet" href="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.css">
+  <link rel="stylesheet" href="/css/common.css">
   
   <style>
     .watermark-type-options {
@@ -326,6 +327,7 @@
   </style>
   <script src="./lib/vue/vue.js"></script>
   <script src="./lib/element-ui/index.js"></script>
+  <script src="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
@@ -345,7 +347,10 @@
         </div>
         <nav class="header-links">
           <a href="index.html" class="back-btn">
-            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M19 12H5"></path>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
             Back to Home
           </a>
           <a href="contact.html" class="contact-btn">Contact Us</a>
@@ -364,60 +369,61 @@
       </div>
        
 
-      <div class="steps-container">
-        <div class="steps-wrapper">
-          <el-steps :active="Number(currentStep)" finish-status="success" align-center>
-            <el-step title="Upload PDF" icon="el-icon-upload"></el-step>
-            <el-step title="Configure Watermark" icon="el-icon-setting"></el-step>
-            <el-step title="Download" icon="el-icon-download"></el-step>
-          </el-steps>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <el-tabs v-model="currentStep" stretch @tab-click="handleTabClick" type="border-card">
-          <el-tab-pane label="Upload" name="0">
-            <div class="tab-content">
-              <el-upload
-                ref="upload"
-                class="upload-area"
-                drag
-                :auto-upload="false"
-                accept=".pdf"
-                :on-change="handleFileChange"
-                :on-exceed="handleExceed"
-                :limit="1"
-                action="#"
-              >
-                <i class="el-icon-folder-opened upload-icon"></i>
-                <div class="upload-text">Drag & drop PDF file here</div>
-                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
-              </el-upload>
-
-              <div v-if="selectedFiles.length" class="file-list-section">
-                <div class="file-list-header">
-                  <div class="file-list-title">
-                    <i class="el-icon-files"></i>
-                    Selected Files ({{ selectedFiles.length }})
-                  </div>
-                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearAllFiles">Clear All</el-button>
-                </div>
-                <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
-                  <span class="file-name">{{ file.name }}</span>
-                  <span class="file-info">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
-                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="removeFile(idx)"></el-button>
-                </div>
-              </div>
-
-              <div class="action-section">
-                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
-              </div>
+      <a-card class="tool-card" hoverable>
+          <a-upload
+            ref="upload"
+            class="upload-area"
+            :file-list="[]"
+            accept=".pdf"
+            :custom-request="handleFileChange"
+            :before-upload="beforeUpload"
+            :show-upload-list="false"
+            :limit="1"
+            @drop="handleDrop"
+          >
+            <div class="upload-content">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div class="upload-text">Drag & drop PDF file here</div>
+              <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
             </div>
-          </el-tab-pane>
+          </a-upload>
 
-          <el-tab-pane label="Watermark Options" name="1">
-            <div class="tab-content">
-              <div class="options-section">
+          <div v-if="selectedFiles.length" class="file-list-section">
+            <div class="file-list-header">
+              <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
+            </div>
+            <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
+              <i class="anticon anticon-file-text file-icon"></i>
+              <div class="file-info">
+                <span class="file-name" :title="file.name">{{ file.name }}</span>
+                <span class="file-details">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
+              </div>
+              <button class="remove-btn" @click="removeFile(idx)" aria-label="Remove file">
+                Remove
+              </button>
+            </div>
+          </div>
+
+          <div v-if="selectedFiles.length" class="action-section">
+            <a-button type="primary" @click="showDrawer = true">
+              Add Watermark <i class="anticon anticon-right"></i>
+            </a-button>
+          </div>
+
+          <a-drawer
+            :title="drawerStage === 'options' ? 'Add Watermark' : (drawerStage === 'progress' ? 'Processing' : 'Watermark Result')"
+            :visible="showDrawer"
+            :width="600"
+            :closable="true"
+            :mask-closable="true"
+            @close="handleDrawerClose"
+          >
+            <div class="drawer-content">
+              <div v-if="drawerStage === 'options'" class="options-section">
                 <div class="options-title">Watermark Type</div>
                 <div class="mode-description">Choose the type of watermark to add</div>
                 <div class="watermark-type-options">
@@ -430,40 +436,82 @@
                     <div class="type-title">Image Watermark</div>
                   </div>
                 </div>
-              </div>
 
-              <div v-if="form.type === 'text'" class="watermark-form">
-                <div class="form-row">
-                  <label class="form-label">Watermark Text</label>
-                  <textarea v-model="form.text" class="form-textarea" placeholder="Enter your watermark text (e.g., Confidential)"></textarea>
-                </div>
-                <div class="form-row-row">
-                  <div class="form-col">
-                    <label class="form-label">Font Size</label>
-                    <input v-model.number="form.fontSize" type="number" class="form-input" min="10" max="100" placeholder="48">
+                <div v-if="form.type === 'text'" class="watermark-form">
+                  <div class="form-row">
+                    <label class="form-label">Watermark Text</label>
+                    <textarea v-model="form.text" class="form-textarea" placeholder="Enter your watermark text (e.g., Confidential)"></textarea>
                   </div>
-                  <div class="form-col color-col">
-                    <label class="form-label">Color</label>
-                    <div class="color-picker-container">
-                      <input v-model="form.color" type="color" class="color-input">
-                      <div class="color-value">{{ form.color }}</div>
+                  <div class="form-row-row">
+                    <div class="form-col">
+                      <label class="form-label">Font Size</label>
+                      <input v-model.number="form.fontSize" type="number" class="form-input" min="10" max="100" placeholder="48">
                     </div>
-                    <div class="preset-colors">
-                      <span class="preset-color" style="background: #808080" @click="form.color = '#808080'"></span>
-                      <span class="preset-color" style="background: #000000" @click="form.color = '#000000'"></span>
-                      <span class="preset-color" style="background: #FF0000" @click="form.color = '#FF0000'"></span>
-                      <span class="preset-color" style="background: #0066CC" @click="form.color = '#0066CC'"></span>
-                      <span class="preset-color" style="background: #FF6600" @click="form.color = '#FF6600'"></span>
-                      <span class="preset-color" style="background: #9933CC" @click="form.color = '#9933CC'"></span>
+                    <div class="form-col color-col">
+                      <label class="form-label">Color</label>
+                      <div class="color-picker-container">
+                        <input v-model="form.color" type="color" class="color-input">
+                        <div class="color-value">{{ form.color }}</div>
+                      </div>
+                      <div class="preset-colors">
+                        <span class="preset-color" style="background: #808080" @click="form.color = '#808080'"></span>
+                        <span class="preset-color" style="background: #000000" @click="form.color = '#000000'"></span>
+                        <span class="preset-color" style="background: #FF0000" @click="form.color = '#FF0000'"></span>
+                        <span class="preset-color" style="background: #0066CC" @click="form.color = '#0066CC'"></span>
+                        <span class="preset-color" style="background: #FF6600" @click="form.color = '#FF6600'"></span>
+                        <span class="preset-color" style="background: #9933CC" @click="form.color = '#9933CC'"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row-row">
+                    <div class="form-col">
+                      <label class="form-label">Opacity: {{ form.opacity }}%</label>
+                      <el-slider v-model="form.opacity" :min="10" :max="100" :step="5"></el-slider>
+                    </div>
+                    <div class="form-col">
+                      <label class="form-label">Position</label>
+                      <el-select v-model="form.position" class="option-select">
+                        <el-option label="Center" value="center"></el-option>
+                        <el-option label="Top Left" value="top-left"></el-option>
+                        <el-option label="Top Right" value="top-right"></el-option>
+                        <el-option label="Bottom Left" value="bottom-left"></el-option>
+                        <el-option label="Bottom Right" value="bottom-right"></el-option>
+                        <el-option label="Tiled (Full Page)" value="tiled"></el-option>
+                      </el-select>
                     </div>
                   </div>
                 </div>
-                <div class="form-row-row">
-                  <div class="form-col">
+
+                <div v-if="form.type === 'image'" class="watermark-form">
+                  <div class="form-row">
+                    <label class="form-label">Upload Watermark Image</label>
+                    <a-upload
+                      ref="imageUpload"
+                      class="upload-area"
+                      :file-list="[]"
+                      :custom-request="handleImageChange"
+                      :show-upload-list="false"
+                      accept=".png,.jpg,.jpeg"
+                    >
+                      <div class="upload-content">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                          <polyline points="17 8 12 3 7 8"></polyline>
+                          <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <div class="upload-text">Drag & drop image here</div>
+                        <div class="upload-hint">Supports JPG, PNG up to <strong>50MB</strong> - Free, no watermarks</div>
+                      </div>
+                    </a-upload>
+                    <div v-if="form.imageFile" class="file-info" style="margin-top: 8px;">
+                      Selected: {{ form.imageFile.name }}
+                    </div>
+                  </div>
+                  <div class="form-row">
                     <label class="form-label">Opacity: {{ form.opacity }}%</label>
                     <el-slider v-model="form.opacity" :min="10" :max="100" :step="5"></el-slider>
                   </div>
-                  <div class="form-col">
+                  <div class="form-row">
                     <label class="form-label">Position</label>
                     <el-select v-model="form.position" class="option-select">
                       <el-option label="Center" value="center"></el-option>
@@ -474,331 +522,289 @@
                       <el-option label="Tiled (Full Page)" value="tiled"></el-option>
                     </el-select>
                   </div>
-                </div>
-                </div>
-
-              <div v-if="form.type === 'image'" class="watermark-form">
-                <div class="form-row">
-                  <label class="form-label">Upload Watermark Image</label>
-                  <el-upload
-                    ref="imageUpload"
-                    class="upload-area"
-                    drag
-                    :auto-upload="false"
-                    accept=".png,.jpg,.jpeg"
-                    :on-change="handleImageChange"
-                    action="#"
-                  >
-                    <i class="el-icon-folder-opened upload-icon"></i>
-                    <div class="upload-text">Drag & drop image here</div>
-                    <div class="upload-hint">Supports JPG, PNG up to <strong>50MB</strong> - Free, no watermarks</div>
-                  </el-upload>
-                  <div v-if="form.imageFile" class="file-info" style="margin-top: 8px;">
-                    Selected: {{ form.imageFile.name }}
+                  <div class="form-row">
+                    <label class="form-label">Scale: {{ form.scale }}%</label>
+                    <el-slider v-model="form.scale" :min="10" :max="200" :step="5"></el-slider>
                   </div>
                 </div>
-                <div class="form-row">
-                  <label class="form-label">Opacity: {{ form.opacity }}%</label>
-                  <el-slider v-model="form.opacity" :min="10" :max="100" :step="5"></el-slider>
-                </div>
-                <div class="form-row">
-                  <label class="form-label">Position</label>
-                  <el-select v-model="form.position" class="option-select">
-                    <el-option label="Center" value="center"></el-option>
-                    <el-option label="Top Left" value="top-left"></el-option>
-                    <el-option label="Top Right" value="top-right"></el-option>
-                    <el-option label="Bottom Left" value="bottom-left"></el-option>
-                    <el-option label="Bottom Right" value="bottom-right"></el-option>
-                    <el-option label="Tiled (Full Page)" value="tiled"></el-option>
-                  </el-select>
-                </div>
-                <div class="form-row">
-                  <label class="form-label">Scale: {{ form.scale }}%</label>
-                  <el-slider v-model="form.scale" :min="10" :max="200" :step="5"></el-slider>
-                </div>
               </div>
 
-              <div class="action-section">
-                <el-button type="default" @click="goToPrev" :disabled="processing">Back</el-button>
-                <el-button type="primary" @click="addWatermark" :disabled="processing || !canAddWatermark">{{ processing ? 'Adding Watermark...' : 'Add Watermark' }}</el-button>
-              </div>
-
-              <div v-if="processing" class="progress-section">
+              <div v-if="drawerStage === 'progress'" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{width: progress + '%'}"></div>
-                </div>
+                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
-            </div>
-          </el-tab-pane>
 
-          <el-tab-pane label="Result" name="2">
-            <div class="tab-content">
-              <div class="result-content" v-if="done">
+              <div v-if="drawerStage === 'result' && done" class="result-content">
                 <div class="result-title">Watermark Added Successfully!</div>
                 <p class="result-desc">Your PDF has been watermarked successfully</p>
                 <div class="result-preview">
-                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)" >
+                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)">
                     <img :src="t" class="page-preview-image">
                     <div class="page-number">{{ i+1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>
                   </div>
                 </div>
-                <div class="filename-input">
-                  <label>File Name:</label>
-                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                <div class="download-section">
+                  <div class="filename-input">
+                    <label>File Name:</label>
+                    <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                  </div>
+                  <a-button type="primary" size="large" @click="download">Download PDF</a-button>
                 </div>
-                <el-button type="primary" size="large" @click="download">Download PDF</el-button>
                 <div class="recommend-section">
-                  <p>Need to protect your PDF with a digital signature?</p>
-                  <a href="pdf-signer.html" class="recommend-link">Try our PDF Signer Tool →</a>
-                </div>
+                <p>Need to protect your PDF with a digital signature? <a href="pdf-signer.html" class="recommend-link">Try our PDF Signer Tool →</a></p>
               </div>
 
-              <preview-modal 
-                :visible="showPreviewModal" 
-                :image-src="currentPreviewImage" 
-                title="PDF Preview"
-                @close="closePreview" 
-              ></preview-modal>
+              <div class="action-section center">
+                <a-button type="default" @click="reset">Start Over</a-button>
+              </div>
+              </div>
 
-              <div class="action-section">
-                <el-button type="default" @click="reset">Start Over</el-button>
+              <div v-if="drawerStage === 'options'" class="drawer-actions">
+                <a-button @click="handleDrawerClose">Cancel</a-button>
+                <a-button type="primary" @click="addWatermark" :disabled="!canAddWatermark">
+                  Add Watermark
+                </a-button>
               </div>
             </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
+          </a-drawer>
 
-      <div class="instructions">
-        <h2 class="instructions-title">Why Choose PDFMaster?</h2>
+          <a-drawer
+            title="PDF Preview"
+            :visible="showPreviewModal"
+            :width="500"
+            placement="left"
+            @close="closePreview"
+          >
+            <div class="preview-drawer-content">
+              <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" alt="PDF Preview" />
+              <div v-else class="preview-empty">No preview available</div>
+            </div>
+          </a-drawer>
+      </a-card>
+
+      <a-card class="instructions-card" hoverable>
+        <h2 class="section-title">Why Add Watermark Here?</h2>
         <div class="steps">
           <div class="step">
-            <div class="step-number">💰</div>
-            <div class="step-title">Completely Free</div>
-            <div class="step-desc">No hidden fees, 100% free</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="step-title">Truly Free & Unlimited</div>
+            <div class="step-desc">No hidden fees | Others add watermarks</div>
           </div>
           <div class="step">
-            <div class="step-number">🔐</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
             <div class="step-title">100% Private</div>
-            <div class="step-desc">Local browser processing</div>
+            <div class="step-desc">Local processing | Others upload files</div>
           </div>
           <div class="step">
-            <div class="step-number">⚡</div>
-            <div class="step-title">Fast Processing</div>
-            <div class="step-desc">No upload waiting</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="step-title">Instant Results</div>
+            <div class="step-desc">No upload waiting | Works offline</div>
           </div>
           <div class="step">
-            <div class="step-number">📱</div>
-            <div class="step-title">Mobile Friendly</div>
-            <div class="step-desc">Works on all devices</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <path d="M2 17l10 5 10-5"></path>
+                <path d="M2 12l10 5 10-5"></path>
+              </svg>
+            </div>
+            <div class="step-title">Text & Image Support</div>
+            <div class="step-desc">Multiple watermark types | Others limited</div>
           </div>
           <div class="step">
-            <div class="step-number">🎯</div>
-            <div class="step-title">Easy to Use</div>
-            <div class="step-desc">Simple interface</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div class="step-title">No Registration</div>
+            <div class="step-desc">Start instantly | Others force sign-up</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                <path d="M22 12a14.5 14.5 0 0 1 0 20 14.5 14.5 0 0 1 0-20"></path>
+                <line x1="12" y1="2" x2="12" y2="22"></line>
+              </svg>
+            </div>
+            <div class="step-title">Cross-Platform</div>
+            <div class="step-desc">Mac/Win/Mobile | Others desktop only</div>
           </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="privacy-section">
-        <h2 class="section-title">🔒 Your Privacy is Our Priority</h2>
+      <a-card class="privacy-card" hoverable>
+        <h2 class="section-title">Your Privacy is Our Priority</h2>
         <div class="privacy-content">
-          <p><strong>All processing happens locally in your browser.</strong> Your files never leave your device. We do not upload any files to our servers. Your documents remain private and secure at all times.</p>
-          <p>Our PDF watermark tool uses client-side JavaScript libraries to process your files directly in your browser. No data is transmitted over the internet, ensuring complete privacy and security.</p>
+          <p><strong>🔒 Zero Server Uploads.</strong> Every PDF watermark is added right in your browser. No data ever touches our servers. Your confidential documents never leave your device.</p>
+          <p><strong>🚫 No Tracking, No Logs.</strong> We don't collect your email, IP address, or any personal data. No cookies, no analytics, no ads. Just a simple tool that works and forgets.</p>
+          <p><strong>✅ Trusted by Professionals.</strong> Lawyers, researchers, and business teams rely on PDFMaster for their most sensitive documents. Your privacy isn't an afterthought - it's built into every line of code.</p>
+          <p><strong>❌ The Essential Difference:</strong> 99% of "online PDF tools" upload your files to their servers for processing, even if they claim to "delete" them afterwards. Our code is completely open source - you can right-click and view the source to confirm there are no upload requests.</p>
         </div>
-      </div>
+      </a-card>
 
-      <div class="technology-section">
+      <a-card class="technology-card" hoverable>
         <h2 class="section-title">Powered by Industry-Leading Technology</h2>
         <div class="tech-content">
-          <el-card class="tech-card" shadow="hover">
-            <!-- <div class="tech-item-icon"></div> -->
-            <h3>Vector-Based Watermark Engine</h3>
-            <p>Our proprietary vector rendering engine ensures watermarks scale perfectly at any resolution. Text watermarks use TrueType font embedding for consistent appearance across all PDF readers.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
-            <!-- <div class="tech-item-icon"></div> -->
-            <h3>Smart Layering System</h3>
-            <p>Intelligent z-axis layering places watermarks optimally - text watermarks above background images but below document content. Supports 0-100% opacity with anti-aliasing for professional results.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
-            <!-- <div class="tech-item-icon">⚡</div> -->
-            <h3>Batch Processing Engine</h3>
-            <p>Process multiple PDFs simultaneously with consistent watermark placement. Supports multi-page documents with automatic scaling and positioning across all pages.</p>
-          </el-card>
+          <a-card class="tech-card" hoverable>
+            <h3>PDF-lib Engine</h3>
+            <p>We use <strong>PDF-lib</strong>, the most trusted open-source PDF library. Your files are processed using battle-tested code that powers thousands of applications. <strong>No garbled text, no missing content.</strong></p>
+          </a-card>
+          <a-card class="tech-card" hoverable>
+            <h3>PDF.js Rendering</h3>
+            <p>Built on Mozilla's <strong>PDF.js</strong> engine for accurate parsing. Every watermark is placed precisely as intended. <strong>What you see is what you get.</strong></p>
+          </a-card>
+          <a-card class="tech-card" hoverable>
+            <h3>Vector-Based Watermarks</h3>
+            <p>Our proprietary vector rendering engine ensures watermarks scale perfectly at any resolution. Text watermarks use TrueType font embedding for consistent appearance. <strong>Professional results every time.</strong></p>
+          </a-card>
         </div>
-      </div>
+      </a-card>
 
-      <div class="guide-section">
+      <a-card class="guide-card-container" hoverable>
         <h2 class="section-title">Pro Tips for Better PDF Watermarking</h2>
         <div class="guide-content">
-          <el-card class="guide-card" shadow="hover">
-            <!-- <div class="guide-icon-wrapper"> -->
-              <!-- <i class="el-icon-folder guide-icon"></i> -->
-            <!-- </div> -->
-            <h3 class="guide-title">Choose Watermark Color Wisely</h3>
-            <p class="guide-desc">Select a color that's visible but not intrusive. Light gray works well for most documents.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
-            <!-- <div class="guide-icon-wrapper blue"> -->
-              <!-- <i class="el-icon-document guide-icon"></i>
-            </div> -->
+          <a-card class="guide-card" hoverable>
+            <h3 class="guide-title">Choose Color Wisely</h3>
+            <p class="guide-desc">Select a color that's visible but not intrusive. Light gray works well for most documents. Test on a sample page first.</p>
+          </a-card>
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Adjust Opacity Carefully</h3>
-            <p class="guide-desc">Too opaque and the watermark becomes distracting. Too transparent and it's ineffective.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
-            <!-- <div class="guide-icon-wrapper green"> -->
-              <!-- <i class="el-icon-folder guide-icon"></i> -->
-            <!-- </div> -->
+            <p class="guide-desc">Too opaque and the watermark becomes distracting. Too transparent and it's ineffective. 30-50% is usually optimal.</p>
+          </a-card>
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Preview Before Applying</h3>
-            <p class="guide-desc">Always preview the watermark on a sample page to ensure it looks right.</p>
-          </el-card>
+            <p class="guide-desc">Always preview the watermark on multiple pages before downloading. This ensures consistent appearance throughout.</p>
+          </a-card>
         </div>
-      </div>
+      </a-card>
 
-      <div class="faq-section">
+      <a-card class="faq-card" hoverable>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <el-collapse accordion>
-          <el-collapse-item title="How to add watermark to PDF for free?">
+        <a-collapse :default-active-key="[]">
+          <a-collapse-panel key="1" header="How to add watermark to PDF for free?">
             <p>Upload your PDF, choose text/image watermark, customize opacity and position, then click "Add Watermark". No registration required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="What is the best free watermark tool?">
+          </a-collapse-panel>
+          <a-collapse-panel key="2" header="What is the best free watermark tool?">
             <p>PDFMaster offers local processing, no sign up, and no output watermark. Perfect for adding text or logo watermarks.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I add watermark to multiple PDFs at once?">
+          </a-collapse-panel>
+          <a-collapse-panel key="3" header="Does my data get uploaded to servers?">
+            <p>No! 100% local processing means your files never leave your device. We never see your documents - perfect for confidential files.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="4" header="Can I add watermark to multiple PDFs at once?">
             <p>Currently one PDF at a time, with full customization options for quality processing.</p>
-          </el-collapse-item>
-          <el-collapse-item title="How to make transparent watermark?">
-            <p>Adjust the opacity slider (10-100%) - lower values create more transparent results.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I remove watermark from PDF?">
+          </a-collapse-panel>
+          <a-collapse-panel key="5" header="How to make transparent watermark?">
+            <p>Adjust the opacity slider (10-100%) - lower values create more transparent results. We recommend 30-50% for most documents.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="6" header="Can I remove watermark from PDF?">
             <p>This tool adds watermarks. Check our PDF editor tools for removal capabilities.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is this tool really free?">
+          </a-collapse-panel>
+          <a-collapse-panel key="7" header="Is this tool really free?">
             <p>100% free with no hidden fees, no registration, and no watermarks on your output.</p>
-          </el-collapse-item>
-          <el-collapse-item title="How to add logo watermark?">
+          </a-collapse-panel>
+          <a-collapse-panel key="8" header="How to add logo watermark?">
             <p>Select "Image Watermark", upload your logo (PNG/JPG), adjust settings, and click "Add Watermark".</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is my data secure?">
+          </a-collapse-panel>
+          <a-collapse-panel key="9" header="Is my data secure?">
             <p>Absolutely! All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy and security.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I use this tool on mobile devices?">
+          </a-collapse-panel>
+          <a-collapse-panel key="10" header="Can I use this tool on mobile devices?">
             <p>Yes! Our PDF watermark tool works perfectly on iPhone and Android devices. Just open your browser and start adding watermarks - no app installation required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Which browsers are supported?">
+          </a-collapse-panel>
+          <a-collapse-panel key="11" header="Which browsers are supported?">
             <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I add watermark to password-protected PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="12" header="Can I add watermark to password-protected PDFs?">
             <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Why choose PDFMaster for adding watermarks?">
-            <p>PDFMaster offers 100% free watermarking with no watermarks on your output, local processing for complete privacy, and multiple customization options. Your files stay secure on your device.</p>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
+          </a-collapse-panel>
+        </a-collapse>
+      </a-card>
 
-      <div class="tutorial-section">
+      <a-card class="tutorial-card" hoverable>
         <h2 class="section-title">How to Add Watermark to PDF</h2>
         <div class="tutorial-step">
           <div class="tutorial-number">1</div>
           <div class="tutorial-content">
-            <h3>Prepare your PDF</h3>
-            <p>Have the document ready you want to protect with a watermark.</p>
+            <h3>Upload your PDF</h3>
+            <p>Drag and drop or browse to upload your PDF file. Processing happens locally in your browser.</p>
           </div>
         </div>
         <div class="tutorial-step">
           <div class="tutorial-number">2</div>
           <div class="tutorial-content">
-            <h3>Upload your file</h3>
-            <p>Drag and drop or browse to upload your PDF. Processing happens locally in your browser.</p>
+            <h3>Customize your watermark</h3>
+            <p>Choose text or image watermark, adjust opacity, position, font size, and color to your liking.</p>
           </div>
         </div>
         <div class="tutorial-step">
           <div class="tutorial-number">3</div>
           <div class="tutorial-content">
-            <h3>Customize your watermark</h3>
-            <p>Choose text or image watermark, adjust opacity, position, font size, and color.</p>
+            <h3>Preview the result</h3>
+            <p>Preview how the watermark will look on your PDF before downloading.</p>
           </div>
         </div>
         <div class="tutorial-step">
           <div class="tutorial-number">4</div>
           <div class="tutorial-content">
-            <h3>Apply and download</h3>
+            <h3>Download your PDF</h3>
             <p>Click "Add Watermark" and download your protected document instantly.</p>
           </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="blog-section">
-        <h2 class="section-title">PDF Watermarking - Essential Use Cases</h2>
-        <div class="blog-card">
-          <div class="blog-icon">🔒</div>
-          <h3>Confidential Documents</h3>
-          <p>Protect sensitive business documents, legal contracts, and internal reports with "Confidential" watermarks. Ensure unauthorized distribution is clearly identifiable.</p>
+      <a-card class="blog-card-container" hoverable>
+        <h2 class="section-title">Perfect for Your Workflow</h2>
+        <div class="blog-cards-grid">
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-briefcase blog-icon"></i>
+            <h3>Business Professional</h3>
+            <p>Add "Confidential" or "Draft" watermarks to business documents. 100% local processing ensures trade secrets stay confidential.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-graduation-cap blog-icon"></i>
+            <h3>Academic Research</h3>
+            <p>Protect research papers and thesis documents with copyright watermarks. After watermarking, use our <a href="pdf-signer.html" class="recommend-link">PDF Signer</a> for complete authentication.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-home blog-icon"></i>
+            <h3>Personal Documents</h3>
+            <p>Add watermarks to scanned IDs, passports, and personal records for extra security. No software installation needed.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-file-text blog-icon"></i>
+            <h3>Legal Documents</h3>
+            <p>Mark contracts and legal documents with "Approved" or "For Review" stamps. Protect sensitive legal files with local processing.</p>
+          </div>
         </div>
-        <div class="blog-card">
-          <div class="blog-icon">💼</div>
-          <h3>Brand Identity</h3>
-          <p>Add your company logo as a watermark to official documents and presentations for brand recognition. Build professional identity across all business communications.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">📄</div>
-          <h3>Copyright Protection</h3>
-          <p>Protect intellectual property by adding copyright watermarks to creative work. Artists, photographers, and designers can safeguard their digital assets.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🎓</div>
-          <h3>Academic Integrity</h3>
-          <p>Watermark research papers, dissertations, and thesis documents. Track document distribution and prevent plagiarism in academic settings.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">⚖️</div>
-          <h3>Legal Documents</h3>
-          <p>Add official watermarks to legal contracts, agreements, and court documents. Authenticate documents with "Draft", "Approved", or "For Review" stamps.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🎯</div>
-          <h3>Marketing Materials</h3>
-          <p>Watermark promotional PDFs, brochures, and sales proposals. Maintain brand consistency while protecting marketing collateral from unauthorized use.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🖋️</div>
-          <h3>Digital Signatures</h3>
-          <p>Add signature watermarks to approved documents. Combine with our PDF Signer tool for complete document authentication workflow.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🔐</div>
-          <h3>Secure Processing</h3>
-          <p>All watermarking happens locally in your browser. Your confidential documents never leave your device - perfect for sensitive legal and business files.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">📄</div>
-          <h3>Draft Documents</h3>
-          <p>Mark draft versions clearly with "Draft" watermarks to indicate work in progress.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">✨</div>
-          <h3>Transparent Watermarks</h3>
-          <p>Adjust opacity to create subtle transparent watermarks that protect without obscuring content.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🎓</div>
-          <h3>Academic Work</h3>
-          <p>Protect research papers and theses with custom text watermarks for copyright attribution.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🎨</div>
-          <h3>Creative Portfolio</h3>
-          <p>Add watermarks to portfolios and design proposals to prevent unauthorized use.</p>
-        </div>
+      </a-card>
+
+      <a-card class="cta-card" hoverable>
         <div class="cta-box">
-          <h3>Protect Your Documents</h3>
-          <p>Add custom watermarks to PDFs for free. No registration, local processing, instant download.</p>
-          <button class="cta-button" @click="goToUpload">Start Watermarking Now</button>
+          <h3>Start Watermarking Your PDFs</h3>
+          <p>Free, private, and unlimited. Your files never leave your device. Try PDFMaster now!</p>
+          <button class="cta-button" @click="goToUpload">Start Now</button>
         </div>
-      </div>
+      </a-card>
     </div>
   </div>
 
@@ -810,15 +816,16 @@
           <ul>
             <li><a href="pdf-merger.html">PDF Merger</a></li>
             <li><a href="pdf-splitter.html">PDF Splitter</a></li>
+            <li><a href="pdf-compressor.html">PDF Compressor</a></li>
+            <li><a href="pdf-page-reorder.html">Page Reorder</a></li>
             <li><a href="image-to-pdf.html">Image to PDF</a></li>
-            <li><a href="pdf-signer.html">PDF Signer</a></li>
           </ul>
         </div>
         <div class="footer-section">
           <h4>About</h4>
           <ul>
             <li><a href="about.html">About</a></li>
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
             <li><a href="feedback.html">Feedback</a></li>
           </ul>
         </div>
@@ -826,11 +833,52 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+      <div class="footer-credits">
+        <div class="credits-header">
+          <span class="credits-icon">💡</span>
+          <span class="credits-title">Built with Open Source</span>
+        </div>
+        <div class="libraries-list">
+          <div class="library-item">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Vue.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://element.eleme.io/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Element UI</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://pdf-lib.js.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDFLib</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDF.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge apache">Apache 2.0</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </div>
@@ -840,7 +888,6 @@ new Vue({
   el: '#app',
   data() {
     return {
-      currentStep: '0',
       selectedFiles: [],
       form: {
         type: 'text',
@@ -861,7 +908,9 @@ new Vue({
       progressText: '',
       showPreviewModal: false,
       currentPreviewImage: '',
-      pages: []
+      pages: [],
+      showDrawer: false,
+      drawerStage: 'options'
     }
   },
   computed: {
@@ -883,24 +932,21 @@ new Vue({
     handleBeforeUnload() {
       this.cleanupAllResources()
     },
-    goToNext() { 
-      if (this.selectedFiles.length === 0) {
-        this.$notify({
-          title: '提示',
-          message: 'Please upload a PDF file first',
-          type: 'warning'
-        });
-        return;
-      }
-      this.currentStep = '1' 
-    },
-    goToPrev() { this.currentStep = '0' },
     goToUpload() {
-      this.currentStep = '0'
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
     handleExceed() {
       this.$notify({ title: '提示', message: 'Only one PDF file can be processed at a time', type: 'warning' })
+    },
+    beforeUpload(file) {
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        this.$notify({ title: 'Error', message: 'Only PDF files are allowed', type: 'error' })
+        return false
+      }
+      return true
+    },
+    handleDrop(event) {
+      event.preventDefault()
     },
     async openPreview(image) {
       PreviewUtils.openPreview({
@@ -913,25 +959,15 @@ new Vue({
     closePreview() {
       PreviewUtils.closePreview(this)
     },
-    handleTabClick(tab) {
-      const targetStep = tab.name
-      if (targetStep !== '0' && this.selectedFiles.length === 0) {
-        this.$notify({ title: '提示', message: 'Please upload a PDF file first', type: 'warning' })
-        this.$nextTick(() => {
-          this.currentStep = '0'
-        })
-        return
-      }
-      if (targetStep === '2' && !this.done) {
-        this.$notify({ title: '提示', message: 'Please complete adding watermark first', type: 'warning' })
-        this.$nextTick(() => {
-          this.currentStep = '1'
-        })
-        return
-      }
+    handleDrawerClose() {
+      this.showDrawer = false
+      this.drawerStage = 'options'
+      this.done = false
+      this.resultBlob = null
+      this.resultPreviews = []
     },
-    async handleFileChange(file) {
-      const raw = file.raw
+    async handleFileChange({ file }) {
+      const raw = file
       if (!raw.name.endsWith('.pdf')) {
         this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
         return
@@ -961,13 +997,14 @@ new Vue({
       }
       this.selectedFiles.push(item)
     },
-    handleImageChange(file) {
-      const raw = file.raw
+    handleImageChange({ file, onSuccess }) {
+      const raw = file
       if (!['image/png', 'image/jpeg', 'image/jpg'].includes(raw.type)) {
-        this.$notify({ title: '错误', message: 'Only PNG and JPG images are allowed', type: 'error' })
+        this.$message.error('Only PNG and JPG images are allowed')
         return
       }
       this.form.imageFile = raw
+      if (onSuccess) onSuccess('success')
     },
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
@@ -1107,7 +1144,7 @@ new Vue({
         this.progress = 100
         this.processing = false
         this.done = true
-        this.currentStep = '2'
+        this.drawerStage = 'result'
         
       } catch (error) {
         console.error('Error adding watermark:', error)
@@ -1177,7 +1214,8 @@ new Vue({
     },
     reset() {
       this.cleanupAllResources()
-      this.currentStep = '0'
+      this.showDrawer = false
+      this.drawerStage = 'options'
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = []
       }

@@ -152,9 +152,11 @@
   }
   </script>
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.css">
+  <link rel="stylesheet" href="/css/common.css">
   <script src="./lib/vue/vue.js"></script>
   <script src="./lib/element-ui/index.js"></script>
+  <script src="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.min.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
@@ -173,11 +175,14 @@
         </div>
         <nav class="header-links">
           <a href="index.html" class="back-btn">
-            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M19 12H5"></path>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
             Back to Home
           </a>
           <a href="contact.html" class="contact-btn">Contact Us</a>
-          <a href="feedback.html" class="feedback-btn">Feedback</a>
+          <a href="feedback.html" class="feedback-btn">Send Feedback</a>
         </nav>
       </div>
     </div>
@@ -188,56 +193,61 @@
         <h1 class="page-title">Free PDF Splitter - Split PDF Files Online</h1>
         <p class="page-subtitle">Split PDF files online for free. Extract individual pages or divide PDF into multiple documents. All processing happens locally in your browser. Split PDF online no signup required.</p>
       </div>
-      <div class="steps-container">
-        <div class="steps-wrapper">
-          <el-steps :active="Number(currentStep)" finish-status="success" align-center>
-            <el-step title="Upload File" icon="el-icon-upload"></el-step>
-            <el-step title="Select Options" icon="el-icon-setting"></el-step>
-            <el-step title="Download" icon="el-icon-download"></el-step>
-          </el-steps>
-        </div>
-      </div>
-      <div class="tool-card">
-        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick" type="border-card">
-          <el-tab-pane label="Upload" name="0">
-            <div class="tab-content">
-              <el-upload
-                ref="upload"
-                class="upload-area"
-                drag
-                :auto-upload="false"
-                accept=".pdf"
-                :on-change="handleFileChange"
-                action="#"
-                :limit="1"
-                :on-exceed="handleExceed"
-              >
-                <i class="el-icon-folder-opened upload-icon"></i>
-                <div class="upload-text">Drag & drop PDF file here</div>
-                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
-              </el-upload>
-              <div v-if="selectedFiles.length" class="file-list-section">
-                <div class="file-list-header">
-                  <div class="file-list-title">
-                    <i class="el-icon-files"></i>
-                    Selected File ({{ selectedFiles.length }})
-                  </div>
-                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearAllFiles">Clear All</el-button>
-                </div>
-                <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
-                  <span class="file-name">{{ file.name }}</span>
-                  <span class="file-info">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
-                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="removeFile(idx)"></el-button>
-                </div>
-              </div>
-              <div class="action-section">
-                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
-              </div>
+
+      <a-card class="tool-card" hoverable>
+          <a-upload
+            ref="upload"
+            class="upload-area"
+            :multiple="false"
+            :file-list="[]"
+            accept=".pdf"
+            :custom-request="handleFileChange"
+            :before-upload="beforeUpload"
+            @drop="handleDrop"
+          >
+            <div class="upload-content">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div class="upload-text">Drag & drop PDF file here</div>
+              <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
             </div>
-          </el-tab-pane>
-          <el-tab-pane label="Options" name="1">
-            <div class="tab-content">
-              <div class="options-section">
+          </a-upload>
+
+          <div v-if="selectedFiles.length" class="file-list-section">
+            <div class="file-list-header">
+              <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
+            </div>
+            <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
+              <i class="anticon anticon-file-text file-icon"></i>
+              <div class="file-info">
+                <span class="file-name" :title="file.name">{{ file.name }}</span>
+                <span class="file-details">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
+              </div>
+              <button class="remove-btn" @click="removeFile(idx)" aria-label="Remove file">
+                Remove
+              </button>
+            </div>
+          </div>
+
+          <div v-if="selectedFiles.length >= 1" class="action-section">
+            <a-button type="primary" @click="showDrawer = true">
+              Continue <i class="anticon anticon-right"></i>
+            </a-button>
+          </div>
+
+          <a-drawer
+            :title="drawerStage === 'mode' ? 'Split Options' : (drawerStage === 'select' ? 'Select Pages' : (drawerStage === 'range' ? 'Page Ranges' : 'Split Result'))"
+            :visible="showDrawer"
+            :width="600"
+            :closable="true"
+            :mask-closable="true"
+            @close="handleDrawerClose"
+          >
+            <div class="drawer-content">
+              <div v-if="drawerStage === 'mode'" class="options-section">
                 <div class="options-title">Split Mode</div>
                 <div class="mode-description">Choose how you want to split your PDF</div>
                 <div class="merge-mode-options">
@@ -261,14 +271,23 @@
                   </div>
                 </div>
               </div>
-              <div v-if="form.mode === 'range'" class="options-section" style="margin-top: 24px;">
+
+              <div v-if="drawerStage === 'range'" class="options-section">
                 <div class="options-title">Page Ranges</div>
                 <div class="mode-description">Enter page ranges separated by commas (e.g., 1-5,7-10)</div>
-                <el-input v-model="form.ranges" placeholder="Example: 1-5,7-10,15" style="width: 100%; margin-bottom: 12px;" />
+                <a-input v-model="form.ranges" placeholder="Example: 1-5,7-10,15" style="width: 100%; margin-bottom: 12px;" />
                 <div class="mode-description">Each range will create a separate PDF file</div>
               </div>
-              <div v-if="form.mode === 'select' && selectedFiles.length > 0" class="preview-section">
-                <div class="preview-title">Select Pages to Extract</div>
+
+              <div v-if="drawerStage === 'select'" class="preview-section">
+                <div class="preview-header">
+                  <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
+                  <div class="preview-actions">
+                    <a-button type="text" size="small" @click="selectAllPages">Select All</a-button>
+                    <a-button type="text" size="small" @click="deselectAllPages">Deselect All</a-button>
+                    <a-button type="text" size="small" @click="toggleAllPages">Toggle</a-button>
+                  </div>
+                </div>
                 <div class="page-preview-container">
                   <div v-for="(file, fi) in selectedFiles" :key="fi" class="file-pages-wrapper">
                     <div class="file-pages-header">{{ file.name }}</div>
@@ -282,24 +301,13 @@
                   </div>
                 </div>
               </div>
-              <div v-if="form.mode === 'select'" class="file-count-hint" style="margin-top: 16px;">
-                Selected {{ selectedPages.length }} pages
-              </div>
-              <div class="action-section">
-                <el-button type="default" @click="goToPrev" :disabled="splitting">Back</el-button>
-                <el-button type="primary" @click="startSplit" :disabled="splitting || !canSplit">{{ splitting ? 'Splitting...' : 'Split PDF' }}</el-button>
-              </div>
-              <div v-if="splitting" class="progress-section">
+
+              <div v-if="drawerStage === 'progress' || splitting" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{width: progress + '%'}"></div>
-                </div>
+                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="Result" name="2">
-            <div class="tab-content">
-              <div class="result-content" v-if="done">
+
+              <div v-if="done" class="result-content">
                 <div class="result-title">Split Completed!</div>
                 <p class="result-desc">Your PDF has been split into {{ splitResults.length }} file(s)</p>
                 <div class="result-preview">
@@ -312,154 +320,208 @@
                 <div v-if="splitResults.length > 6" style="color: #6b7280; font-size: 14px;">
                   ...and {{ splitResults.length - 6 }} more files
                 </div>
-                <div class="filename-input">
-                  <label>Custom File Name</label>
-                  <input v-model="downloadFileName" placeholder="Enter custom file name prefix">
+                <div class="download-section">
+                  <div class="filename-input">
+                    <label>Custom File Name:</label>
+                    <a-input v-model="downloadFileName" placeholder="Enter file name prefix" style="width: 200px;" />
+                  </div>
+                  <a-button type="primary" size="large" @click="downloadAll">Download All Files</a-button>
                 </div>
-                <el-button type="primary" size="large" @click="downloadAll" style="margin-top: 24px;">Download All Files</el-button>
                 <div class="recommend-section">
-                  <p>Need to merge PDFs instead?</p>
-                  <a href="pdf-merger.html" class="recommend-link">Try our PDF Merger Tool →</a>
+                  <p>Need to merge PDFs? <a href="pdf-merger.html" class="recommend-link">Try our PDF Merger Tool →</a></p>
+                </div>
+
+                <div class="action-section center">
+                  <a-button type="default" @click="reset">Start Over</a-button>
                 </div>
               </div>
-              <div class="action-section">
-                <el-button type="default" @click="reset">Start Over</el-button>
+
+              <div v-if="!done && !splitting" class="drawer-actions">
+                <a-button v-if="drawerStage === 'select' || drawerStage === 'range'" @click="drawerStage = 'mode'">Back</a-button>
+                <a-button v-else @click="showDrawer = false">Cancel</a-button>
+                <a-button type="primary" @click="handleDrawerAction" :disabled="splitting">
+                  {{ getDrawerActionText() }}
+                </a-button>
               </div>
             </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
-      <preview-modal 
-        :visible="showPreviewModal" 
-        :image-src="currentPreviewImage" 
-        title="PDF Preview"
-        @close="closePreview" 
-      ></preview-modal>
-      <div class="instructions">
-        <h2 class="instructions-title">Why Choose PDFMaster?</h2>
+          </a-drawer>
+
+          <a-drawer
+            title="PDF Preview"
+            :visible="showPreviewModal"
+            :width="500"
+            placement="left"
+            @close="closePreview"
+          >
+            <div class="preview-drawer-content">
+              <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" alt="PDF Preview" />
+              <div v-else class="preview-empty">No preview available</div>
+            </div>
+          </a-drawer>
+      </a-card>
+
+      <a-card class="instructions-card" hoverable>
+        <h2 class="section-title">Why Choose PDFMaster?</h2>
         <div class="steps">
           <div class="step">
-            <div class="step-number">💰</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
             <div class="step-title">Completely Free</div>
             <div class="step-desc">No hidden fees, 100% free</div>
           </div>
           <div class="step">
-            <div class="step-number">🔐</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
             <div class="step-title">No Registration</div>
             <div class="step-desc">No login required</div>
           </div>
           <div class="step">
-            <div class="step-number">⚡</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
             <div class="step-title">Fast Splitting</div>
             <div class="step-desc">Process in seconds</div>
           </div>
           <div class="step">
-            <div class="step-number">📄</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+            </div>
             <div class="step-title">Multiple Modes</div>
             <div class="step-desc">Every page, select, or ranges</div>
           </div>
           <div class="step">
-            <div class="step-number">✏️</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
             <div class="step-title">Visual Preview</div>
             <div class="step-desc">Preview before splitting</div>
           </div>
+          <div class="step">
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                <path d="M22 12a14.5 14.5 0 0 1 0 20 14.5 14.5 0 0 1 0-20"></path>
+                <line x1="12" y1="2" x2="12" y2="22"></line>
+              </svg>
+            </div>
+            <div class="step-title">Cross-Platform</div>
+            <div class="step-desc">Mac/Win/Mobile | Others desktop only</div>
+          </div>
         </div>
-      </div>
-      <div class="privacy-section">
+      </a-card>
+      <a-card class="privacy-card" hoverable>
         <h2 class="section-title">Local Processing - Your Privacy, Protected</h2>
         <div class="privacy-content">
           <p>What does <strong>"local processing"</strong> mean? When you use our PDF Splitter, <strong>all file processing happens directly in your web browser</strong>, right on your device. Your files <strong>never leave your computer or mobile device</strong> - they are <strong>not uploaded to any external server</strong>.</p>
           <p>This means your sensitive documents stay <strong>private and secure</strong>. There's <strong>no risk of data breaches</strong>, <strong>no third-party access</strong>, and <strong>no server logs</strong> containing your information. Even if you're offline, our tool continues to work because everything runs locally in your browser.</p>
         </div>
-      </div>
-      <div class="technology-section">
+      </a-card>
+      <a-card class="technology-card" hoverable>
         <h2 class="section-title">How PDF Splitting Works</h2>
         <div class="tech-content">
-          <el-card class="tech-card" shadow="hover">
+          <a-card class="tech-card" shadow="hover">
             <!-- <div class="tech-card-icon">✂️</div> -->
             <h3>Precision Page Extraction</h3>
             <p>Our extraction algorithm identifies page boundaries with pixel-perfect accuracy. Complex documents with varying page sizes and orientations split correctly every time.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
+          </a-card>
+          <a-card class="tech-card" shadow="hover">
             <!-- <div class="tech-card-icon"></div> -->
             <h3>Smart Document Assembly</h3>
             <p>Each split document inherits the original PDF's structure - fonts, images, and interactive elements remain intact. No data loss, no formatting issues.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
+          </a-card>
+          <a-card class="tech-card" shadow="hover">
             <!-- <div class="tech-card-icon">🎯</div> -->
             <h3>Flexible Range Selection</h3>
             <p>Our parser supports multiple split modes - by page numbers, ranges, or custom selections. Complex extraction patterns process in a single pass.</p>
-          </el-card>
+          </a-card>
         </div>
-      </div>
-      <div class="guide-section">
+      </a-card>
+      <a-card class="guide-card-container" hoverable>
         <h2 class="section-title">Pro Tips for Better PDF Splitting</h2>
         <div class="guide-content">
-          <el-card class="guide-card" shadow="hover">
+          <a-card class="guide-card" shadow="hover">
             <h3 class="guide-title">Plan Your Split Strategy</h3>
             <p class="guide-desc">Decide how you want to split your PDF before uploading. You can split by page range, extract specific pages, or split after every X pages.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </a-card>
+          <a-card class="guide-card" shadow="hover">
             <h3 class="guide-title">Organize Output Files</h3>
             <p class="guide-desc">Use custom file name prefixes to keep your split files organized. This makes it easier to find specific documents later.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </a-card>
+          <a-card class="guide-card" shadow="hover">
             <h3 class="guide-title">Verify Split Results</h3>
             <p class="guide-desc">Always check the first few pages of each split file to ensure pages are correctly separated and no content is missing.</p>
-          </el-card>
+          </a-card>
         </div>
-      </div>
-      <div class="faq-section">
+      </a-card>
+      <a-card class="faq-card" hoverable>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <el-collapse accordion>
-          <el-collapse-item title="How to split PDF files for free?">
+        <a-collapse :default-active-key="[]">
+          <a-collapse-panel key="1" header="How to split PDF files for free?">
             <p>It's easy! Upload your PDF file, choose a split mode (every page, select pages, or page ranges), and click split. Your split PDFs will be ready to download in seconds.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is there a file size limit?">
+          </a-collapse-panel>
+          <a-collapse-panel key="2" header="Is there a file size limit?">
             <p>Yes, each file must be under 50MB. Split PDF up to 50MB online free with our service.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Does my data get uploaded to servers?">
+          </a-collapse-panel>
+          <a-collapse-panel key="3" header="Does my data get uploaded to servers?">
             <p>No! All processing happens locally in your browser. Your files never leave your device.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I extract specific pages from a PDF?">
+          </a-collapse-panel>
+          <a-collapse-panel key="4" header="Can I extract specific pages from a PDF?">
             <p>Yes! Choose the "Select Pages" mode to pick individual pages from your document.</p>
-          </el-collapse-item>
-          <el-collapse-item title="What page range formats are supported?">
+          </a-collapse-panel>
+          <a-collapse-panel key="5" header="What page range formats are supported?">
             <p>You can use single pages (5), ranges (1-5), or combinations (1-3,7-10,15).</p>
-          </el-collapse-item>
-          <el-collapse-item title="Do I need special software to split PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="6" header="Do I need special software to split PDFs?">
             <p>No! Our online tool works in any web browser. No installation required - works on Windows, Mac, and mobile devices.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Will splitting PDFs affect the quality of my files?">
+          </a-collapse-panel>
+          <a-collapse-panel key="7" header="Will splitting PDFs affect the quality of my files?">
             <p>No! We use lossless PDF processing. Your split pages will maintain the same quality as the original file. Text, images, fonts, and formatting are preserved exactly.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I split password-protected PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="8" header="Can I split password-protected PDFs?">
             <p>Currently, we don't support password-protected PDFs. Please remove the password from your files before uploading them to our tool.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I use this tool on my iPhone or Android device?">
+          </a-collapse-panel>
+          <a-collapse-panel key="9" header="Can I use this tool on my iPhone or Android device?">
             <p>Yes! Our tool works perfectly on mobile devices. Just open your browser on iPhone or Android, navigate to PDFMaster, and start splitting PDFs - no app installation required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Will the split PDFs open in all PDF readers?">
+          </a-collapse-panel>
+          <a-collapse-panel key="10" header="Will the split PDFs open in all PDF readers?">
             <p>Absolutely! Our split PDFs are standard PDF files that open in Adobe Reader, Preview, Chrome, Safari, and any other PDF reader. Full compatibility guaranteed.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Which browsers are supported?">
+          </a-collapse-panel>
+          <a-collapse-panel key="11" header="Which browsers are supported?">
             <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version of your browser.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is there a limit to how many times I can use the tool?">
+          </a-collapse-panel>
+          <a-collapse-panel key="12" header="Is there a limit to how many times I can use the tool?">
             <p>No! There's no usage limit. You can split PDFs as many times as you want, completely free of charge.</p>
-          </el-collapse-item>
-          <el-collapse-item title="How to split PDF files on Mac for free?">
+          </a-collapse-panel>
+          <a-collapse-panel key="13" header="How to split PDF files on Mac for free?">
             <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and split it for free. No software to install, no watermarks added.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I split PDF files on iPhone without an app?">
+          </a-collapse-panel>
+          <a-collapse-panel key="14" header="Can I split PDF files on iPhone without an app?">
             <p>Absolutely! Just open Safari on your iPhone, navigate to PDFMaster, and split PDFs directly in your browser. No app download required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Why choose PDFMaster for splitting PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="15" header="Why choose PDFMaster for splitting PDFs?">
             <p>Unlike other tools that limit free users, force uploads to servers, or add watermarks - PDFMaster is 100% free, 100% private, with no registration required. Your files stay on your device, always.</p>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
-      <div class="tutorial-section">
+          </a-collapse-panel>
+        </a-collapse>
+      </a-card>
+
+      <a-card class="tutorial-card" hoverable>
         <h2 class="section-title">How to Split PDF Files Step by Step</h2>
         <div class="tutorial-step">
           <div class="tutorial-number">1</div>
@@ -489,45 +551,41 @@
             <p>Click Split PDF and download your separated files.</p>
           </div>
         </div>
-      </div>
-      <div class="blog-section">
-        <h2 class="section-title">PDF Document Separation - Top Use Cases</h2>
-        <div class="blog-card">
-          <div class="blog-icon">📚</div>
-          <h3>Academic Research</h3>
-          <p>Extract specific pages from research papers and journal articles for easy reference. Build your own reference library by pulling only the sections you need.</p>
+      </a-card>
+
+      <a-card class="blog-card-container" hoverable>
+        <h2 class="section-title">Perfect for Your Workflow</h2>
+        <div class="blog-cards-grid">
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-briefcase blog-icon"></i>
+            <h3>Academic Research</h3>
+            <p>Extract specific pages from research papers and journal articles for easy reference. Build your own reference library by pulling only the sections you need.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-file-text blog-icon"></i>
+            <h3>Business Reports</h3>
+            <p>Split large reports into individual chapters or sections for targeted distribution. Share only the relevant parts with stakeholders.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-graduation-cap blog-icon"></i>
+            <h3>Student Projects</h3>
+            <p>Extract relevant pages from textbooks and reference materials. Create study guides by combining pages from multiple sources.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-lock blog-icon"></i>
+            <h3>Secure & Private</h3>
+            <p>Split PDFs securely online with local browser processing. Your documents never leave your device, ensuring complete privacy.</p>
+          </div>
         </div>
-        <div class="blog-card">
-          <div class="blog-icon">📄</div>
-          <h3>Business Reports</h3>
-          <p>Split large reports into individual chapters or sections for targeted distribution. Share only the relevant parts with stakeholders.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🎓</div>
-          <h3>Student Projects</h3>
-          <p>Extract relevant pages from textbooks and reference materials. Create study guides by combining pages from multiple sources.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">💼</div>
-          <h3>Legal Documents</h3>
-          <p>Separate contracts and agreements into individual files for better organization. Keep sensitive sections separate for confidentiality.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">📧</div>
-          <h3>Email Attachments</h3>
-          <p>Reduce file size for email by sending only the relevant pages. Avoid hitting attachment size limits with targeted document sharing.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🔒</div>
-          <h3>Secure & Private</h3>
-          <p>Split PDFs securely online with local browser processing. Your documents never leave your device, ensuring complete privacy.</p>
-        </div>
+      </a-card>
+
+      <a-card class="cta-card" hoverable>
         <div class="cta-box">
           <h3>Ready to Split PDF Files?</h3>
           <p>Try our free PDF splitter with no registration required. Extract pages, split by range, or extract specific pages - all for free.</p>
           <a href="#" class="cta-button" onclick="document.querySelector('#app').scrollIntoView({ behavior: 'smooth' }); return false;">Split PDF Now - 100% Free</a>
         </div>
-      </div>
+      </a-card>
     </div>
   </div>
   <footer class="footer">
@@ -560,15 +618,91 @@
         </div>
       </div>
       <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+      <div class="footer-credits">
+        <div class="credits-header">
+          <span class="credits-icon">💡</span>
+          <span class="credits-title">Built with Open Source</span>
+        </div>
+        <div class="libraries-list">
+          <div class="library-item">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Vue.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://element.eleme.io/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Element UI</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://pdf-lib.js.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDFLib</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDF.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge apache">Apache 2.0</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </div>
 <script>
-new Vue({
+
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('Global error:', message, source, lineno, colno, error);
+  if (message.includes('PDF') || message.includes('pdf')) {
+    alert('An error occurred while processing PDF files. Please try again with different files.');
+  }
+  return true;
+};
+
+document.addEventListener('DOMContentLoaded', function() {    
+  console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║   Powered by PDFMaster - https://pdfeasz.com                  ║
+║   Open-source under MIT License. Copyright © 2026             ║
+║   Unauthorized removal of this notice is prohibited.          ║
+╚═══════════════════════════════════════════════════════════════╝
+  `);
+
+  if (typeof Vue === 'undefined') {
+    setTimeout(function() {
+      window.location.reload();
+    }, 1000);
+    return;
+  }
+  
+  Vue.config.errorHandler = function(err, vm, info) {
+    console.error('Vue error:', err, info);
+    if (err.message && (err.message.includes('PDF') || err.message.includes('pdf'))) {
+      vm.$message.error('An error occurred while processing PDF files. Please try again.')
+    } else {
+      vm.$message.error('An unexpected error occurred. Please refresh the page and try again.')
+    }
+  };
+  
+  new Vue({
   el: '#app',
   data() {
     return {
       currentStep: '0',
+      showDrawer: false,
+      drawerStage: 'mode',
       form: { mode: 'every', ranges: '' },
       selectedFiles: [],
       selectedPages: [],
@@ -646,6 +780,55 @@ new Vue({
       this.splitResults = []
       this.currentPreviewImage = ''
     },
+    handleDrawerClose() {
+      if (!this.splitting) {
+        this.drawerStage = 'mode'
+        this.done = false
+        this.splitResults = []
+        this.selectedPages = []
+        this.form.mode = 'every'
+        this.form.ranges = ''
+        this.showDrawer = false
+      }
+    },
+    getDrawerActionText() {
+      if (this.drawerStage === 'mode') {
+        if (this.form.mode === 'select') return 'Next'
+        if (this.form.mode === 'range') return 'Next'
+        if (this.form.mode === 'every') return 'Split'
+        return 'Next'
+      }
+      if (this.drawerStage === 'select' || this.drawerStage === 'range') {
+        return 'Split'
+      }
+      return 'Split PDF'
+    },
+    handleDrawerAction() {
+      if (this.drawerStage === 'mode') {
+        if (this.form.mode === 'select') {
+          this.drawerStage = 'select'
+        } else if (this.form.mode === 'range') {
+          this.drawerStage = 'range'
+        } else if (this.form.mode === 'every') {
+          this.drawerStage = 'progress'
+          this.startSplit()
+        }
+      } else if (this.drawerStage === 'select') {
+        if (this.selectedPages.length === 0) {
+          this.$message.warning('Please select at least one page to split')
+          return
+        }
+        this.drawerStage = 'progress'
+        this.startSplit()
+      } else if (this.drawerStage === 'range') {
+        if (!this.form.ranges.trim()) {
+          this.$message.warning('Please enter page ranges')
+          return
+        }
+        this.drawerStage = 'progress'
+        this.startSplit()
+      }
+    },
     goToNext() { 
       if (this.selectedFiles.length === 0) {
         this.$notify({
@@ -688,21 +871,26 @@ new Vue({
     handleExceed() {
       this.$notify({ title: '提示', message: 'Only one file can be processed at a time', type: 'warning' })
     },
-    async handleFileChange(file) {
-      const raw = file.raw
-      if (!raw.name.endsWith('.pdf')) {
-        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
-        return
+    beforeUpload(file) {
+      if (!file.name.endsWith('.pdf')) {
+        this.$message.error('Only PDF files are allowed')
+        return false
       }
-      
       const maxSize = 50 * 1024 * 1024
-      if (raw.size > maxSize) {
-        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' })
-        return
+      if (file.size > maxSize) {
+        this.$message.error('File size cannot exceed 50MB')
+        return false
       }
+      return true
+    },
+    handleDrop(e) {
+      e.preventDefault()
+    },
+    async handleFileChange({ file, onSuccess }) {
+      const raw = file
       
       if (this.selectedFiles.length >= 1) {
-        this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' })
+        this.$message.warning('You can upload a maximum of 1 file')
         return
       }
       
@@ -715,9 +903,12 @@ new Vue({
         rendering: false,
         rendered: false
       }
-      this.selectedFiles = [item]
+      this.selectedFiles.push(item)
       this.renderQueue.push(item)
       this.processRenderQueue()
+      if (onSuccess) {
+        onSuccess('success')
+      }
     },
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
@@ -773,7 +964,29 @@ new Vue({
       const file = this.selectedFiles[idx]
       if (file) { this.destroyFileResources(file) }
       this.selectedFiles.splice(idx, 1)
-      if (this.$refs.upload) { this.$refs.upload.uploadFiles.splice(idx, 1) }
+      if (this.$refs.upload) {
+        this.$refs.upload.uploadFiles.splice(idx, 1)
+      }
+    },
+    selectAllPages() {
+      this.selectedFiles.forEach((file, fi) => {
+        file.thumbnails.forEach((_, pi) => {
+          const key = `${fi}-${pi}`
+          if (!this.selectedPages.includes(key)) {
+            this.selectedPages.push(key)
+          }
+        })
+      })
+    },
+    deselectAllPages() {
+      this.selectedPages = []
+    },
+    toggleAllPages() {
+      this.selectedFiles.forEach((file, fi) => {
+        file.thumbnails.forEach((_, pi) => {
+          this.toggle(fi, pi)
+        })
+      })
     },
     clearAllFiles() {
       this.selectedFiles.forEach(file => { this.destroyFileResources(file) })
@@ -970,6 +1183,8 @@ new Vue({
       this.done = false
       this.splitResults = []
       this.currentStep = '0'
+      this.showDrawer = false
+      this.drawerStage = 'mode'
       this.form.mode = 'every'
       this.form.ranges = ''
       this.splitting = false
@@ -977,8 +1192,18 @@ new Vue({
       this.progressText = ''
       this.downloadFileName = ''
     }
+  },
+  watch: {
+    showDrawer(newVal) {
+      if (newVal) {
+        this.drawerStage = 'mode';
+        this.splitting = false;
+        this.done = false;
+      }
+    }
   }
 })
+});
 </script>
 </body>
 </html>

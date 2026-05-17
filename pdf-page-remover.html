@@ -154,7 +154,8 @@
   </script>
   
   <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
-  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.css">
+  <link rel="stylesheet" href="/css/common.css">
   
   <style>
     .options-section {
@@ -212,13 +213,20 @@
       color: #fff;
     }
   </style>
-  <script src="./lib/vue/vue.js"></script>
-  <script src="/lib/element-ui/index.js"></script>
-  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
-  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-  <script src="./lib/preview-utils.js"></script>
-  <script src="./lib/components/preview-modal.js"></script>
+  <script src="/lib/vue/vue.js" defer></script>
+  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.js" defer></script>
+  <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
+  <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
+  <script src="./lib/preview-utils.js" defer></script>
+  <script src="./lib/components/preview-modal.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {    
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js';
+      }
+    });
+  </script>
 
 
 </head>
@@ -233,7 +241,10 @@
         </div>
         <nav class="header-links">
           <a href="index.html" class="back-btn">
-            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M19 12H5"></path>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
             Back to Home
           </a>
           <a href="contact.html" class="contact-btn">Contact Us</a>
@@ -248,284 +259,325 @@
         <h1 class="page-title">PDF Page Remover - Remove PDF Pages Online Free</h1>
         <p class="page-subtitle">Delete pages from PDF online for free. Remove unwanted pages, erase blank pages, batch remove specific pages by range. All processing happens locally in your browser - no upload required, no registration needed. Supports PDF files up to 50MB.</p>
       </div>
-      <div class="steps-container">
-        <div class="steps-wrapper">
-          <el-steps :active="Number(currentStep)" finish-status="success" align-center>
-            <el-step title="Upload PDF" icon="el-icon-upload"></el-step>
-            <el-step title="Select Pages" icon="el-icon-document-delete"></el-step>
-            <el-step title="Download PDF" icon="el-icon-download"></el-step>
-          </el-steps>
-        </div>
-      </div>
-      <div class="tool-card">
-        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick" type="border-card">
-          <el-tab-pane label="Upload" name="0">
-            <div class="tab-content">
-              <el-upload
-                ref="upload"
-                class="upload-area"
-                drag
-                :auto-upload="false"
-                accept=".pdf"
-                :on-change="handleFileChange"
-                :on-exceed="handleExceed"
-                action="#"
-                :show-file-list="false"
-                :limit="1"
-                :multiple="false"
-              >
-                <i class="el-icon-folder-opened upload-icon"></i>
-                <div class="upload-text">Drag & drop PDF files here</div>
-                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
-              </el-upload>
-              <div v-if="selectedFile" class="file-list-section">
-                <div class="file-list-header">
-                  <div class="file-list-title">
-                    <i class="el-icon-file-text"></i>
-                    Selected PDF
-                  </div>
-                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearFile">Clear All</el-button>
-                </div>
-                <div class="file-item">
-                  <span class="file-name">{{ selectedFile.name }}</span>
-                  <span class="file-info">{{ formatFileSize(selectedFile.size) }}</span>
-                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="clearFile"></el-button>
-                </div>
-              </div>
-              <div class="action-section">
-                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
-              </div>
+      <a-card class="tool-card" hoverable>
+          <a-upload
+            ref="upload"
+            class="upload-area"
+            :multiple="true"
+            :file-list="[]"
+            accept=".pdf"
+            :custom-request="handleFileChange"
+            :before-upload="beforeUpload"
+            @drop="handleDrop"
+          >
+            <div class="upload-content">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div class="upload-text">Drag & drop PDF file here</div>
+              <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
             </div>
-          </el-tab-pane>
-          <el-tab-pane label="Remove Pages" name="1">
-            <div class="tab-content">
-              <div class="options-section">
-                <div class="options-title">Select Pages to Remove</div>
-                <div class="mode-description">Click on pages to select them for removal</div>
-                <div class="output-options">
-                  <div class="option-hint">Click on pages in the preview below to select which pages to remove</div>
-                </div>
+          </a-upload>
+
+          <div v-if="selectedFiles.length" class="file-list-section">
+            <div class="file-list-header">
+              <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
+            </div>
+            <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
+              <i class="anticon anticon-file-text file-icon"></i>
+              <div class="file-info">
+                <span class="file-name" :title="file.name">{{ file.name }}</span>
+                <span class="file-details">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
               </div>
-              <div v-if="pagePreviews.length > 0" class="options-section">
-                <div class="options-title">Page Preview</div>
-                <div class="page-preview-grid">
-                  <div v-for="(page, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{ 'selected': pagesToRemove.includes(idx + 1) }" @click="togglePage(idx + 1)">
-                    <img :src="page" class="page-preview-image">
-                    <div class="page-number">{{ idx + 1 }}</div>
-                    <div v-if="pagesToRemove.includes(idx + 1)" class="selected-overlay">✓</div>
+              <button class="remove-btn" @click="removeFile(idx)" aria-label="Remove file">
+                Remove
+              </button>
+            </div>
+          </div>
+
+          <div v-if="selectedFiles.length" class="action-section">
+            <a-button type="primary" @click="showDrawer = true">
+              Continue <i class="anticon anticon-right"></i>
+            </a-button>
+          </div>
+
+          <a-drawer
+            :title="drawerStage === 'options' ? 'Select Pages to Remove' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
+            :visible="showDrawer"
+            :width="600"
+            :closable="true"
+            :mask-closable="true"
+            @close="handleDrawerClose"
+          >
+            <div class="drawer-content">
+              <div v-if="drawerStage === 'options'" class="preview-section">
+                <div class="preview-header">
+                  <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
+                  <div class="preview-actions">
+                    <a-button type="text" size="small" @click="selectAllPages">Select All</a-button>
+                    <a-button type="text" size="small" @click="deselectAllPages">Deselect All</a-button>
+                    <a-button type="text" size="small" @click="toggleAllPages">Toggle</a-button>
                   </div>
                 </div>
-                <div v-if="pagesToRemove.length > 0" class="selection-info">
-                  <span>Selected {{ pagesToRemove.length }} page(s) for removal</span>
-                  <button class="clear-selection" @click="clearSelection">Clear Selection</button>
+                <div class="page-preview-container">
+                  <div v-if="pagePreviews.length > 0" class="page-preview-grid">
+                    <div v-for="(page, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{ 'selected': pagesToRemove.includes(idx + 1) }" @click="togglePage(idx + 1)">
+                      <img :src="page" class="page-preview-image">
+                      <div class="page-number">{{ idx + 1 }}</div>
+                      <div v-if="pagesToRemove.includes(idx + 1)" class="selected-overlay">✓</div>
+                    </div>
+                  </div>
+                  <div v-if="pagesToRemove.length > 0" class="selection-info">
+                    <span>Selected {{ pagesToRemove.length }} page(s) for removal</span>
+                    <button class="clear-selection" @click="clearSelection">Clear Selection</button>
+                  </div>
                 </div>
               </div>
-              <div class="action-section">
-                <el-button type="default" @click="goToPrev" :disabled="removing">Back</el-button>
-                <el-button type="primary" @click="removePages" :disabled="removing || !selectedFile || pagesToRemove.length === 0">{{ removing ? 'Removing...' : 'Remove Pages' }}</el-button>
-              </div>
-              <div v-if="removing" class="progress-section">
+
+              <div v-if="drawerStage === 'progress' || removing" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{width: progress + '%'}"></div>
-                </div>
+                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="Result" name="2">
-            <div class="tab-content">
-              <div class="result-content" v-if="done">
+
+              <div v-if="drawerStage === 'result' && done" class="result-content">
                 <div class="result-title">Pages Removed Successfully!</div>
                 <p class="result-desc">Successfully removed {{ removedCount }} page(s) from your PDF</p>
-                
                 <div class="result-preview">
-                  <div v-for="(page, i) in resultPreviews" :key="i" class="page-preview-item clickable" @click="openPreview(page)" >
+                  <div v-for="(page, i) in resultPreviews" :key="i" class="page-preview-item clickable" @click="openPreview(page)">
                     <img :src="page" class="page-preview-image">
                     <div class="page-number">{{ i + 1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>
                   </div>
                 </div>
-                <div class="filename-input">
-                  <label>File Name:</label>
-                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                <div class="download-section">
+                  <div class="filename-input">
+                    <label>File Name:</label>
+                    <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                  </div>
+                  <a-button type="primary" size="large" @click="download">Download PDF</a-button>
                 </div>
-                
-                <el-button type="primary" size="large" @click="download">Download PDF</el-button>
-                
                 <div class="recommend-section">
-                  <p>Need to extract specific pages instead?</p>
-                  <a href="pdf-page-extractor.html" class="recommend-link">Try our Page Extractor Tool →</a>
+                  <p>Need to extract specific pages? <a href="pdf-page-extractor.html" class="recommend-link">Try our Page Extractor Tool →</a></p>
+                </div>
+
+                <div class="action-section center">
+                  <a-button type="default" @click="reset">Start Over</a-button>
                 </div>
               </div>
-              <preview-modal 
-                :visible="showPreviewModal" 
-                :image-src="currentPreviewImage" 
-                title="PDF Preview"
-                @close="closePreview" 
-              ></preview-modal>
-              <div class="action-section">
-                <el-button type="default" @click="reset">Start Over</el-button>
+
+              <div v-if="drawerStage === 'options'" class="drawer-actions">
+                <a-button @click="handleDrawerClose">Cancel</a-button>
+                <a-button type="primary" @click="removePages" :disabled="removing || pagesToRemove.length === 0">
+                  {{ removing ? 'Removing...' : 'Remove Pages' }}
+                </a-button>
               </div>
             </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
-      <div class="instructions">
-        <h2 class="instructions-title">Why Remove Pages Here?</h2>
+          </a-drawer>
+
+          <a-drawer
+            title="PDF Preview"
+            :visible="showPreviewModal"
+            :width="500"
+            placement="left"
+            @close="closePreview"
+          >
+            <div class="preview-drawer-content">
+              <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" alt="PDF Preview" />
+              <div v-else class="preview-empty">No preview available</div>
+            </div>
+          </a-drawer>
+      </a-card>
+      <a-card class="instructions-card" hoverable>
+        <h2 class="section-title">Why Remove Pages Here?</h2>
         <div class="steps">
           <div class="step">
-            <i class="el-icon-check step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
             <div class="step-title">Truly Free & Unlimited</div>
             <div class="step-desc">50MB file size | No hidden limits</div>
           </div>
           <div class="step">
-            <i class="el-icon-lock step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
             <div class="step-title">100% Private</div>
-            <div class="step-desc">No server uploads | Locally processed</div>
+            <div class="step-desc">Local processing | Others upload files</div>
           </div>
           <div class="step">
-            <i class="el-icon-close step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
             <div class="step-title">No Watermarks</div>
-            <div class="step-desc">Clean output | No branding</div>
+            <div class="step-desc">Clean output | Others add branding</div>
           </div>
           <div class="step">
-            <i class="el-icon-edit step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </div>
             <div class="step-title">Visual Page Selection</div>
             <div class="step-desc">Click to select | Preview before delete</div>
           </div>
           <div class="step">
-            <i class="el-icon-user step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
             <div class="step-title">No Registration</div>
-            <div class="step-desc">Start immediately | No sign-up</div>
+            <div class="step-desc">Start immediately | Others force sign-up</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                <path d="M22 12a14.5 14.5 0 0 1 0 20 14.5 14.5 0 0 1 0-20"></path>
+                <line x1="12" y1="2" x2="12" y2="22"></line>
+              </svg>
+            </div>
+            <div class="step-title">Cross-Platform</div>
+            <div class="step-desc">Mac/Win/Mobile | Works everywhere</div>
           </div>
         </div>
-      </div>
-      <div class="privacy-section">
-        <h2 class="section-title">🔒 Your Privacy is Our Priority</h2>
+      </a-card>
+
+      <a-card class="privacy-card" hoverable>
+        <h2 class="section-title">Your Privacy is Our Priority</h2>
         <div class="privacy-content">
-          <p><strong>All processing happens locally in your browser.</strong> Your files never leave your device. We do not upload any files to our servers. Your documents remain private and secure at all times.</p>
-          <p>Our PDF page remover uses client-side JavaScript libraries to process your files directly in your browser. No data is transmitted over the internet, ensuring complete privacy and security.</p>
+          <p><strong>🔒 Zero Server Uploads.</strong> Every PDF page removal happens right in your browser. No data ever touches our servers. Your confidential documents never leave your device.</p>
+          <p><strong>🚫 No Tracking, No Logs.</strong> We don't collect your email, IP address, or any personal data. No cookies, no analytics, no ads. Just a simple tool that works and forgets.</p>
+          <p><strong>✅ Trusted by Professionals.</strong> Lawyers, researchers, and business teams rely on PDFMaster for their most sensitive documents. Your privacy isn't an afterthought - it's built into every line of code.</p>
+          <p><strong>❌ The Essential Difference:</strong> 99% of "online PDF tools" upload your files to their servers for processing, even if they claim to "delete" them afterwards. Our code is completely open source - you can right-click and view the source to confirm there are no upload requests.</p>
         </div>
-      </div>
-      <div class="technology-section">
+      </a-card>
+
+      <a-card class="technology-card" hoverable>
         <h2 class="section-title">Powered by Industry-Leading Technology</h2>
         <div class="tech-content">
-          <el-card class="tech-card" shadow="hover">
-            <!-- <div class="tech-item-icon"></div> -->
+          <a-card class="tech-card" hoverable>
+            <h3>PDF-lib Engine</h3>
+            <p>We use <strong>PDF-lib</strong>, the most trusted open-source PDF library. Your files are processed using battle-tested code that powers thousands of applications. <strong>No garbled text, no missing content.</strong></p>
+          </a-card>
+          <a-card class="tech-card" hoverable>
+            <h3>PDF.js Rendering</h3>
+            <p>Built on Mozilla's <strong>PDF.js</strong> engine for accurate parsing. Every page is rendered precisely for perfect selection. <strong>What you see is what you get.</strong></p>
+          </a-card>
+          <a-card class="tech-card" hoverable>
             <h3>Precision Page Deletion</h3>
-            <p>Our algorithm identifies page boundaries with pixel-perfect accuracy. Complex documents with varying page sizes and orientations are handled correctly every time.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
-            <!-- <div class="tech-item-icon"></div> -->
-            <h3>Secure Document Processing</h3>
-            <p>All PDF operations happen locally in your browser. Your documents never leave your device, ensuring complete privacy and security for sensitive files.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
-            <!-- <div class="tech-item-icon">⚡</div> -->
-            <h3>Fast Page Removal</h3>
-            <p>Remove pages quickly with our optimized processing engine. Even large documents with hundreds of pages are processed efficiently without blocking your browser.</p>
-          </el-card>
+            <p>Our algorithm identifies page boundaries with pixel-perfect accuracy. Complex documents with varying page sizes and orientations are handled correctly. <strong>Professional results every time.</strong></p>
+          </a-card>
         </div>
-      </div>
-            <div class="guide-section">
+      </a-card>
+
+      <a-card class="guide-card-container" hoverable>
         <h2 class="section-title">Pro Tips for Better Page Removal</h2>
         <div class="guide-content">
-          <el-card class="guide-card" shadow="hover">
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Review Before Removing</h3>
             <p class="guide-desc">Always preview pages before removing them. This helps you confirm you're deleting the right pages from your document.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </a-card>
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Backup Original</h3>
             <p class="guide-desc">Keep a copy of your original PDF before making deletions. This ensures you can restore the document if needed.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </a-card>
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Verify Results</h3>
             <p class="guide-desc">After removing pages, check the downloaded PDF to ensure all unwanted pages are removed and the document structure is correct.</p>
-          </el-card>
+          </a-card>
         </div>
-      </div>
-            <div class="faq-section">
+      </a-card>
+
+      <a-card class="faq-card" hoverable>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <el-collapse accordion>
-          <el-collapse-item title="How to delete pages from PDF online free?">
+        <a-collapse :default-active-key="[]">
+          <a-collapse-panel key="1" header="How to delete pages from PDF online free?">
             <p>Upload your PDF, click on pages to select them for removal, and click Remove Pages. Your new PDF with selected pages removed will be ready to download in seconds - completely free.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I delete multiple pages from PDF?">
+          </a-collapse-panel>
+          <a-collapse-panel key="2" header="Can I delete multiple pages from PDF?">
             <p>Yes, you can click on multiple pages to select them for removal. Remove blank pages, cover pages, or any unwanted pages from your PDF document.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is there a file size limit?">
+          </a-collapse-panel>
+          <a-collapse-panel key="3" header="Is there a file size limit?">
             <p>Yes, the maximum file size is 50MB. This ensures the PDF page remover works efficiently in your browser without performance issues.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Will removing pages affect the file quality?">
+          </a-collapse-panel>
+          <a-collapse-panel key="4" header="Will removing pages affect the file quality?">
             <p>No, you can remove PDF pages without losing quality. The remaining pages retain their original quality completely.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I undo the removal?">
+          </a-collapse-panel>
+          <a-collapse-panel key="5" header="Can I undo the removal?">
             <p>Once pages are removed and the PDF is saved, you cannot undo the changes. We recommend keeping a backup of your original PDF file.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I delete pages from PDF on Mac for free?">
+          </a-collapse-panel>
+          <a-collapse-panel key="6" header="Can I delete pages from PDF on Mac for free?">
             <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and delete pages for free. No software to install.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I use this tool on iPhone or Android?">
+          </a-collapse-panel>
+          <a-collapse-panel key="7" header="Can I use this tool on iPhone or Android?">
             <p>Yes! Our PDF page remover works perfectly on iPhone and Android devices. Just open your browser and start removing pages - no app installation required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is my data secure?">
+          </a-collapse-panel>
+          <a-collapse-panel key="8" header="Is my data secure?">
             <p>Yes! All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Which browsers are supported?">
+          </a-collapse-panel>
+          <a-collapse-panel key="9" header="Which browsers are supported?">
             <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I delete pages from password-protected PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="10" header="Can I delete pages from password-protected PDFs?">
             <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-          </el-collapse-item>
-          <el-collapse-item title="How to remove blank pages from PDF?">
+          </a-collapse-panel>
+          <a-collapse-panel key="11" header="How to remove blank pages from PDF?">
             <p>Upload your PDF, click on blank page thumbnails to select them, then click Remove Pages. Our tool makes it easy to clean up your documents.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Why choose PDFMaster for removing pages?">
-            <p>PDFMaster offers 100% free page removal with no watermarks, local processing for complete privacy, and accurate results. Your files stay secure on your device.</p>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
-      </div>
-      <div class="blog-section">
-        <h2 class="section-title">Why Choose Our PDF Page Remover?</h2>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Delete PDF Pages Online</h3>
-          <p>Remove PDF pages online for free without software. Delete unwanted pages from your PDF documents quickly and easily.</p>
+          </a-collapse-panel>
+        </a-collapse>
+      </a-card>
+
+      <a-card class="blog-card-container" hoverable>
+        <h2 class="section-title">Perfect for Your Workflow</h2>
+        <div class="blog-cards-grid">
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-file-text blog-icon"></i>
+            <h3>Delete PDF Pages Online</h3>
+            <p>Remove PDF pages online for free without software. Delete unwanted pages from your PDF documents quickly and easily.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-select blog-icon"></i>
+            <h3>Remove Specific Pages</h3>
+            <p>Delete specific pages from PDF by clicking. Select multiple pages for batch removal without complicated range syntax.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-border blog-icon"></i>
+            <h3>Remove Blank Pages</h3>
+            <p>Clean up PDF documents by removing blank pages, cover pages, or any unwanted content from your files.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-briefcase blog-icon"></i>
+            <h3>Batch Remove PDF Pages</h3>
+            <p>Delete multiple pages from PDF at once. Remove pages by visual selection for bulk deletion.</p>
+          </div>
         </div>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Remove Specific Pages</h3>
-          <p>Delete specific pages from PDF by clicking or specify page ranges like 1-5, 7, 9-12 for batch removal.</p>
-        </div>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Remove Blank Pages</h3>
-          <p>Clean up PDF pages by removing blank pages, cover pages, or any unwanted content from your documents.</p>
-        </div>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Batch Remove PDF Pages</h3>
-          <p>Delete multiple pages from PDF at once. Remove pages by range or select multiple pages for bulk deletion.</p>
-        </div>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>No Quality Loss</h3>
-          <p>Remove PDF pages without losing quality. The remaining pages retain their original quality completely.</p>
-        </div>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Secure & Private</h3>
-          <p>Free PDF page remover with local browser processing. Remove PDF pages without uploading, no sign up required.</p>
-        </div>
+      </a-card>
+
+      <a-card class="cta-card" hoverable>
         <div class="cta-box">
           <h3>Start Removing PDF Pages Now</h3>
-          <p>Remove PDF pages online for free. Delete pages from PDF, erase unwanted pages, batch remove specific pages. No registration required.</p>
+          <p>Free, private, and unlimited. Your files never leave your device. Try PDFMaster now!</p>
           <button class="cta-button" @click="goToUpload">Remove Pages Now</button>
         </div>
-      </div>
+      </a-card>
     </div>
   </div>
+
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -534,15 +586,16 @@
           <ul>
             <li><a href="pdf-merger.html">PDF Merger</a></li>
             <li><a href="pdf-splitter.html">PDF Splitter</a></li>
-            <li><a href="pdf-to-image.html">PDF to Image</a></li>
-            <li><a href="pdf-signer.html">PDF Signer</a></li>
+            <li><a href="pdf-compressor.html">PDF Compressor</a></li>
+            <li><a href="pdf-page-reorder.html">Page Reorder</a></li>
+            <li><a href="image-to-pdf.html">Image to PDF</a></li>
           </ul>
         </div>
         <div class="footer-section">
           <h4>About</h4>
           <ul>
             <li><a href="about.html">About</a></li>
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
             <li><a href="feedback.html">Feedback</a></li>
           </ul>
         </div>
@@ -550,21 +603,97 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+      <div class="footer-credits">
+        <div class="credits-header">
+          <span class="credits-icon">💡</span>
+          <span class="credits-title">Built with Open Source</span>
+        </div>
+        <div class="libraries-list">
+          <div class="library-item">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Vue.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://element.eleme.io/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Element UI</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://pdf-lib.js.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDFLib</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDF.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge apache">Apache 2.0</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </div>
 <script>
-new Vue({
+
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('Global error:', message, source, lineno, colno, error);
+  if (message.includes('PDF') || message.includes('pdf')) {
+    alert('An error occurred while processing PDF files. Please try again with different files.');
+  }
+  return true;
+};
+
+document.addEventListener('DOMContentLoaded', function() {    
+  console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║   Powered by PDFMaster - https://pdfeasz.com                  ║
+║   Open-source under MIT License. Copyright © 2026             ║
+║   Unauthorized removal of this notice is prohibited.          ║
+╚═══════════════════════════════════════════════════════════════╝
+  `);
+
+  if (typeof Vue === 'undefined') {
+    setTimeout(function() {
+      window.location.reload();
+    }, 1000);
+    return;
+  }
+  
+  Vue.config.errorHandler = function(err, vm, info) {
+    console.error('Vue error:', err, info);
+    if (err.message && (err.message.includes('PDF') || err.message.includes('pdf'))) {
+      vm.$message.error('An error occurred while processing PDF files. Please try again.')
+    } else {
+      vm.$message.error('An unexpected error occurred. Please refresh the page and try again.')
+    }
+  };
+  
+  new Vue({
   el: '#app',
   data() {
     return {
-      currentStep: '0',
-      selectedFile: null,
+      showDrawer: false,
+      drawerStage: 'options',
+      selectedFiles: [],
       form: {},
       pagePreviews: [],
       pagesToRemove: [],
@@ -580,63 +709,65 @@ new Vue({
       progressText: ''
     }
   },
-  methods: {
-    goToNext() { 
-      if (!this.selectedFile) {
-        this.$notify({
-          title: '提示',
-          message: 'Please upload a PDF file first',
-          type: 'warning'
-        });
-        return;
+  watch: {
+    showDrawer(newVal) {
+      if (newVal && this.drawerStage === 'options') {
+        this.generatePagePreviews()
       }
-      this.currentStep = '1'
-      this.generatePagePreviews()
+    }
+  },
+  methods: {
+    handleDrawerClose() {
+      if (!this.removing) {
+        this.drawerStage = 'options'
+        this.done = false
+        this.resultBlob = null
+        this.resultPreviews = []
+        this.pagesToRemove = []
+        this.showDrawer = false
+      }
     },
-    goToPrev() { this.currentStep = '0' },
     goToUpload() {
       this.reset()
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
-    handleExceed() {
-      this.$notify({ title: '提示', message: 'You can upload only one file at a time', type: 'warning' })
-    },
-    handleTabClick(tab) {
-      const targetStep = tab.name
-      if (targetStep !== '0' && !this.selectedFile) {
-        this.$notify({ title: '提示', message: 'Please upload a PDF first', type: 'warning' })
-        this.$nextTick(() => {
-          this.currentStep = '0'
-        })
-        return
-      }
-      if (targetStep === '2' && !this.done) {
-        this.$notify({ title: '提示', message: 'Please complete page removal first', type: 'warning' })
-        this.$nextTick(() => {
-          this.currentStep = '1'
-        })
-        return
-      }
-    },
-    handleFileChange(file) {
-      const raw = file.raw
-      if (!raw.name.toLowerCase().endsWith('.pdf')) {
-        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
-        return
+    beforeUpload(file) {
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        this.$message.error('Only PDF files are allowed')
+        return false
       }
       const maxSize = 50 * 1024 * 1024
-      if (raw.size > maxSize) {
-        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' })
+      if (file.size > maxSize) {
+        this.$message.error('File size cannot exceed 50MB')
+        return false
+      }
+      return true
+    },
+    handleDrop(e) {
+      e.preventDefault()
+    },
+    async handleFileChange({ file, onSuccess }) {
+      const raw = file
+      
+      if (this.selectedFiles.length >= 1) {
+        this.$message.warning('You can upload a maximum of 1 file')
         return
       }
-      if (this.selectedFile) {
-        this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' })
-        return
-      }
-      this.selectedFile = {
+      
+      const arrayBuffer = await raw.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+      const pageCount = pdf.numPages
+      pdf.destroy()
+      
+      this.selectedFiles.push({
         name: raw.name,
         file: raw,
-        size: raw.size
+        size: raw.size,
+        pageCount: pageCount
+      })
+      
+      if (onSuccess) {
+        onSuccess('success')
       }
     },
     formatFileSize(bytes) {
@@ -646,8 +777,14 @@ new Vue({
       const i = Math.floor(Math.log(bytes) / Math.log(k))
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
-    clearFile() {
-      this.selectedFile = null
+    removeFile(idx) {
+      this.selectedFiles.splice(idx, 1)
+      if (this.$refs.upload) {
+        this.$refs.upload.uploadFiles.splice(idx, 1)
+      }
+    },
+    clearAllFiles() {
+      this.selectedFiles = []
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = []
       }
@@ -665,54 +802,18 @@ new Vue({
     clearSelection() {
       this.pagesToRemove = []
     },
-    async generatePagePreviews() {
-      if (!this.selectedFile) return
-      
-      const arrayBuffer = await this.selectedFile.file.arrayBuffer()
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const totalPages = Math.min(pdf.numPages, 10)
-      
-      for (let i = 0; i < totalPages; i++) {
-        const page = await pdf.getPage(i + 1)
-        const vp = page.getViewport({ scale: 0.4 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.pagePreviews.push(c.toDataURL())
-      }
-      pdf.destroy()
-    },
-    parsePageRange(pagesText, totalPages) {
-      const pages = new Set()
-      const parts = pagesText.split(',').map(p => p.trim())
-      for (const part of parts) {
-        if (part.includes('-')) {
-          const [start, end] = part.split('-').map(p => parseInt(p.trim()))
-          for (let i = Math.max(1, start); i <= Math.min(totalPages, end); i++) {
-            pages.add(i)
-          }
-        } else {
-          const num = parseInt(part)
-          if (num >= 1 && num <= totalPages) {
-            pages.add(num)
-          }
-        }
-      }
-      return Array.from(pages).sort((a, b) => a - b)
-    },
     async removePages() {
-      if (!this.selectedFile) return
+      if (!this.selectedFiles.length) return
       
+      this.drawerStage = 'progress'
       this.removing = true
       this.progress = 0
       this.progressText = 'Loading PDF...'
+      
       try {
-        const arrayBuffer = await this.selectedFile.file.arrayBuffer()
+        const arrayBuffer = await this.selectedFiles[0].file.arrayBuffer()
         const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer)
         
-        const totalPages = pdfDoc.getPageCount()
         const pagesArray = [...this.pagesToRemove].sort((a, b) => b - a)
         this.removedCount = pagesArray.length
         
@@ -736,13 +837,34 @@ new Vue({
         this.progress = 100
         this.removing = false
         this.done = true
-        this.currentStep = '2'
+        this.drawerStage = 'result'
         
       } catch (error) {
         console.error('Error removing pages:', error)
         this.$notify({ title: '错误', message: 'Failed to remove pages. Please try again.', type: 'error' })
         this.removing = false
+        this.drawerStage = 'options'
       }
+    },
+    async generatePagePreviews() {
+      if (!this.selectedFiles.length) return
+      
+      this.pagePreviews = []
+      const arrayBuffer = await this.selectedFiles[0].file.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+      const totalPages = Math.min(pdf.numPages, 10)
+      
+      for (let i = 0; i < totalPages; i++) {
+        const page = await pdf.getPage(i + 1)
+        const vp = page.getViewport({ scale: 0.4 })
+        const c = document.createElement('canvas')
+        const ctx = c.getContext('2d')
+        c.width = vp.width
+        c.height = vp.height
+        await page.render({ canvasContext: ctx, viewport: vp }).promise
+        this.pagePreviews.push(c.toDataURL())
+      }
+      pdf.destroy()
     },
     async generateResultPreviews() {
       this.resultPreviews = []
@@ -762,6 +884,22 @@ new Vue({
       }
       pdf.destroy()
     },
+    openPreview(img) {
+      const pageIdx = this.pagePreviews.indexOf(img)
+      const resultIdx = this.resultPreviews.indexOf(img)
+      
+      if (resultIdx >= 0 && this.resultBlob) {
+        this.currentPreviewImage = img
+        this.showPreviewModal = true
+      } else if (pageIdx >= 0 && this.selectedFiles.length) {
+        this.currentPreviewImage = img
+        this.showPreviewModal = true
+      }
+    },
+    closePreview() {
+      this.showPreviewModal = false
+      this.currentPreviewImage = null
+    },
     download() {
       const url = URL.createObjectURL(this.resultBlob)
       const a = document.createElement('a')
@@ -772,35 +910,11 @@ new Vue({
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     },
-    async openPreview(img) {
-      const pageIdx = this.pagePreviews.indexOf(img)
-      const resultIdx = this.resultPreviews.indexOf(img)
-      
-      if (resultIdx >= 0 && this.resultBlob) {
-        PreviewUtils.openPreview({
-          image: img,
-          previews: this.resultPreviews,
-          resultBlob: this.resultBlob,
-          vm: this
-        })
-      } else if (pageIdx >= 0 && this.selectedFile) {
-        PreviewUtils.openPreview({
-          image: img,
-          previews: this.pagePreviews,
-          resultBlob: this.selectedFile.file,
-          vm: this
-        })
-      } else {
-        this.currentPreviewImage = img
-        this.showPreviewModal = true
-      }
-    },
-    closePreview() {
-      PreviewUtils.closePreview(this)
-    },
     reset() {
-      this.currentStep = '0'
-      this.selectedFile = null
+      this.selectedFiles = []
+      if (this.$refs.upload) {
+        this.$refs.upload.uploadFiles = []
+      }
       this.form = {}
       this.pagePreviews = []
       this.pagesToRemove = []
@@ -811,9 +925,12 @@ new Vue({
       this.removedCount = 0
       this.showPreviewModal = false
       this.currentPreviewImage = null
+      this.drawerStage = 'options'
+      this.showDrawer = false
     }
   }
 })
+});
 </script>
 </body>
 </html>

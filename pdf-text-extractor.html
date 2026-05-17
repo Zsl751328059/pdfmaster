@@ -159,7 +159,9 @@
   </script>
   
   <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
-  <link rel="stylesheet" href="./common.css">
+  <link rel="stylesheet" href="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.css">
+  <link rel="stylesheet" href="/css/common.css">
+  
   <style>
     .text-stats {
       display: flex;
@@ -265,9 +267,6 @@
       font-weight: 500;
       margin: 8px 0;
     }
-    .format-badge i {
-      font-size: 12px;
-    }
     .text-preview {
       background: #ffffff;
       border: 1px solid #e5e7eb;
@@ -290,10 +289,6 @@
       background: transparent;
       border: none;
     }
-    .extracted-text::selection {
-      background: #dbeafe;
-      color: #1e40af;
-    }
     .text-preview .preview-header {
       display: flex;
       justify-content: space-between;
@@ -311,17 +306,125 @@
       display: flex;
       gap: 8px;
     }
-    .text-preview .preview-actions .el-button--text {
-      padding: 4px 8px;
+    .page-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+      padding: 16px;
+      background: #fafafa;
+      border-radius: 12px;
+      min-height: 100px;
+    }
+    .page-preview-item {
+      position: relative;
+      cursor: pointer;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .page-preview-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    .page-preview-item.selected {
+      box-shadow: 0 0 0 3px #409EFF;
+    }
+    .page-preview-image {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      background: #fff;
+    }
+    .page-number {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 24px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 12px;
+      font-weight: 600;
+    }
+    .selected-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(64, 158, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #fff;
+    }
+    .mode-option {
+      padding: 16px;
+      border: 2px solid #e8e8e8;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    .mode-option:hover {
+      border-color: #409EFF;
+    }
+    .mode-option.active {
+      border-color: #409EFF;
+      background: rgba(64, 158, 255, 0.05);
+    }
+    .mode-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .mode-title {
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 4px;
+    }
+    .mode-desc {
+      font-size: 13px;
+      color: #606266;
+      margin-bottom: 8px;
+    }
+    .mode-explanation {
+      font-size: 12px;
+      color: #909399;
+      line-height: 1.5;
+    }
+    .merge-mode-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
     }
   </style>
-  <script src="./lib/vue/vue.js"></script>
-  <script src="/lib/element-ui/index.js"></script>
-  <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
-  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
+  <script src="/lib/vue/vue.js" defer></script>
+  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.js" defer></script>
+  <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
+  <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║   Powered by PDFMaster - https://pdfeasz.com                  ║
+║   Open-source under MIT License. Copyright © 2026             ║
+║   Unauthorized removal of this notice is prohibited.          ║
+╚═══════════════════════════════════════════════════════════════╝
+      `);
 
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
+      }
+    });
+  </script>
 </head>
 <body>
 <div id="app" class="app">
@@ -329,11 +432,17 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="/assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
+          <img src="/assets/logo.png" alt="PDFMaster Logo - Free Online PDF Tools" class="logo-image">
           <span class="logo-text">PDFMaster</span>
         </div>
         <nav class="header-links">
-          <a href="index.html" class="back-btn">Back to Home</a>
+          <a href="index.html" class="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M19 12H5"></path>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Home
+          </a>
           <a href="contact.html" class="contact-btn">Contact Us</a>
           <a href="feedback.html" class="feedback-btn">Send Feedback</a>
         </nav>
@@ -344,308 +453,340 @@
   <div class="main-content">
     <div class="container">
       <div class="page-header">
-        <h1 class="page-title">PDF Text Extractor - Extract Text from PDF Online Free</h1>
+        <h1 class="page-title">Extract Text from PDF Online Free</h1>
         <p class="page-subtitle">Extract text from PDFs online for free without Adobe or additional software. No registration required. Copy text from PDFs or download as TXT. Local browser processing ensures your files never leave your device.</p>
       </div>
 
-      <div class="steps-container">
-        <div class="steps-wrapper">
-          <el-steps :active="Number(currentStep)" finish-status="success" align-center>
-            <el-step title="Upload PDF" icon="el-icon-upload"></el-step>
-            <el-step title="Select Options" icon="el-icon-setting"></el-step>
-            <el-step title="Copy/Download" icon="el-icon-download"></el-step>
-          </el-steps>
+      <a-card class="tool-card" hoverable>
+        <a-upload
+          ref="upload"
+          class="upload-area"
+          :multiple="false"
+          :file-list="[]"
+          accept=".pdf"
+          :custom-request="handleFileChange"
+          :before-upload="beforeUpload"
+          @drop="handleDrop"
+        >
+          <div class="upload-content">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <div class="upload-text">Drag & drop PDF file here</div>
+            <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
+          </div>
+        </a-upload>
+
+        <div v-if="selectedFiles.length" class="file-list-section">
+          <div class="file-list-header">
+            <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
+          </div>
+          <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
+            <i class="anticon anticon-file-text file-icon"></i>
+            <div class="file-info">
+              <span class="file-name" :title="file.name">{{ file.name }}</span>
+              <span class="file-details">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
+            </div>
+            <button class="remove-btn" @click="removeFile(idx)" aria-label="Remove file">
+              Remove
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="tool-card">
-        <el-tabs v-model="currentStep" stretch @tab-click="handleTabClick" type="border-card">
-          <el-tab-pane label="Upload" name="0">
-            <div class="tab-content">
-              <el-upload
-                ref="upload"
-                class="upload-area"
-                drag
-                :auto-upload="false"
-                accept=".pdf"
-                :on-change="handleFileChange"
-                :on-exceed="handleExceed"
-                action="#"
-                :show-file-list="false"
-                :limit="1"
-                :multiple="false"
-              >
-                <i class="el-icon-folder-opened upload-icon"></i>
-                <div class="upload-text">Drag & drop PDF files here</div>
-                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
-              </el-upload>
+        <div v-if="selectedFiles.length" class="action-section">
+          <a-button type="primary" @click="showDrawer = true">
+            Continue <i class="anticon anticon-right"></i>
+          </a-button>
+        </div>
 
-              <div v-if="selectedFile" class="file-list-section">
-                <div class="file-list-header">
-                  <div class="file-list-title">
-                    <i class="el-icon-file-text"></i>
-                    Selected PDF
-                  </div>
-                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="cleanupAllResources">Clear All</el-button>
+        <a-drawer
+          :title="drawerStage === 'options' ? 'Extraction Options' : (drawerStage === 'progress' ? 'Extracting' : 'Result')"
+          :visible="showDrawer"
+          :width="650"
+          :closable="true"
+          :mask-closable="true"
+          @close="handleDrawerClose"
+        >
+          <div class="drawer-content">
+            <div v-if="drawerStage === 'options'" class="options-section">
+              <div class="options-title">Extraction Mode</div>
+              <div class="mode-description">Choose how you want to extract text from your PDF</div>
+              
+              <div class="merge-mode-options">
+                <div class="mode-option" :class="{active: form.pageRange === 'all'}" @click="form.pageRange = 'all'">
+                  <div class="mode-icon">📋</div>
+                  <div class="mode-title">All Pages</div>
+                  <div class="mode-desc">Extract all pages</div>
+                  <div class="mode-explanation">Extract text from all pages of your PDF document.</div>
                 </div>
-                <div class="file-item">
-                  <span class="file-name">{{ selectedFile.name }}</span>
-                  <span class="file-info">{{ formatFileSize(selectedFile.size) }}</span>
-                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="cleanupAllResources">Remove</el-button>
+                <div class="mode-option" :class="{active: form.pageRange === 'custom'}" @click="selectCustomMode">
+                  <div class="mode-icon">🎯</div>
+                  <div class="mode-title">Select Pages</div>
+                  <div class="mode-desc">Choose specific pages</div>
+                  <div class="mode-explanation">Pick only the pages you need. Click on page thumbnails to select/deselect.</div>
                 </div>
               </div>
 
-              <div class="action-section">
-                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
+              <div class="format-options">
+                <div class="options-title">Format Options</div>
+                <div class="format-option">
+                  <el-checkbox v-model="form.preserveFormatting">
+                    Preserve Formatting
+                  </el-checkbox>
+                  <p class="option-hint">Keep indentation, bullet points, and spacing</p>
+                </div>
               </div>
-            </div>
-          </el-tab-pane>
 
-          <el-tab-pane label="Options" name="1">
-            <div class="tab-content">
-              <div class="options-section">
-                <div class="options-title">Extraction Mode</div>
-                <div class="mode-description">Choose how you want to extract text from your PDF</div>
-                
-                <div class="merge-mode-options">
-                  <div class="mode-option" :class="{active: form.pageRange === 'all'}" @click="form.pageRange = 'all'">
-                    <div class="mode-icon">📋</div>
-                    <div class="mode-title">All Pages</div>
-                    <div class="mode-desc">Extract all pages</div>
-                    <div class="mode-explanation">Extract text from all pages of your PDF document.</div>
-                  </div>
-                  <div class="mode-option" :class="{active: form.pageRange === 'custom'}" @click="selectCustomMode">
-                    <div class="mode-icon">🎯</div>
-                    <div class="mode-title">Select Pages</div>
-                    <div class="mode-desc">Choose specific pages</div>
-                    <div class="mode-explanation">Pick only the pages you need. Click on page thumbnails to select/deselect.</div>
+              <div v-if="form.pageRange === 'custom'" class="preview-section">
+                <div class="preview-header">
+                  <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
+                  <div class="preview-actions">
+                    <a-button type="text" size="small" @click="selectAllPages">Select All</a-button>
+                    <a-button type="text" size="small" @click="deselectAllPages">Deselect All</a-button>
+                    <a-button type="text" size="small" @click="toggleAllPages">Toggle</a-button>
                   </div>
                 </div>
-
-                <div class="format-options">
-                  <div class="options-title">Format Options</div>
-                  <div class="format-option">
-                    <el-checkbox v-model="form.preserveFormatting">
-                      Preserve Formatting
-                    </el-checkbox>
-                    <p class="option-hint">Keep indentation, bullet points, and spacing</p>
+                <div class="page-preview-container">
+                  <div v-if="thumbnails.length === 0" class="upload-area" style="pointer-events: none;">
+                    <i class="el-icon-image upload-icon"></i>
+                    <div class="upload-text">Loading page thumbnails...</div>
                   </div>
-                </div>
-
-                <div v-if="form.pageRange === 'custom'" class="preview-section">
-                  <div class="preview-title">Select Pages</div>
-                  <div class="page-preview-container">
-                    <div class="page-preview-grid">
-                      <div v-for="(img, pi) in thumbnails" :key="pi" class="page-preview-item" :class="{selected: isSelected(pi)}" @click="toggle(pi)">
-                        <img :src="img" class="page-preview-image">
-                        <div class="page-number">{{ pi+1 }}</div>
-                        <div v-if="isSelected(pi)" class="selected-overlay">✓</div>
-                      </div>
+                  <div v-else class="page-preview-grid">
+                    <div v-for="(img, pi) in thumbnails" :key="pi" class="page-preview-item" :class="{selected: isSelected(pi)}" @click="toggle(pi)">
+                      <img :src="img" class="page-preview-image">
+                      <div class="page-number">{{ pi+1 }}</div>
+                      <div v-if="isSelected(pi)" class="selected-overlay">✓</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div class="action-section">
-                <el-button type="default" @click="goToPrev" :disabled="extracting">Back</el-button>
-                <el-button type="primary" @click="extractText" :disabled="extracting || !selectedFile">{{ extracting ? 'Extracting...' : 'Extract Text' }}</el-button>
-              </div>
-
-              <div v-if="extracting" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{width: progress + '%'}"></div>
-                </div>
+              <div class="drawer-actions">
+                <a-button @click="handleDrawerClose">Cancel</a-button>
+                <a-button type="primary" @click="extractText" :disabled="extracting || !selectedFiles.length">{{ extracting ? 'Extracting...' : 'Extract Text' }}</a-button>
               </div>
             </div>
-          </el-tab-pane>
 
-          <el-tab-pane label="Result" name="2">
-            <div class="tab-content">
-              <div class="result-content" v-if="done">
-                <div class="result-title">Extraction Completed!</div>
-                <p class="result-desc">Successfully extracted text from your PDF</p>
-                
-                <div v-if="form.preserveFormatting" class="format-badge">
-                  <i class="el-icon-check"></i>
-                  Formatting Preserved
-                </div>
-                
-                <div class="text-stats">
-                  <div class="stat-item">
-                    <span class="stat-label">Pages:</span>
-                    <span class="stat-value">{{ pageCount }}</span>
-                  </div>
-                  <div class="stat-item">
-                    <span class="stat-label">Characters:</span>
-                    <span class="stat-value">{{ charCount }}</span>
-                  </div>
-                  <div class="stat-item">
-                    <span class="stat-label">Words:</span>
-                    <span class="stat-value">{{ wordCount }}</span>
-                  </div>
-                </div>
+            <div v-if="drawerStage === 'progress'" class="progress-section">
+              <div class="progress-text">{{ progressText }}</div>
+              <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+            </div>
 
-                <div class="text-preview">
-                  <div class="preview-header">
-                    <span class="preview-title">Page {{ currentPreviewPage }} of {{ pageCount }}</span>
-                    <div class="preview-actions">
-                      <el-button type="text" size="small" :disabled="currentPreviewPage <= 1" @click="prevPage">Previous</el-button>
-                      <el-button type="text" size="small" :disabled="currentPreviewPage >= pageCount" @click="nextPage">Next</el-button>
-                    </div>
-                  </div>
-                  <pre class="extracted-text">{{ currentPageText }}</pre>
+            <div v-if="drawerStage === 'result'" class="result-content">
+              <div class="result-title">Extraction Completed!</div>
+              <p class="result-desc">Successfully extracted text from your PDF</p>
+              
+              <div v-if="form.preserveFormatting" class="format-badge">
+                <i class="el-icon-check"></i>
+                Formatting Preserved
+              </div>
+              
+              <div class="text-stats">
+                <div class="stat-item">
+                  <span class="stat-label">Pages:</span>
+                  <span class="stat-value">{{ pageCount }}</span>
                 </div>
-
-                <div class="filename-input">
-                  <label>File Name:</label>
-                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                <div class="stat-item">
+                  <span class="stat-label">Characters:</span>
+                  <span class="stat-value">{{ charCount }}</span>
                 </div>
-
-                <div class="action-buttons">
-                  <el-button type="default" size="large" @click="copyToClipboard">
-                    <i class="el-icon-copy" style="margin-right: 8px;"></i>
-                    Copy to Clipboard
-                  </el-button>
-                  <el-button type="primary" size="large" @click="download">
-                    <i class="el-icon-download" style="margin-right: 8px;"></i>
-                    Download TXT
-                  </el-button>
-                </div>
-
-                <div class="recommend-section">
-                  <p>Need to edit PDF content directly?</p>
-                  <a href="pdf-watermark.html" class="recommend-link">Try our PDF Watermark Tool →</a>
+                <div class="stat-item">
+                  <span class="stat-label">Words:</span>
+                  <span class="stat-value">{{ wordCount }}</span>
                 </div>
               </div>
 
-              <div class="action-section">
-                <el-button type="default" @click="reset">Start Over</el-button>
+              <div class="text-preview">
+                <div class="preview-header">
+                  <span class="preview-title">Page {{ currentPreviewPage }} of {{ pageCount }}</span>
+                  <div class="preview-actions">
+                    <a-button type="text" size="small" :disabled="currentPreviewPage <= 1" @click="prevPage">Previous</a-button>
+                    <a-button type="text" size="small" :disabled="currentPreviewPage >= pageCount" @click="nextPage">Next</a-button>
+                  </div>
+                </div>
+                <pre class="extracted-text">{{ currentPageText }}</pre>
+              </div>
+
+              <div class="filename-input">
+                <label>File Name:</label>
+                <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+              </div>
+
+              <div class="action-buttons">
+                <a-button type="default" size="large" @click="copyToClipboard">
+                  <i class="el-icon-copy" style="margin-right: 8px;"></i>
+                  Copy to Clipboard
+                </a-button>
+                <a-button type="primary" size="large" @click="download">
+                  <i class="anticon anticon-download" style="margin-right: 8px;"></i>
+                  Download TXT
+                </a-button>
+              </div>
+
+              <div class="recommend-section">
+                <p>Need to reorder PDF pages? <a href="pdf-page-reorder.html" class="recommend-link">Try our PDF Page Reorder Tool →</a></p>
+              </div>
+
+              <div class="action-section center">
+                <a-button type="default" @click="reset">Start Over</a-button>
               </div>
             </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
+          </div>
+        </a-drawer>
+      </a-card>
 
-      <div class="instructions">
-        <h2 class="instructions-title">Why Extract Text Here?</h2>
+      <a-card class="instructions-card" hoverable>
+        <h2 class="section-title">Why Extract Text Here?</h2>
         <div class="steps">
           <div class="step">
-            <i class="el-icon-check step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
             <div class="step-title">Accurate Extraction</div>
             <div class="step-desc">Preserves formatting | Clean output</div>
           </div>
           <div class="step">
-            <i class="el-icon-lock step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
             <div class="step-title">100% Private</div>
             <div class="step-desc">No server uploads | Locally processed</div>
           </div>
           <div class="step">
-            <i class="el-icon-close step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
             <div class="step-title">No Watermarks</div>
             <div class="step-desc">Clean output | No branding</div>
           </div>
           <div class="step">
-            <i class="el-icon-edit step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+            </div>
             <div class="step-title">Page Selection</div>
             <div class="step-desc">Extract specific pages | Flexible options</div>
           </div>
           <div class="step">
-            <i class="el-icon-user step-number"></i>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
             <div class="step-title">No Registration</div>
             <div class="step-desc">Start immediately | No sign-up</div>
           </div>
+          <div class="step">
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+              </svg>
+            </div>
+            <div class="step-title">Fast Processing</div>
+            <div class="step-desc">Local in-browser | No server wait</div>
+          </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="privacy-section">
-        <h2 class="section-title">🔒 Your Privacy is Our Priority</h2>
+      <a-card class="privacy-card" hoverable>
+        <h2 class="section-title">Your Files Never Leave Your Device</h2>
         <div class="privacy-content">
-          <p><strong>Process PDFs offline in your browser.</strong> Your files never leave your device. No data is uploaded to our servers, ensuring complete privacy. All operations happen locally in your browser.</p>
-          <p>Our PDF Text Extractor is 100% free with no sign-up required. Local browser processing protects your sensitive data. No hidden fees, and your privacy is always safe.</p>
-          <p>Extract text from PDFs without installing software - our web-based tool works instantly in any browser. No Adobe installation needed.</p>
+          <p><strong>🔒 Zero Server Uploads.</strong> Every PDF text extraction happens right in your browser. No data ever touches our servers. Imagine: your confidential contract, unpublished research, or personal photos - we can't see them, even if we wanted to.</p>
+          <p><strong>🚫 No Tracking, No Logs.</strong> We don't collect your email, IP address, or any personal data. No cookies, no analytics, no ads. Just a simple tool that works and forgets.</p>
+          <p><strong>✅ Trusted by Professionals.</strong> Lawyers, researchers, and business teams rely on PDFMaster for their most sensitive documents. Your privacy isn't an afterthought - it's built into every line of code.</p>
+          <p><strong>❌ The Essential Difference:</strong> 99% of "online PDF tools" upload your files to their servers for processing, even if they claim to "delete" them afterwards. Our code is completely open source - you can right-click and view the source to confirm there are no upload requests.</p>
         </div>
-      </div>
+      </a-card>
 
-      <div class="technology-section">
+      <a-card class="technology-card" hoverable>
         <h2 class="section-title">Powered by Industry-Leading Technology</h2>
         <div class="tech-content">
-          <el-card class="tech-card" shadow="hover">
+          <a-card class="tech-card" hoverable>
             <h3>Advanced Text Recognition</h3>
             <p>Our engine extracts text with precise character positioning. Multi-column layouts, nested tables, and complex formatting are handled accurately.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
+          </a-card>
+          <a-card class="tech-card" hoverable>
             <h3>Font Detection Engine</h3>
             <p>We detect font properties - size, weight, style - and preserve text structure. Special characters and ligatures are extracted correctly.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
+          </a-card>
+          <a-card class="tech-card" hoverable>
             <h3>Smart Line Reconstruction</h3>
             <p>Text from fragmented blocks is reassembled into coherent paragraphs. Line breaks and spacing match the original document's intent.</p>
-          </el-card>
+          </a-card>
         </div>
-      </div>
+      </a-card>
 
-      <div class="guide-section">
+      <a-card class="guide-card-container" hoverable>
         <h2 class="section-title">Pro Tips for Better Text Extraction</h2>
         <div class="guide-content">
-          <el-card class="guide-card" shadow="hover">
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Select Specific Pages</h3>
             <p class="guide-desc">Use the page selection feature to extract text only from the pages you need. This saves time and produces cleaner output.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </a-card>
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Clean Up Extracted Text</h3>
             <p class="guide-desc">After extraction, review the text for any formatting issues. Complex layouts may need manual adjustment for optimal results.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </a-card>
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Verify Accuracy</h3>
             <p class="guide-desc">Always verify a sample of extracted text against the original PDF to ensure accuracy, especially for legal or academic documents.</p>
-          </el-card>
+          </a-card>
         </div>
-      </div>
+      </a-card>
 
-      <div class="faq-section">
+      <a-card class="faq-card" hoverable>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <el-collapse accordion>
-          <el-collapse-item title="Can I extract text from scanned PDFs?">
+        <a-collapse :default-active-key="[]">
+          <a-collapse-panel key="1" header="Can I extract text from scanned PDFs?">
             <p>To extract text from scanned PDFs online, you need an OCR tool. Our PDF text extractor works with text-based PDFs only. For scanned documents, use OCR software to convert images to editable text first.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is there a file size limit?">
+          </a-collapse-panel>
+          <a-collapse-panel key="2" header="Is there a file size limit?">
             <p>Yes, our tool supports files up to 50MB. This ensures efficient processing in your browser without performance issues.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Do I need to register to use this tool?">
+          </a-collapse-panel>
+          <a-collapse-panel key="3" header="Do I need to register to use this tool?">
             <p>No registration is required. Start extracting immediately without creating an account.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I extract text from locked PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="4" header="Can I extract text from locked PDFs?">
             <p>Yes, you can copy text from secured PDFs if the document allows text extraction. If the PDF is encrypted with a password, you'll need to unlock it first.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is this tool safe to use?">
+          </a-collapse-panel>
+          <a-collapse-panel key="5" header="Is this tool safe to use?">
             <p>Absolutely! All processing happens locally in your browser. No data is uploaded to servers, so your files never leave your device.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I extract text from multiple PDFs at once?">
+          </a-collapse-panel>
+          <a-collapse-panel key="6" header="Can I extract text from multiple PDFs at once?">
             <p>Currently, our tool processes one PDF at a time. You can process multiple PDFs sequentially for batch extraction.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I use this tool on mobile devices?">
+          </a-collapse-panel>
+          <a-collapse-panel key="7" header="Can I use this tool on mobile devices?">
             <p>Yes! Our PDF text extractor works perfectly on iPhone and Android devices. Just open your browser and start extracting - no app installation required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I extract text from PDF on Mac for free?">
+          </a-collapse-panel>
+          <a-collapse-panel key="8" header="Can I extract text from PDF on Mac for free?">
             <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF file, and extract text for free. No software to install.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Which browsers are supported?">
+          </a-collapse-panel>
+          <a-collapse-panel key="9" header="Which browsers are supported?">
             <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I extract text from password-protected PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="10" header="Can I extract text from password-protected PDFs?">
             <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-          </el-collapse-item>
-          <el-collapse-item title="What's the file size limit?">
-            <p>Each file must be under 50MB. This ensures efficient processing in your browser without performance issues.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Why choose PDFMaster for extracting text?">
+          </a-collapse-panel>
+          <a-collapse-panel key="11" header="Why choose PDFMaster for extracting text?">
             <p>PDFMaster offers 100% free text extraction with no watermarks, local processing for complete privacy, and accurate results. Your files stay secure on your device.</p>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
+          </a-collapse-panel>
+        </a-collapse>
+      </a-card>
 
-      <div class="tutorial-section">
+      <a-card class="tutorial-card" hoverable>
         <h2 class="section-title">How to Extract Text from PDF Online Free</h2>
         <div class="tutorial-step">
           <div class="tutorial-number">1</div>
@@ -675,36 +816,42 @@
             <p>Copy text to clipboard or download as TXT. PDF to text converter online free.</p>
           </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="blog-section">
-        <h2 class="section-title">PDF Text Extraction Use Cases</h2>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Content Repurposing</h3>
-          <p>Extract text from PDFs to repurpose content for blogs, articles, or social media posts. Our online PDF text extractor makes content repurposing easy.</p>
+      <a-card class="blog-card-container" hoverable>
+        <h2 class="section-title">PDF Text Extraction - Essential Use Cases</h2>
+        <div class="blog-cards-grid">
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-briefcase blog-icon"></i>
+            <h3>Content Repurposing</h3>
+            <p>Extract text from PDFs to repurpose content for blogs, articles, or social media posts. Our online PDF text extractor makes content repurposing easy.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-education blog-icon"></i>
+            <h3>Academic Research</h3>
+            <p>Extract quotes and references from research papers. No registration required for academic work.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-home blog-icon"></i>
+            <h3>Business Documents</h3>
+            <p>Extract text from contracts and reports for editing. Local processing keeps your business data secure.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-file-text blog-icon"></i>
+            <h3>Format Conversion</h3>
+            <p>Convert PDFs to plain text online for free. No Adobe or software installation required.</p>
+          </div>
         </div>
-        <div class="blog-card">
-          <i class="el-icon-education blog-icon"></i>
-          <h3>Academic Research</h3>
-          <p>Extract quotes and references from research papers. No registration required for academic work.</p>
-        </div>
-        <div class="blog-card">
-          <i class="el-icon-home blog-icon"></i>
-          <h3>Business Documents</h3>
-          <p>Extract text from contracts and reports for editing. Local processing keeps your business data secure.</p>
-        </div>
-        <div class="blog-card">
-          <i class="el-icon-file-text blog-icon"></i>
-          <h3>Format Conversion</h3>
-          <p>Convert PDFs to plain text online for free. No Adobe or software installation required.</p>
-        </div>
+      </a-card>
+
+      <a-card class="cta-card" hoverable>
         <div class="cta-box">
           <h3>Best Free PDF Text Extractor</h3>
           <p>Extract text from PDFs online for free without registration. Local browser processing ensures privacy and security.</p>
           <button class="cta-button" @click="goToUpload">Start Extracting</button>
         </div>
-      </div>
+      </a-card>
+
     </div>
   </div>
 
@@ -716,8 +863,8 @@
           <ul>
             <li><a href="pdf-merger.html">PDF Merger</a></li>
             <li><a href="pdf-splitter.html">PDF Splitter</a></li>
-            <li><a href="pdf-to-image.html">PDF to Image</a></li>
-            <li><a href="pdf-signer.html">PDF Signer</a></li>
+            <li><a href="pdf-compressor.html">PDF Compressor</a></li>
+            <li><a href="image-to-pdf.html">Image to PDF</a></li>
           </ul>
         </div>
         <div class="footer-section">
@@ -732,430 +879,458 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+      <div class="footer-credits">
+        <div class="credits-header">
+          <span class="credits-icon">💡</span>
+          <span class="credits-title">Built with Open Source</span>
+        </div>
+        <div class="libraries-list">
+          <div class="library-item">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Vue.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://element.eleme.io/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Element UI</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDF.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge apache">Apache 2.0</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </div>
 
 <script>
-new Vue({
-  el: '#app',
-  data() {
-    return {
-      currentStep: '0',
-      selectedFile: null,
-      form: {
-        pageRange: 'all'
-      },
-      selectedPages: [],
-      done: false,
-      extractedText: '',
-      downloadFileName: 'extracted-text',
-      extracting: false,
-      progress: 0,
-      progressText: '',
-      pageCount: 0,
-      charCount: 0,
-      wordCount: 0,
-      thumbnails: [],
-      pdfInstance: null,
-      pages: [],
-      currentPreviewPage: 1
+  window.onerror = function(message, source, lineno, colno, error) {
+    console.error('Global error:', message, source, lineno, colno, error);
+    if (message.includes('PDF') || message.includes('pdf')) {
+      alert('An error occurred while processing PDF files. Please try again with different files.');
     }
-  },
-  computed: {
-    formattedText() {
-      if (!this.extractedText) return ''
-      return this.extractedText.replace(/\n/g, '<br>')
-    },
-    pageTexts() {
-      if (!this.extractedText) return []
-      const pages = this.extractedText.split('\n\n\n')
-      return pages.map(page => page.trim()).filter(page => page)
-    },
-    currentPageText() {
-      if (!this.pageTexts.length) return ''
-      const index = this.currentPreviewPage - 1
-      if (index < 0 || index >= this.pageTexts.length) return ''
-      return this.pageTexts[index]
-    }
-  },
-  beforeDestroy() {
-    window.removeEventListener('beforeunload', this.handleBeforeUnload)
-    this.cleanupAllResources()
-  },
-  mounted() {
-    window.addEventListener('beforeunload', this.handleBeforeUnload)
-  },
-  methods: {
-    handleBeforeUnload() {
-      this.cleanupAllResources()
-    },
-    goToNext() { 
-      if (!this.selectedFile) {
-        this.$notify({
-          title: '提示',
-          message: 'Please upload a PDF file first',
-          type: 'warning'
-        });
-        return;
-      }
-      this.currentStep = '1' 
-    },
-    goToPrev() { this.currentStep = '0' },
-    goToUpload() {
-      this.currentStep = '0'
-      document.querySelector('.upload-area')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    },
-    prevPage() {
-      if (this.currentPreviewPage > 1) {
-        this.currentPreviewPage--
-      }
-    },
-    nextPage() {
-      if (this.currentPreviewPage < this.pageCount) {
-        this.currentPreviewPage++
-      }
-    },
-    handleTabClick(tab) {
-      const targetStep = tab.name
-      if (targetStep === '0') return
-      if (!this.selectedFile) {
-        this.$notify({ title: '提示', message: 'Please upload a PDF first', type: 'warning' })
-        this.$nextTick(() => {
-          this.currentStep = '0'
-        })
-        return
-      }
-      if (targetStep === '2' && !this.done) {
-        this.$notify({ title: '提示', message: 'Please complete extraction first', type: 'warning' })
-        this.$nextTick(() => {
-          this.currentStep = '1'
-        })
-        return
-      }
-    },
-    handleExceed() {
-      this.$notify({ title: '提示', message: 'You can upload a maximum of 1 PDF file', type: 'warning' })
-    },
-    async selectCustomMode() {
-      this.form.pageRange = 'custom'
-      if (this.thumbnails.length === 0 && this.selectedFile) {
-        await this.generateThumbnails()
-      }
-      if (this.selectedPages.length === 0 && this.thumbnails.length > 0) {
-        this.selectedPages = Array.from({ length: this.thumbnails.length }, (_, i) => i)
-      }
-    },
-    isSelected(pageIndex) {
-      return this.selectedPages.includes(pageIndex)
-    },
-    toggle(pageIndex) {
-      const idx = this.selectedPages.indexOf(pageIndex)
-      if (idx > -1) {
-        this.selectedPages.splice(idx, 1)
-      } else {
-        this.selectedPages.push(pageIndex)
-      }
-    },
-    async generateThumbnails() {
-      try {
-        const arrayBuffer = await this.selectedFile.file.arrayBuffer()
-        this.pdfInstance = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const totalPages = this.pdfInstance.numPages
-        
-        for (let i = 1; i <= totalPages; i++) {
-          const page = await this.pdfInstance.getPage(i)
-          const viewport = page.getViewport({ scale: 0.5 })
-          const canvas = document.createElement('canvas')
-          const ctx = canvas.getContext('2d')
-          canvas.width = viewport.width
-          canvas.height = viewport.height
-          await page.render({ canvasContext: ctx, viewport: viewport }).promise
-          this.thumbnails.push(canvas.toDataURL())
-        }
-        
-        this.selectedPages = Array.from({ length: totalPages }, (_, i) => i)
-      } catch (error) {
-        console.error('Error generating thumbnails:', error)
-      }
-    },
-    handleFileChange(file) {
-      const raw = file.raw
-      if (!raw.name.toLowerCase().endsWith('.pdf')) {
-        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
-        return
-      }
-      const maxSize = 50 * 1024 * 1024
-      if (raw.size > maxSize) {
-        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' })
-        return
-      }
-      if (this.selectedFile) {
-        this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' })
-        return
-      }
-      this.selectedFile = {
-        name: raw.name,
-        file: raw,
-        size: raw.size
-      }
-    },
-    formatFileSize(bytes) {
-      if (bytes === 0) return '0 Bytes'
-      const k = 1024
-      const sizes = ['Bytes', 'KB', 'MB', 'GB']
-      const i = Math.floor(Math.log(bytes) / Math.log(k))
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-    },
-    clearFile() {
-      this.selectedFile = null
-      if (this.$refs.upload) {
-        this.$refs.upload.uploadFiles = []
-      }
-    },
-    parsePageRange(pagesText, totalPages) {
-      const pages = new Set()
-      const parts = pagesText.split(',').map(p => p.trim())
-      for (const part of parts) {
-        if (part.includes('-')) {
-          const [start, end] = part.split('-').map(p => parseInt(p.trim()))
-          for (let i = Math.max(1, start); i <= Math.min(totalPages, end); i++) {
-            pages.add(i)
-          }
-        } else {
-          const num = parseInt(part)
-          if (num >= 1 && num <= totalPages) {
-            pages.add(num)
-          }
-        }
-      }
-      return Array.from(pages).sort((a, b) => a - b)
-    },
-    async extractText() {
-      if (!this.selectedFile) return
-      
-      if (this.form.pageRange === 'custom' && this.selectedPages.length === 0) {
-        this.$notify({ title: '提示', message: 'Please select at least one page', type: 'warning' })
-        return
-      }
-      
-      this.extracting = true
-      this.progress = 0
-      this.progressText = 'Loading PDF...'
+    return true;
+  };
 
-      try {
-        const arrayBuffer = await this.selectedFile.file.arrayBuffer()
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        
-        const totalPages = pdf.numPages
-        let pagesToExtract = []
-        
-        if (this.form.pageRange === 'all') {
-          pagesToExtract = Array.from({ length: totalPages }, (_, i) => i + 1)
-        } else {
-          pagesToExtract = this.selectedPages.map(p => p + 1).sort((a, b) => a - b)
-        }
-        
-        this.pageCount = pagesToExtract.length
-        let allText = ''
-        
-        for (let i = 0; i < pagesToExtract.length; i++) {
-          const pageNum = pagesToExtract[i]
-          this.progressText = `Extracting page ${pageNum}...`
-          
-          const page = await pdf.getPage(pageNum)
-          const textContent = await page.getTextContent()
-          
-          if (this.form.preserveFormatting) {
-            const viewport = page.getViewport({ scale: 1 })
-            const pageWidth = viewport.width
-            const pageHeight = viewport.height
-            
-            const sortedItems = textContent.items.sort((a, b) => {
-              const y1 = pageHeight - a.transform[5]
-              const y2 = pageHeight - b.transform[5]
-              if (Math.abs(y1 - y2) < 5) {
-                return a.transform[4] - b.transform[4]
-              }
-              return y1 - y2
-            })
-            
-            let pageText = ''
-            let prevY = null
-            let prevX = null
-            
-            for (const item of sortedItems) {
-              const y = pageHeight - item.transform[5]
-              const x = item.transform[4]
-              const fontSize = item.transform[3] || 12
-              const itemWidth = (item.width || 0) * (item.transform[0] || 1)
-              
-              if (prevY !== null) {
-                const yDiff = Math.abs(y - prevY)
-                if (yDiff > fontSize * 1.8) {
-                  pageText += '\n\n'
-                } else if (yDiff > fontSize * 0.5) {
-                  pageText += '\n'
-                }
-              }
-              
-              if (prevX !== null) {
-                const xDiff = x - prevX
-                if (xDiff > 15) {
-                  const spaces = Math.floor(xDiff / 6)
-                  pageText += ' '.repeat(Math.max(1, spaces))
-                }
-              }
-              
-              let text = item.str
-              text = text.replace(/[\u2588\u2589\u258a\u258b\u258c\u258d\u258e\u258f\u2590\u2591\u2592\u2593]/g, '')
-              
-              const bulletPattern = /^[\u2022\u2023\u25cf\u25cb\u25aa•·●■◆◇▲△▼▽✓✕✗✘✙✚✛✜✝✞✟✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯✰]/
-              if (bulletPattern.test(text)) {
-                text = text.replace(bulletPattern, '- ')
-              }
-              
-              pageText += text + ' '
-              
-              prevY = y
-              prevX = x + itemWidth
-            }
-            allText += pageText + '\n\n\n'
-          } else {
-            let pageText = ''
-            let y = null
-            for (const item of textContent.items) {
-              const itemY = Math.floor(item.transform[5])
-              if (y !== null && itemY !== y) {
-                pageText += '\n'
-              }
-              y = itemY
-              let text = item.str
-              text = text.replace(/[\u2588\u2589\u258a\u258b\u258c\u258d\u258e\u258f\u2590\u2591\u2592\u2593]/g, '')
-              text = text.replace(/^\s*[•·●■◆◇▲△▼▽✓✕✗✘✙✚✛✜✝✞✟✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯✰]/g, '')
-              pageText += text + ' '
-            }
-            allText += pageText + '\n\n'
-          }
-          
-          this.progress = Math.round(((i + 1) / pagesToExtract.length) * 100)
-        }
-        
-        pdf.destroy()
-        
-        this.extractedText = allText.trim()
-        this.charCount = this.extractedText.length
-        this.wordCount = this.extractedText.split(/\s+/).filter(w => w.length > 0).length
-        
-        this.extracting = false
-        this.done = true
-        this.currentStep = '2'
-        this.currentPreviewPage = 1
-        
-      } catch (error) {
-        console.error('Error extracting text:', error)
-        this.$notify({ title: '错误', message: 'Failed to extract text. Please try again.', type: 'error' })
-        this.extracting = false
-      }
-    },
-    async copyToClipboard() {
-      try {
-        await navigator.clipboard.writeText(this.extractedText)
-        this.$notify({ title: '成功', message: 'Text copied to clipboard!', type: 'success' })
-      } catch (error) {
-        const textarea = document.createElement('textarea')
-        textarea.value = this.extractedText
-        document.body.appendChild(textarea)
-        textarea.select()
-        document.execCommand('copy')
-        document.body.removeChild(textarea)
-        this.$notify({ title: '成功', message: 'Text copied to clipboard!', type: 'success' })
-      }
-    },
-    download() {
-      const blob = new Blob([this.extractedText], { type: 'text/plain' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = this.downloadFileName.endsWith('.txt') ? this.downloadFileName : this.downloadFileName + '.txt'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    },
-    reset() {
-      this.cleanupAllResources()
-      this.currentStep = '0'
-      this.selectedFile = null
-      if (this.$refs.upload) {
-        this.$refs.upload.uploadFiles = []
-      }
-      this.form = {
-        pageRange: 'all',
-        preserveFormatting: true
-      }
-      this.selectedPages = []
-      this.done = false
-      this.extractedText = ''
-      this.downloadFileName = 'extracted-text'
-      this.pageCount = 0
-      this.charCount = 0
-      this.wordCount = 0
-      this.currentPreviewPage = 1
-    },
-    
-    cleanupAllResources() {
-      if (this.pdfInstance) {
-        try {
-          this.pdfInstance.destroy()
-        } catch (e) {
-          console.warn('Error destroying PDF instance:', e)
-        }
-        this.pdfInstance = null
-      }
-      
-      if (this.thumbnails) {
-        this.thumbnails.forEach(url => {
-          if (url && url.startsWith('blob:')) {
-            URL.revokeObjectURL(url)
-          } else if (url && url.startsWith('data:')) {
-          }
-        })
-        this.thumbnails = []
-      }
-      
-      if (this.pages) {
-        this.pages.forEach(page => {
-          if (page && typeof page.destroy === 'function') {
-            try {
-              page.destroy()
-            } catch (e) {
-              console.warn('Error destroying page:', e)
-            }
-          }
-        })
-        this.pages = []
-      }
-      
-      if (this.selectedFile && this.selectedFile.file) {
-        this.selectedFile.file = null
-      }
-      this.selectedFile = null
-    },
-    
-    clearFile() {
-      this.cleanupAllResources()
-      if (this.$refs.upload) {
-        this.$refs.upload.uploadFiles = []
-      }
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║   Powered by PDFMaster - https://pdfeasz.com                  ║
+║   Open-source under MIT License. Copyright © 2026             ║
+║   Unauthorized removal of this notice is prohibited.          ║
+╚═══════════════════════════════════════════════════════════════╝
+    `);
+
+    if (typeof Vue === 'undefined') {
+      setTimeout(function() {
+        window.location.reload();
+      }, 1000);
+      return;
     }
-  }
-})
+    
+    Vue.config.errorHandler = function(err, vm, info) {
+      console.error('Vue error:', err, info);
+      if (err.message && (err.message.includes('PDF') || err.message.includes('pdf'))) {
+        vm.$message.error('An error occurred while processing PDF files. Please try again.')
+      } else {
+        vm.$message.error('An unexpected error occurred. Please refresh the page and try again.')
+      }
+    };
+    
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          selectedFiles: [],
+          form: {
+            pageRange: 'all',
+            preserveFormatting: true
+          },
+          selectedPages: [],
+          done: false,
+          extractedText: '',
+          downloadFileName: 'extracted-text',
+          extracting: false,
+          progress: 0,
+          progressText: '',
+          pageCount: 0,
+          charCount: 0,
+          wordCount: 0,
+          thumbnails: [],
+          currentPreviewPage: 1,
+          showDrawer: false,
+          drawerStage: 'options'
+        };
+      },
+      computed: {
+        pageTexts() {
+          if (!this.extractedText) return [];
+          const pages = this.extractedText.split('\n\n\n');
+          return pages.map(page => page.trim()).filter(page => page);
+        },
+        currentPageText() {
+          if (!this.pageTexts.length) return '';
+          const index = this.currentPreviewPage - 1;
+          if (index < 0 || index >= this.pageTexts.length) return '';
+          return this.pageTexts[index];
+        }
+      },
+      watch: {
+        showDrawer(newVal) {
+          if (newVal) {
+            this.drawerStage = 'options';
+            this.extracting = false;
+            this.done = false;
+          }
+        }
+      },
+      mounted() {
+        window.addEventListener('beforeunload', this.handleBeforeUnload);
+      },
+      beforeDestroy() {
+        window.removeEventListener('beforeunload', this.handleBeforeUnload);
+        this.cleanupAllResources();
+      },
+      methods: {
+        handleBeforeUnload() {
+          this.cleanupAllResources();
+        },
+        goToUpload() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        beforeUpload(file) {
+          if (!file.name.toLowerCase().endsWith('.pdf')) {
+            this.$message.error('Only PDF files are allowed');
+            return false;
+          }
+          const maxSize = 50 * 1024 * 1024;
+          if (file.size > maxSize) {
+            this.$message.error('File size cannot exceed 50MB');
+            return false;
+          }
+          return true;
+        },
+        handleDrop(e) {
+          e.preventDefault();
+        },
+        async handleFileChange({ file, onSuccess }) {
+          const raw = file;
+          if (!raw.name.toLowerCase().endsWith('.pdf')) {
+            this.$message.error('Only PDF files are allowed');
+            return;
+          }
+          
+          const maxSize = 50 * 1024 * 1024;
+          if (raw.size > maxSize) {
+            this.$message.error('File size cannot exceed 50MB');
+            return;
+          }
+          
+          const item = {
+            name: raw.name,
+            file: raw,
+            size: raw.size,
+            pageCount: 0
+          };
+          
+          try {
+            const arrayBuffer = await raw.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            item.pageCount = pdf.numPages;
+            await pdf.destroy();
+          } catch (error) {
+            console.error('Error loading PDF:', error);
+          }
+          
+          this.selectedFiles = [item];
+          if (onSuccess) {
+            onSuccess('success');
+          }
+        },
+        formatFileSize(bytes) {
+          if (bytes === 0) return '0 Bytes';
+          const k = 1024;
+          const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
+        removeFile(idx) {
+          this.selectedFiles.splice(idx, 1);
+        },
+        clearAllFiles() {
+          this.selectedFiles = [];
+          this.cleanupAllResources();
+        },
+        handleDrawerClose() {
+          if (!this.extracting) {
+            this.showDrawer = false;
+            this.drawerStage = 'options';
+            this.done = false;
+            this.extractedText = '';
+          }
+        },
+        async selectCustomMode() {
+          this.form.pageRange = 'custom';
+          if (this.thumbnails.length === 0 && this.selectedFiles.length > 0) {
+            await this.generateThumbnails();
+          }
+          if (this.selectedPages.length === 0 && this.thumbnails.length > 0) {
+            this.selectedPages = Array.from({ length: this.thumbnails.length }, (_, i) => i);
+          }
+        },
+        isSelected(pageIndex) {
+          return this.selectedPages.includes(pageIndex);
+        },
+        toggle(pageIndex) {
+          const idx = this.selectedPages.indexOf(pageIndex);
+          if (idx > -1) {
+            this.selectedPages.splice(idx, 1);
+          } else {
+            this.selectedPages.push(pageIndex);
+          }
+        },
+        async generateThumbnails() {
+          if (!this.selectedFiles.length) return;
+          
+          this.thumbnails = [];
+          const file = this.selectedFiles[0];
+          
+          try {
+            const arrayBuffer = await file.file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const totalPages = pdf.numPages;
+            
+            for (let i = 1; i <= totalPages; i++) {
+              const page = await pdf.getPage(i);
+              const viewport = page.getViewport({ scale: 0.5 });
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+              this.thumbnails.push(canvas.toDataURL());
+            }
+            
+            await pdf.destroy();
+            this.selectedPages = Array.from({ length: totalPages }, (_, i) => i);
+          } catch (error) {
+            console.error('Error generating thumbnails:', error);
+            this.$message.error('Failed to generate thumbnails');
+          }
+        },
+        prevPage() {
+          if (this.currentPreviewPage > 1) {
+            this.currentPreviewPage--;
+          }
+        },
+        nextPage() {
+          if (this.currentPreviewPage < this.pageCount) {
+            this.currentPreviewPage++;
+          }
+        },
+        async extractText() {
+          if (!this.selectedFiles.length) return;
+          
+          if (this.form.pageRange === 'custom' && this.selectedPages.length === 0) {
+            this.$message.warning('Please select at least one page');
+            return;
+          }
+          
+          this.extracting = true;
+          this.progress = 0;
+          this.progressText = 'Loading PDF...';
+          this.drawerStage = 'progress';
+
+          try {
+            const file = this.selectedFiles[0];
+            const arrayBuffer = await file.file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            
+            const totalPages = pdf.numPages;
+            let pagesToExtract = [];
+            
+            if (this.form.pageRange === 'all') {
+              pagesToExtract = Array.from({ length: totalPages }, (_, i) => i + 1);
+            } else {
+              pagesToExtract = this.selectedPages.map(p => p + 1).sort((a, b) => a - b);
+            }
+            
+            this.pageCount = pagesToExtract.length;
+            let allText = '';
+            
+            for (let i = 0; i < pagesToExtract.length; i++) {
+              const pageNum = pagesToExtract[i];
+              this.progressText = `Extracting page ${pageNum}...`;
+              
+              const page = await pdf.getPage(pageNum);
+              const textContent = await page.getTextContent();
+              
+              if (this.form.preserveFormatting) {
+                const viewport = page.getViewport({ scale: 1 });
+                const pageWidth = viewport.width;
+                const pageHeight = viewport.height;
+                
+                const sortedItems = textContent.items.sort((a, b) => {
+                  const y1 = pageHeight - a.transform[5];
+                  const y2 = pageHeight - b.transform[5];
+                  if (Math.abs(y1 - y2) < 5) {
+                    return a.transform[4] - b.transform[4];
+                  }
+                  return y1 - y2;
+                });
+                
+                let pageText = '';
+                let prevY = null;
+                let prevX = null;
+                
+                for (const item of sortedItems) {
+                  const y = pageHeight - item.transform[5];
+                  const x = item.transform[4];
+                  const fontSize = item.transform[3] || 12;
+                  const itemWidth = (item.width || 0) * (item.transform[0] || 1);
+                  
+                  if (prevY !== null) {
+                    const yDiff = Math.abs(y - prevY);
+                    if (yDiff > fontSize * 1.8) {
+                      pageText += '\n\n';
+                    } else if (yDiff > fontSize * 0.5) {
+                      pageText += '\n';
+                    }
+                  }
+                  
+                  if (prevX !== null) {
+                    const xDiff = x - prevX;
+                    if (xDiff > 15) {
+                      const spaces = Math.floor(xDiff / 6);
+                      pageText += ' '.repeat(Math.max(1, spaces));
+                    }
+                  }
+                  
+                  let text = item.str;
+                  text = text.replace(/[\u2588\u2589\u258a\u258b\u258c\u258d\u258e\u258f\u2590\u2591\u2592\u2593]/g, '');
+                  
+                  const bulletPattern = /^[\u2022\u2023\u25cf\u25cb\u25aa•·●■◆◇▲△▼▽✓✕✗✘✙✚✛✜✝✞✟✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯✰]/;
+                  if (bulletPattern.test(text)) {
+                    text = text.replace(bulletPattern, '- ');
+                  }
+                  
+                  pageText += text + ' ';
+                  
+                  prevY = y;
+                  prevX = x + itemWidth;
+                }
+                allText += pageText + '\n\n\n';
+              } else {
+                let pageText = '';
+                let y = null;
+                for (const item of textContent.items) {
+                  const itemY = Math.floor(item.transform[5]);
+                  if (y !== null && itemY !== y) {
+                    pageText += '\n';
+                  }
+                  y = itemY;
+                  let text = item.str;
+                  text = text.replace(/[\u2588\u2589\u258a\u258b\u258c\u258d\u258e\u258f\u2590\u2591\u2592\u2593]/g, '');
+                  text = text.replace(/^\s*[•·●■◆◇▲△▼▽✓✕✗✘✙✚✛✜✝✞✟✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯✰]/g, '');
+                  pageText += text + ' ';
+                }
+                allText += pageText + '\n\n';
+              }
+              
+              this.progress = Math.round(((i + 1) / pagesToExtract.length) * 100);
+            }
+            
+            pdf.destroy();
+            
+            this.extractedText = allText.trim();
+            this.charCount = this.extractedText.length;
+            this.wordCount = this.extractedText.split(/\s+/).filter(w => w.length > 0).length;
+            
+            this.extracting = false;
+            this.done = true;
+            this.drawerStage = 'result';
+            this.currentPreviewPage = 1;
+            
+          } catch (error) {
+            console.error('Error extracting text:', error);
+            this.$message.error('Failed to extract text. Please try again.');
+            this.extracting = false;
+            this.drawerStage = 'options';
+          }
+        },
+        async copyToClipboard() {
+          try {
+            await navigator.clipboard.writeText(this.extractedText);
+            this.$message.success('Text copied to clipboard!');
+          } catch (error) {
+            const textarea = document.createElement('textarea');
+            textarea.value = this.extractedText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            this.$message.success('Text copied to clipboard!');
+          }
+        },
+        download() {
+          const blob = new Blob([this.extractedText], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = this.downloadFileName.endsWith('.txt') ? this.downloadFileName : this.downloadFileName + '.txt';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        },
+        reset() {
+          this.showDrawer = false;
+          this.drawerStage = 'options';
+          this.selectedFiles = [];
+          this.form = {
+            pageRange: 'all',
+            preserveFormatting: true
+          };
+          this.selectedPages = [];
+          this.done = false;
+          this.extractedText = '';
+          this.downloadFileName = 'extracted-text';
+          this.pageCount = 0;
+          this.charCount = 0;
+          this.wordCount = 0;
+          this.currentPreviewPage = 1;
+          this.thumbnails = [];
+          this.cleanupAllResources();
+        },
+        cleanupAllResources() {
+          this.thumbnails.forEach(url => {
+            if (url && url.startsWith('blob:')) {
+              URL.revokeObjectURL(url);
+            }
+          });
+          this.thumbnails = [];
+        }
+      }
+    });
+  });
 </script>
 </body>
 </html>

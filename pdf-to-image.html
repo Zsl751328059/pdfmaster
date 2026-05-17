@@ -160,9 +160,11 @@
 
   
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.css">
+  <link rel="stylesheet" href="/css/common.css">
   <script src="./lib/vue/vue.js"></script>
   <script src="./lib/element-ui/index.js"></script>
+  <script src="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
   <script src="./lib/preview-utils.js"></script>
@@ -181,7 +183,10 @@
         </div>
         <nav class="header-links">
           <a href="index.html" class="back-btn">
-            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M19 12H5"></path>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
             Back to Home
           </a>
           <a href="contact.html" class="contact-btn">Contact Us</a>
@@ -199,286 +204,318 @@
         <p class="page-subtitle">Convert PDF files to high-quality images online for free. Our PDF to image converter works locally in your browser, ensuring complete privacy with no watermark and no registration required.</p>
       </div>
 
-      <div class="steps-container">
-        <div class="steps-wrapper">
-          <el-steps :active="Number(currentStep)" finish-status="success" align-center>
-            <el-step title="Upload PDF" icon="el-icon-upload"></el-step>
-            <el-step title="Select Options" icon="el-icon-setting"></el-step>
-            <el-step title="Download Images" icon="el-icon-download"></el-step>
-          </el-steps>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <el-tabs v-model="currentStep" stretch @tab-click="handleTabClick" type="border-card">
-          <el-tab-pane label="Upload" name="0">
-            <div class="tab-content">
-              <el-upload
-                ref="upload"
-                class="upload-area"
-                drag
-                :auto-upload="false"
-                accept=".pdf"
-                :on-change="handleFileChange"
-                :on-exceed="handleExceed"
-                action="#"
-                :show-file-list="false"
-                :limit="1"
-              >
-                <i class="el-icon-folder-opened upload-icon"></i>
-                <div class="upload-text">Drag & drop PDF file here</div>
-                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
-              </el-upload>
-
-              <div v-if="selectedFiles.length" class="file-list-section">
-                <div class="file-list-header">
-                  <div class="file-list-title">
-                    <i class="el-icon-file-text"></i>
-                    Selected File
-                  </div>
-                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearAllFiles">Clear All</el-button>
-                </div>
-                <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
-                  <span class="file-name">{{ file.name }}</span>
-                  <span class="file-info">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
-                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="removeFile(idx)"></el-button>
-                </div>
-              </div>
-
-              <div class="action-section">
-                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
-              </div>
+      <a-card class="tool-card" hoverable>
+          <a-upload
+            ref="upload"
+            class="upload-area"
+            :file-list="[]"
+            accept=".pdf"
+            :custom-request="handleFileChange"
+            :before-upload="beforeUpload"
+            :show-upload-list="false"
+            @drop="handleDrop"
+          >
+            <div class="upload-content">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div class="upload-text">Drag & drop PDF files here</div>
+              <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
             </div>
-          </el-tab-pane>
+          </a-upload>
 
-          <el-tab-pane label="Options" name="1">
-            <div class="tab-content">
-              <div class="options-section">
-                <div class="output-options">
-                  <div class="option-row">
-                    <label class="option-label">Output Format</label>
-                    <el-select v-model="form.format" class="option-select">
-                      <el-option label="PNG (Transparent Background)" value="png"></el-option>
-                      <el-option label="JPEG (Compressed)" value="jpeg"></el-option>
-                    </el-select>
-                  </div>
+        <div v-if="selectedFiles.length" class="file-list-section">
+          <div class="file-list-header">
+            <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
+          </div>
+          <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
+            <i class="anticon anticon-file-text file-icon"></i>
+            <div class="file-info">
+              <span class="file-name" :title="file.name">{{ file.name }}</span>
+              <span class="file-details">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
+            </div>
+            <button class="remove-btn" @click="removeFile(idx)" aria-label="Remove file">
+              Remove
+            </button>
+          </div>
+        </div>
+
+        <div v-if="selectedFiles.length" class="action-section">
+          <a-button type="primary" @click="showDrawer = true">
+            Convert to Image <i class="anticon anticon-right"></i>
+          </a-button>
+        </div>
+
+        <a-drawer
+          title="Convert to Image"
+          :visible="showDrawer"
+          :width="600"
+          placement="right"
+          :closable="true"
+          :mask-closable="true"
+          @close="handleDrawerClose"
+        >
+          <div class="drawer-content">
+            <div v-if="drawerStage === 'options'" class="options-section">
+              <div class="options-title">Output Settings</div>
+              <div class="output-options">
+                <div class="option-row">
+                  <label class="option-label">Output Format</label>
+                  <el-select v-model="form.format" class="option-select">
+                    <el-option label="PNG (Transparent Background)" value="png"></el-option>
+                    <el-option label="JPEG (Compressed)" value="jpeg"></el-option>
+                  </el-select>
                 </div>
+              </div>
 
-                <el-collapse v-model="expandOptions" style="margin-top: 16px;">
-                  <el-collapse-item title="Advanced Settings (for advanced users only)" name="1">
-                    <div class="advanced-options">
-                      <div class="option-row">
-                        <label class="option-label">Image Quality: {{ form.quality }}%</label>
-                        <el-slider v-model="form.quality" :min="10" :max="100" :step="5"></el-slider>
-                      </div>
-                      <div class="option-row">
-                        <label class="option-label">Resolution: {{ form.resolution }} DPI</label>
-                        <el-select v-model="form.resolution" class="option-select">
-                          <el-option label="72 DPI (Screen Quality)" :value="72"></el-option>
-                          <el-option label="150 DPI (Medium Quality)" :value="150"></el-option>
-                          <el-option label="300 DPI (High Quality)" :value="300"></el-option>
-                        </el-select>
-                      </div>
-                      
-                      <div class="page-select-section">
-                        <div class="mode-description" style="margin-top: 16px; margin-bottom: 8px;">Select Pages ({{ selectedPages.length }} of {{ pagePreviews.length }} selected)</div>
-                        <div class="page-preview-grid">
-                          <div v-for="(img, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{selected: selectedPages.includes(idx)}" @click="togglePage(idx)">
-                            <img :src="img" class="page-preview-image">
-                            <div class="page-number">{{ idx+1 }}</div>
-                            <div v-if="selectedPages.includes(idx)" class="selected-overlay">✓</div>
-                          </div>
+              <a-collapse v-model="expandOptions" style="margin-top: 16px;">
+                <a-collapse-panel header="Advanced Settings (for advanced users only)" key="1">
+                  <div class="advanced-options">
+                    <div class="option-row">
+                      <label class="option-label">Image Quality: {{ form.quality }}%</label>
+                      <el-slider v-model="form.quality" :min="10" :max="100" :step="5"></el-slider>
+                    </div>
+                    <div class="option-row">
+                      <label class="option-label">Resolution: {{ form.resolution }} DPI</label>
+                      <el-select v-model="form.resolution" class="option-select">
+                        <el-option label="72 DPI (Screen Quality)" :value="72"></el-option>
+                        <el-option label="150 DPI (Medium Quality)" :value="150"></el-option>
+                        <el-option label="300 DPI (High Quality)" :value="300"></el-option>
+                      </el-select>
+                    </div>
+                    
+                    <div class="page-select-section">
+                      <div class="mode-description" style="margin-top: 16px; margin-bottom: 8px;">Select Pages ({{ selectedPages.length }} of {{ pagePreviews.length }} selected)</div>
+                      <div class="page-preview-grid">
+                        <div v-for="(img, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{selected: selectedPages.includes(idx)}" @click="togglePage(idx)">
+                          <img :src="img" class="page-preview-image">
+                          <div class="page-number">{{ idx+1 }}</div>
+                          <div v-if="selectedPages.includes(idx)" class="selected-overlay">✓</div>
                         </div>
-                        <div style="margin-top: 12px; display: flex; gap: 12px;">
-                          <el-button size="small" @click="selectAllPages">Select All</el-button>
-                          <el-button size="small" @click="deselectAllPages">Deselect All</el-button>
-                        </div>
+                      </div>
+                      <div style="margin-top: 12px; display: flex; gap: 12px;">
+                        <a-button size="small" @click="selectAllPages">Select All</a-button>
+                        <a-button size="small" @click="deselectAllPages">Deselect All</a-button>
                       </div>
                     </div>
-                  </el-collapse-item>
-                </el-collapse>
-              </div>
-
-              <div class="action-section">
-                <el-button type="default" @click="goToPrev" :disabled="converting">Back</el-button>
-                <el-button type="primary" @click="convert" :disabled="converting || selectedPages.length === 0">{{ converting ? 'Converting...' : 'Convert to Images' }}</el-button>
-              </div>
-
-              <div v-if="converting" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{width: progress + '%'}"></div>
-                </div>
-              </div>
-            </div>
-          </el-tab-pane>
-
-          <el-tab-pane label="Result" name="2">
-            <div class="tab-content">
-              <div class="result-content" v-if="done">
-                <div class="result-title">Conversion Completed!</div>
-                <p class="result-desc">Successfully converted {{ convertedImages.length }} page(s) to {{ form.format.toUpperCase() }} format</p>
-                <div class="result-preview">
-                  <div v-for="(img, idx) in convertedImages.slice(0, 6)" :key="idx" class="page-preview-item clickable" @click="openPreview(img)" >
-                    <img :src="img.data" class="page-preview-image">
-                    <div class="preview-overlay">Click to zoom</div>
                   </div>
+                </a-collapse-panel>
+              </a-collapse>
+            </div>
+
+            <div v-if="drawerStage === 'progress'" class="progress-section">
+              <div class="progress-text">{{ progressText }}</div>
+              <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+            </div>
+
+            <div v-if="drawerStage === 'result' && done" class="result-content">
+              <div class="result-title">Conversion Completed!</div>
+              <p class="result-desc">Successfully converted {{ convertedImages.length }} page(s) to {{ form.format.toUpperCase() }} format</p>
+              <div class="result-preview">
+                <div v-for="(img, idx) in convertedImages.slice(0, 6)" :key="idx" class="page-preview-item clickable" @click="openPreview(img)" >
+                  <img :src="img.data" class="page-preview-image">
+                  <div class="preview-overlay">Click to zoom</div>
                 </div>
-                <div v-if="convertedImages.length > 6" style="color: #6b7280; font-size: 14px;">
-                  ...and {{ convertedImages.length - 6 }} more images
-                </div>
+              </div>
+              <div v-if="convertedImages.length > 6" style="color: #6b7280; font-size: 14px;">
+                ...and {{ convertedImages.length - 6 }} more images
+              </div>
+              <div class="download-section">
                 <div class="filename-input">
                   <label>File Name:</label>
-                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
                 </div>
-                <el-button type="primary" @click="downloadAll">Download All Images (ZIP)</el-button>
-                <div class="recommend-section">
-                  <p>Need to convert images back to PDF?</p>
-                  <a href="image-to-pdf.html" class="recommend-link">Try our Image to PDF Tool →</a>
-                </div>
+                <a-button type="primary" size="large" @click="downloadAll">Download All Images (ZIP)</a-button>
+              </div>
+              <div class="recommend-section">
+                <p>Need to convert images to PDF? <a href="image-to-pdf.html" class="recommend-link">Try our Image to PDF Tool →</a></p>
               </div>
 
-              <preview-modal 
-                :visible="showPreviewModal" 
-                :image-src="currentPreviewImage" 
-                title="Image Preview"
-                @close="closePreview" 
-              ></preview-modal>
-              <div class="action-section">
-                <el-button type="default" @click="reset">Start Over</el-button>
+              <div class="action-section center">
+                <a-button type="default" @click="reset">Start Over</a-button>
               </div>
             </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
+          </div>
 
-      <div class="instructions">
-        <h2 class="instructions-title">Why Convert PDFs with Us?</h2>
+          <div class="drawer-actions">
+            <a-button v-if="drawerStage === 'options'" type="default" @click="handleDrawerClose">Cancel</a-button>
+            <a-button v-if="drawerStage === 'options'" type="primary" @click="convert" :disabled="selectedPages.length === 0">
+              Convert to Images
+            </a-button>
+          </div>
+        </a-drawer>
+
+        <a-drawer
+          title="Image Preview"
+          :visible="showPreviewModal"
+          :width="500"
+          placement="left"
+          @close="closePreview"
+        >
+          <div class="preview-drawer-content">
+            <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" alt="Image Preview" />
+            <div v-else class="preview-empty">No preview available</div>
+          </div>
+        </a-drawer>
+      </a-card>
+
+      <a-card class="instructions-card" hoverable>
+        <h2 class="section-title">Why Convert PDFs with Us?</h2>
         <div class="steps">
           <div class="step">
-            <div class="step-number">1</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
             <div class="step-title">High-Quality Output</div>
             <div class="step-desc">Preserve image clarity</div>
           </div>
           <div class="step">
-            <div class="step-number">2</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
             <div class="step-title">Pixel-Private</div>
             <div class="step-desc">No data uploads</div>
           </div>
           <div class="step">
-            <div class="step-number">3</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
             <div class="step-title">Instant Conversion</div>
             <div class="step-desc">Process in your browser</div>
           </div>
           <div class="step">
-            <div class="step-number">4</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+            </div>
             <div class="step-title">Multiple Formats</div>
             <div class="step-desc">PNG, JPG, & more</div>
           </div>
           <div class="step">
-            <div class="step-number">5</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
             <div class="step-title">Custom Resolution</div>
             <div class="step-desc">72-300 DPI options</div>
           </div>
           <div class="step">
-            <div class="step-number">6</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
             <div class="step-title">Trusted by Thousands</div>
             <div class="step-desc">10,000+ monthly users</div>
           </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="privacy-section">
-        <h2 class="instructions-title">🔒 Image Privacy, Fully Protected</h2>
+      <a-card class="privacy-card" hoverable>
+        <h2 class="section-title">🔒 Image Privacy, Fully Protected</h2>
         <div class="privacy-content">
           <p><strong>Pixel-Perfect Privacy - Zero Data Upload.</strong> Every image rendered from your PDF stays 100% in your browser. No pixel data, no document content, and no metadata ever leaves your device. Your images are generated locally and downloaded directly to your computer.</p>
           <p><strong>Secure Canvas Rendering.</strong> We use your browser's native Canvas API to render PDF pages into images. This means the entire conversion process - from PDF parsing to image encoding - happens offline on your device. No external services, no tracking, no data transmission.</p>
           <p><strong>Powered by PDF.js.</strong> Our converter uses PDF.js, the same technology that powers Firefox's built-in PDF viewer. This battle-tested library ensures accurate rendering while keeping your data completely private.</p>
         </div>
-      </div>
+      </a-card>
 
-      <div class="technology-section">
+      <a-card class="technology-card" hoverable>
         <h2 class="section-title">How PDF to Image Conversion Works</h2>
         <div class="tech-content">
-          <el-card class="tech-card" shadow="hover">
+          <a-card class="tech-card" shadow="hover">
             <h3>High-Fidelity Rendering</h3>
             <p>Our renderer preserves colors, fonts, and graphics with pixel-perfect accuracy. Text stays sharp, images maintain clarity at any resolution.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
+          </a-card>
+          <a-card class="tech-card" shadow="hover">
             <h3>Format-Specific Encoding</h3>
             <p>PNG output preserves transparency, JPEG uses smart compression, WebP offers optimal file sizes. Each format is optimized for its use case.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
+          </a-card>
+          <a-card class="tech-card" shadow="hover">
             <h3>Resolution Control</h3>
             <p>Choose from 72dpi (web) to 300dpi (print). Higher resolutions produce larger files but maintain crispness for professional printing.</p>
-          </el-card>
+          </a-card>
         </div>
-      </div>
+      </a-card>
 
-      <div class="guide-section">
+      <a-card class="guide-card-container" hoverable>
         <h2 class="section-title">Pro Tips for Better PDF to Image Conversion</h2>
         <div class="guide-content">
-          <el-card class="guide-card" shadow="hover">
+          <a-card class="guide-card" shadow="hover">
             <h3 class="guide-title">Choose Right Image Format</h3>
             <p class="guide-desc">Use PNG for images with transparency, JPG for photos, and WebP for smaller file sizes. Each format has its strengths depending on your use case.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </a-card>
+          <a-card class="guide-card" shadow="hover">
             <h3 class="guide-title">Select Appropriate Resolution</h3>
             <p class="guide-desc">Higher resolution means larger files. Choose 72dpi for web use, 150dpi for printing, and 300dpi for high-quality prints.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </a-card>
+          <a-card class="guide-card" shadow="hover">
             <h3 class="guide-title">Preview Before Download</h3>
             <p class="guide-desc">Always preview the converted images to ensure colors and layout are correct before downloading all pages.</p>
-          </el-card>
+          </a-card>
         </div>
-      </div>
+      </a-card>
 
-      <div class="faq-section">
+      <a-card class="faq-card" hoverable>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <el-collapse accordion>
-          <el-collapse-item title="What image formats can I convert to?">
+        <a-collapse :default-active-key="[]">
+          <a-collapse-panel header="What image formats can I convert to?" key="1">
             <p>You can convert PDF pages to either PNG (with transparent background) or JPEG (compressed format). PNG is best for documents with transparency or sharp graphics, while JPEG is better for photos and offers smaller file sizes.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is there a file size limit?">
+          </a-collapse-panel>
+          <a-collapse-panel header="Is there a file size limit?" key="2">
             <p>Yes, the maximum file size is 50MB. This ensures the tool works efficiently in your browser without performance issues.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I convert specific pages only?">
+          </a-collapse-panel>
+          <a-collapse-panel header="Can I convert specific pages only?" key="3">
             <p>Yes, you can select which pages to convert by clicking on the page thumbnails in the options tab. This allows you to extract only the pages you need.</p>
-          </el-collapse-item>
-          <el-collapse-item title="What resolution options are available?">
+          </a-collapse-panel>
+          <a-collapse-panel header="What resolution options are available?" key="4">
             <p>We offer three resolution options: 72 DPI (screen quality), 150 DPI (medium quality), and 300 DPI (high quality for printing). Higher resolution produces larger image files.</p>
-          </el-collapse-item>
-          <el-collapse-item title="How do I convert PDF without losing quality?">
+          </a-collapse-panel>
+          <a-collapse-panel header="How do I convert PDF without losing quality?" key="5">
             <p>For best quality results, select the 300 DPI resolution and PNG format. This preserves sharp details and maintains the original document quality.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is this tool completely free?">
+          </a-collapse-panel>
+          <a-collapse-panel header="Is this tool completely free?" key="6">
             <p>Yes, our converter is 100% free to use with no hidden fees, no watermarks, and no registration required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Is my data safe?">
+          </a-collapse-panel>
+          <a-collapse-panel header="Is my data safe?" key="7">
             <p>Absolutely! All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy and security.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I process multiple PDFs at once?">
+          </a-collapse-panel>
+          <a-collapse-panel header="Can I process multiple PDFs at once?" key="8">
             <p>Yes, you can upload and convert multiple PDF files simultaneously for efficient batch processing.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Does it work with scanned PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel header="Does it work with scanned PDFs?" key="9">
             <p>Yes, our tool handles both text-based and scanned PDFs. Scanned documents are converted as image files.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I use this tool on mobile devices?">
+          </a-collapse-panel>
+          <a-collapse-panel header="Can I use this tool on mobile devices?" key="10">
             <p>Yes! Our PDF to image converter works perfectly on iPhone and Android devices. Just open your browser and start converting - no app installation required.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Which browsers are supported?">
+          </a-collapse-panel>
+          <a-collapse-panel header="Which browsers are supported?" key="11">
             <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Can I convert password-protected PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel header="Can I convert password-protected PDFs?" key="12">
             <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-          </el-collapse-item>
-          <el-collapse-item title="Why choose PDFMaster for PDF to image conversion?">
+          </a-collapse-panel>
+          <a-collapse-panel header="Why choose PDFMaster for PDF to image conversion?" key="13">
             <p>PDFMaster offers 100% free conversion with no watermarks, local processing for complete privacy, and multiple output options including PNG and JPEG. Your files stay secure on your device.</p>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
+          </a-collapse-panel>
+        </a-collapse>
+      </a-card>
 
-      <div class="tutorial-section">
+      <a-card class="tutorial-card" hoverable>
         <h2 class="section-title">How to Convert PDF to Image Step by Step</h2>
         <div class="tutorial-step">
           <div class="tutorial-number">1</div>
@@ -508,46 +545,51 @@
             <p>Click Convert and wait for processing. All operations happen locally in your browser. Your converted images will be ready to download instantly.</p>
           </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="blog-section">
+      <a-card class="blog-card-container" hoverable>
         <h2 class="section-title">PDF to Image Use Cases</h2>
-        <div class="blog-card">
-          <div class="blog-icon">🌐</div>
-          <h3>Website Content</h3>
-          <p>Display PDF content on your website by converting pages to images. Perfect for embedding documents, manuals, or reports in blog posts and product pages.</p>
+        <div class="blog-cards-grid">
+          <div class="blog-card-wrapper">
+            <div class="blog-icon">🌐</div>
+            <h3>Website Content</h3>
+            <p>Display PDF content on your website by converting pages to images. Perfect for embedding documents, manuals, or reports in blog posts and product pages.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <div class="blog-icon">📱</div>
+            <h3>Social Media</h3>
+            <p>Turn PDFs into shareable images for Instagram, Facebook, and Pinterest. PNG format preserves transparency for seamless design integration.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <div class="blog-icon">📧</div>
+            <h3>Email Attachments</h3>
+            <p>Share PDF content via email by converting to images. Images avoid compatibility issues and work across all email clients.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <div class="blog-icon">🖨️</div>
+            <h3>Professional Printing</h3>
+            <p>Extract high-resolution images from PDFs for crisp prints. 300dpi resolution ensures professional quality for flyers, posters, and marketing materials.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <div class="blog-icon">📄</div>
+            <h3>Resume & Portfolio</h3>
+            <p>Convert resumes and portfolio pages to images for online profiles. Maintain professional appearance for job applications and personal branding.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <div class="blog-icon">📝</div>
+            <h3>Document Archiving</h3>
+            <p>Convert scanned PDFs to images for digital archiving and OCR processing. Preserve documents while making them easily searchable.</p>
+          </div>
         </div>
-        <div class="blog-card">
-          <div class="blog-icon">📱</div>
-          <h3>Social Media</h3>
-          <p>Turn PDFs into shareable images for Instagram, Facebook, and Pinterest. PNG format preserves transparency for seamless design integration.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">📧</div>
-          <h3>Email Attachments</h3>
-          <p>Share PDF content via email by converting to images. Images avoid compatibility issues and work across all email clients.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🖨️</div>
-          <h3>Professional Printing</h3>
-          <p>Extract high-resolution images from PDFs for crisp prints. 300dpi resolution ensures professional quality for flyers, posters, and marketing materials.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">📄</div>
-          <h3>Resume & Portfolio</h3>
-          <p>Convert resumes and portfolio pages to images for online profiles. Maintain professional appearance for job applications and personal branding.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">📝</div>
-          <h3>Document Archiving</h3>
-          <p>Convert scanned PDFs to images for digital archiving and OCR processing. Preserve documents while making them easily searchable.</p>
-        </div>
+      </a-card>
+
+      <a-card class="cta-card" hoverable>
         <div class="cta-box">
           <h3>Ready to Convert Your PDF?</h3>
           <p>Try our free converter with no watermark and no registration required. All processing happens locally in your browser for complete privacy.</p>
           <button class="cta-button" @click="goToUpload">Start Converting Now</button>
         </div>
-      </div>
+      </a-card>
     </div>
   </div>
 
@@ -575,11 +617,52 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+      <div class="footer-credits">
+        <div class="credits-header">
+          <span class="credits-icon">💡</span>
+          <span class="credits-title">Built with Open Source</span>
+        </div>
+        <div class="libraries-list">
+          <div class="library-item">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Vue.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://element.eleme.io/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Element UI</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://pdf-lib.js.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDFLib</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDF.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge apache">Apache 2.0</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </div>
@@ -606,7 +689,9 @@ new Vue({
       progressText: '',
       showPreviewModal: false,
       currentPreviewImage: '',
-      downloadFileName: 'pdf-images'
+      downloadFileName: 'pdf-images',
+      showDrawer: false,
+      drawerStage: 'options'
     }
   },
   mounted() {
@@ -665,12 +750,31 @@ new Vue({
       this.currentStep = '0'
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
+    handleDrawerClose() {
+      if (!this.converting) {
+        this.selectedFiles = []
+        if (this.$refs.upload) {
+          this.$refs.upload.uploadFiles = []
+        }
+        this.showDrawer = false
+        this.drawerStage = 'options'
+        this.done = false
+        this.convertedImages = []
+        this.selectedPages = []
+        this.pagePreviews = []
+        this.form = {
+          format: 'png',
+          quality: 90,
+          resolution: 150
+        }
+      }
+    },
     async openPreview(img) {
       this.currentPreviewImage = img.data
       this.showPreviewModal = true
     },
     closePreview() {
-      PreviewUtils.closePreview(this)
+      this.showPreviewModal = false
     },
     handleTabClick(tab) {
       const targetStep = tab.name
@@ -692,24 +796,49 @@ new Vue({
     handleExceed() {
       this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' })
     },
-    async handleFileChange(file) {
-      const raw = file.raw
-      if (!raw.name.endsWith('.pdf')) {
-        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
+    beforeUpload(file) {
+      if (!file.name.endsWith('.pdf')) {
+        this.$message.error('Only PDF files are allowed')
+        return false
+      }
+      const maxSize = 50 * 1024 * 1024
+      if (file.size > maxSize) {
+        this.$message.error('File size cannot exceed 50MB')
+        return false
+      }
+      return true
+    },
+    handleDrop(event) {
+      event.preventDefault()
+      const file = event.dataTransfer.files[0]
+      if (file && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
+        if (file.size > 50 * 1024 * 1024) {
+          this.$message.error('File size cannot exceed 50MB')
+          return
+        }
+        if (this.selectedFiles.length >= 1) {
+          this.$message.warning('Only one PDF file can be processed at a time')
+          return
+        }
+        this.processFile(file)
+      } else if (file) {
+        this.$message.error('Only PDF files are allowed')
+      }
+    },
+    async handleFileChange({ file, onSuccess }) {
+      const raw = file
+      
+      if (this.selectedFiles.length >= 1) {
+        this.$message.warning('Only one PDF file can be processed at a time')
         return
       }
       
-      const maxSize = 50 * 1024 * 1024
-      if (raw.size > maxSize) {
-        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' })
-        return
+      await this.processFile(raw)
+      if (onSuccess) {
+        onSuccess('success')
       }
-
-      if (this.selectedFiles.length >= 1) {
-        this.$notify({ title: '提示', message: 'Only one PDF file can be processed at a time', type: 'warning' })
-        return
-      }
-
+    },
+    async processFile(raw) {
       const arrayBuffer = await raw.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
       const pageCount = pdf.numPages
@@ -783,6 +912,7 @@ new Vue({
       if (this.selectedPages.length === 0) return
       
       this.converting = true
+      this.drawerStage = 'progress'
       this.progress = 0
       this.progressText = 'Converting pages...'
       this.convertedImages = []
@@ -820,12 +950,13 @@ new Vue({
         pdf.destroy()
         this.converting = false
         this.done = true
-        this.currentStep = '2'
+        this.drawerStage = 'result'
         
       } catch (error) {
         console.error('Error converting PDF:', error)
         this.$notify({ title: '错误', message: 'Failed to convert PDF. Please try again.', type: 'error' })
         this.converting = false
+        this.drawerStage = 'options'
       }
     },
     async downloadAll() {
@@ -883,6 +1014,9 @@ new Vue({
         this.$refs.upload.uploadFiles = []
       }
       this.pagePreviews = []
+      this.showDrawer = false
+      this.drawerStage = 'options'
+      this.done = false
       this.selectedPages = []
       this.form = {
         format: 'png',

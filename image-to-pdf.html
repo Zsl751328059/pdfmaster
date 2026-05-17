@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0"> -->
   <title>Image to PDF Converter - Create PDF from Images Free | PDFMaster</title>
   <meta name="description" content="Convert images to PDF online free - JPG, PNG, TIFF to PDF. Combine multiple images into one PDF. 100% local processing, no upload, no watermark, no registration. Up to 50MB. Works on Mac, Windows, iPhone & Android.">
+
   <link rel="canonical" href="https://pdfeasz.com/image-to-pdf.html" />
 
   <meta property="og:title" content="Image to PDF Converter - Convert JPG/PNG to PDF | PDFMaster" />
@@ -85,123 +89,37 @@
   }
   </script>
 
-
-
-
   <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
-  <link rel="stylesheet" href="./common.css">
-  
+  <link rel="stylesheet" href="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.css">
+  <link rel="stylesheet" href="/css/common.css">
   <style>
-    .image-preview-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 12px;
-      padding: 16px;
-      background: #fafafa;
-      border-radius: 12px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    .image-preview-item {
-      position: relative;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    .preview-image {
-      width: 100%;
-      height: 100px;
-      object-fit: cover;
-    }
-    .preview-name {
-      padding: 8px;
-      background: #fff;
-      font-size: 12px;
-      color: #606266;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .advanced-options {
-      padding: 16px;
-      background: #fafafa;
-      border-radius: 8px;
-    }
-    .option-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .option-label {
-      width: 120px;
-      font-weight: 500;
-      color: #606266;
-    }
-    .option-select {
-      flex: 1;
-      max-width: 200px;
-    }
-    .preview-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    .modal-content {
-      position: relative;
-      max-width: 90%;
-      max-height: 90%;
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 32px;
-      height: 32px;
-      border: none;
-      background: #f5f5f5;
-      border-radius: 50%;
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-image {
-      max-width: 100%;
-      max-height: 80vh;
-      border-radius: 8px;
-    }
-    .filename-input input {
-      padding: 10px 15px;
-      border: 1px solid #dcdfe6;
-      border-radius: 8px;
-      font-size: 14px;
-      min-width: 200px;
-    }
-    .filename-input input:focus {
-      outline: none;
-      border-color: #409eff;
-    }
+   
   </style>
-  <script src="./lib/vue/vue.js"></script>
-  <script src="/lib/element-ui/index.js"></script>
-  <script src="./lib/jspdf/jspdf.umd.min.js"></script>
-  <script src="./lib/browser-image-compression/browser-image-compression.js"></script>
-  <script src="./lib/pdfjs-dist/build/pdf.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
-  <script src="./lib/preview-utils.js"></script>
-  <script src="./lib/components/preview-modal.js"></script>
+  <script src="/lib/vue/vue.js" defer></script>
+  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.js" defer></script>
+  <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
+  <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
+  
+  <script src="/lib/preview-utils.js" defer></script>
+  <script src="/lib/components/preview-modal.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水印 - 不影响功能，仅用于识别抄袭
+    console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║   Powered by PDFMaster - https://pdfeasz.com                  ║
+║   Open-source under MIT License. Copyright © 2026             ║
+║   Unauthorized removal of this notice is prohibited.          ║
+╚═══════════════════════════════════════════════════════════════╝
+    `);
 
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
+      }
+    });
+  </script>
+
+  
 </head>
 <body>
 <div id="app" class="app">
@@ -209,12 +127,15 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="/assets/logo.png" alt="PDFMaster - Free Online PDF Tools" class="logo-image">
+          <img src="/assets/logo.png" alt="PDFMaster Logo - Free Online PDF Tools" class="logo-image">
           <span class="logo-text">PDFMaster</span>
         </div>
         <nav class="header-links">
           <a href="index.html" class="back-btn">
-            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M19 12H5"></path>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
             Back to Home
           </a>
           <a href="contact.html" class="contact-btn">Contact Us</a>
@@ -225,336 +146,380 @@
   </header>
 
 
+
   <div class="main-content">
     <div class="container">
       <div class="page-header">
         <h1 class="page-title">Image to PDF Converter - Free Online Tool</h1>
-        <p class="page-subtitle">Convert JPG, PNG, TIFF, BMP to PDF online for free. Our high quality Image to PDF converter lets you combine multiple images into one PDF without losing quality. No watermark, no registration, 100% free. All processing happens locally in your browser for complete privacy and security.</p>
+        <p class="page-subtitle">Convert JPG, PNG, TIFF, BMP to PDF online for free. Combine multiple images into one PDF. 100% local processing, no upload, no watermark.</p>
       </div>
 
-      <div class="steps-container">
-        <div class="steps-wrapper">
-          <el-steps :active="Number(currentStep)" finish-status="success" align-center>
-            <el-step title="Upload Images" icon="el-icon-upload"></el-step>
-            <el-step title="Select Options" icon="el-icon-setting"></el-step>
-            <el-step title="Download PDF" icon="el-icon-download"></el-step>
-          </el-steps>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <el-tabs v-model="currentStep" stretch @tab-click="handleTabClick" type="border-card">
-          <el-tab-pane label="Upload" name="0">
-            <div class="tab-content">
-              <el-upload
-                ref="upload"
-                class="upload-area"
-                drag
-                :auto-upload="false"
-                accept="image/*"
-                :on-change="handleFileChange"
-                :on-exceed="handleExceed"
-                action="#"
-                multiple
-                :limit="20"
-                :show-file-list="false"
-              >
-                <i class="el-icon-folder-opened upload-icon"></i>
-                <div class="upload-text">Drag & drop images here</div>
-                <div class="upload-hint">Supports JPG, PNG, GIF, BMP up to <strong>50MB</strong>, max 20 files - Free, no watermarks</div>
-              </el-upload>
-
-              <div v-if="selectedFiles.length" class="file-list-section">
-                <div class="file-list-header">
-                  <div class="file-list-title">
-                    <i class="el-icon-picture"></i>
-                    Selected Images ({{ selectedFiles.length }})
-                  </div>
-                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearAllFiles">Clear All</el-button>
-                </div>
-                <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
-                  <span class="file-name">{{ file.name }}</span>
-                  <span class="file-info">{{ formatFileSize(file.size) }}</span>
-                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="removeFile(idx)"></el-button>
-                </div>
-              </div>
-
-              <div class="action-section">
-                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
-              </div>
+      <a-card class="tool-card" hoverable>
+          <a-upload
+            ref="upload"
+            class="upload-area"
+            :multiple="true"
+            :file-list="[]"
+            accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff"
+            :custom-request="handleFileChange"
+            :before-upload="beforeUpload"
+            @drop="handleDrop"
+          >
+            <div class="upload-content">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div class="upload-text">Drag & drop images here</div>
+              <div class="upload-hint">Supports JPG, PNG, GIF, BMP up to <strong>50MB</strong>, max 20 files - Free, no watermarks</div>
             </div>
-          </el-tab-pane>
+          </a-upload>
 
-          <el-tab-pane label="Options" name="1">
-            <div class="tab-content">
-              <div class="options-section">
-                <div class="options-title">Image Preview</div>
+          <div v-if="selectedFiles.length" class="file-list-section">
+            <div class="file-list-header">
+              <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
+            </div>
+            <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
+              <i class="anticon anticon-file-image file-icon"></i>
+              <div class="file-info">
+                <span class="file-name" :title="file.name">{{ file.name }}</span>
+                <span class="file-details">{{ formatFileSize(file.size) }}</span>
+              </div>
+              <button class="remove-btn" @click="removeFile(idx)" aria-label="Remove file">
+                Remove
+              </button>
+            </div>
+          </div>
+
+          <div v-if="selectedFiles.length" class="action-section">
+            <a-button type="primary" @click="showDrawer = true">
+              Continue <i class="anticon anticon-right"></i>
+            </a-button>
+          </div>
+
+          <a-drawer
+            :title="drawerStage === 'options' ? 'Convert Images to PDF' : (drawerStage === 'progress' ? 'Converting...' : 'Conversion Result')"
+            :visible="showDrawer"
+            :width="600"
+            :closable="true"
+            :mask-closable="true"
+            @close="handleDrawerClose"
+          >
+            <div class="drawer-content">
+              <div v-if="drawerStage === 'options'" class="options-section">
+                <div class="options-title">Convert Images to PDF</div>
+                <div class="mode-description">Choose your conversion options</div>
                 <div class="image-preview-grid">
                   <div v-for="(file, idx) in selectedFiles" :key="idx" class="image-preview-item">
                     <img :src="file.preview" class="preview-image">
-                    <div class="preview-name">{{ file.name }}</div>
                   </div>
                 </div>
-              </div>
 
-              <el-collapse v-model="expandOptions" style="margin-top: 16px;">
-                <el-collapse-item title="Advanced Settings (for advanced users only)" name="1">
-                  <div class="advanced-options">
-                    <div class="option-row">
-                      <label class="option-label">Page Size</label>
-                      <el-select v-model="form.pageSize" class="option-select">
-                        <el-option label="A4 (210 × 297 mm)" value="a4"></el-option>
-                        <el-option label="Letter (8.5 × 11 inches)" value="letter"></el-option>
-                        <el-option label="Legal (8.5 × 14 inches)" value="legal"></el-option>
-                        <el-option label="Auto (Fit to Image)" value="custom"></el-option>
-                      </el-select>
+                <a-collapse v-model="expandOptions" style="margin-top: 16px;">
+                  <a-collapse-panel header="Advanced Settings (for advanced users only)" key="1">
+                    <div class="advanced-options">
+                      <div class="option-row">
+                        <label class="option-label">Page Size</label>
+                        <el-select v-model="form.pageSize" class="option-select">
+                          <el-option label="A4 (210 × 297 mm)" value="a4"></el-option>
+                          <el-option label="Letter (8.5 × 11 inches)" value="letter"></el-option>
+                          <el-option label="Legal (8.5 × 14 inches)" value="legal"></el-option>
+                          <el-option label="Auto (Fit to Image)" value="custom"></el-option>
+                        </el-select>
+                      </div>
                     </div>
-                  </div>
-                </el-collapse-item>
-              </el-collapse>
-
-              <div class="action-section">
-                <el-button type="default" @click="goToPrev" :disabled="converting">Back</el-button>
-                <el-button type="primary" @click="convert" :disabled="converting || selectedFiles.length === 0">{{ converting ? 'Converting...' : 'Convert to PDF' }}</el-button>
+                  </a-collapse-panel>
+                </a-collapse>
               </div>
 
-              <div v-if="converting" class="progress-section">
+              <div v-if="drawerStage === 'progress' || converting" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{width: progress + '%'}"></div>
-                </div>
+                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
-            </div>
-          </el-tab-pane>
 
-          <el-tab-pane label="Result" name="2">
-            <div class="tab-content">
-              <div class="result-content" v-if="done">
+              <div v-if="done" class="result-content">
                 <div class="result-title">Conversion Completed!</div>
                 <p class="result-desc">Successfully converted {{ selectedFiles.length }} image(s) to PDF</p>
                 <div class="result-preview">
-                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)">
+                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)" >
                     <img :src="t" class="page-preview-image">
                     <div class="page-number">{{ i+1 }}</div>
                     <div class="preview-overlay">Click to zoom</div>
                   </div>
                 </div>
-                <div class="filename-input">
-                  <label>File Name:</label>
-                  <input v-model="downloadFileName" type="text" placeholder="Enter file name" />
+                <div class="download-section">
+                  <div class="filename-input">
+                    <label>File Name:</label>
+                    <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                  </div>
+                  <a-button type="primary" size="large" @click="download">Download PDF</a-button>
                 </div>
-                <el-button type="primary" size="large" @click="download">Download PDF</el-button>
                 <div class="recommend-section">
-                  <p>Need to convert PDF back to images?</p>
-                  <a href="pdf-to-image.html" class="recommend-link">Try our PDF to Image Tool →</a>
+                  <p>Need to convert PDF to images? <a href="pdf-to-image.html" class="recommend-link">Try our PDF to Image Tool →</a></p>
+                </div>
+
+                <div class="action-section center">
+                  <a-button type="default" @click="reset">Start Over</a-button>
                 </div>
               </div>
 
-              <preview-modal 
-                :visible="showPreviewModal" 
-                :image-src="currentPreviewImage" 
-                title="PDF Preview"
-                @close="closePreview" 
-              ></preview-modal>
-
-              <div class="action-section">
-                <el-button type="default" @click="reset">Start Over</el-button>
+              <div v-if="!done && !converting" class="drawer-actions">
+                <a-button @click="handleDrawerClose">Cancel</a-button>
+                <a-button type="primary" @click="convert" :disabled="selectedFiles.length === 0">
+                  Convert to PDF
+                </a-button>
               </div>
             </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
+          </a-drawer>
 
-      <div class="instructions">
-        <h2 class="instructions-title">Why Choose PDFMaster?</h2>
+          <a-drawer
+            title="PDF Preview"
+            :visible="showPreviewModal"
+            :width="500"
+            placement="left"
+            @close="closePreview"
+          >
+            <div class="preview-drawer-content">
+              <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" alt="PDF Preview" />
+              <div v-else class="preview-empty">No preview available</div>
+            </div>
+          </a-drawer>
+      </a-card>
+
+      <a-card class="instructions-card" hoverable>
+        <h2 class="section-title">Why Convert PDFs with Us?</h2>
         <div class="steps">
           <div class="step">
-            <div class="step-number">💰</div>
-            <div class="step-title">Completely Free</div>
-            <div class="step-desc">No hidden fees, 100% free</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="step-title">High-Quality Output</div>
+            <div class="step-desc">Preserve image clarity</div>
           </div>
           <div class="step">
-            <div class="step-number">🔐</div>
-            <div class="step-title">100% Private</div>
-            <div class="step-desc">Local browser processing</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <div class="step-title">Pixel-Private</div>
+            <div class="step-desc">No data uploads</div>
           </div>
           <div class="step">
-            <div class="step-number">⚡</div>
-            <div class="step-title">Fast Processing</div>
-            <div class="step-desc">No upload waiting</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+            <div class="step-title">Instant Conversion</div>
+            <div class="step-desc">Process in your browser</div>
           </div>
           <div class="step">
-            <div class="step-number">📱</div>
-            <div class="step-title">Mobile Friendly</div>
-            <div class="step-desc">Works on all devices</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+            </div>
+            <div class="step-title">Multiple Formats</div>
+            <div class="step-desc">PNG, JPG, & more</div>
           </div>
           <div class="step">
-            <div class="step-number">🎯</div>
-            <div class="step-title">Easy to Use</div>
-            <div class="step-desc">Simple interface</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div class="step-title">Custom Resolution</div>
+            <div class="step-desc">72-300 DPI options</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                <path d="M22 12a14.5 14.5 0 0 1 0 20 14.5 14.5 0 0 1 0-20"></path>
+                <line x1="12" y1="2" x2="12" y2="22"></line>
+              </svg>
+            </div>
+            <div class="step-title">Cross-Platform</div>
+            <div class="step-desc">Mac/Win/Mobile | Others desktop only</div>
           </div>
         </div>
-      </div>
+      </a-card>
 
-      <div class="privacy-section">
-        <h2 class="section-title">🔒 Your Privacy is Our Priority</h2>
+      <a-card class="privacy-card" hoverable>
+        <h2 class="section-title">Your Files Never Leave Your Device</h2>
         <div class="privacy-content">
-          <p><strong>Image to PDF process locally in browser.</strong> Your images never leave your device. We convert images to PDF without uploading to any servers. Your photos and documents remain completely private and secure.</p>
-          <p>Our private Image to PDF converter uses secure client-side JavaScript libraries. No data is transmitted over the internet, ensuring complete privacy. Convert JPG to PDF, PNG to PDF, or any image to PDF with full confidence in your data security.</p>
+          <p><strong>🔒 Zero Server Uploads.</strong> Every PDF merge happens right in your browser. No data ever touches our servers. Imagine: your confidential contract, unpublished research, or personal photos - we can't see them, even if we wanted to.</p>
+          <p><strong>🚫 No Tracking, No Logs.</strong> We don't collect your email, IP address, or any personal data. No cookies, no analytics, no ads. Just a simple tool that works and forgets.</p>
+          <p><strong>✅ Trusted by Professionals.</strong> Lawyers, researchers, and business teams rely on PDFMaster for their most sensitive documents. Your privacy isn't an afterthought - it's built into every line of code.</p>
+          <p><strong>❌ The Essential Difference:</strong> 99% of "online PDF tools" upload your files to their servers for processing, even if they claim to "delete" them afterwards. Our code is completely open source - you can right-click and view the source to confirm there are no upload requests.</p>
         </div>
-      </div>
+      </a-card>
 
-      <div class="technology-section">
+      <a-card class="technology-card" hoverable>
         <h2 class="section-title">Powered by Industry-Leading Technology</h2>
         <div class="tech-content">
-          <el-card class="tech-card" shadow="hover">
-            <!-- <div class="tech-item-icon"></div> -->
-            <h3>WebAssembly Power</h3>
-            <p>We use WebAssembly (Wasm) to run PDF processing algorithms directly in your browser. This technology allows near-native performance while keeping everything client-side.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
-            <!-- <div class="tech-item-icon"></div> -->
-            <h3>PDF.js Integration</h3>
-            <p>Our tool leverages Mozilla's PDF.js library for reliable PDF parsing and rendering. All operations happen locally - no server roundtrips, no data exposure.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
-            <!-- <div class="tech-item-icon">🧠</div> -->
-            <h3>Memory-Safe Architecture</h3>
-            <p>We've implemented smart memory management to prevent browser slowdowns. Temporary objects are cleaned up immediately after use, ensuring smooth performance even with large files.</p>
-          </el-card>
+          <a-card class="tech-card" hoverable>
+            <h3>PDF-lib Engine</h3>
+            <p>We use <strong>PDF-lib</strong>, the most trusted open-source PDF library. Your files are merged using battle-tested code that powers thousands of applications. <strong>No garbled text, no missing content.</strong></p>
+          </a-card>
+          <a-card class="tech-card" hoverable>
+            <h3>PDF.js Rendering</h3>
+            <p>Built on Mozilla's <strong>PDF.js</strong> engine for accurate parsing. Every font, image, and annotation is preserved exactly as the original. <strong>What you see is what you get.</strong></p>
+          </a-card>
+          <a-card class="tech-card" hoverable>
+            <h3>WebAssembly Speed</h3>
+            <p>Heavy processing runs via WebAssembly for near-native performance. Merge 20 PDFs in seconds, not minutes. <strong>Your browser stays responsive, even with large files.</strong></p>
+          </a-card>
         </div>
-      </div>
+      </a-card>
 
-      <div class="guide-section">
+      <a-card class="guide-card-container" hoverable>
         <h2 class="section-title">Pro Tips for Better Image to PDF Conversion</h2>
         <div class="guide-content">
-          <el-card class="guide-card" shadow="hover">
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Select Page Size Carefully</h3>
-            <p class="guide-desc">Choose the right page size for your images. Letter or A4 works well for most documents. Match the page orientation to your images.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+            <p class="guide-desc">Choose a page size that matches your image dimensions. For photos, A4 usually works well. For documents, consider Letter size.</p>
+          </a-card>
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Optimize Images First</h3>
-            <p class="guide-desc">Resize large images before conversion to reduce final PDF size. Consider compressing images for web use.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+            <p class="guide-desc">Resize large images before conversion to reduce final PDF size. High-resolution images can create very large PDF files.</p>
+          </a-card>
+          <a-card class="guide-card" hoverable>
             <h3 class="guide-title">Check Image Order</h3>
-            <p class="guide-desc">Verify the order of images before creating the PDF. You can drag and drop to rearrange them if needed.</p>
-          </el-card>
+            <p class="guide-desc">Upload images in the order you want them to appear in the PDF. You can reorder files after uploading.</p>
+          </a-card>
         </div>
-      </div>
+      </a-card>
 
-      <div class="faq-section">
+      <a-card class="faq-card" hoverable>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <el-collapse accordion>
-        <el-collapse-item title="How to convert image to PDF?">
-            <p>Upload your images (JPG, PNG, TIFF, BMP), select your preferred settings, and click Convert. Our online converter will turn your images into PDF instantly.</p>
-          </el-collapse-item>
-        <el-collapse-item title="How to combine multiple images into one PDF?">
-            <p>Simply upload all the images you want to merge, and our tool will combine them into a single PDF document. You can reorder images before conversion.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Will converting images to PDF lose quality?">
-            <p>No, our high quality Image to PDF converter preserves the original image quality. You can also adjust the image quality setting before conversion if needed.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Is there a watermark on the output PDF?">
-            <p>No, our Image to PDF converter is completely free with no watermarks, no registration required, and unlimited usage.</p>
-          </el-collapse-item>
-        <el-collapse-item title="What image formats are supported?">
-            <p>We support JPG, PNG, GIF, BMP, TIFF, and most common image formats. Transparent PNG to PDF is also supported.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Is my data secure?">
-            <p>Absolutely! All processing happens locally in your browser. Your images never leave your device, ensuring complete privacy and security.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Is there a file size limit?">
-            <p>Each image file must be under 50MB. You can upload multiple images at once for batch conversion.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Can I adjust page size and orientation?">
-            <p>Yes! You can choose from standard page sizes (A4, Letter, Legal) and select portrait or landscape orientation before converting.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Can I use this tool on mobile devices?">
-            <p>Yes! Our image to PDF converter works perfectly on iPhone and Android devices. Just open your browser and start converting - no app installation required.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Which browsers are supported?">
+        <a-collapse :default-active-key="[]">
+          <a-collapse-panel key="1" header="How to convert image to PDF?">
+            <p>It's easy! Upload your images (JPG, PNG, GIF, BMP, TIFF), adjust the page size settings if needed, and click Convert to PDF. Your PDF will be ready to download in seconds.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="2" header="How to combine multiple images into one PDF?">
+            <p>Simply upload all your images at once. They will be combined into a single PDF document with each image on a separate page.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="3" header="Will converting images to PDF lose quality?">
+            <p>No! We preserve the original image quality in the PDF output. Your images will look exactly the same as the originals.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="4" header="Is there a watermark on the output PDF?">
+            <p>No! All converted PDFs are completely watermark-free. Unlike other free tools that add branding.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="5" header="What image formats are supported?">
+            <p>We support JPG, PNG, GIF, BMP, and TIFF formats. Most common image formats work perfectly.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="6" header="Is my data secure?">
+            <p>Absolutely! All processing happens locally in your browser. Your images never leave your device.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="7" header="Is there a file size limit?">
+            <p>Each image file must be under 50MB. You can convert up to 20 images at once.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="8" header="Can I adjust page size and orientation?">
+            <p>Yes! In the advanced settings, you can choose from A4, Letter, Legal, or Auto page sizes.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="9" header="Can I use this tool on mobile devices?">
+            <p>Yes! Our PDF converter works perfectly on iPhone and Android devices. Just open your browser and start converting - no app installation required.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="10" header="Which browsers are supported?">
             <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-          </el-collapse-item>
-        <el-collapse-item title="How to convert image to PDF on Mac for free?">
-            <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your images, and convert them to PDF for free. No software to install.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Why choose PDFMaster for image to PDF conversion?">
-            <p>PDFMaster offers 100% free conversion with no watermarks, local processing for complete privacy, and multiple customization options. Your files stay secure on your device.</p>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
+          </a-collapse-panel>
+          <a-collapse-panel key="11" header="How to convert image to PDF on Mac for free?">
+            <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your image, and convert to PDF for free. No software to install.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="12" header="Why choose PDFMaster for image to PDF conversion?">
+            <p>PDFMaster offers 100% free conversion with no watermarks, local processing for complete privacy, and support for multiple image formats. Your files stay secure on your device.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="13" header="Can I convert images to PDF offline?">
+            <p>Yes! Once the page is loaded, you can use it offline. All processing happens in your browser without needing an internet connection.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="14" header="What's the best image format for PDF conversion?">
+            <p>JPG is generally best for photos due to smaller file sizes. PNG is better for images with transparency or sharp edges.</p>
+          </a-collapse-panel>
+          <a-collapse-panel key="15" header="Can I convert scanned documents to PDF?">
+            <p>Yes! If you have scanned pages as images (JPG/PNG), you can convert them to PDF. For editable text, you may need OCR software first.</p>
+          </a-collapse-panel>
+        </a-collapse>
+      </a-card>
 
-      <div class="tutorial-section">
+      <a-card class="tutorial-card" hoverable>
         <h2 class="section-title">How to Convert Images to PDF Step by Step</h2>
         <div class="tutorial-step">
           <div class="tutorial-number">1</div>
           <div class="tutorial-content">
-            <h3>How to turn JPG into PDF for free?</h3>
-            <p>Prepare your JPG, PNG, TIFF or BMP images. Our free Image to PDF converter lets you convert photos to PDF without any cost, registration, or watermarks.</p>
+            <h3>Upload your images</h3>
+            <p>Drag and drop your images into the upload area, or click to browse and select JPG, PNG, GIF, BMP, or TIFF files from your device.</p>
           </div>
         </div>
         <div class="tutorial-step">
           <div class="tutorial-number">2</div>
           <div class="tutorial-content">
-            <h3>Upload your images</h3>
-            <p>Use our drag and drop uploader to add images. You can convert multiple images to PDF at once - simply select all the photos you want to combine into one PDF.</p>
+            <h3>Customize settings</h3>
+            <p>Click Continue and adjust page size settings if needed. Choose from A4, Letter, Legal, or Auto to fit your images perfectly.</p>
           </div>
         </div>
         <div class="tutorial-step">
           <div class="tutorial-number">3</div>
           <div class="tutorial-content">
-            <h3>Customize settings</h3>
-            <p>Choose your preferred page size (A4, Letter, Legal, or Auto) and orientation. You can also reorder images before conversion.</p>
+            <h3>Convert and download</h3>
+            <p>Click Convert to PDF and wait for processing. Once complete, your PDF will be ready to download.</p>
           </div>
         </div>
-        <div class="tutorial-step">
-          <div class="tutorial-number">4</div>
-          <div class="tutorial-content">
-            <h3>Convert and download</h3>
-            <p>Click Convert and wait for processing. All operations happen locally in your browser. Your PDF will be ready to download instantly.</p>
-          </el-collapse></div>
-        </div>
-      </div>
+      </a-card>
 
-      <div class="blog-section">
+      <a-card class="blog-card-container" hoverable>
         <h2 class="section-title">Image to PDF Use Cases</h2>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Resume & CV</h3>
-          <p>Convert images to PDF for resume and CV applications. Ensure your professional documents look perfect with high quality conversion.</p>
+        <div class="blog-cards-grid">
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-file-text blog-icon"></i>
+            <h3>Resume & CV</h3>
+            <p>Convert scanned resume images to professional PDF format. Ensure your application materials look clean and professional when submitting online.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-picture blog-icon"></i>
+            <h3>Portfolio</h3>
+            <p>Create beautiful PDF portfolios from your artwork and photography. Showcase your work in a professional, easy-to-share format.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-printer blog-icon"></i>
+            <h3>Printing</h3>
+            <p>Prepare images for professional printing. Convert your photos to PDF for consistent printing results across different printers.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-mail blog-icon"></i>
+            <h3>Email Attachments</h3>
+            <p>Send multiple images as a single PDF attachment. Easier to share than multiple image files and preserves formatting.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-file-text blog-icon"></i>
+            <h3>Application Forms</h3>
+            <p>Convert scanned application forms and supporting documents to PDF for easy submission.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <i class="anticon anticon-scan blog-icon"></i>
+            <h3>Document Scanning</h3>
+            <p>Turn scanned paper documents into searchable PDFs. Perfect for digitizing receipts, invoices, and important paperwork.</p>
+          </div>
         </div>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Portfolio</h3>
-          <p>Create stunning portfolios by converting your artwork and designs to PDF. Our high quality Image to PDF converter preserves every detail.</p>
-        </div>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Printing</h3>
-          <p>Convert images to PDF for printing with high resolution output. Perfect for photos, posters, and documents that need professional quality.</p>
-        </div>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Email Attachments</h3>
-          <p>Convert photos to PDF for email sharing. Combine multiple images into one PDF for easy sending and better compatibility.</p>
-        </div>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Application Forms</h3>
-          <p>Convert filled-out forms to PDF for document submission. Our converter maintains form formatting for professional results.</p>
-        </div>
-        <div class="blog-card">
-          <i class="el-icon-briefcase blog-icon"></i>
-          <h3>Document Scanning</h3>
-          <p>Turn scanned photos into professional PDF documents. Perfect for digitizing receipts, contracts, and important paperwork.</p>
-        </div>
+      </a-card>
+
+      <a-card class="cta-card" hoverable>
         <div class="cta-box">
           <h3>Ready to Convert Images to PDF?</h3>
-          <p>Try our free online Image to PDF converter. Convert JPG, PNG, TIFF to PDF without losing quality. No watermark, no registration, completely free.</p>
-          <button class="cta-button" @click="goToUpload">Start Converting Now</button>
+          <p>Free, private, and unlimited. Your images never leave your device. Try PDFMaster now!</p>
+          <button class="cta-button" @click="goToUpload">Convert Now</button>
         </div>
-      </div>
+      </a-card>
+
     </div>
   </div>
 
@@ -566,15 +531,16 @@
           <ul>
             <li><a href="pdf-merger.html">PDF Merger</a></li>
             <li><a href="pdf-splitter.html">PDF Splitter</a></li>
-            <li><a href="pdf-to-image.html">PDF to Image</a></li>
-            <li><a href="pdf-signer.html">PDF Signer</a></li>
+            <li><a href="pdf-compressor.html">PDF Compressor</a></li>
+            <li><a href="pdf-page-reorder.html">Page Reorder</a></li>
+            <li><a href="image-to-pdf.html">Image to PDF</a></li>
           </ul>
         </div>
         <div class="footer-section">
           <h4>About</h4>
           <ul>
             <li><a href="about.html">About</a></li>
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
             <li><a href="feedback.html">Feedback</a></li>
           </ul>
         </div>
@@ -588,16 +554,89 @@
         </div>
       </div>
       <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+      <div class="footer-credits">
+        <div class="credits-header">
+          <span class="credits-icon">💡</span>
+          <span class="credits-title">Built with Open Source</span>
+        </div>
+        <div class="libraries-list">
+          <div class="library-item">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Vue.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://element.eleme.io/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Element UI</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://pdf-lib.js.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDFLib</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDF.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge apache">Apache 2.0</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </div>
 
 <script>
-new Vue({
+
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('Global error:', message, source, lineno, colno, error);
+  if (message.includes('PDF') || message.includes('pdf')) {
+    alert('An error occurred while processing PDF files. Please try again with different files.');
+  }
+  return true;
+};
+
+document.addEventListener('DOMContentLoaded', function() {    
+  console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║   Powered by PDFMaster - https://pdfeasz.com                  ║
+║   Open-source under MIT License. Copyright © 2026             ║
+║   Unauthorized removal of this notice is prohibited.          ║
+╚═══════════════════════════════════════════════════════════════╝
+  `);
+
+  if (typeof Vue === 'undefined') {
+    setTimeout(function() {
+      window.location.reload();
+    }, 1000);
+    return;
+  }
+  
+  Vue.config.errorHandler = function(err, vm, info) {
+    console.error('Vue error:', err, info);
+    if (err.message && (err.message.includes('PDF') || err.message.includes('pdf'))) {
+      vm.$message.error('An error occurred while processing PDF files. Please try again.')
+    } else {
+      vm.$message.error('An unexpected error occurred. Please refresh the page and try again.')
+    }
+  };
+  
+  new Vue({
   el: '#app',
   data() {
     return {
-      currentStep: '0',
       selectedFiles: [],
       form: {
         pageSize: 'a4',
@@ -613,7 +652,9 @@ new Vue({
       progress: 0,
       progressText: '',
       showPreviewModal: false,
-      currentPreviewImage: ''
+      currentPreviewImage: '',
+      showDrawer: false,
+      drawerStage: 'options'
     }
   },
   mounted() {
@@ -641,70 +682,80 @@ new Vue({
       this.previews = []
       this.currentPreviewImage = ''
     },
-    goToNext() { 
-      if (!this.selectedFiles || this.selectedFiles.length === 0) {
-        this.$notify({
-          title: '提示',
-          message: 'Please upload images first',
-          type: 'warning'
-        });
-        return;
-      }
-      this.currentStep = '1' 
-    },
-    goToPrev() { this.currentStep = '0' },
     goToUpload() {
-      this.currentStep = '0'
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
     handleExceed() {
-      this.$notify({ title: '提示', message: 'You can upload a maximum of 20 images', type: 'warning' })
+      this.$message.warning('You can upload a maximum of 20 images')
+    },
+    beforeUpload(file) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff']
+      const fileName = file.name.toLowerCase()
+      const isValidType = allowedTypes.includes(file.type) || 
+        fileName.match(/\.(jpg|jpeg|png|gif|bmp|tiff)$/)
+      
+      if (!isValidType) {
+        this.$message.error('Only image files are allowed (JPG, PNG, GIF, BMP, TIFF)')
+        return false
+      }
+      return true
+    },
+    handleDrop(event) {
+      event.preventDefault()
     },
     async openPreview(image) {
-      PreviewUtils.openPreview({
-        image: image,
-        previews: this.previews,
-        resultBlob: this.resultBlob,
-        vm: this
-      })
+      const idx = this.previews.indexOf(image)
+      if (idx === -1 || !this.resultBlob) {
+        this.currentPreviewImage = image
+        this.showPreviewModal = true
+        return
+      }
+      
+      try {
+        const dataUrl = await PreviewUtils.renderPdfPage(this.resultBlob, idx, 2.0)
+        if (dataUrl) {
+          this.currentPreviewImage = dataUrl
+        } else {
+          this.currentPreviewImage = image
+        }
+      } catch (error) {
+        console.warn('Preview error:', error)
+        this.currentPreviewImage = image
+      }
+      this.showPreviewModal = true
     },
     closePreview() {
-      PreviewUtils.closePreview(this)
+      this.showPreviewModal = false
+      this.currentPreviewImage = ''
     },
-    handleTabClick(tab) {
-      const targetStep = tab.name
-      if (targetStep !== '0' && this.selectedFiles.length === 0) {
-        this.$notify({ title: '提示', message: 'Please upload images first', type: 'warning' })
-        this.$nextTick(() => {
-          this.currentStep = '0'
-        })
-        return
-      }
-      if (targetStep === '2' && !this.done) {
-        this.$notify({ title: '提示', message: 'Please complete conversion first', type: 'warning' })
-        this.$nextTick(() => {
-          this.currentStep = '1'
-        })
-        return
+    handleDrawerClose() {
+      if (!this.converting) {
+        this.drawerStage = 'options'
+        this.done = false
+        this.resultBlob = null
+        this.form.pageSize = 'a4'
+        this.form.orientation = 'auto'
+        this.form.quality = 90
+        this.showDrawer = false
       }
     },
-    async handleFileChange(file) {
-      const raw = file.raw
+    async handleFileChange({ file, onSuccess }) {
+      const raw = file
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff']
       if (!allowedTypes.includes(raw.type) && !raw.name.match(/\.(jpg|jpeg|png|gif|bmp|tiff)$/i)) {
-        this.$notify({ title: '错误', message: 'Only image files are allowed (JPG, PNG, GIF, BMP, TIFF)', type: 'error' })
+        this.$message.error('Only image files are allowed (JPG, PNG, GIF, BMP, TIFF)')
         return
       }
       
       if (this.selectedFiles.length >= 20) {
-        this.$notify({ title: '提示', message: 'You can upload a maximum of 20 files', type: 'warning' })
+        this.$message.warning('You can upload a maximum of 20 files')
         return
       }
       
       const totalSize = this.selectedFiles.reduce((sum, f) => sum + f.size, 0) + raw.size
       const maxSize = 50 * 1024 * 1024
       if (totalSize > maxSize) {
-        this.$notify({ title: '错误', message: 'Total file size cannot exceed 50MB', type: 'error' })
+        this.$message.error('Total file size cannot exceed 50MB')
         return
       }
 
@@ -717,6 +768,9 @@ new Vue({
           preview: e.target.result
         }
         this.selectedFiles.push(item)
+        if (onSuccess) {
+          onSuccess('success')
+        }
       }
       reader.readAsDataURL(raw)
     },
@@ -743,61 +797,61 @@ new Vue({
       if (this.selectedFiles.length === 0) return
       
       this.converting = true
+      this.drawerStage = 'progress'
       this.progress = 0
       this.progressText = 'Processing images...'
       this.previews = []
 
       try {
-        const { jsPDF } = window.jspdf
-        const pdf = new jsPDF({
-          orientation: this.form.orientation === 'auto' ? 'portrait' : this.form.orientation,
-          unit: 'mm',
-          format: this.form.pageSize === 'custom' ? 'a4' : this.form.pageSize
-        })
+        const { PDFDocument } = window.PDFLib
+        
+        const pdfDoc = await PDFDocument.create()
 
         for (let i = 0; i < this.selectedFiles.length; i++) {
           const file = this.selectedFiles[i]
           this.progressText = `Processing image ${i + 1} of ${this.selectedFiles.length}...`
           
           const imgData = file.preview.split(',')[1]
-          const img = new Image()
-          img.src = file.preview
-          await new Promise(resolve => img.onload = resolve)
+          const imgBytes = Uint8Array.from(atob(imgData), c => c.charCodeAt(0))
           
-          if (this.form.pageSize === 'custom') {
-            const imgWidth = (img.width / img.height) * 297
-            const imgHeight = 297
-            pdf.addPage([imgWidth, imgHeight], this.form.orientation === 'auto' ? (img.width > img.height ? 'landscape' : 'portrait') : this.form.orientation)
-            pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight)
+          let image
+          const fileName = file.name.toLowerCase()
+          if (fileName.endsWith('.png') || file.type === 'image/png') {
+            image = await pdfDoc.embedPng(imgBytes)
           } else {
-            if (i > 0) pdf.addPage()
-            const pageWidth = pdf.internal.pageSize.getWidth()
-            const pageHeight = pdf.internal.pageSize.getHeight()
-            const imgWidth = img.width
-            const imgHeight = img.height
-            const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight)
-            const x = (pageWidth - imgWidth * ratio) / 2
-            const y = (pageHeight - imgHeight * ratio) / 2
-            pdf.addImage(imgData, 'JPEG', x, y, imgWidth * ratio, imgHeight * ratio)
+            image = await pdfDoc.embedJpg(imgBytes)
           }
+          
+          const imgWidth = image.width
+          const imgHeight = image.height
+          
+          const pageWidth = imgWidth
+          const pageHeight = imgHeight
+          
+          const page = pdfDoc.addPage([pageWidth, pageHeight])
+          page.drawImage(image, {
+            x: 0,
+            y: 0,
+            width: pageWidth,
+            height: pageHeight,
+          })
           
           this.progress = Math.round(((i + 1) / this.selectedFiles.length) * 80)
         }
         
         this.progressText = 'Generating PDF...'
-        const bytes = pdf.output('blob')
-        this.resultBlob = bytes
+        const bytes = await pdfDoc.save()
+        this.resultBlob = new Blob([bytes], { type: 'application/pdf' })
         
         await this.generatePreviews()
         
         this.progress = 100
         this.converting = false
         this.done = true
-        this.currentStep = '2'
         
       } catch (error) {
         console.error('Error converting images:', error)
-        this.$notify({ title: '错误', message: 'Failed to convert images. Please try again.', type: 'error' })
+        this.$message.error('Failed to convert images. Please try again.')
         this.converting = false
       }
     },
@@ -829,7 +883,8 @@ new Vue({
       URL.revokeObjectURL(url)
     },
     reset() {
-      this.currentStep = '0'
+      this.showDrawer = false
+      this.drawerStage = 'options'
       this.selectedFiles = []
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = []
@@ -846,6 +901,7 @@ new Vue({
     }
   }
 })
+});
 </script>
 </body>
 </html>

@@ -154,7 +154,8 @@
   </script>
   
   <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.css">
+  <link rel="stylesheet" href="/css/common.css">
   
   <style>
     .options-section {
@@ -215,6 +216,7 @@
   </style>
   <script src="./lib/vue/vue.js"></script>
   <script src="./lib/element-ui/index.js"></script>
+  <script src="/lib/ant-design-vue/node_modules/ant-design-vue/dist/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
@@ -234,7 +236,10 @@
         </div>
         <nav class="header-links">
           <a href="index.html" class="back-btn">
-            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M19 12H5"></path>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
             Back to Home
           </a>
           <a href="contact.html" class="contact-btn">Contact Us</a>
@@ -249,59 +254,61 @@
         <h1 class="page-title">PDF Rotator - Rotate PDF Pages Online Free</h1>
         <p class="page-subtitle">Rotate PDF 90 degrees, 180 degrees or 270 degrees clockwise or counter-clockwise. Fix sideways PDF, flip PDF pages and save. All processing happens locally in your browser - no upload required. Best free PDF rotator with no registration needed.</p>
       </div>
-      <div class="steps-container">
-        <div class="steps-wrapper">
-          <el-steps :active="Number(currentStep)" finish-status="success" align-center>
-            <el-step title="Upload PDF" icon="el-icon-upload"></el-step>
-            <el-step title="Choose Rotation" icon="el-icon-refresh"></el-step>
-            <el-step title="Download PDF" icon="el-icon-download"></el-step>
-          </el-steps>
-        </div>
-      </div>
-      <div class="tool-card">
-        <el-tabs stretch v-model="currentStep" @tab-click="handleTabClick" type="border-card">
-          <el-tab-pane label="Upload" name="0">
-            <div class="tab-content">
-              <el-upload
-                ref="upload"
-                class="upload-area"
-                drag
-                :auto-upload="false"
-                accept=".pdf"
-                :on-change="handleFileChange"
-                :on-exceed="handleExceed"
-                action="#"
-                :show-file-list="false"
-                :limit="1"
-                :multiple="false"
-              >
-                <i class="el-icon-folder-opened upload-icon"></i>
-                <div class="upload-text">Drag & drop PDF files here</div>
-                <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
-              </el-upload>
-              <div v-if="selectedFile" class="file-list-section">
-                <div class="file-list-header">
-                  <div class="file-list-title">
-                    <i class="el-icon-file-text"></i>
-                    Selected PDF
-                  </div>
-                  <el-button type="text" style="color: #ef4444; font-size: 13px;" @click="clearFile">Clear All</el-button>
-                </div>
-                <div class="file-item">
-                  <span class="file-name">{{ selectedFile.name }}</span>
-                  <span class="file-info">{{ formatFileSize(selectedFile.size) }}</span>
-                  <el-button type="text" icon="el-icon-delete" style="color: #ef4444;" @click="clearFile"></el-button>
-                </div>
-              </div>
-              <div class="action-section">
-                <el-button type="primary" @click="goToNext">Continue <i class="el-icon-right"></i></el-button>
-              </div>
+
+      <a-card class="tool-card" hoverable>
+          <a-upload
+            ref="upload"
+            class="upload-area"
+            :file-list="[]"
+            accept=".pdf"
+            :custom-request="handleFileChange"
+            :before-upload="beforeUpload"
+            @drop="handleDrop"
+          >
+            <div class="upload-content">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div class="upload-text">Drag & drop PDF files here</div>
+              <div class="upload-hint">Supports PDF files up to <strong>50MB</strong> - Free, no watermarks</div>
             </div>
-          </el-tab-pane>
-          <el-tab-pane label="Rotation" name="1">
-            <div class="tab-content">
-              <div class="options-section">
-                <div class="options-title">Rotation Options</div>
+          </a-upload>
+
+          <div v-if="selectedFiles.length" class="file-list-section">
+            <div class="file-list-header">
+              <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
+            </div>
+            <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
+              <i class="anticon anticon-file-text file-icon"></i>
+              <div class="file-info">
+                <span class="file-name" :title="file.name">{{ file.name }}</span>
+                <span class="file-details">{{ file.pageCount || 0 }} pages | {{ formatFileSize(file.size) }}</span>
+              </div>
+              <button class="remove-btn" @click="removeFile(idx)" aria-label="Remove file">
+                Remove
+              </button>
+            </div>
+          </div>
+
+          <div v-if="selectedFiles.length >= 1" class="action-section">
+            <a-button type="primary" @click="showDrawer = true">
+              Continue <i class="anticon anticon-right"></i>
+            </a-button>
+          </div>
+
+          <a-drawer
+            :title="drawerStage === 'options' ? 'Rotation Options' : (drawerStage === 'result' ? 'Rotation Complete' : 'Rotation Options')"
+            :visible="showDrawer"
+            :width="600"
+            :closable="true"
+            :mask-closable="true"
+            @close="handleDrawerClose"
+          >
+            <div class="drawer-content">
+              <div v-if="drawerStage === 'options'" class="options-section">
+                <!-- <div class="options-title">Rotation Options</div> -->
                 <div class="mode-description">Select the rotation angle for your PDF pages</div>
                 
                 <div class="rotation-options">
@@ -322,7 +329,8 @@
                   <div class="option-hint">Click on pages in the preview below to select which pages to rotate</div>
                 </div>
               </div>
-              <div v-if="pagePreviews.length > 0" class="options-section">
+
+              <div v-if="drawerStage === 'options' && pagePreviews.length > 0" class="options-section">
                 <div class="options-title">Page Select</div>
                 <div class="page-preview-grid">
                   <div v-for="(page, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{ 'selected': selectedPages.includes(idx + 1) }" @click="togglePage(idx + 1)">
@@ -332,169 +340,191 @@
                   </div>
                 </div>
               </div>
-              <div class="action-section">
-                <el-button type="default" @click="goToPrev" :disabled="rotating">Back</el-button>
-                <el-button type="primary" @click="rotatePDF" :disabled="rotating || !selectedFile">{{ rotating ? 'Rotating...' : 'Rotate PDF' }}</el-button>
-              </div>
-              <div v-if="rotating" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{width: progress + '%'}"></div>
-                </div>
-              </div>
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="Result" name="2">
-            <div class="tab-content">
-              <div class="result-content" v-if="done">
-                <div class="result-title">PDF Rotated Successfully!</div>
-                <p class="result-desc">Your PDF has been rotated by {{ form.rotation }}°</p>
-                
-                <div class="result-preview">
-                  <div v-for="(page, i) in resultPreviews" :key="i" class="page-preview-item clickable" @click="openPreview(page)" >
-                    <img :src="page" class="page-preview-image">
-                    <div class="page-number">{{ i + 1 }}</div>
-                    <div class="preview-overlay">Click to zoom</div>
+
+              <div v-if="drawerStage === 'result'" class="preview-section">
+                <!-- <div class="preview-header">
+                  <div class="preview-title">Rotation Complete</div>
+                </div> -->
+                <div class="result-content">
+                  <div class="result-info">
+                    <div class="result-icon">✅</div>
+                    <div class="result-text">Your PDF has been successfully rotated!</div>
+                  </div>
+                  <div class="result-preview">
+                    <div v-for="(t, i) in resultPreviews" :key="i" class="page-preview-item clickable" @click="openPreview(t)">
+                      <img :src="t" class="page-preview-image">
+                      <div class="page-number">{{ i+1 }}</div>
+                      <div class="preview-overlay">Click to zoom</div>
+                    </div>
+                  </div>
+                  <div class="download-section">
+                    <div class="filename-input">
+                      <label>File Name:</label>
+                      <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                    </div>
+                    <a-button type="primary" size="large" @click="download">Download PDF</a-button>
+                  </div>
+                  <div class="recommend-section">
+                    <p>Need to reorder pages? <a href="pdf-page-reorder.html" class="recommend-link">Try our Page Reorder Tool →</a></p>
+                  </div>
+
+                  <div class="action-section center">
+                    <a-button type="default" @click="reset">Start Over</a-button>
                   </div>
                 </div>
-                <div class="filename-input">
-                  <label>File Name:</label>
-                  <el-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-                </div>
-                
-                <el-button type="primary" size="large" @click="download">Download PDF</el-button>
-                
-                <div class="recommend-section">
-                  <p>Need to reorder PDF pages?</p>
-                  <a href="pdf-page-reorder.html" class="recommend-link">Try our Page Reorder Tool →</a>
-                </div>
               </div>
-              <preview-modal 
-                :visible="showPreviewModal" 
-                :image-src="currentPreviewImage" 
-                title="PDF Preview"
-                @close="closePreview" 
-              ></preview-modal>
-              <div class="action-section">
-                <el-button type="default" @click="reset">Start Over</el-button>
+
+              <div class="drawer-actions">
+                <a-button v-else @click="showDrawer = false">Cancel</a-button>
+                <a-button v-if="drawerStage === 'options'" type="primary" @click="handleRotate">
+                  Rotate PDF
+                </a-button>
               </div>
             </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
-      <div class="instructions">
-        <h2 class="instructions-title">Why Choose PDFMaster?</h2>
+          </a-drawer>
+      </a-card>
+
+      <a-card class="instructions-card" hoverable>
+        <h2 class="section-title">Why Choose PDFMaster?</h2>
         <div class="steps">
           <div class="step">
-            <div class="step-number">💰</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
             <div class="step-title">Completely Free</div>
             <div class="step-desc">No hidden fees, 100% free</div>
           </div>
           <div class="step">
-            <div class="step-number">🔐</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
             <div class="step-title">100% Private</div>
             <div class="step-desc">Local browser processing</div>
           </div>
           <div class="step">
-            <div class="step-number">⚡</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
             <div class="step-title">Fast Processing</div>
             <div class="step-desc">No upload waiting</div>
           </div>
           <div class="step">
-            <div class="step-number">📱</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+            </div>
             <div class="step-title">Mobile Friendly</div>
             <div class="step-desc">Works on all devices</div>
           </div>
           <div class="step">
-            <div class="step-number">🎯</div>
+            <div class="step-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
             <div class="step-title">Easy to Use</div>
             <div class="step-desc">Simple interface</div>
           </div>
         </div>
-      </div>
-      <div class="privacy-section">
-        <h2 class="section-title">🔒 Your Privacy is Our Priority</h2>
+      </a-card>
+
+      <a-card class="privacy-card" hoverable>
+        <h2 class="section-title">Your Privacy is Our Priority</h2>
         <div class="privacy-content">
           <p><strong>All processing happens locally in your browser.</strong> Your files never leave your device. We do not upload any files to our servers. Your documents remain private and secure at all times.</p>
           <p>Our PDF rotator uses client-side JavaScript libraries to process your files directly in your browser. No data is transmitted over the internet, ensuring complete privacy and security.</p>
         </div>
-      </div>
-      <div class="technology-section">
+      </a-card>
+
+      <a-card class="technology-card" hoverable>
         <h2 class="section-title">How PDF Rotation Works</h2>
         <div class="tech-content">
-          <el-card class="tech-card" shadow="hover">
+          <a-card class="tech-card" shadow="hover">
             <!-- <div class="tech-item-icon"></div> -->
             <h3>Smart Orientation Detection</h3>
             <p>Our algorithm analyzes page orientation metadata and visual cues. For scanned documents, we detect text direction to suggest optimal rotation angles.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
+          </a-card>
+          <a-card class="tech-card" shadow="hover">
             <!-- <div class="tech-item-icon"></div> -->
             <h3>Batch Rotation Engine</h3>
             <p>Multiple pages rotate in parallel using Web Workers. Large documents with hundreds of pages process efficiently without blocking the browser.</p>
-          </el-card>
-          <el-card class="tech-card" shadow="hover">
+          </a-card>
+          <a-card class="tech-card" shadow="hover">
             <!-- <div class="tech-item-icon">🧠</div> -->
             <h3>Memory-Efficient Processing</h3>
             <p>Pages are processed and rendered on-demand. Preview images are cached intelligently to balance responsiveness and memory usage.</p>
-          </el-card>
+          </a-card>
         </div>
-      </div>
-      <div class="guide-section">
+      </a-card>
+
+      <a-card class="guide-card-container" hoverable>
         <h2 class="section-title">Pro Tips for Better PDF Rotation</h2>
         <div class="guide-content">
-          <el-card class="guide-card" shadow="hover">
+          <div class="guide-card">
             <h3 class="guide-title">Preview First</h3>
             <p class="guide-desc">Always preview pages before rotating to ensure you're rotating the correct pages and direction.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </div>
+          <div class="guide-card">
             <h3 class="guide-title">Use Selection Mode</h3>
             <p class="guide-desc">Click on specific pages to rotate only those pages. This is useful when only some pages need rotation.</p>
-          </el-card>
-          <el-card class="guide-card" shadow="hover">
+          </div>
+          <div class="guide-card">
             <h3 class="guide-title">Verify After Rotation</h3>
             <p class="guide-desc">Check the downloaded PDF to ensure all pages are correctly oriented before sharing or printing.</p>
-          </el-card>
+          </div>
         </div>
-      </div>
-      <div class="faq-section">
+      </a-card>
+
+      <a-card class="faq-card" hoverable>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <el-collapse accordion>
-<el-collapse-item title="Can I rotate specific pages only?">
+        <a-collapse :default-active-key="[]">
+          <a-collapse-panel key="1" header="Can I rotate specific pages only?">
             <p>Yes, you can rotate PDF pages selectively by clicking on individual pages in the preview. If no pages are selected, all pages will be rotated by default.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Is there a file size limit?">
+          </a-collapse-panel>
+          <a-collapse-panel key="2" header="Is there a file size limit?">
             <p>Yes, the maximum file size is 50MB. This ensures the PDF rotator works efficiently in your browser without performance issues.</p>
-          </el-collapse-item>
-        <el-collapse-item title="What rotation angles are supported?">
+          </a-collapse-panel>
+          <a-collapse-panel key="3" header="What rotation angles are supported?">
             <p>We support 90°, 180°, and 270° rotation. Rotate PDF 90 degrees clockwise, 180 degrees to flip upside down, or 270 degrees counter-clockwise.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Will rotating affect the file quality?">
+          </a-collapse-panel>
+          <a-collapse-panel key="4" header="Will rotating affect the file quality?">
             <p>No, rotating PDF pages is a lossless operation. You can rotate PDF without losing quality - the content remains unchanged.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Is this tool free to use?">
+          </a-collapse-panel>
+          <a-collapse-panel key="5" header="Is this tool free to use?">
             <p>Yes, our PDF rotator is completely free with no hidden fees. Rotate PDF online without registration or sign up required.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Do I need to upload my file?">
+          </a-collapse-panel>
+          <a-collapse-panel key="6" header="Do I need to upload my file?">
             <p>No, all processing happens locally in your browser. Rotate PDF online without upload - your documents stay private and secure.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Can I use this tool on mobile devices?">
+          </a-collapse-panel>
+          <a-collapse-panel key="7" header="Can I use this tool on mobile devices?">
             <p>Yes! Our PDF rotator works perfectly on iPhone and Android devices. Just open your browser and start rotating - no app installation required.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Which browsers are supported?">
+          </a-collapse-panel>
+          <a-collapse-panel key="8" header="Which browsers are supported?">
             <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Can I rotate password-protected PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="9" header="Can I rotate password-protected PDFs?">
             <p>Currently, we don't support password-protected PDFs. Please remove the password before uploading.</p>
-          </el-collapse-item>
-        <el-collapse-item title="How to rotate PDF on Mac for free?">
+          </a-collapse-panel>
+          <a-collapse-panel key="10" header="How to rotate PDF on Mac for free?">
             <p>Easy! Open PDFMaster in Safari or Chrome on your Mac, upload your PDF, and rotate pages for free. No software to install.</p>
-          </el-collapse-item>
-        <el-collapse-item title="Why choose PDFMaster for rotating PDFs?">
+          </a-collapse-panel>
+          <a-collapse-panel key="11" header="Why choose PDFMaster for rotating PDFs?">
             <p>PDFMaster offers 100% free rotation with no watermarks, local processing for complete privacy, and support for multiple rotation angles. Your files stay secure on your device.</p>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
-      <div class="tutorial-section">
+          </a-collapse-panel>
+        </a-collapse>
+      </a-card>
+
+      <a-card class="tutorial-card" hoverable>
         <h2 class="section-title">How to Rotate PDF Pages Online</h2>
         <div class="tutorial-step">
           <div class="tutorial-number">1</div>
@@ -517,45 +547,52 @@
             <p>Click "Rotate PDF" and download your rotated document instantly. Your PDF remains unchanged - we create a new rotated copy.</p>
           </div>
         </div>
-      </div>
-      <div class="blog-section">
+      </a-card>
+
+      <a-card class="blog-card-container" hoverable>
         <h2 class="section-title">PDF Page Orientation - Top Use Cases</h2>
-        <div class="blog-card">
-          <div class="blog-icon">🔄</div>
-          <h3>Fix Sideways Documents</h3>
-          <p>Turn PDF pages 90 degrees clockwise or counter-clockwise to correct sideways scans. Perfect for fixing documents that were scanned in the wrong direction.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">🔃</div>
-          <h3>Correct Upside-Down PDFs</h3>
-          <p>Flip PDF pages 180 degrees to fix inverted documents without losing quality. Ideal for files that were saved or scanned incorrectly.</p>
-        </div>
-        <div class="blog-card">
-          <div class="blog-icon">📄</div>
-          <h3>Selective Page Adjustment</h3>
-          <p>Adjust specific PDF pages or entire documents at once. Pick pages by clicking previews or entering page numbers for precise control.</p>
-        </div>
-        <div class="blog-card">
+        <div class="blog-cards-grid">
+          <div class="blog-card-wrapper">
+            <div class="blog-icon">🔄</div>
+            <h3>Fix Sideways Documents</h3>
+            <p>Turn PDF pages 90 degrees clockwise or counter-clockwise to correct sideways scans. Perfect for fixing documents that were scanned in the wrong direction.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <div class="blog-icon">🔃</div>
+            <h3>Correct Upside-Down PDFs</h3>
+            <p>Flip PDF pages 180 degrees to fix inverted documents without losing quality. Ideal for files that were saved or scanned incorrectly.</p>
+          </div>
+          <div class="blog-card-wrapper">
+            <div class="blog-icon">📄</div>
+            <h3>Selective Page Adjustment</h3>
+            <p>Adjust specific PDF pages or entire documents at once. Pick pages by clicking previews or entering page numbers for precise control.</p>
+          </div>
+        <div class="blog-card-wrapper">
           <div class="blog-icon">🖨️</div>
           <h3>Prepare for Printing</h3>
           <p>Ensure all pages have the correct orientation before printing. Avoid wasting paper on improperly aligned documents.</p>
         </div>
-        <div class="blog-card">
+        <div class="blog-card-wrapper">
           <div class="blog-icon">📱</div>
           <h3>Fix Mobile Scans</h3>
           <p>Correct PDFs created from mobile phone scans to proper portrait or landscape orientation. Perfect for photos taken in the wrong direction.</p>
         </div>
-        <div class="blog-card">
+        <div class="blog-card-wrapper">
           <div class="blog-icon">🔒</div>
           <h3>100% Private & Free</h3>
           <p>Best free PDF orientation tool with local browser processing. Adjust pages online without uploading files - your documents stay private.</p>
         </div>
-        <div class="cta-box">
-          <h3>Adjust PDF Orientation Now</h3>
-          <p>Fix PDF pages online for free. Turn pages 90°, 180°, or 270° clockwise or counter-clockwise. Correct upside-down PDFs and save. No registration required.</p>
-          <button class="cta-button" @click="goToUpload">Fix PDF Orientation</button>
-        </div>
       </div>
+    </a-card>
+
+    <a-card class="cta-card" hoverable>
+      <div class="cta-box">
+        <h3>Adjust PDF Orientation Now</h3>
+        <p>Fix PDF pages online for free. Turn pages 90°, 180°, or 270° clockwise or counter-clockwise. Correct upside-down PDFs and save. No registration required.</p>
+        <button class="cta-button" @click="goToUpload">Fix PDF Orientation</button>
+      </div>
+    </a-card>
+
     </div>
   </div>
   <footer class="footer">
@@ -582,11 +619,52 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>`n            <li><a href="cookie.html">Cookie Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="cookie.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
+      <div class="footer-credits">
+        <div class="credits-header">
+          <span class="credits-icon">💡</span>
+          <span class="credits-title">Built with Open Source</span>
+        </div>
+        <div class="libraries-list">
+          <div class="library-item">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Vue.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://element.eleme.io/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">Element UI</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://pdf-lib.js.org/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDFLib</span>
+            </a>
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge mit">MIT</span>
+            </a>
+          </div>
+          <div class="library-item">
+            <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener" class="library-link">
+              <span class="library-name">PDF.js</span>
+            </a>
+            <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener" class="license-link">
+              <span class="license-badge apache">Apache 2.0</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </div>
@@ -597,6 +675,7 @@ new Vue({
     return {
       currentStep: '0',
       selectedFile: null,
+      selectedFiles: [],
       form: {
         rotation: 90
       },
@@ -610,67 +689,73 @@ new Vue({
       showPreviewModal: false,
       currentPreviewImage: null,
       progress: 0,
-      progressText: ''
+      progressText: '',
+      showDrawer: false,
+      drawerStage: 'options'
     }
   },
   methods: {
-    goToNext() { 
-      if (!this.selectedFile) {
-        this.$notify({
-          title: '提示',
-          message: 'Please upload a PDF file first',
-          type: 'warning'
-        });
-        return;
-      }
-      this.currentStep = '1'
-      this.generatePagePreviews()
-    },
-    goToPrev() { this.currentStep = '0' },
-    goToUpload() {
-      this.reset()
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    },
-    handleTabClick(tab) {
-      const targetStep = tab.name
-      if (targetStep !== '0' && !this.selectedFile) {
-        this.$notify({ title: '提示', message: 'Please upload a PDF first', type: 'warning' })
-        this.$nextTick(() => {
-          this.currentStep = '0'
-        })
-        return
-      }
-      if (targetStep === '2' && !this.done) {
-        this.$notify({ title: '提示', message: 'Please complete rotation first', type: 'warning' })
-        this.$nextTick(() => {
-          this.currentStep = '1'
-        })
-        return
-      }
-    },
-    handleExceed() {
-      this.$notify({ title: '提示', message: 'You can upload only one file at a time', type: 'warning' })
-    },
-    handleFileChange(file) {
-      const raw = file.raw
-      if (!raw.name.toLowerCase().endsWith('.pdf')) {
-        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
-        return
+    beforeUpload(file) {
+      if (!file.name.endsWith('.pdf')) {
+        this.$message.error('Only PDF files are allowed')
+        return false
       }
       const maxSize = 50 * 1024 * 1024
+      if (file.size > maxSize) {
+        this.$message.error('File size cannot exceed 50MB')
+        return false
+      }
+      return true
+    },
+    handleDrop(e) {
+      e.preventDefault()
+    },
+    handleDrawerClose() {
+      if (!this.rotating) {
+        this.drawerStage = 'options'
+        this.done = false
+        this.resultBlob = null
+        this.resultPreviews = []
+        this.showDrawer = false
+      }
+    },
+    async handleFileChange({ file }) {
+      const raw = file
+      if (!raw.name.endsWith('.pdf')) {
+        this.$message.error('Only PDF files are allowed')
+        return
+      }
+      
+      if (this.selectedFiles.length >= 1) {
+        this.$message.warning('You can upload only one file at a time')
+        return
+      }
+      
+      const maxSize = 50 * 1024 * 1024
       if (raw.size > maxSize) {
-        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' })
+        this.$message.error('File size cannot exceed 50MB')
         return
       }
-      if (this.selectedFile) {
-        this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' })
-        return
-      }
+      
       this.selectedFile = {
         name: raw.name,
         file: raw,
         size: raw.size
       }
+      this.selectedFiles = [this.selectedFile]
+      
+      await this.generatePagePreviews()
+    },
+    handleRotate() {
+      this.drawerStage = 'result'
+      this.rotatePDF()
+    },
+    goToUpload() {
+      this.reset()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+    handleExceed() {
+      this.$message.warning('You can upload only one file at a time')
     },
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
@@ -680,9 +765,67 @@ new Vue({
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
     clearFile() {
+      if (this.selectedFile) {
+        this.destroyFileResources(this.selectedFile)
+      }
       this.selectedFile = null
       this.pagePreviews = []
       this.selectedPages = []
+    },
+    destroyFileResources(file) {
+      if (file.pdfInstance) {
+        try {
+          file.pdfInstance.destroy()
+        } catch (e) {
+          console.warn('Error destroying PDF instance:', e)
+        }
+        file.pdfInstance = null
+      }
+      if (file.thumbnails) {
+        file.thumbnails.forEach(url => {
+          if (url && url.startsWith('blob:')) {
+            URL.revokeObjectURL(url)
+          }
+        })
+        file.thumbnails = null
+      }
+      if (file.originalData) {
+        file.originalData = null
+      }
+      if (file.pages) {
+        file.pages.forEach(page => {
+          if (page && typeof page.destroy === 'function') {
+            try {
+              page.destroy()
+            } catch (e) {
+              console.warn('Error destroying page:', e)
+            }
+          }
+        })
+        file.pages = null
+      }
+    },
+    clearAllFiles() {
+      this.selectedFiles.forEach(file => {
+        this.destroyFileResources(file)
+      })
+      this.selectedFiles = []
+      this.selectedFile = null
+      this.pagePreviews = []
+      this.selectedPages = []
+      if (this.$refs.upload) {
+        this.$refs.upload.uploadFiles = []
+      }
+    },
+    removeFile(idx) {
+      this.selectedFiles.splice(idx, 1)
+      if (this.selectedFiles.length === 0) {
+        this.selectedFile = null
+        this.pagePreviews = []
+        this.selectedPages = []
+      } else {
+        this.selectedFile = this.selectedFiles[0]
+      }
     },
     togglePage(pageNum) {
       const idx = this.selectedPages.indexOf(pageNum)
@@ -831,17 +974,27 @@ new Vue({
     closePreview() {
       PreviewUtils.closePreview(this)
     },
-    reset() {
-      this.currentStep = '0'
+    cleanupAllResources() {
+      this.selectedFiles.forEach(file => {
+        this.destroyFileResources(file)
+      })
+      if (this.selectedFile) {
+        this.destroyFileResources(this.selectedFile)
+      }
+      this.selectedFiles = []
       this.selectedFile = null
+      this.pagePreviews = []
+      this.selectedPages = []
+    },
+    reset() {
+      this.cleanupAllResources()
+      this.currentStep = '0'
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = []
       }
       this.form = {
         rotation: 90
       }
-      this.pagePreviews = []
-      this.selectedPages = []
       this.done = false
       this.resultBlob = null
       this.resultPreviews = []
@@ -851,6 +1004,8 @@ new Vue({
       this.progressText = ''
       this.showPreviewModal = false
       this.currentPreviewImage = null
+      this.drawerStage = 'options'
+      this.showDrawer = false
     }
   }
 })
