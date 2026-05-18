@@ -203,6 +203,22 @@
       font-weight: 500;
       color: #606266;
     }
+    .margin-presets {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .margin-presets .ant-btn-text {
+      padding: 4px 12px;
+      font-size: 12px;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+    .margin-presets .ant-btn-text:hover {
+      background: #e8f4fd;
+      color: #409eff;
+    }
   </style>
   <script src="/lib/vue/vue.js" defer></script>
   <script src="/lib/element-ui/index.js" defer></script>
@@ -259,7 +275,8 @@
               position: 'bottom-center',
               fontSize: 12,
               startNumber: 1,
-              format: 'number'
+              format: 'number',
+              margin: 72
             },
             showDrawer: false,
             drawerStage: 'options',
@@ -271,7 +288,8 @@
             resultPreviews: [],
             downloadFileName: 'page-numbered.pdf',
             showPreviewModal: false,
-            currentPreviewImage: ''
+            currentPreviewImage: '',
+            zoomScale: 1
           };
         },
         mounted() {
@@ -411,7 +429,7 @@
                 
                 const { width, height } = page.getSize();
                 let x, y;
-                const margin = 60;
+                const margin = this.form.margin;
                 const fontSize = this.form.fontSize;
                 
                 switch (this.form.position) {
@@ -429,19 +447,19 @@
                     break;
                   case 'bottom-left':
                     x = margin;
-                    y = 25 + fontSize;
+                    y = margin;
                     break;
                   case 'bottom-center':
                     x = width / 2;
-                    y = 25 + fontSize;
+                    y = margin;
                     break;
                   case 'bottom-right':
                     x = width - margin;
-                    y = 25 + fontSize;
+                    y = margin;
                     break;
                   default:
                     x = width / 2;
-                    y = 25 + fontSize;
+                    y = margin;
                 }
                 
                 let finalX = x;
@@ -577,7 +595,19 @@
           closePreview() {
             PreviewUtils.closePreview(this)
           },
-          
+          zoomIn() {
+            if (this.zoomScale < 3) {
+              this.zoomScale += 0.25;
+            }
+          },
+          zoomOut() {
+            if (this.zoomScale > 0.5) {
+              this.zoomScale -= 0.25;
+            }
+          },
+          zoomReset() {
+            this.zoomScale = 1;
+          },
           download() {
             const url = URL.createObjectURL(this.resultBlob);
             const a = document.createElement('a');
@@ -599,7 +629,8 @@
               position: 'bottom-center',
               fontSize: 12,
               startNumber: 1,
-              format: 'number'
+              format: 'number',
+              margin: 72
             };
             this.downloadFileName = 'page-numbered.pdf';
             this.processing = false;
@@ -776,6 +807,17 @@
               </div>
 
               <div class="options-group">
+                <label>Margin: {{ form.margin }}px ({{ Math.round(form.margin / 2.83) }}mm)</label>
+                <el-slider v-model="form.margin" :min="20" :max="150" :step="1"></el-slider>
+                <div class="margin-presets">
+                  <a-button type="text" size="small" @click="form.margin = 56">1/2"</a-button>
+                  <a-button type="text" size="small" @click="form.margin = 72">1"</a-button>
+                  <a-button type="text" size="small" @click="form.margin = 96">1.5"</a-button>
+                  <a-button type="text" size="small" @click="form.margin = 108">1.5" (APA)</a-button>
+                </div>
+              </div>
+
+              <div class="options-group">
                 <label>Start Number: {{ form.startNumber }}</label>
                 <a-input-number v-model="form.startNumber" :min="1" :max="9999"></a-input-number>
               </div>
@@ -847,13 +889,21 @@
         <a-drawer
           title="PDF Preview"
           :visible="showPreviewModal"
-          :width="500"
-          placement="left"
+          :width="800"
+          placement="right"
           @close="closePreview"
         >
           <div class="preview-drawer-content">
-            <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" alt="PDF Preview" />
-            <div v-else class="preview-empty">No preview available</div>
+            <div class="preview-zoom-controls">
+              <a-button size="small" @click="zoomOut" :disabled="zoomScale <= 0.5">-</a-button>
+              <span class="zoom-value">{{ Math.round(zoomScale * 100) }}%</span>
+              <a-button size="small" @click="zoomIn" :disabled="zoomScale >= 3">+</a-button>
+              <a-button size="small" @click="zoomReset">Reset</a-button>
+            </div>
+            <div class="preview-scroll-container">
+              <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" :style="{ transform: `scale(${zoomScale})` }" alt="PDF Preview" />
+              <div v-else class="preview-empty">No preview available</div>
+            </div>
           </div>
         </a-drawer>
       </a-card>

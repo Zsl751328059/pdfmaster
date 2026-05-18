@@ -274,17 +274,25 @@
           </a-drawer>
 
           <a-drawer
-            title="PDF Preview"
-            :visible="showPreviewModal"
-            :width="500"
-            placement="left"
-            @close="closePreview"
-          >
-            <div class="preview-drawer-content">
-              <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" alt="PDF Preview" />
+          title="PDF Preview"
+          :visible="showPreviewModal"
+          :width="800"
+          placement="right"
+          @close="closePreview"
+        >
+          <div class="preview-drawer-content">
+            <div class="preview-zoom-controls">
+              <a-button size="small" @click="zoomOut" :disabled="zoomScale <= 0.5">-</a-button>
+              <span class="zoom-value">{{ Math.round(zoomScale * 100) }}%</span>
+              <a-button size="small" @click="zoomIn" :disabled="zoomScale >= 3">+</a-button>
+              <a-button size="small" @click="zoomReset">Reset</a-button>
+            </div>
+            <div class="preview-scroll-container">
+              <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" :style="{ transform: `scale(${zoomScale})` }" alt="PDF Preview" />
               <div v-else class="preview-empty">No preview available</div>
             </div>
-          </a-drawer>
+          </div>
+        </a-drawer>
       </a-card>
 
       <a-card class="instructions-card" hoverable>
@@ -653,6 +661,7 @@ document.addEventListener('DOMContentLoaded', function() {
       progressText: '',
       showPreviewModal: false,
       currentPreviewImage: '',
+      zoomScale: 1,
       showDrawer: false,
       drawerStage: 'options'
     }
@@ -727,6 +736,19 @@ document.addEventListener('DOMContentLoaded', function() {
     closePreview() {
       this.showPreviewModal = false
       this.currentPreviewImage = ''
+    },
+    zoomIn() {
+      if (this.zoomScale < 3) {
+        this.zoomScale += 0.25
+      }
+    },
+    zoomOut() {
+      if (this.zoomScale > 0.5) {
+        this.zoomScale -= 0.25
+      }
+    },
+    zoomReset() {
+      this.zoomScale = 1
     },
     handleDrawerClose() {
       if (!this.converting) {

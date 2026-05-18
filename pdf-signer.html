@@ -291,10 +291,7 @@
 
         <div v-if="selectedFile" class="file-list-section">
           <div class="file-list-header">
-            <div class="file-list-title">
-              <i class="anticon anticon-file-text"></i>
-              Selected PDF
-            </div>
+
             <a-button type="text" danger size="small" @click="clearFile">Clear All</a-button>
           </div>
           <div class="file-item">
@@ -450,13 +447,21 @@
         <a-drawer
           title="PDF Preview"
           :visible="showPreviewModal"
-          :width="500"
-          placement="left"
+          :width="800"
+          placement="right"
           @close="closePreview"
         >
           <div class="preview-drawer-content">
-            <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" alt="PDF Preview" />
-            <div v-else class="preview-empty">No preview available</div>
+            <div class="preview-zoom-controls">
+              <a-button size="small" @click="zoomOut" :disabled="zoomScale <= 0.5">-</a-button>
+              <span class="zoom-value">{{ Math.round(zoomScale * 100) }}%</span>
+              <a-button size="small" @click="zoomIn" :disabled="zoomScale >= 3">+</a-button>
+              <a-button size="small" @click="zoomReset">Reset</a-button>
+            </div>
+            <div class="preview-scroll-container">
+              <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" :style="{ transform: `scale(${zoomScale})` }" alt="PDF Preview" />
+              <div v-else class="preview-empty">No preview available</div>
+            </div>
           </div>
         </a-drawer>
       </a-card>
@@ -769,7 +774,8 @@ new Vue({
       previews: [],
       selectedPages: [],
       showPreviewModal: false,
-      currentPreviewImage: null
+      currentPreviewImage: '',
+      zoomScale: 1
     }
   },
   mounted() {
@@ -1054,6 +1060,19 @@ new Vue({
     },
     closePreview() {
       PreviewUtils.closePreview(this)
+    },
+    zoomIn() {
+      if (this.zoomScale < 3) {
+        this.zoomScale += 0.25
+      }
+    },
+    zoomOut() {
+      if (this.zoomScale > 0.5) {
+        this.zoomScale -= 0.25
+      }
+    },
+    zoomReset() {
+      this.zoomScale = 1
     },
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
