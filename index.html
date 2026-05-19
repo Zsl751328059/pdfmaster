@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -1029,7 +1029,7 @@
         <a-input 
           v-model="searchQuery"
           class="search-input" 
-          placeholder="Search PDF tools..."
+          placeholder="Search"
           @focus="handleFocus"
           @blur="handleBlur"
         >
@@ -1110,7 +1110,12 @@
         <span class="tool-btn">Convert Now</span>
       </a>
       
-      
+      <a href="./pdf-encrypt.html" class="tool-card">
+        <div class="tool-icon-wrapper">🔐</div>
+        <h3>PDF Encrypt & Decrypt</h3>
+        <p>Password protect PDF files or remove password protection. Secure your documents with encryption.</p>
+        <span class="tool-btn">Protect PDF</span>
+      </a>
       
       <a href="./pdf-to-image.html" class="tool-card">
         <div class="tool-icon-wrapper">🖼️</div>
@@ -1409,7 +1414,7 @@
             { name: 'PDF Splitter', desc: 'Split PDF into separate pages', url: './pdf-splitter.html', icon: '✂️' },
             { name: 'PDF Compressor', desc: 'Compress PDF without losing quality', url: './pdf-compressor.html', icon: '📦' },
             { name: 'PDF to Word', desc: 'Convert PDF to editable Word', url: './pdf-to-word.html', icon: '📄' },
-            
+            { name: 'PDF Encrypt', desc: 'Encrypt or decrypt PDF files', url: './pdf-encrypt.html', icon: '🔐' },
             { name: 'PDF to Image', desc: 'Convert PDF pages to images', url: './pdf-to-image.html', icon: '🖼️' },
             { name: 'Image to PDF', desc: 'Convert images to PDF', url: './image-to-pdf.html', icon: '🖼️' },
             { name: 'PDF Watermark', desc: 'Add watermark to PDF', url: './pdf-watermark.html', icon: '🏷️' },

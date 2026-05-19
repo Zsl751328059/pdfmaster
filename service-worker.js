@@ -1,14 +1,6 @@
 const CACHE_NAME = 'pdfmaster-cache-v1';
-const OFFLINE_URL = '/offline.html';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll([
-        OFFLINE_URL
-      ]);
-    })
-  );
   self.skipWaiting();
 });
 
@@ -28,17 +20,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match(OFFLINE_URL);
-      })
-    );
-  } else {
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        return cachedResponse || fetch(event.request);
-      })
-    );
-  }
+  event.respondWith(
+    fetch(event.request).catch(() => {
+      return new Response('<html><body style="text-align:center;padding:50px;font-family:sans-serif;"><h1>Offline</h1><p>Please check your internet connection.</p></body></html>', {
+        headers: { 'Content-Type': 'text/html' }
+      });
+    })
+  );
 });

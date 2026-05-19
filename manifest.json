@@ -1,21 +1,29 @@
 {
   "name": "PDFMaster",
   "short_name": "PDFMaster",
-  "description": "Free PDF Tools",
+  "description": "Free PDF Tools - Merge, Split, Compress, Convert PDFs",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#10b981",
+  "orientation": "any",
+  "lang": "en",
+  "scope": "/",
   "icons": [
     {
       "src": "/assets/logo.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "maskable any"
     },
     {
       "src": "/assets/logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "maskable any"
     }
-  ]
+  ],
+  "categories": ["productivity", "utilities"],
+  "prefer_related_applications": false,
+  "related_applications": []
 }
