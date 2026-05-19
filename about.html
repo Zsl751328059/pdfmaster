@@ -20,9 +20,10 @@
   <meta name="twitter:description" content="Learn more about PDFMaster, offering free PDF tools with secure local processing." />
   <meta name="twitter:image" content="https://pdfeasz.com/assets/share.png" />
 
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <script src="./lib/element-ui/index.js"></script>
+  <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
+  <script src="/lib/ant-design-vue/antd.min.js"></script>
 
   <style>
     * {
@@ -363,7 +364,7 @@
 </head>
 
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -376,7 +377,7 @@
         </div>
         <div class="user-section">
           <a href="index.html" class="header-link back-link">
-            <i class="el-icon-arrow-left" style="font-size: 12px;"></i>
+            ←
             Back to Home
           </a>
           <a href="contact.html" class="header-link contact-link">Contact Us</a>
@@ -568,6 +569,7 @@
 </div>
 
 <script>
+Vue.use(antd)
 new Vue({
   el: '#app',
   data() {

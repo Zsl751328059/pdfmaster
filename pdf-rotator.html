@@ -153,7 +153,6 @@
   }
   </script>
   
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   
@@ -214,8 +213,8 @@
       line-height: 1.6;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
@@ -226,7 +225,7 @@
 
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -262,7 +261,6 @@
             :file-list="[]"
             accept=".pdf"
             :custom-request="handleFileChange"
-            :before-upload="beforeUpload"
             @drop="handleDrop"
           >
             <div class="upload-content">
@@ -299,7 +297,7 @@
           </div>
 
           <a-drawer
-            :title="drawerStage === 'options' ? 'Rotation Options' : (drawerStage === 'result' ? 'Rotation Complete' : 'Rotation Options')"
+            :title="drawerStage === 'options' ? 'Rotation Options' : (drawerStage === 'result' ? 'Rotation Complete' : 'Processing')"
             :visible="showDrawer"
             :width="600"
             :closable="true"
@@ -332,6 +330,7 @@
 
               <div v-if="drawerStage === 'options' && pagePreviews.length > 0" class="options-section">
                 <div class="options-title">Page Select</div>
+                <div class="mode-description">Click to select pages for rotation</div>
                 <div class="page-preview-grid">
                   <div v-for="(page, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{ 'selected': selectedPages.includes(idx + 1) }" @click="togglePage(idx + 1)">
                     <img :src="page" class="page-preview-image">
@@ -341,10 +340,12 @@
                 </div>
               </div>
 
+              <div v-if="drawerStage === 'progress' || rotating" class="progress-section">
+                <div class="progress-text">{{ progressText }}</div>
+                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+              </div>
+
               <div v-if="drawerStage === 'result'" class="preview-section">
-                <!-- <div class="preview-header">
-                  <div class="preview-title">Rotation Complete</div>
-                </div> -->
                 <div class="result-content">
                   <div class="result-info">
                     <div class="result-icon">✅</div>
@@ -375,10 +376,31 @@
               </div>
 
               <div class="drawer-actions">
-                <a-button v-else @click="showDrawer = false">Cancel</a-button>
                 <a-button v-if="drawerStage === 'options'" type="primary" @click="handleRotate">
                   Rotate PDF
                 </a-button>
+                <!-- <a-button v-else @click="showDrawer = false">Cancel</a-button> -->
+              </div>
+            </div>
+          </a-drawer>
+
+          <a-drawer
+            title="PDF Preview"
+            :visible="showPreviewModal"
+            :width="800"
+            placement="right"
+            @close="closePreview"
+          >
+            <div class="preview-drawer-content">
+              <div class="preview-zoom-controls">
+                <a-button size="small" @click="zoomOut" :disabled="zoomScale <= 0.5">-</a-button>
+                <span class="zoom-value">{{ Math.round(zoomScale * 100) }}%</span>
+                <a-button size="small" @click="zoomIn" :disabled="zoomScale >= 3">+</a-button>
+                <a-button size="small" @click="zoomReset">Reset</a-button>
+              </div>
+              <div class="preview-scroll-container">
+                <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" :style="{ transform: `scale(${zoomScale})` }" alt="PDF Preview" />
+                <div v-else class="preview-empty">No preview available</div>
               </div>
             </div>
           </a-drawer>
@@ -669,6 +691,7 @@
   </footer>
 </div>
 <script>
+Vue.use(antd)
 new Vue({
   el: '#app',
   data() {
@@ -688,40 +711,38 @@ new Vue({
       rotating: false,
       showPreviewModal: false,
       currentPreviewImage: null,
+      zoomScale: 1,
       progress: 0,
       progressText: '',
       showDrawer: false,
       drawerStage: 'options'
     }
   },
+  mounted() {
+    window.addEventListener('beforeunload', this.handleBeforeUnload)
+  },
+  beforeDestroy() {
+    window.removeEventListener('beforeunload', this.handleBeforeUnload)
+    this.cleanupAllResources()
+  },
   methods: {
-    beforeUpload(file) {
-      if (!file.name.endsWith('.pdf')) {
-        this.$message.error('Only PDF files are allowed')
-        return false
-      }
-      const maxSize = 50 * 1024 * 1024
-      if (file.size > maxSize) {
-        this.$message.error('File size cannot exceed 50MB')
-        return false
-      }
-      return true
+    handleBeforeUnload() {
+      this.cleanupAllResources()
+    },
+    isValidPdf(file) {
+      return file.name.toLowerCase().endsWith('.pdf')
     },
     handleDrop(e) {
       e.preventDefault()
     },
     handleDrawerClose() {
       if (!this.rotating) {
-        this.drawerStage = 'options'
-        this.done = false
-        this.resultBlob = null
-        this.resultPreviews = []
-        this.showDrawer = false
+        this.reset()
       }
     },
     async handleFileChange({ file }) {
       const raw = file
-      if (!raw.name.endsWith('.pdf')) {
+      if (!this.isValidPdf(raw)) {
         this.$message.error('Only PDF files are allowed')
         return
       }
@@ -737,25 +758,30 @@ new Vue({
         return
       }
       
-      this.selectedFile = {
-        name: raw.name,
-        file: raw,
-        size: raw.size
+      try {
+        this.selectedFile = {
+          name: raw.name,
+          file: raw,
+          size: raw.size
+        }
+        this.selectedFiles = [this.selectedFile]
+        await this.generatePagePreviews()
+      } catch (error) {
+        console.error('Error loading PDF:', error)
+        this.$message.error('Failed to load PDF. Please try a different file.')
       }
-      this.selectedFiles = [this.selectedFile]
-      
-      await this.generatePagePreviews()
     },
     handleRotate() {
-      this.drawerStage = 'result'
+      if (this.selectedPages.length === 0) {
+        this.$message.warning('Please select at least one page to rotate')
+        return
+      }
+      this.drawerStage = 'progress'
       this.rotatePDF()
     },
     goToUpload() {
       this.reset()
       window.scrollTo({ top: 0, behavior: 'smooth' })
-    },
-    handleExceed() {
-      this.$message.warning('You can upload only one file at a time')
     },
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
@@ -765,50 +791,11 @@ new Vue({
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
     clearFile() {
-      if (this.selectedFile) {
-        this.destroyFileResources(this.selectedFile)
-      }
       this.selectedFile = null
       this.pagePreviews = []
       this.selectedPages = []
     },
-    destroyFileResources(file) {
-      if (file.pdfInstance) {
-        try {
-          file.pdfInstance.destroy()
-        } catch (e) {
-          console.warn('Error destroying PDF instance:', e)
-        }
-        file.pdfInstance = null
-      }
-      if (file.thumbnails) {
-        file.thumbnails.forEach(url => {
-          if (url && url.startsWith('blob:')) {
-            URL.revokeObjectURL(url)
-          }
-        })
-        file.thumbnails = null
-      }
-      if (file.originalData) {
-        file.originalData = null
-      }
-      if (file.pages) {
-        file.pages.forEach(page => {
-          if (page && typeof page.destroy === 'function') {
-            try {
-              page.destroy()
-            } catch (e) {
-              console.warn('Error destroying page:', e)
-            }
-          }
-        })
-        file.pages = null
-      }
-    },
     clearAllFiles() {
-      this.selectedFiles.forEach(file => {
-        this.destroyFileResources(file)
-      })
       this.selectedFiles = []
       this.selectedFile = null
       this.pagePreviews = []
@@ -846,12 +833,17 @@ new Vue({
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
         const vp = page.getViewport({ scale: 0.4 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = vp.width
+        canvas.height = vp.height
         await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.pagePreviews.push(c.toDataURL())
+        this.pagePreviews.push(canvas.toDataURL())
+        canvas.width = 0
+        canvas.height = 0
+        if (typeof page.destroy === 'function') {
+          await page.destroy()
+        }
       }
       pdf.destroy()
     },
@@ -884,13 +876,7 @@ new Vue({
         const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer)
         
         const totalPages = pdfDoc.getPageCount()
-        let pagesToRotate = []
-        
-        if (this.selectedPages.length > 0) {
-          pagesToRotate = this.selectedPages.map(p => p - 1)
-        } else {
-          pagesToRotate = Array.from({ length: totalPages }, (_, i) => i)
-        }
+        const pagesToRotate = this.selectedPages.map(p => p - 1)
         
         this.progress = 25
         this.progressText = 'Rotating pages...'
@@ -913,11 +899,11 @@ new Vue({
         this.progress = 100
         this.rotating = false
         this.done = true
-        this.currentStep = '2'
+        this.drawerStage = 'result'
         
       } catch (error) {
         console.error('Error rotating PDF:', error)
-        this.$notify({ title: '错误', message: 'Failed to rotate PDF. Please try again.', type: 'error' })
+        this.$message.error('Failed to rotate PDF. Please try again.')
         this.rotating = false
       }
     },
@@ -929,12 +915,17 @@ new Vue({
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
         const vp = page.getViewport({ scale: 0.4 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = vp.width
+        canvas.height = vp.height
         await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.resultPreviews.push(c.toDataURL())
+        this.resultPreviews.push(canvas.toDataURL())
+        canvas.width = 0
+        canvas.height = 0
+        if (typeof page.destroy === 'function') {
+          await page.destroy()
+        }
       }
       pdf.destroy()
     },
@@ -974,17 +965,30 @@ new Vue({
     closePreview() {
       PreviewUtils.closePreview(this)
     },
+    zoomIn() {
+      if (this.zoomScale < 3) {
+        this.zoomScale += 0.25
+      }
+    },
+    zoomOut() {
+      if (this.zoomScale > 0.5) {
+        this.zoomScale -= 0.25
+      }
+    },
+    zoomReset() {
+      this.zoomScale = 1
+    },
     cleanupAllResources() {
-      this.selectedFiles.forEach(file => {
-        this.destroyFileResources(file)
-      })
-      if (this.selectedFile) {
-        this.destroyFileResources(this.selectedFile)
+      if (this.currentPreviewImage?.startsWith('blob:')) {
+        URL.revokeObjectURL(this.currentPreviewImage)
       }
       this.selectedFiles = []
       this.selectedFile = null
       this.pagePreviews = []
       this.selectedPages = []
+      this.resultPreviews = []
+      this.resultBlob = null
+      this.currentPreviewImage = null
     },
     reset() {
       this.cleanupAllResources()

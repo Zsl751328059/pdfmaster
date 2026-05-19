@@ -153,7 +153,6 @@
   }
   </script>
   
-  <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   
@@ -179,15 +178,15 @@
       color: #303133;
       font-size: 13px;
     }
-    .slider-item .el-slider {
+    .slider-item .ant-slider {
       margin-bottom: 0;
     }
-    .slider-item .el-slider__bar {
+    .slider-item .ant-slider-track {
       background: linear-gradient(135deg, #409EFF, #667eea);
       height: 6px;
       border-radius: 3px;
     }
-    .slider-item .el-slider__button {
+    .slider-item .ant-slider-handle {
       width: 18px;
       height: 18px;
       border-radius: 50%;
@@ -195,11 +194,11 @@
       box-shadow: 0 2px 6px rgba(64, 158, 255, 0.4);
       transition: all 0.3s ease;
     }
-    .slider-item .el-slider__button:hover {
+    .slider-item .ant-slider-handle:hover {
       transform: scale(1.1);
       box-shadow: 0 3px 10px rgba(64, 158, 255, 0.5);
     }
-    .slider-item .el-slider__runway {
+    .slider-item .ant-slider-rail {
       height: 6px;
       background: #e8e8e8;
       border-radius: 3px;
@@ -249,8 +248,7 @@
       box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
     }
   </style>
-  <script src="/lib/vue/vue.js" defer></script>
-  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
   <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
   <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
@@ -272,7 +270,7 @@
   </script>
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -310,7 +308,6 @@
           :file-list="[]"
           accept=".pdf"
           :custom-request="handleFileChange"
-          :before-upload="beforeUpload"
           @drop="handleDrop"
         >
           <div class="upload-content">
@@ -360,21 +357,21 @@
                 <div class="slider-row">
                   <div class="slider-item">
                     <label>Top: {{ margins.top }}mm</label>
-                    <el-slider v-model="margins.top" :min="0" :max="50" :step="1"></el-slider>
+                    <a-slider v-model="margins.top" :min="0" :max="50" :step="1"></a-slider>
                   </div>
                   <div class="slider-item">
                     <label>Bottom: {{ margins.bottom }}mm</label>
-                    <el-slider v-model="margins.bottom" :min="0" :max="50" :step="1"></el-slider>
+                    <a-slider v-model="margins.bottom" :min="0" :max="50" :step="1"></a-slider>
                   </div>
                 </div>
                 <div class="slider-row">
                   <div class="slider-item">
                     <label>Left: {{ margins.left }}mm</label>
-                    <el-slider v-model="margins.left" :min="0" :max="50" :step="1"></el-slider>
+                    <a-slider v-model="margins.left" :min="0" :max="50" :step="1"></a-slider>
                   </div>
                   <div class="slider-item">
                     <label>Right: {{ margins.right }}mm</label>
-                    <el-slider v-model="margins.right" :min="0" :max="50" :step="1"></el-slider>
+                    <a-slider v-model="margins.right" :min="0" :max="50" :step="1"></a-slider>
                   </div>
                 </div>
               </div>
@@ -780,6 +777,7 @@
       }
     };
     
+    Vue.use(antd)
     new Vue({
       el: '#app',
       data() {
@@ -795,7 +793,6 @@
           showDrawer: false,
           drawerStage: 'options',
           resultBlob: null,
-          resultArrayBuffer: null,
           processing: false,
           progress: 0,
           progressText: '',
@@ -830,24 +827,23 @@
         goToUpload() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         },
-        beforeUpload(file) {
-          if (!file.name.toLowerCase().endsWith('.pdf')) {
-            this.$message.error('Only PDF files are allowed');
-            return false;
+        cleanupAllResources() {
+          if (this.resultBlob) {
+            this.resultBlob = null;
           }
-          const maxSize = 50 * 1024 * 1024;
-          if (file.size > maxSize) {
-            this.$message.error('File size cannot exceed 50MB');
-            return false;
-          }
-          return true;
+          this.resultPreviews = [];
+          this.currentPreviewImage = '';
+        },
+        isValidPdf(file) {
+          return file.name.toLowerCase().endsWith('.pdf')
         },
         handleDrop(e) {
           e.preventDefault();
         },
         async handleFileChange({ file, onSuccess }) {
           const raw = file;
-          if (!raw.name.toLowerCase().endsWith('.pdf')) {
+          
+          if (!this.isValidPdf(raw)) {
             this.$message.error('Only PDF files are allowed');
             return;
           }
@@ -858,25 +854,31 @@
             return;
           }
           
-          const item = {
-            name: raw.name,
-            file: raw,
-            size: raw.size,
-            pageCount: 0
-          };
+          const exists = this.selectedFiles.some(f => f.name === raw.name && f.size === raw.size)
+          if (exists) {
+            this.$message.warning('This file has already been added')
+            return
+          }
+          
+          if (this.selectedFiles.length >= 1) {
+            this.$message.warning('You can only upload 1 file')
+            return
+          }
           
           try {
             const arrayBuffer = await raw.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            item.pageCount = pdf.numPages;
-            await pdf.destroy();
+            const pageCount = pdf.numPages;
+            pdf.destroy();
+            
+            this.selectedFiles.push({ name: raw.name, file: raw, size: raw.size, pageCount });
+            
+            if (onSuccess) {
+              onSuccess('success');
+            }
           } catch (error) {
             console.error('Error loading PDF:', error);
-          }
-          
-          this.selectedFiles = [item];
-          if (onSuccess) {
-            onSuccess('success');
+            this.$message.error('Failed to load PDF');
           }
         },
         formatFileSize(bytes) {
@@ -895,11 +897,7 @@
         },
         handleDrawerClose() {
           if (!this.processing) {
-            this.drawerStage = 'options';
-            this.done = false;
-            this.resultBlob = null;
-            this.resultArrayBuffer = null;
-            this.showDrawer = false;
+            this.reset()
           }
         },
         setPreset(preset) {
@@ -998,22 +996,6 @@
           a.click();
           URL.revokeObjectURL(url);
         },
-        cleanupAllResources() {
-          if (this.resultBlob) {
-            this.resultBlob = null;
-          }
-          if (this.resultArrayBuffer) {
-            this.resultArrayBuffer = null;
-          }
-          
-          this.resultPreviews.forEach(url => {
-            if (url && url.startsWith('blob:')) {
-              URL.revokeObjectURL(url);
-            }
-          });
-          this.resultPreviews = [];
-          this.currentPreviewImage = '';
-        },
         reset() {
           this.showDrawer = false;
           this.drawerStage = 'options';
@@ -1024,7 +1006,6 @@
           this.processing = false;
           this.done = false;
           this.resultBlob = null;
-          this.resultArrayBuffer = null;
           this.resultPreviews = [];
           this.cleanupAllResources();
         },
@@ -1034,7 +1015,6 @@
           
           try {
             const arrayBuffer = await this.resultBlob.arrayBuffer();
-            this.resultArrayBuffer = arrayBuffer;
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const numPages = Math.min(pdf.numPages, 5);
             
@@ -1057,39 +1037,37 @@
 
               await page.render(renderContext).promise;
               this.resultPreviews.push(canvas.toDataURL('image/png'));
+              
+              canvas.width = 0;
+              canvas.height = 0;
+              
+              if (typeof page.destroy === 'function') {
+                page.destroy();
+              }
             }
             
-            await pdf.destroy();
+            pdf.destroy();
           } catch (error) {
             console.error('Error generating previews:', error);
           }
         },
         async openPreview(img) {
           const pageIndex = this.resultPreviews.indexOf(img);
-          if (pageIndex === -1 || !this.resultArrayBuffer) {
+          if (pageIndex === -1 || !this.resultBlob) {
             this.currentPreviewImage = img;
             this.showPreviewModal = true;
             return;
           }
           
           try {
-            const pdf = await pdfjsLib.getDocument({ data: this.resultArrayBuffer }).promise;
-            const page = await pdf.getPage(pageIndex + 1);
-            const viewport = page.getViewport({ scale: 1.5 });
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            
-            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-            this.currentPreviewImage = canvas.toDataURL('image/png');
-            
-            canvas.width = 0;
-            canvas.height = 0;
-            await pdf.destroy();
+            const dataUrl = await PreviewUtils.renderPdfPage(this.resultBlob, pageIndex, 3.0)
+            if (dataUrl) {
+              this.currentPreviewImage = dataUrl
+            } else {
+              this.currentPreviewImage = img
+            }
           } catch (error) {
-            console.error('Error rendering preview:', error);
+            console.warn('Preview error:', error);
             this.currentPreviewImage = img;
           }
           this.showPreviewModal = true;

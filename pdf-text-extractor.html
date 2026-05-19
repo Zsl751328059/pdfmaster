@@ -158,7 +158,6 @@
   }
   </script>
   
-  <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   
@@ -193,32 +192,20 @@
       justify-content: center;
       margin-top: 16px;
     }
-    .action-buttons .el-button {
+    .action-buttons .ant-btn {
       padding: 14px 24px;
       font-size: 15px;
       font-weight: 600;
       border-radius: 10px;
-      cursor: pointer !important;
-      transition: all 0.3s;
     }
-    .action-buttons .el-button--primary {
-      background: linear-gradient(135deg, #409EFF, #337ecc) !important;
-      border: none !important;
-      color: white !important;
+    .action-buttons .ant-btn-primary {
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+      border: none;
     }
-    .action-buttons .el-button--primary:hover:not(:disabled) {
-      background: linear-gradient(135deg, #337ecc, #409EFF) !important;
+    .action-buttons .ant-btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #337ecc, #409EFF);
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-    }
-    .action-buttons .el-button--default {
-      background: #f3f4f6 !important;
-      border: none !important;
-      color: #4b5563 !important;
-    }
-    .action-buttons .el-button--default:hover:not(:disabled) {
-      background: #e5e7eb !important;
-      transform: translateY(-1px);
     }
     .format-options {
       margin-top: 24px;
@@ -282,8 +269,8 @@
       font-size: 14px;
       line-height: 1.8;
       color: #1f2937;
-      white-space: pre-wrap;
-      word-break: break-word;
+      white-space: pre;
+      word-break: normal;
       margin: 0;
       padding: 0;
       background: transparent;
@@ -405,21 +392,12 @@
       margin-bottom: 16px;
     }
   </style>
-  <script src="/lib/vue/vue.js" defer></script>
-  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
   <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
   <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      console.log(`
-╔═══════════════════════════════════════════════════════════════╗
-║   Powered by PDFMaster - https://pdfeasz.com                  ║
-║   Open-source under MIT License. Copyright © 2026             ║
-║   Unauthorized removal of this notice is prohibited.          ║
-╚═══════════════════════════════════════════════════════════════╝
-      `);
-
       if (typeof pdfjsLib !== 'undefined') {
         pdfjsLib.GlobalWorkerOptions.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
       }
@@ -427,7 +405,7 @@
   </script>
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -459,13 +437,11 @@
 
       <a-card class="tool-card" hoverable>
         <a-upload
-          ref="upload"
           class="upload-area"
           :multiple="false"
           :file-list="[]"
           accept=".pdf"
           :custom-request="handleFileChange"
-          :before-upload="beforeUpload"
           @drop="handleDrop"
         >
           <div class="upload-content">
@@ -502,7 +478,7 @@
         </div>
 
         <a-drawer
-          :title="drawerStage === 'options' ? 'Extraction Options' : (drawerStage === 'progress' ? 'Extracting' : 'Result')"
+          :title="drawerStage === 'options' ? 'Extraction Options' : (drawerStage === 'select' ? 'Select Pages' : (drawerStage === 'progress' ? 'Extracting' : 'Result'))"
           :visible="showDrawer"
           :width="650"
           :closable="true"
@@ -521,51 +497,59 @@
                   <div class="mode-desc">Extract all pages</div>
                   <div class="mode-explanation">Extract text from all pages of your PDF document.</div>
                 </div>
-                <div class="mode-option" :class="{active: form.pageRange === 'custom'}" @click="selectCustomMode">
+                <div class="mode-option" :class="{active: form.pageRange === 'custom'}" @click="form.pageRange = 'custom'">
                   <div class="mode-icon">🎯</div>
                   <div class="mode-title">Select Pages</div>
                   <div class="mode-desc">Choose specific pages</div>
-                  <div class="mode-explanation">Pick only the pages you need. Click on page thumbnails to select/deselect.</div>
+                  <div class="mode-explanation">Pick only the pages you need.</div>
                 </div>
               </div>
 
               <div class="format-options">
                 <div class="options-title">Format Options</div>
                 <div class="format-option">
-                  <el-checkbox v-model="form.preserveFormatting">
+                  <a-checkbox v-model="form.preserveFormatting">
                     Preserve Formatting
-                  </el-checkbox>
+                  </a-checkbox>
                   <p class="option-hint">Keep indentation, bullet points, and spacing</p>
-                </div>
-              </div>
-
-              <div v-if="form.pageRange === 'custom'" class="preview-section">
-                <div class="preview-header">
-                  <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
-                  <div class="preview-actions">
-                    <a-button type="text" size="small" @click="selectAllPages">Select All</a-button>
-                    <a-button type="text" size="small" @click="deselectAllPages">Deselect All</a-button>
-                    <a-button type="text" size="small" @click="toggleAllPages">Toggle</a-button>
-                  </div>
-                </div>
-                <div class="page-preview-container">
-                  <div v-if="thumbnails.length === 0" class="upload-area" style="pointer-events: none;">
-                    <i class="el-icon-image upload-icon"></i>
-                    <div class="upload-text">Loading page thumbnails...</div>
-                  </div>
-                  <div v-else class="page-preview-grid">
-                    <div v-for="(img, pi) in thumbnails" :key="pi" class="page-preview-item" :class="{selected: isSelected(pi)}" @click="toggle(pi)">
-                      <img :src="img" class="page-preview-image">
-                      <div class="page-number">{{ pi+1 }}</div>
-                      <div v-if="isSelected(pi)" class="selected-overlay">✓</div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
               <div class="drawer-actions">
                 <a-button @click="handleDrawerClose">Cancel</a-button>
-                <a-button type="primary" @click="extractText" :disabled="extracting || !selectedFiles.length">{{ extracting ? 'Extracting...' : 'Extract Text' }}</a-button>
+                <a-button type="primary" @click="handleDrawerAction" :disabled="extracting || !selectedFiles.length">
+                  {{ getDrawerActionText() }}
+                </a-button>
+              </div>
+            </div>
+
+            <div v-if="drawerStage === 'select'" class="preview-section">
+              <div class="preview-header">
+                <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
+                <div class="preview-actions">
+                  <a-button type="text" size="small" @click="selectAllPages">Select All</a-button>
+                  <a-button type="text" size="small" @click="deselectAllPages">Deselect All</a-button>
+                </div>
+              </div>
+              <div class="page-preview-container">
+                <div v-if="thumbnails.length === 0" class="upload-area" style="pointer-events: none;">
+                  🖼️
+                  <div class="upload-text">Loading page thumbnails...</div>
+                </div>
+                <div v-else class="page-preview-grid">
+                  <div v-for="(img, pi) in thumbnails" :key="pi" class="page-preview-item" :class="{selected: isSelected(pi)}" @click="toggle(pi)">
+                    <img :src="img" class="page-preview-image">
+                    <div class="page-number">{{ pi+1 }}</div>
+                    <div v-if="isSelected(pi)" class="selected-overlay">✓</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="drawer-actions">
+                <a-button @click="drawerStage = 'options'">Back</a-button>
+                <a-button type="primary" @click="extractText" :disabled="extracting || selectedPages.length === 0">
+                  {{ extracting ? 'Extracting...' : 'Extract Text' }}
+                </a-button>
               </div>
             </div>
 
@@ -579,7 +563,7 @@
               <p class="result-desc">Successfully extracted text from your PDF</p>
               
               <div v-if="form.preserveFormatting" class="format-badge">
-                <i class="el-icon-check"></i>
+                ✓
                 Formatting Preserved
               </div>
               
@@ -598,35 +582,15 @@
                 </div>
               </div>
 
-              <div class="text-preview">
-                <div class="preview-header">
-                  <span class="preview-title">Page {{ currentPreviewPage }} of {{ pageCount }}</span>
-                  <div class="preview-actions">
-                    <a-button type="text" size="small" :disabled="currentPreviewPage <= 1" @click="prevPage">Previous</a-button>
-                    <a-button type="text" size="small" :disabled="currentPreviewPage >= pageCount" @click="nextPage">Next</a-button>
-                  </div>
+              <div class="download-section">
+                <div class="filename-input">
+                  <label>File Name:</label>
+                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
                 </div>
-                <pre class="extracted-text">{{ currentPageText }}</pre>
-              </div>
-
-              <div class="filename-input">
-                <label>File Name:</label>
-                <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-              </div>
-
-              <div class="action-buttons">
-                <a-button type="default" size="large" @click="copyToClipboard">
-                  <i class="el-icon-copy" style="margin-right: 8px;"></i>
-                  Copy to Clipboard
-                </a-button>
                 <a-button type="primary" size="large" @click="download">
                   <i class="anticon anticon-download" style="margin-right: 8px;"></i>
                   Download TXT
                 </a-button>
-              </div>
-
-              <div class="recommend-section">
-                <p>Need to reorder PDF pages? <a href="pdf-page-reorder.html" class="recommend-link">Try our PDF Page Reorder Tool →</a></p>
               </div>
 
               <div class="action-section center">
@@ -885,38 +849,6 @@
         </div>
       </div>
       <div class="footer-copyright">© 2026 PDFMaster. All rights reserved.</div>
-      <div class="footer-credits">
-        <div class="credits-header">
-          <span class="credits-icon">💡</span>
-          <span class="credits-title">Built with Open Source</span>
-        </div>
-        <div class="libraries-list">
-          <div class="library-item">
-            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="library-link">
-              <span class="library-name">Vue.js</span>
-            </a>
-            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
-              <span class="license-badge mit">MIT</span>
-            </a>
-          </div>
-          <div class="library-item">
-            <a href="https://element.eleme.io/" target="_blank" rel="noopener" class="library-link">
-              <span class="library-name">Element UI</span>
-            </a>
-            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" class="license-link">
-              <span class="license-badge mit">MIT</span>
-            </a>
-          </div>
-          <div class="library-item">
-            <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener" class="library-link">
-              <span class="library-name">PDF.js</span>
-            </a>
-            <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener" class="license-link">
-              <span class="license-badge apache">Apache 2.0</span>
-            </a>
-          </div>
-        </div>
-      </div>
     </div>
   </footer>
 </div>
@@ -931,14 +863,6 @@
   };
 
   document.addEventListener('DOMContentLoaded', function() {
-    console.log(`
-╔═══════════════════════════════════════════════════════════════╗
-║   Powered by PDFMaster - https://pdfeasz.com                  ║
-║   Open-source under MIT License. Copyright © 2026             ║
-║   Unauthorized removal of this notice is prohibited.          ║
-╚═══════════════════════════════════════════════════════════════╝
-    `);
-
     if (typeof Vue === 'undefined') {
       setTimeout(function() {
         window.location.reload();
@@ -955,6 +879,7 @@
       }
     };
     
+    Vue.use(antd)
     new Vue({
       el: '#app',
       data() {
@@ -975,24 +900,11 @@
           charCount: 0,
           wordCount: 0,
           thumbnails: [],
-          currentPreviewPage: 1,
           showDrawer: false,
           drawerStage: 'options'
         };
       },
-      computed: {
-        pageTexts() {
-          if (!this.extractedText) return [];
-          const pages = this.extractedText.split('\n\n\n');
-          return pages.map(page => page.trim()).filter(page => page);
-        },
-        currentPageText() {
-          if (!this.pageTexts.length) return '';
-          const index = this.currentPreviewPage - 1;
-          if (index < 0 || index >= this.pageTexts.length) return '';
-          return this.pageTexts[index];
-        }
-      },
+      computed: {},
       watch: {
         showDrawer(newVal) {
           if (newVal) {
@@ -1016,24 +928,19 @@
         goToUpload() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         },
-        beforeUpload(file) {
-          if (!file.name.toLowerCase().endsWith('.pdf')) {
-            this.$message.error('Only PDF files are allowed');
-            return false;
-          }
-          const maxSize = 50 * 1024 * 1024;
-          if (file.size > maxSize) {
-            this.$message.error('File size cannot exceed 50MB');
-            return false;
-          }
-          return true;
+        cleanupAllResources() {
+          this.thumbnails = [];
+        },
+        isValidPdf(file) {
+          return file.name.toLowerCase().endsWith('.pdf')
         },
         handleDrop(e) {
           e.preventDefault();
         },
         async handleFileChange({ file, onSuccess }) {
           const raw = file;
-          if (!raw.name.toLowerCase().endsWith('.pdf')) {
+          
+          if (!this.isValidPdf(raw)) {
             this.$message.error('Only PDF files are allowed');
             return;
           }
@@ -1044,25 +951,31 @@
             return;
           }
           
-          const item = {
-            name: raw.name,
-            file: raw,
-            size: raw.size,
-            pageCount: 0
-          };
+          const exists = this.selectedFiles.some(f => f.name === raw.name && f.size === raw.size)
+          if (exists) {
+            this.$message.warning('This file has already been added')
+            return
+          }
+          
+          if (this.selectedFiles.length >= 1) {
+            this.$message.warning('You can only upload 1 file')
+            return
+          }
           
           try {
             const arrayBuffer = await raw.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            item.pageCount = pdf.numPages;
-            await pdf.destroy();
+            const pageCount = pdf.numPages;
+            pdf.destroy();
+            
+            this.selectedFiles.push({ name: raw.name, file: raw, size: raw.size, pageCount });
+            
+            if (onSuccess) {
+              onSuccess('success');
+            }
           } catch (error) {
             console.error('Error loading PDF:', error);
-          }
-          
-          this.selectedFiles = [item];
-          if (onSuccess) {
-            onSuccess('success');
+            this.$message.error('Failed to load PDF');
           }
         },
         formatFileSize(bytes) {
@@ -1081,10 +994,23 @@
         },
         handleDrawerClose() {
           if (!this.extracting) {
-            this.showDrawer = false;
-            this.drawerStage = 'options';
-            this.done = false;
-            this.extractedText = '';
+            this.reset()
+          }
+        },
+        getDrawerActionText() {
+          if (this.drawerStage === 'options') {
+            return this.form.pageRange === 'all' ? 'Extract Text' : 'Next'
+          }
+          return 'Extract Text'
+        },
+        async handleDrawerAction() {
+          if (this.drawerStage === 'options') {
+            if (this.form.pageRange === 'custom') {
+              await this.generateThumbnails()
+              this.drawerStage = 'select'
+            } else {
+              this.extractText()
+            }
           }
         },
         async selectCustomMode() {
@@ -1107,6 +1033,12 @@
             this.selectedPages.push(pageIndex);
           }
         },
+        selectAllPages() {
+          this.selectedPages = Array.from({ length: this.thumbnails.length }, (_, i) => i);
+        },
+        deselectAllPages() {
+          this.selectedPages = [];
+        },
         async generateThumbnails() {
           if (!this.selectedFiles.length) return;
           
@@ -1127,23 +1059,15 @@
               canvas.height = viewport.height;
               await page.render({ canvasContext: ctx, viewport: viewport }).promise;
               this.thumbnails.push(canvas.toDataURL());
+              
+              if (typeof page.destroy === 'function') page.destroy();
             }
             
-            await pdf.destroy();
+            pdf.destroy();
             this.selectedPages = Array.from({ length: totalPages }, (_, i) => i);
           } catch (error) {
             console.error('Error generating thumbnails:', error);
             this.$message.error('Failed to generate thumbnails');
-          }
-        },
-        prevPage() {
-          if (this.currentPreviewPage > 1) {
-            this.currentPreviewPage--;
-          }
-        },
-        nextPage() {
-          if (this.currentPreviewPage < this.pageCount) {
-            this.currentPreviewPage++;
           }
         },
         async extractText() {
@@ -1155,9 +1079,9 @@
           }
           
           this.extracting = true;
+          this.drawerStage = 'progress';
           this.progress = 0;
           this.progressText = 'Loading PDF...';
-          this.drawerStage = 'progress';
 
           try {
             const file = this.selectedFiles[0];
@@ -1183,6 +1107,8 @@
               const page = await pdf.getPage(pageNum);
               const textContent = await page.getTextContent();
               
+              let pageText = '';
+
               if (this.form.preserveFormatting) {
                 const viewport = page.getViewport({ scale: 1 });
                 const pageWidth = viewport.width;
@@ -1197,7 +1123,6 @@
                   return y1 - y2;
                 });
                 
-                let pageText = '';
                 let prevY = null;
                 let prevX = null;
                 
@@ -1216,30 +1141,24 @@
                     }
                   }
                   
-                  if (prevX !== null) {
-                    const xDiff = x - prevX;
-                    if (xDiff > 15) {
-                      const spaces = Math.floor(xDiff / 6);
-                      pageText += ' '.repeat(Math.max(1, spaces));
+                  if (prevX !== null && prevY !== null) {
+                    const yDiff = Math.abs(y - prevY);
+                    if (yDiff <= fontSize * 0.5) {
+                      const xDiff = x - prevX;
+                      if (xDiff > 15) {
+                        const spaces = Math.floor(xDiff / 6);
+                        pageText += ' '.repeat(Math.max(1, spaces));
+                      }
                     }
                   }
                   
-                  let text = item.str;
-                  text = text.replace(/[\u2588\u2589\u258a\u258b\u258c\u258d\u258e\u258f\u2590\u2591\u2592\u2593]/g, '');
-                  
-                  const bulletPattern = /^[\u2022\u2023\u25cf\u25cb\u25aa•·●■◆◇▲△▼▽✓✕✗✘✙✚✛✜✝✞✟✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯✰]/;
-                  if (bulletPattern.test(text)) {
-                    text = text.replace(bulletPattern, '- ');
-                  }
-                  
-                  pageText += text + ' ';
+                  let text = item.str.replace(/[\u2588-\u2593]/g, '');
+                  pageText += text;
                   
                   prevY = y;
                   prevX = x + itemWidth;
                 }
-                allText += pageText + '\n\n\n';
               } else {
-                let pageText = '';
                 let y = null;
                 for (const item of textContent.items) {
                   const itemY = Math.floor(item.transform[5]);
@@ -1247,27 +1166,26 @@
                     pageText += '\n';
                   }
                   y = itemY;
-                  let text = item.str;
-                  text = text.replace(/[\u2588\u2589\u258a\u258b\u258c\u258d\u258e\u258f\u2590\u2591\u2592\u2593]/g, '');
-                  text = text.replace(/^\s*[•·●■◆◇▲△▼▽✓✕✗✘✙✚✛✜✝✞✟✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯✰]/g, '');
+                  let text = item.str.replace(/[\u2588-\u2593]/g, '');
                   pageText += text + ' ';
                 }
-                allText += pageText + '\n\n';
               }
+              
+              if (i > 0) allText += '||PDF_PAGE_SPLIT||';
+              allText += pageText;
               
               this.progress = Math.round(((i + 1) / pagesToExtract.length) * 100);
             }
             
             pdf.destroy();
             
-            this.extractedText = allText.trim();
+            this.extractedText = allText;
             this.charCount = this.extractedText.length;
             this.wordCount = this.extractedText.split(/\s+/).filter(w => w.length > 0).length;
             
             this.extracting = false;
             this.done = true;
             this.drawerStage = 'result';
-            this.currentPreviewPage = 1;
             
           } catch (error) {
             console.error('Error extracting text:', error);
@@ -1305,10 +1223,7 @@
           this.showDrawer = false;
           this.drawerStage = 'options';
           this.selectedFiles = [];
-          this.form = {
-            pageRange: 'all',
-            preserveFormatting: true
-          };
+          this.form = { pageRange: 'all', preserveFormatting: true };
           this.selectedPages = [];
           this.done = false;
           this.extractedText = '';
@@ -1316,17 +1231,8 @@
           this.pageCount = 0;
           this.charCount = 0;
           this.wordCount = 0;
-          this.currentPreviewPage = 1;
           this.thumbnails = [];
           this.cleanupAllResources();
-        },
-        cleanupAllResources() {
-          this.thumbnails.forEach(url => {
-            if (url && url.startsWith('blob:')) {
-              URL.revokeObjectURL(url);
-            }
-          });
-          this.thumbnails = [];
         }
       }
     });

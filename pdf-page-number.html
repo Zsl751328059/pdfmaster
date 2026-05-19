@@ -158,7 +158,6 @@
   }
   </script>
   
-  <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   
@@ -220,8 +219,7 @@
       color: #409eff;
     }
   </style>
-  <script src="/lib/vue/vue.js" defer></script>
-  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
   <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
   <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
@@ -265,6 +263,7 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
       }
       
+      Vue.use(antd)
       new Vue({
         el: '#app',
         data() {
@@ -310,32 +309,19 @@
               this.resultBlob = null
             }
             
-            this.resultPreviews.forEach(url => {
-              if (url && url.startsWith('blob:')) {
-                URL.revokeObjectURL(url)
-              }
-            })
             this.resultPreviews = []
             this.currentPreviewImage = ''
           },
-          beforeUpload(file) {
-            if (!file.name.toLowerCase().endsWith('.pdf')) {
-              this.$message.error('Only PDF files are allowed');
-              return false;
-            }
-            const maxSize = 50 * 1024 * 1024;
-            if (file.size > maxSize) {
-              this.$message.error('File size cannot exceed 50MB');
-              return false;
-            }
-            return true;
+          isValidPdf(file) {
+            return file.name.toLowerCase().endsWith('.pdf')
           },
           handleDrop(e) {
             e.preventDefault();
           },
           async handleFileChange({ file, onSuccess }) {
             const raw = file;
-            if (!raw.name.toLowerCase().endsWith('.pdf')) {
+            
+            if (!this.isValidPdf(raw)) {
               this.$message.error('Only PDF files are allowed');
               return;
             }
@@ -346,31 +332,30 @@
               return;
             }
             
-            await this.processFile(raw);
-            onSuccess('success');
-          },
-          async processFile(file) {
-            if (file.type !== 'application/pdf') {
-              this.$message.error('Please upload a PDF file');
-              return;
-            }
-            if (file.size > 50 * 1024 * 1024) {
-              this.$message.error('File size exceeds 50MB limit');
-              return;
+            const exists = this.selectedFiles.some(f => f.name === raw.name && f.size === raw.size)
+            if (exists) {
+              this.$message.warning('This file has already been added')
+              return
             }
             
-            this.selectedFiles = [{ file, name: file.name, size: file.size, pageCount: 0 }];
+            if (this.selectedFiles.length >= 1) {
+              this.$message.warning('You can only upload 1 file')
+              return
+            }
             
             try {
-              const arrayBuffer = await file.arrayBuffer();
+              const arrayBuffer = await raw.arrayBuffer();
               const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-              this.pageCount = pdf.numPages;
-              if (this.selectedFiles[0]) {
-                this.selectedFiles[0].pageCount = this.pageCount;
-              }
-              await pdf.destroy();
+              const pageCount = pdf.numPages;
+              pdf.destroy();
+              
+              this.selectedFiles.push({ file: raw, name: raw.name, size: raw.size, pageCount })
+              this.pageCount = this.selectedFiles.reduce((sum, f) => sum + (f.pageCount || 0), 0)
+              
+              onSuccess('success');
             } catch (error) {
-              console.error('Error loading PDF:', error);
+              console.error('Error loading PDF:', error)
+              this.$message.error('Failed to load PDF')
             }
           },
           
@@ -388,11 +373,7 @@
           },
           
           handleDrawerClose() {
-            this.showDrawer = false;
-            this.drawerStage = 'options';
-            this.done = false;
-            this.resultBlob = null;
-            this.resultPreviews = [];
+            this.reset()
           },
           
           async addPageNumbers() {
@@ -661,7 +642,7 @@
   </script>
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -695,11 +676,10 @@
         <a-upload
           ref="upload"
           class="upload-area"
-          :multiple="true"
+          :multiple="false"
           :file-list="[]"
           accept=".pdf"
           :custom-request="handleFileChange"
-          :before-upload="beforeUpload"
           @drop="handleDrop"
         >
           <div class="upload-content">
@@ -803,12 +783,12 @@
 
               <div class="options-group">
                 <label>Font Size: {{ form.fontSize }}pt</label>
-                <el-slider v-model="form.fontSize" :min="8" :max="36" :step="1"></el-slider>
+                <a-slider v-model="form.fontSize" :min="8" :max="36" :step="1"></a-slider>
               </div>
 
               <div class="options-group">
                 <label>Margin: {{ form.margin }}px ({{ Math.round(form.margin / 2.83) }}mm)</label>
-                <el-slider v-model="form.margin" :min="20" :max="150" :step="1"></el-slider>
+                <a-slider v-model="form.margin" :min="20" :max="150" :step="1"></a-slider>
                 <div class="margin-presets">
                   <a-button type="text" size="small" @click="form.margin = 56">1/2"</a-button>
                   <a-button type="text" size="small" @click="form.margin = 72">1"</a-button>
@@ -824,13 +804,13 @@
 
               <div class="options-group">
                 <label>Number Format</label>
-                <el-select v-model="form.format" placeholder="Select format">
-                  <el-option label="1, 2, 3..." value="number"></el-option>
-                  <el-option label="1/10, 2/10..." value="fraction"></el-option>
-                  <el-option label="Page 1 of 10" value="page-x-of-y"></el-option>
-                  <el-option label="I, II, III..." value="roman"></el-option>
-                  <el-option label="A, B, C..." value="alpha"></el-option>
-                </el-select>
+                <a-select v-model="form.format" placeholder="Select format">
+                  <a-select-option value="number">1, 2, 3...</a-select-option>
+                  <a-select-option value="fraction">1/10, 2/10...</a-select-option>
+                  <a-select-option value="page-x-of-y">Page 1 of 10</a-select-option>
+                  <a-select-option value="roman">I, II, III...</a-select-option>
+                  <a-select-option value="alpha">A, B, C...</a-select-option>
+                </a-select>
               </div>
 
               <div class="drawer-actions">
@@ -848,7 +828,7 @@
 
             <div v-if="drawerStage === 'result'" class="result-content">
               <div class="result-title">
-                <i class="el-icon-check-circle" style="margin-right: 8px;"></i>
+                ✓
                 Page Numbers Added Successfully
               </div>
               <p class="result-desc">Your PDF now has page numbers added</p>

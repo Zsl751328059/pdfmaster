@@ -157,11 +157,10 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
@@ -170,7 +169,7 @@
 
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -602,6 +601,7 @@
 </div>
 
 <script>
+Vue.use(antd)
 new Vue({
   el: '#app',
   data() {
@@ -644,6 +644,8 @@ new Vue({
       if (this.resultBlob) {
         this.resultBlob = null
       }
+      
+      this.pages = []
     },
     goToPrev() { this.currentStep = '0'; },
     goToUpload() {
@@ -664,30 +666,25 @@ new Vue({
     },
     handleDrop(e) {
       e.preventDefault()
+      const file = e.dataTransfer.files[0]
+      if (file && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
+        if (file.size > 50 * 1024 * 1024) {
+          this.$message.error('File size cannot exceed 50MB')
+          return
+        }
+        if (this.selectedFile) {
+          this.$message.warning('You can upload only one file at a time')
+          return
+        }
+        this.processFile(file)
+      } else if (file) {
+        this.$message.error('Only PDF files are allowed')
+      }
     },
     handleDrawerClose() {
       if (!this.processing) {
-        this.drawerStage = 'options'
-        this.showDrawer = false
+        this.reset()
       }
-    },
-    clearFile() {
-      this.selectedFile = null
-      this.pageCount = 0
-      this.pages = []
-    },
-    reset() {
-      this.currentStep = '0'
-      this.selectedFile = null
-      this.pageCount = 0
-      this.resultBlob = null
-      this.processing = false
-      this.progress = 0
-      this.progressText = ''
-      this.pages = []
-      this.downloadFileName = ''
-      this.showDrawer = false
-      this.drawerStage = 'options'
     },
     startConversion() {
       this.showDrawer = true
@@ -717,30 +714,14 @@ new Vue({
         this.processFile(file);
       }
     },
-    handleDrop(event) {
-      event.preventDefault()
-      const file = event.dataTransfer.files[0]
-      if (file && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
-        if (file.size > 50 * 1024 * 1024) {
-          this.$message.error('File size cannot exceed 50MB')
-          return
-        }
-        if (this.selectedFile) {
-          this.$message.warning('You can upload only one file at a time')
-          return
-        }
-        this.processFile(file)
-      } else if (file) {
-        this.$message.error('Only PDF files are allowed')
-      }
-    },
+
     async processFile(file) {
       if (file.type !== 'application/pdf') {
-        this.$notify({ title: '错误', message: 'Please upload a PDF file', type: 'error' });
+        this.$message.error('Please upload a PDF file');
         return;
       }
       if (file.size > 50 * 1024 * 1024) {
-        this.$notify({ title: '错误', message: 'File size exceeds 50MB limit', type: 'error' });
+        this.$message.error('File size exceeds 50MB limit');
         return;
       }
       
@@ -759,14 +740,14 @@ new Vue({
     handleTabClick(tab) {
       const targetStep = tab.name;
       if (targetStep !== '0' && !this.selectedFile) {
-        this.$notify({ title: '提示', message: 'Please upload a file first', type: 'warning' });
+        this.$message.warning('Please upload a file first');
         this.$nextTick(() => {
           this.currentStep = '0';
         });
         return;
       }
       if (targetStep === '2' && !this.resultBlob) {
-        this.$notify({ title: '提示', message: 'Please convert first', type: 'warning' });
+        this.$message.warning('Please convert first');
         this.$nextTick(() => {
           this.currentStep = '0';
         });
@@ -790,8 +771,7 @@ new Vue({
         this.progress = 20;
         this.progressText = 'Extracting text...';
         
-        this.pages = [];  // 使用实例属性，供分页预览使用
-        this.pageImages = [];  // 存储缩略图
+        this.pages = [];
         const paragraphThreshold = 15;
         
         for (let i = 1; i <= pdf.numPages; i++) {
@@ -872,11 +852,11 @@ new Vue({
 </Relationships>`;
 
         // 构建文档内容（保留字体大小信息）
-        // 从pages数组中提取所有段落
-        const allParagraphs = this.pages.flatMap(page => page.paragraphs);
-        const bodyContent = allParagraphs
-          .map(p => {
-            if (!p || !p.text || !p.text.trim()) return '';
+        // 使用字符串数组优化性能
+        const bodyContent = [];
+        for (const page of this.pages) {
+          for (const p of page.paragraphs) {
+            if (!p || !p.text || !p.text.trim()) continue;
             const trimmedText = p.text.trim();
             // 转义XML特殊字符
             const escapedText = trimmedText
@@ -885,17 +865,16 @@ new Vue({
               .replace(/>/g, '&gt;')
               .replace(/"/g, '&quot;')
               .replace(/'/g, '&apos;');
-            // 将PDF字体大小转换为DOCX的half-point单位（1/2点）
-            // PDF中的transform[3]是缩放因子，约等于字体大小（点）
-            const fontSize = Math.round((p.fontSize || 16) * 2); // 转换为half-point
-            return `<w:p><w:r><w:rPr><w:sz w:val="${fontSize}"/><w:szCs w:val="${fontSize}"/></w:rPr><w:t>${escapedText}</w:t></w:r></w:p>`;
-          })
-          .join('\n');
+            const fontSize = Math.round((p.fontSize || 16) * 2);
+            bodyContent.push(`<w:p><w:r><w:rPr><w:sz w:val="${fontSize}"/><w:szCs w:val="${fontSize}"/></w:rPr><w:t>${escapedText}</w:t></w:r></w:p>`);
+          }
+        }
+        const bodyContentStr = bodyContent.join('\n');
 
         const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:body>
-${bodyContent}
+${bodyContentStr}
     <w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr>
   </w:body>
 </w:document>`;
@@ -924,12 +903,12 @@ ${bodyContent}
           this.processing = false;
           this.progress = 100;
           this.drawerStage = 'result';
-          this.$notify({ title: '成功', message: 'Conversion completed successfully!', type: 'success' });
+          this.$message.success('Conversion completed successfully!');
         }, 300);
         
       } catch (error) {
         this.processing = false;
-        this.$notify({ title: '错误', message: 'Failed to convert PDF', type: 'error' });
+        this.$message.error('Failed to convert PDF');
         console.error(error);
         this.drawerStage = 'options';
       }
@@ -952,15 +931,30 @@ ${bodyContent}
     },
     
     clearFile() {
-      this.selectedFile = null;
-      this.pageCount = 0;
-      this.resultBlob = null;
-      this.$refs.fileInput.value = '';
+      this.selectedFile = null
+      this.pageCount = 0
+      this.resultBlob = null
+      this.pages = []
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = ''
+      }
     },
     
     reset() {
-      this.clearFile();
-      this.currentStep = '0';
+      this.currentStep = '0'
+      this.selectedFile = null
+      this.pageCount = 0
+      this.resultBlob = null
+      this.processing = false
+      this.progress = 0
+      this.progressText = ''
+      this.pages = []
+      this.downloadFileName = ''
+      this.showDrawer = false
+      this.drawerStage = 'options'
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = ''
+      }
     },
     
     formatFileSize(bytes) {

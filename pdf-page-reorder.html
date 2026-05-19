@@ -158,7 +158,6 @@
   }
   </script>
   
-  <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   
@@ -254,8 +253,7 @@
       opacity: 0.8;
     }
   </style>
-  <script src="/lib/vue/vue.js" defer></script>
-  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
   <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
   <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
@@ -278,7 +276,7 @@
   </script>
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -316,7 +314,6 @@
           :file-list="[]"
           accept=".pdf"
           :custom-request="handleFileChange"
-          :before-upload="beforeUpload"
           @drop="handleDrop"
         >
           <div class="upload-content">
@@ -363,7 +360,7 @@
           <div class="drawer-content">
             <div v-if="drawerStage === 'reorder'" class="options-section">
               <div v-if="pages.length === 0" class="upload-area" style="pointer-events: none;">
-                <i class="el-icon-image upload-icon"></i>
+                🖼️
                 <div class="upload-text">Loading page thumbnails...</div>
               </div>
 
@@ -776,6 +773,7 @@
       }
     };
     
+    Vue.use(antd)
     new Vue({
       el: '#app',
       data() {
@@ -783,7 +781,6 @@
           selectedFiles: [],
           pages: [],
           resultBlob: null,
-          resultArrayBuffer: null,
           processing: false,
           progress: 0,
           progressText: '',
@@ -819,24 +816,23 @@
         goToUpload() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         },
-        beforeUpload(file) {
-          if (!file.name.toLowerCase().endsWith('.pdf')) {
-            this.$message.error('Only PDF files are allowed');
-            return false;
+        cleanupAllResources() {
+          if (this.resultBlob) {
+            this.resultBlob = null;
           }
-          const maxSize = 50 * 1024 * 1024;
-          if (file.size > maxSize) {
-            this.$message.error('File size cannot exceed 50MB');
-            return false;
-          }
-          return true;
+          this.resultPreviews = [];
+          this.currentPreviewImage = '';
+        },
+        isValidPdf(file) {
+          return file.name.toLowerCase().endsWith('.pdf')
         },
         handleDrop(e) {
           e.preventDefault();
         },
         async handleFileChange({ file, onSuccess }) {
           const raw = file;
-          if (!raw.name.toLowerCase().endsWith('.pdf')) {
+          
+          if (!this.isValidPdf(raw)) {
             this.$message.error('Only PDF files are allowed');
             return;
           }
@@ -847,14 +843,18 @@
             return;
           }
           
-          const item = {
-            name: raw.name,
-            file: raw,
-            size: raw.size,
-            pageCount: 0
-          };
+          const exists = this.selectedFiles.some(f => f.name === raw.name && f.size === raw.size)
+          if (exists) {
+            this.$message.warning('This file has already been added')
+            return
+          }
           
-          this.selectedFiles = [item];
+          if (this.selectedFiles.length >= 1) {
+            this.$message.warning('You can only upload 1 file')
+            return
+          }
+          
+          this.selectedFiles.push({ name: raw.name, file: raw, size: raw.size, pageCount: 0 });
           if (onSuccess) {
             onSuccess('success');
           }
@@ -888,11 +888,7 @@
         },
         handleDrawerClose() {
           if (!this.processing) {
-            this.drawerStage = 'reorder';
-            this.done = false;
-            this.resultBlob = null;
-            this.resultPreviews = [];
-            this.showDrawer = false;
+            this.reset()
           }
         },
         async waitForPdfJs() {
@@ -953,9 +949,16 @@
                 originalNumber: i,
                 thumbnail: canvas.toDataURL('image/png')
               });
+              
+              canvas.width = 0;
+              canvas.height = 0;
+              
+              if (typeof page.destroy === 'function') {
+                page.destroy();
+              }
             }
             
-            await pdf.destroy();
+            pdf.destroy();
             
           } catch (error) {
             console.error('Error loading pages:', error);
@@ -993,6 +996,7 @@
           const file = this.selectedFiles[0];
           
           this.processing = true;
+          this.drawerStage = 'progress';
           this.progress = 0;
           this.progressText = 'Loading PDF...';
           
@@ -1053,22 +1057,6 @@
           a.click();
           URL.revokeObjectURL(url);
         },
-        cleanupAllResources() {
-          if (this.resultBlob) {
-            this.resultBlob = null;
-          }
-          if (this.resultArrayBuffer) {
-            this.resultArrayBuffer = null;
-          }
-          
-          this.resultPreviews.forEach(url => {
-            if (url && url.startsWith('blob:')) {
-              URL.revokeObjectURL(url);
-            }
-          });
-          this.resultPreviews = [];
-          this.currentPreviewImage = '';
-        },
         reset() {
           this.showDrawer = false;
           this.drawerStage = 'reorder';
@@ -1081,7 +1069,6 @@
           
           try {
             const arrayBuffer = await this.resultBlob.arrayBuffer();
-            this.resultArrayBuffer = arrayBuffer;
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const numPages = Math.min(pdf.numPages, 5);
             
@@ -1104,39 +1091,37 @@
 
               await page.render(renderContext).promise;
               this.resultPreviews.push(canvas.toDataURL('image/png'));
+              
+              canvas.width = 0;
+              canvas.height = 0;
+              
+              if (typeof page.destroy === 'function') {
+                page.destroy();
+              }
             }
             
-            await pdf.destroy();
+            pdf.destroy();
           } catch (error) {
             console.error('Error generating previews:', error);
           }
         },
         async openPreview(img) {
           const pageIndex = this.resultPreviews.indexOf(img);
-          if (pageIndex === -1 || !this.resultArrayBuffer) {
+          if (pageIndex === -1 || !this.resultBlob) {
             this.currentPreviewImage = img;
             this.showPreviewModal = true;
             return;
           }
           
           try {
-            const pdf = await pdfjsLib.getDocument({ data: this.resultArrayBuffer }).promise;
-            const page = await pdf.getPage(pageIndex + 1);
-            const viewport = page.getViewport({ scale: 1.5 });
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            
-            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-            this.currentPreviewImage = canvas.toDataURL('image/png');
-            
-            canvas.width = 0;
-            canvas.height = 0;
-            await pdf.destroy();
+            const dataUrl = await PreviewUtils.renderPdfPage(this.resultBlob, pageIndex, 3.0)
+            if (dataUrl) {
+              this.currentPreviewImage = dataUrl
+            } else {
+              this.currentPreviewImage = img
+            }
           } catch (error) {
-            console.error('Error rendering preview:', error);
+            console.warn('Preview error:', error);
             this.currentPreviewImage = img;
           }
           this.showPreviewModal = true;

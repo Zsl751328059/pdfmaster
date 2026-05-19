@@ -159,21 +159,21 @@
   </script>
 
   
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
   <script src="./lib/preview-utils.js"></script>
   <script src="./lib/components/preview-modal.js"></script>
+  <script src="./lib/jszip/jszip.min.js"></script>
 
 
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -263,10 +263,10 @@
               <div class="output-options">
                 <div class="option-row">
                   <label class="option-label">Output Format</label>
-                  <el-select v-model="form.format" class="option-select">
-                    <el-option label="PNG (Transparent Background)" value="png"></el-option>
-                    <el-option label="JPEG (Compressed)" value="jpeg"></el-option>
-                  </el-select>
+                  <a-select v-model="form.format" class="option-select">
+                    <a-select-option value="png">PNG (Transparent Background)</a-select-option>
+                    <a-select-option value="jpeg">JPEG (Compressed)</a-select-option>
+                  </a-select>
                 </div>
               </div>
 
@@ -275,15 +275,15 @@
                   <div class="advanced-options">
                     <div class="option-row">
                       <label class="option-label">Image Quality: {{ form.quality }}%</label>
-                      <el-slider v-model="form.quality" :min="10" :max="100" :step="5"></el-slider>
+                      <a-slider v-model="form.quality" :min="10" :max="100" :step="5"></a-slider>
                     </div>
                     <div class="option-row">
                       <label class="option-label">Resolution: {{ form.resolution }} DPI</label>
-                      <el-select v-model="form.resolution" class="option-select">
-                        <el-option label="72 DPI (Screen Quality)" :value="72"></el-option>
-                        <el-option label="150 DPI (Medium Quality)" :value="150"></el-option>
-                        <el-option label="300 DPI (High Quality)" :value="300"></el-option>
-                      </el-select>
+                      <a-select v-model="form.resolution" class="option-select">
+                        <a-select-option :value="72">72 DPI (Screen Quality)</a-select-option>
+                        <a-select-option :value="150">150 DPI (Medium Quality)</a-select-option>
+                        <a-select-option :value="300">300 DPI (High Quality)</a-select-option>
+                      </a-select>
                     </div>
                     
                     <div class="page-select-section">
@@ -676,6 +676,7 @@
 </div>
 
 <script>
+Vue.use(antd)
 new Vue({
   el: '#app',
   data() {
@@ -742,14 +743,11 @@ new Vue({
       
       this.convertedImages = []
       this.currentPreviewImage = ''
+      this.pagePreviews = []
     },
     goToNext() { 
       if (this.selectedFiles.length === 0) {
-        this.$notify({
-          title: '提示',
-          message: 'Please upload a PDF file first',
-          type: 'warning'
-        });
+        this.$message.warning('Please upload a PDF file first');
         return;
       }
       this.currentStep = '1' 
@@ -761,21 +759,7 @@ new Vue({
     },
     handleDrawerClose() {
       if (!this.converting) {
-        this.selectedFiles = []
-        if (this.$refs.upload) {
-          this.$refs.upload.uploadFiles = []
-        }
-        this.showDrawer = false
-        this.drawerStage = 'options'
-        this.done = false
-        this.convertedImages = []
-        this.selectedPages = []
-        this.pagePreviews = []
-        this.form = {
-          format: 'png',
-          quality: 90,
-          resolution: 150
-        }
+        this.reset()
       }
     },
     async openPreview(img) {
@@ -801,14 +785,14 @@ new Vue({
     handleTabClick(tab) {
       const targetStep = tab.name
       if (targetStep !== '0' && this.selectedFiles.length === 0) {
-        this.$notify({ title: '提示', message: 'Please upload a PDF file first', type: 'warning' })
+        this.$message.warning('Please upload a PDF file first')
         this.$nextTick(() => {
           this.currentStep = '0'
         })
         return
       }
       if (targetStep === '2' && !this.done) {
-        this.$notify({ title: '提示', message: 'Please complete conversion first', type: 'warning' })
+        this.$message.warning('Please complete conversion first')
         this.$nextTick(() => {
           this.currentStep = '1'
         })
@@ -816,7 +800,7 @@ new Vue({
       }
     },
     handleExceed() {
-      this.$notify({ title: '提示', message: 'You can upload a maximum of 1 file', type: 'warning' })
+      this.$message.warning('You can upload a maximum of 1 file')
     },
     beforeUpload(file) {
       if (!file.name.endsWith('.pdf')) {
@@ -870,7 +854,6 @@ new Vue({
         file: raw,
         size: raw.size,
         pageCount: pageCount,
-        arrayBuffer: arrayBuffer,
         thumbnails: []
       }
       
@@ -882,7 +865,8 @@ new Vue({
         c.width = vp.width
         c.height = vp.height
         await page.render({ canvasContext: ctx, viewport: vp }).promise
-        item.thumbnails.push(c.toDataURL())
+        const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'))
+        item.thumbnails.push(URL.createObjectURL(blob))
         await new Promise(resolve => requestAnimationFrame(resolve))
       }
       pdf.destroy()
@@ -915,6 +899,14 @@ new Vue({
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
     removeFile(idx) {
+      const file = this.selectedFiles[idx]
+      if (file && file.thumbnails) {
+        file.thumbnails.forEach(url => {
+          if (url && url.startsWith('blob:')) {
+            URL.revokeObjectURL(url)
+          }
+        })
+      }
       this.selectedFiles.splice(idx, 1)
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles.splice(idx, 1)
@@ -923,6 +915,15 @@ new Vue({
       this.selectedPages = []
     },
     clearAllFiles() {
+      this.selectedFiles.forEach(file => {
+        if (file && file.thumbnails) {
+          file.thumbnails.forEach(url => {
+            if (url && url.startsWith('blob:')) {
+              URL.revokeObjectURL(url)
+            }
+          })
+        }
+      })
       this.selectedFiles = []
       this.pagePreviews = []
       this.selectedPages = []
@@ -957,11 +958,12 @@ new Vue({
           await page.render({ canvasContext: ctx, viewport: vp }).promise
           
           const mimeType = this.form.format === 'png' ? 'image/png' : 'image/jpeg'
-          const dataUrl = c.toDataURL(mimeType, quality)
+          const blob = await new Promise(resolve => c.toBlob(resolve, mimeType, quality))
+          const blobUrl = URL.createObjectURL(blob)
           
           this.convertedImages.push({
             page: pageNum,
-            data: dataUrl,
+            data: blobUrl,
             name: `page-${pageNum}.${this.form.format}`
           })
           
@@ -976,7 +978,7 @@ new Vue({
         
       } catch (error) {
         console.error('Error converting PDF:', error)
-        this.$notify({ title: '错误', message: 'Failed to convert PDF. Please try again.', type: 'error' })
+        this.$message.error('Failed to convert PDF. Please try again.')
         this.converting = false
         this.drawerStage = 'options'
       }
@@ -994,13 +996,13 @@ new Vue({
       }
 
       try {
-        const { default: JSZip } = await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js')
         const zip = new JSZip()
         
-        this.convertedImages.forEach(img => {
-          const base64Data = img.data.split(',')[1]
-          zip.file(img.name, base64Data, { base64: true })
-        })
+        for (const img of this.convertedImages) {
+          const response = await fetch(img.data)
+          const blob = await response.blob()
+          zip.file(img.name, blob)
+        }
         
         const content = await zip.generateAsync({ type: 'blob' })
         const url = URL.createObjectURL(content)

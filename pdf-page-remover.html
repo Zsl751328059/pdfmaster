@@ -153,7 +153,6 @@
   }
   </script>
   
-  <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   
@@ -213,8 +212,7 @@
       color: #fff;
     }
   </style>
-  <script src="/lib/vue/vue.js" defer></script>
-  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
   <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
   <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
@@ -231,7 +229,7 @@
 
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -267,7 +265,6 @@
             :file-list="[]"
             accept=".pdf"
             :custom-request="handleFileChange"
-            :before-upload="beforeUpload"
             @drop="handleDrop"
           >
             <div class="upload-content">
@@ -695,6 +692,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   };
   
+  Vue.use(antd)
   new Vue({
   el: '#app',
   data() {
@@ -718,6 +716,13 @@ document.addEventListener('DOMContentLoaded', function() {
       progressText: ''
     }
   },
+  mounted() {
+    window.addEventListener('beforeunload', this.handleBeforeUnload)
+  },
+  beforeDestroy() {
+    window.removeEventListener('beforeunload', this.handleBeforeUnload)
+    this.cleanupAllResources()
+  },
   watch: {
     showDrawer(newVal) {
       if (newVal && this.drawerStage === 'options') {
@@ -726,31 +731,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   },
   methods: {
+    handleBeforeUnload() {
+      this.cleanupAllResources()
+    },
     handleDrawerClose() {
       if (!this.removing) {
-        this.drawerStage = 'options'
-        this.done = false
-        this.resultBlob = null
-        this.resultPreviews = []
-        this.pagesToRemove = []
-        this.showDrawer = false
+        this.reset()
       }
     },
     goToUpload() {
       this.reset()
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
-    beforeUpload(file) {
-      if (!file.name.toLowerCase().endsWith('.pdf')) {
-        this.$message.error('Only PDF files are allowed')
-        return false
-      }
-      const maxSize = 50 * 1024 * 1024
-      if (file.size > maxSize) {
-        this.$message.error('File size cannot exceed 50MB')
-        return false
-      }
-      return true
+    isValidPdf(file) {
+      return file.name.toLowerCase().endsWith('.pdf')
     },
     handleDrop(e) {
       e.preventDefault()
@@ -758,25 +752,41 @@ document.addEventListener('DOMContentLoaded', function() {
     async handleFileChange({ file, onSuccess }) {
       const raw = file
       
+      if (!this.isValidPdf(raw)) {
+        this.$message.error('Only PDF files are allowed')
+        return
+      }
+      
+      const maxSize = 50 * 1024 * 1024
+      if (raw.size > maxSize) {
+        this.$message.error('File size cannot exceed 50MB')
+        return
+      }
+      
       if (this.selectedFiles.length >= 1) {
         this.$message.warning('You can upload a maximum of 1 file')
         return
       }
       
-      const arrayBuffer = await raw.arrayBuffer()
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const pageCount = pdf.numPages
-      pdf.destroy()
-      
-      this.selectedFiles.push({
-        name: raw.name,
-        file: raw,
-        size: raw.size,
-        pageCount: pageCount
-      })
-      
-      if (onSuccess) {
-        onSuccess('success')
+      try {
+        const arrayBuffer = await raw.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+        const pageCount = pdf.numPages
+        pdf.destroy()
+        
+        this.selectedFiles.push({
+          name: raw.name,
+          file: raw,
+          size: raw.size,
+          pageCount: pageCount
+        })
+        
+        if (onSuccess) {
+          onSuccess('success')
+        }
+      } catch (error) {
+        console.error('Error loading PDF:', error)
+        this.$message.error('Failed to load PDF. Please try a different file.')
       }
     },
     formatFileSize(bytes) {
@@ -810,6 +820,30 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     clearSelection() {
       this.pagesToRemove = []
+    },
+    selectAllPages() {
+      this.pagesToRemove = []
+      for (let i = 1; i <= this.pagePreviews.length; i++) {
+        this.pagesToRemove.push(i)
+      }
+    },
+    deselectAllPages() {
+      this.pagesToRemove = []
+    },
+    toggleAllPages() {
+      const allPages = []
+      for (let i = 1; i <= this.pagePreviews.length; i++) {
+        allPages.push(i)
+      }
+      
+      const selectedSet = new Set(this.pagesToRemove)
+      const allSelected = allPages.every(page => selectedSet.has(page))
+      
+      if (allSelected) {
+        this.pagesToRemove = []
+      } else {
+        this.pagesToRemove = allPages
+      }
     },
     async removePages() {
       if (!this.selectedFiles.length) return
@@ -850,7 +884,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
       } catch (error) {
         console.error('Error removing pages:', error)
-        this.$notify({ title: '错误', message: 'Failed to remove pages. Please try again.', type: 'error' })
+        this.$message.error('Failed to remove pages. Please try again.')
         this.removing = false
         this.drawerStage = 'options'
       }
@@ -866,12 +900,17 @@ document.addEventListener('DOMContentLoaded', function() {
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
         const vp = page.getViewport({ scale: 0.4 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = vp.width
+        canvas.height = vp.height
         await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.pagePreviews.push(c.toDataURL())
+        this.pagePreviews.push(canvas.toDataURL())
+        canvas.width = 0
+        canvas.height = 0
+        if (typeof page.destroy === 'function') {
+          await page.destroy()
+        }
       }
       pdf.destroy()
     },
@@ -884,24 +923,50 @@ document.addEventListener('DOMContentLoaded', function() {
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
         const vp = page.getViewport({ scale: 0.4 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = vp.width
+        canvas.height = vp.height
         await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.resultPreviews.push(c.toDataURL())
+        this.resultPreviews.push(canvas.toDataURL())
+        canvas.width = 0
+        canvas.height = 0
+        if (typeof page.destroy === 'function') {
+          await page.destroy()
+        }
       }
       pdf.destroy()
     },
-    openPreview(img) {
+    async openPreview(img) {
+      this.zoomScale = 1
       const pageIdx = this.pagePreviews.indexOf(img)
       const resultIdx = this.resultPreviews.indexOf(img)
       
       if (resultIdx >= 0 && this.resultBlob) {
-        this.currentPreviewImage = img
+        try {
+          const dataUrl = await PreviewUtils.renderPdfPage(this.resultBlob, resultIdx, 3.0)
+          if (dataUrl) {
+            this.currentPreviewImage = dataUrl
+          } else {
+            this.currentPreviewImage = img
+          }
+        } catch (error) {
+          console.warn('Preview error:', error)
+          this.currentPreviewImage = img
+        }
         this.showPreviewModal = true
       } else if (pageIdx >= 0 && this.selectedFiles.length) {
-        this.currentPreviewImage = img
+        try {
+          const dataUrl = await PreviewUtils.renderPdfPage(this.selectedFiles[0].file, pageIdx, 3.0)
+          if (dataUrl) {
+            this.currentPreviewImage = dataUrl
+          } else {
+            this.currentPreviewImage = img
+          }
+        } catch (error) {
+          console.warn('Preview error:', error)
+          this.currentPreviewImage = img
+        }
         this.showPreviewModal = true
       }
     },
@@ -932,8 +997,19 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     },
-    reset() {
+    cleanupAllResources() {
+      if (this.currentPreviewImage?.startsWith('blob:')) {
+        URL.revokeObjectURL(this.currentPreviewImage)
+      }
       this.selectedFiles = []
+      this.pagePreviews = []
+      this.pagesToRemove = []
+      this.resultPreviews = []
+      this.resultBlob = null
+      this.currentPreviewImage = null
+    },
+    reset() {
+      this.cleanupAllResources()
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = []
       }

@@ -159,7 +159,6 @@
   </script>
 
   
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   
@@ -325,8 +324,8 @@
       border-radius: 8px;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
@@ -337,7 +336,7 @@
 
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -376,7 +375,6 @@
             :file-list="[]"
             accept=".pdf"
             :custom-request="handleFileChange"
-            :before-upload="beforeUpload"
             :show-upload-list="false"
             :limit="1"
             @drop="handleDrop"
@@ -466,18 +464,18 @@
                   <div class="form-row-row">
                     <div class="form-col">
                       <label class="form-label">Opacity: {{ form.opacity }}%</label>
-                      <el-slider v-model="form.opacity" :min="10" :max="100" :step="5"></el-slider>
+                      <a-slider v-model="form.opacity" :min="10" :max="100" :step="5"></a-slider>
                     </div>
                     <div class="form-col">
                       <label class="form-label">Position</label>
-                      <el-select v-model="form.position" class="option-select">
-                        <el-option label="Center" value="center"></el-option>
-                        <el-option label="Top Left" value="top-left"></el-option>
-                        <el-option label="Top Right" value="top-right"></el-option>
-                        <el-option label="Bottom Left" value="bottom-left"></el-option>
-                        <el-option label="Bottom Right" value="bottom-right"></el-option>
-                        <el-option label="Tiled (Full Page)" value="tiled"></el-option>
-                      </el-select>
+                      <a-select v-model="form.position" class="option-select">
+                        <a-select-option value="center">Center</a-select-option>
+                        <a-select-option value="top-left">Top Left</a-select-option>
+                        <a-select-option value="top-right">Top Right</a-select-option>
+                        <a-select-option value="bottom-left">Bottom Left</a-select-option>
+                        <a-select-option value="bottom-right">Bottom Right</a-select-option>
+                        <a-select-option value="tiled">Tiled (Full Page)</a-select-option>
+                      </a-select>
                     </div>
                   </div>
                 </div>
@@ -509,22 +507,22 @@
                   </div>
                   <div class="form-row">
                     <label class="form-label">Opacity: {{ form.opacity }}%</label>
-                    <el-slider v-model="form.opacity" :min="10" :max="100" :step="5"></el-slider>
+                    <a-slider v-model="form.opacity" :min="10" :max="100" :step="5"></a-slider>
                   </div>
                   <div class="form-row">
                     <label class="form-label">Position</label>
-                    <el-select v-model="form.position" class="option-select">
-                      <el-option label="Center" value="center"></el-option>
-                      <el-option label="Top Left" value="top-left"></el-option>
-                      <el-option label="Top Right" value="top-right"></el-option>
-                      <el-option label="Bottom Left" value="bottom-left"></el-option>
-                      <el-option label="Bottom Right" value="bottom-right"></el-option>
-                      <el-option label="Tiled (Full Page)" value="tiled"></el-option>
-                    </el-select>
+                    <a-select v-model="form.position" class="option-select">
+                      <a-select-option value="center">Center</a-select-option>
+                      <a-select-option value="top-left">Top Left</a-select-option>
+                      <a-select-option value="top-right">Top Right</a-select-option>
+                      <a-select-option value="bottom-left">Bottom Left</a-select-option>
+                      <a-select-option value="bottom-right">Bottom Right</a-select-option>
+                      <a-select-option value="tiled">Tiled (Full Page)</a-select-option>
+                    </a-select>
                   </div>
                   <div class="form-row">
                     <label class="form-label">Scale: {{ form.scale }}%</label>
-                    <el-slider v-model="form.scale" :min="10" :max="200" :step="5"></el-slider>
+                    <a-slider v-model="form.scale" :min="10" :max="200" :step="5"></a-slider>
                   </div>
                 </div>
               </div>
@@ -892,6 +890,7 @@
 </div>
 
 <script>
+Vue.use(antd)
 new Vue({
   el: '#app',
   data() {
@@ -944,15 +943,8 @@ new Vue({
     goToUpload() {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
-    handleExceed() {
-      this.$notify({ title: '提示', message: 'Only one PDF file can be processed at a time', type: 'warning' })
-    },
-    beforeUpload(file) {
-      if (!file.name.toLowerCase().endsWith('.pdf')) {
-        this.$notify({ title: 'Error', message: 'Only PDF files are allowed', type: 'error' })
-        return false
-      }
-      return true
+    isValidPdf(file) {
+      return file.name.toLowerCase().endsWith('.pdf')
     },
     handleDrop(event) {
       event.preventDefault()
@@ -982,42 +974,43 @@ new Vue({
       this.zoomScale = 1
     },
     handleDrawerClose() {
-      this.showDrawer = false
-      this.drawerStage = 'options'
-      this.done = false
-      this.resultBlob = null
-      this.resultPreviews = []
+      this.reset()
     },
     async handleFileChange({ file }) {
       const raw = file
-      if (!raw.name.endsWith('.pdf')) {
-        this.$notify({ title: '错误', message: 'Only PDF files are allowed', type: 'error' })
+      if (!this.isValidPdf(raw)) {
+        this.$message.error('Only PDF files are allowed')
         return
       }
       
       const maxSize = 50 * 1024 * 1024
       if (raw.size > maxSize) {
-        this.$notify({ title: '错误', message: 'File size cannot exceed 50MB', type: 'error' })
+        this.$message.error('File size cannot exceed 50MB')
         return
       }
 
       if (this.selectedFiles.length >= 1) {
-        this.$notify({ title: '提示', message: 'Only one PDF file can be processed at a time', type: 'warning' })
+        this.$message.warning('Only one PDF file can be processed at a time')
         return
       }
 
-      const arrayBuffer = await raw.arrayBuffer()
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const pageCount = pdf.numPages
-      pdf.destroy()
+      try {
+        const arrayBuffer = await raw.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+        const pageCount = pdf.numPages
+        pdf.destroy()
 
-      const item = {
-        name: raw.name,
-        file: raw,
-        size: raw.size,
-        pageCount: pageCount
+        const item = {
+          name: raw.name,
+          file: raw,
+          size: raw.size,
+          pageCount: pageCount
+        }
+        this.selectedFiles.push(item)
+      } catch (error) {
+        console.error('Error loading PDF:', error)
+        this.$message.error('Failed to load PDF. Please try a different file.')
       }
-      this.selectedFiles.push(item)
     },
     handleImageChange({ file, onSuccess }) {
       const raw = file
@@ -1068,31 +1061,28 @@ new Vue({
         if (this.form.type === 'text') {
           this.progressText = 'Adding text watermark...'
           const embedFont = await pdfDoc.embedFont(window.PDFLib.StandardFonts.Helvetica)
-          const { Rotation, rgb } = window.PDFLib
+          const { rgb } = window.PDFLib
+          
+          const opacity = this.form.opacity / 100
+          const fontSize = this.form.fontSize
+          const colorRgb = this.hexToRgb(this.form.color)
+          const textColor = rgb(colorRgb.r, colorRgb.g, colorRgb.b)
+          const textWidth = embedFont.widthOfTextAtSize(this.form.text, fontSize)
           
           for (let i = 0; i < totalPages; i++) {
             const page = pages[i]
             const { width, height } = page.getSize()
             
-            const opacity = this.form.opacity / 100
-            const fontSize = this.form.fontSize
-            const colorRgb = this.hexToRgb(this.form.color)
-            const textWidth = embedFont.widthOfTextAtSize(this.form.text, fontSize)
-            
-            const drawOptions = {
+            page.drawText(this.form.text, {
               x: this.getXPosition(width, textWidth),
               y: this.getYPosition(height, fontSize),
               size: fontSize,
               font: embedFont,
-              color: rgb(colorRgb.r, colorRgb.g, colorRgb.b),
+              color: textColor,
               opacity: opacity
-            }
-            
-            
-            page.drawText(this.form.text, drawOptions)
+            })
             
             if (this.form.position === 'tiled') {
-              const textWidth = embedFont.widthOfTextAtSize(this.form.text, fontSize)
               const cols = Math.ceil(width / (textWidth * 2))
               const rows = Math.ceil(height / (fontSize * 2))
               
@@ -1103,7 +1093,7 @@ new Vue({
                     y: height - (row + 1) * fontSize * 2,
                     size: fontSize,
                     font: embedFont,
-                    color: rgb(colorRgb.r, colorRgb.g, colorRgb.b),
+                    color: textColor,
                     opacity: opacity
                   })
                 }
@@ -1170,7 +1160,7 @@ new Vue({
         
       } catch (error) {
         console.error('Error adding watermark:', error)
-        this.$notify({ title: '错误', message: 'Failed to add watermark. Please try again.', type: 'error' })
+        this.$message.error('Failed to add watermark. Please try again.')
         this.processing = false
       }
     },
@@ -1215,12 +1205,17 @@ new Vue({
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
         const vp = page.getViewport({ scale: 0.4 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = vp.width
+        canvas.height = vp.height
         await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.previews.push(c.toDataURL())
+        this.previews.push(canvas.toDataURL())
+        canvas.width = 0
+        canvas.height = 0
+        if (typeof page.destroy === 'function') {
+          await page.destroy()
+        }
       }
       pdf.destroy()
     },
@@ -1259,66 +1254,19 @@ new Vue({
     },
     
     cleanupAllResources() {
-      this.selectedFiles.forEach(file => {
-        if (file.pdfInstance) {
-          try {
-            file.pdfInstance.destroy()
-          } catch (e) {
-            console.warn('Error destroying PDF instance:', e)
-          }
-          file.pdfInstance = null
-        }
-        if (file.thumbnails) {
-          file.thumbnails.forEach(url => {
-            if (url && url.startsWith('blob:')) {
-              URL.revokeObjectURL(url)
-            }
-          })
-          file.thumbnails = null
-        }
-        if (file.pages) {
-          file.pages.forEach(page => {
-            if (page && typeof page.destroy === 'function') {
-              try {
-                page.destroy()
-              } catch (e) {
-                console.warn('Error destroying page:', e)
-              }
-            }
-          })
-          file.pages = null
-        }
-      })
       this.selectedFiles = []
       
       if (this.previews) {
-        this.previews.forEach(url => {
-          if (url && url.startsWith('blob:')) {
-            URL.revokeObjectURL(url)
-          }
-        })
         this.previews = []
       }
       
-      if (this.currentPreviewImage && this.currentPreviewImage.startsWith('blob:')) {
+      if (this.currentPreviewImage?.startsWith('blob:')) {
         URL.revokeObjectURL(this.currentPreviewImage)
       }
       this.currentPreviewImage = ''
       
       this.resultBlob = null
-      
-      if (this.pages) {
-        this.pages.forEach(page => {
-          if (page && typeof page.destroy === 'function') {
-            try {
-              page.destroy()
-            } catch (e) {
-              console.warn('Error destroying page:', e)
-            }
-          }
-        })
-        this.pages = []
-      }
+      this.pages = []
     }
   }
 })

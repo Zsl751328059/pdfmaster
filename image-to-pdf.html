@@ -89,14 +89,12 @@
   }
   </script>
 
-  <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   <style>
    
   </style>
-  <script src="/lib/vue/vue.js" defer></script>
-  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
   <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
   <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
@@ -122,7 +120,7 @@
   
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -162,7 +160,6 @@
             :file-list="[]"
             accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff"
             :custom-request="handleFileChange"
-            :before-upload="beforeUpload"
             @drop="handleDrop"
           >
             <div class="upload-content">
@@ -221,12 +218,12 @@
                     <div class="advanced-options">
                       <div class="option-row">
                         <label class="option-label">Page Size</label>
-                        <el-select v-model="form.pageSize" class="option-select">
-                          <el-option label="A4 (210 × 297 mm)" value="a4"></el-option>
-                          <el-option label="Letter (8.5 × 11 inches)" value="letter"></el-option>
-                          <el-option label="Legal (8.5 × 14 inches)" value="legal"></el-option>
-                          <el-option label="Auto (Fit to Image)" value="custom"></el-option>
-                        </el-select>
+                        <a-select v-model="form.pageSize" class="option-select">
+                          <a-select-option value="a4">A4 (210 × 297 mm)</a-select-option>
+                          <a-select-option value="letter">Letter (8.5 × 11 inches)</a-select-option>
+                          <a-select-option value="legal">Legal (8.5 × 14 inches)</a-select-option>
+                          <a-select-option value="custom">Auto (Fit to Image)</a-select-option>
+                        </a-select>
                       </div>
                     </div>
                   </a-collapse-panel>
@@ -641,6 +638,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   };
   
+  Vue.use(antd)
   new Vue({
   el: '#app',
   data() {
@@ -648,8 +646,12 @@ document.addEventListener('DOMContentLoaded', function() {
       selectedFiles: [],
       form: {
         pageSize: 'a4',
-        orientation: 'auto',
-        quality: 90
+        orientation: 'auto'
+      },
+      pageSizes: {
+        a4: { width: 595.28, height: 841.89 },
+        letter: { width: 612, height: 792 },
+        legal: { width: 612, height: 1008 }
       },
       expandOptions: [],
       done: false,
@@ -678,12 +680,16 @@ document.addEventListener('DOMContentLoaded', function() {
       this.cleanupAllResources()
     },
     cleanupAllResources() {
-      if (this.resultBlob) {
-        this.resultBlob = null
-      }
+      this.resultBlob = null
+      
+      this.selectedFiles.forEach(file => {
+        if (file?.preview?.startsWith('blob:')) {
+          URL.revokeObjectURL(file.preview)
+        }
+      })
       
       this.previews.forEach(url => {
-        if (url && url.startsWith('blob:')) {
+        if (url?.startsWith('blob:')) {
           URL.revokeObjectURL(url)
         }
       })
@@ -694,20 +700,10 @@ document.addEventListener('DOMContentLoaded', function() {
     goToUpload() {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
-    handleExceed() {
-      this.$message.warning('You can upload a maximum of 20 images')
-    },
-    beforeUpload(file) {
+    isValidImageFile(file) {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff']
       const fileName = file.name.toLowerCase()
-      const isValidType = allowedTypes.includes(file.type) || 
-        fileName.match(/\.(jpg|jpeg|png|gif|bmp|tiff)$/)
-      
-      if (!isValidType) {
-        this.$message.error('Only image files are allowed (JPG, PNG, GIF, BMP, TIFF)')
-        return false
-      }
-      return true
+      return allowedTypes.includes(file.type) || fileName.match(/\.(jpg|jpeg|png|gif|bmp|tiff)$/)
     },
     handleDrop(event) {
       event.preventDefault()
@@ -752,19 +748,12 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     handleDrawerClose() {
       if (!this.converting) {
-        this.drawerStage = 'options'
-        this.done = false
-        this.resultBlob = null
-        this.form.pageSize = 'a4'
-        this.form.orientation = 'auto'
-        this.form.quality = 90
-        this.showDrawer = false
+        this.reset()
       }
     },
     async handleFileChange({ file, onSuccess }) {
       const raw = file
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff']
-      if (!allowedTypes.includes(raw.type) && !raw.name.match(/\.(jpg|jpeg|png|gif|bmp|tiff)$/i)) {
+      if (!this.isValidImageFile(raw)) {
         this.$message.error('Only image files are allowed (JPG, PNG, GIF, BMP, TIFF)')
         return
       }
@@ -781,20 +770,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return
       }
 
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const item = {
-          name: raw.name,
-          file: raw,
-          size: raw.size,
-          preview: e.target.result
-        }
-        this.selectedFiles.push(item)
-        if (onSuccess) {
-          onSuccess('success')
-        }
+      const preview = URL.createObjectURL(raw)
+      const item = {
+        name: raw.name,
+        file: raw,
+        size: raw.size,
+        preview: preview
       }
-      reader.readAsDataURL(raw)
+      this.selectedFiles.push(item)
+      if (onSuccess) {
+        onSuccess('success')
+      }
     },
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
@@ -804,12 +790,21 @@ document.addEventListener('DOMContentLoaded', function() {
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
     removeFile(idx) {
+      const file = this.selectedFiles[idx]
+      if (file?.preview?.startsWith('blob:')) {
+        URL.revokeObjectURL(file.preview)
+      }
       this.selectedFiles.splice(idx, 1)
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles.splice(idx, 1)
       }
     },
     clearAllFiles() {
+      this.selectedFiles.forEach(file => {
+        if (file && file.preview && file.preview.startsWith('blob:')) {
+          URL.revokeObjectURL(file.preview)
+        }
+      })
       this.selectedFiles = []
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = []
@@ -833,8 +828,8 @@ document.addEventListener('DOMContentLoaded', function() {
           const file = this.selectedFiles[i]
           this.progressText = `Processing image ${i + 1} of ${this.selectedFiles.length}...`
           
-          const imgData = file.preview.split(',')[1]
-          const imgBytes = Uint8Array.from(atob(imgData), c => c.charCodeAt(0))
+          const buf = await file.file.arrayBuffer()
+          const imgBytes = new Uint8Array(buf)
           
           let image
           const fileName = file.name.toLowerCase()
@@ -844,18 +839,33 @@ document.addEventListener('DOMContentLoaded', function() {
             image = await pdfDoc.embedJpg(imgBytes)
           }
           
-          const imgWidth = image.width
-          const imgHeight = image.height
+          let pageSize = this.pageSizes[this.form.pageSize] || this.pageSizes.a4
+          let pageWidth = pageSize.width
+          let pageHeight = pageSize.height
           
-          const pageWidth = imgWidth
-          const pageHeight = imgHeight
+          if (this.form.orientation === 'auto') {
+            if (image.width > image.height) {
+              pageWidth = pageSize.height
+              pageHeight = pageSize.width
+            }
+          } else if (this.form.orientation === 'landscape') {
+            pageWidth = pageSize.height
+            pageHeight = pageSize.width
+          }
           
           const page = pdfDoc.addPage([pageWidth, pageHeight])
+          
+          const scale = Math.min(pageWidth / image.width, pageHeight / image.height)
+          const scaledWidth = image.width * scale
+          const scaledHeight = image.height * scale
+          const x = (pageWidth - scaledWidth) / 2
+          const y = (pageHeight - scaledHeight) / 2
+          
           page.drawImage(image, {
-            x: 0,
-            y: 0,
-            width: pageWidth,
-            height: pageHeight,
+            x: x,
+            y: y,
+            width: scaledWidth,
+            height: scaledHeight,
           })
           
           this.progress = Math.round(((i + 1) / this.selectedFiles.length) * 80)
@@ -885,12 +895,18 @@ document.addEventListener('DOMContentLoaded', function() {
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
         const vp = page.getViewport({ scale: 0.4 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = vp.width
+        canvas.height = vp.height
         await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.previews.push(c.toDataURL())
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+        this.previews.push(URL.createObjectURL(blob))
+        canvas.width = 0
+        canvas.height = 0
+        if (typeof page.destroy === 'function') {
+          await page.destroy()
+        }
       }
       pdf.destroy()
     },
@@ -907,17 +923,26 @@ document.addEventListener('DOMContentLoaded', function() {
     reset() {
       this.showDrawer = false
       this.drawerStage = 'options'
+      this.selectedFiles.forEach(file => {
+        if (file?.preview?.startsWith('blob:')) {
+          URL.revokeObjectURL(file.preview)
+        }
+      })
       this.selectedFiles = []
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = []
       }
       this.form = {
         pageSize: 'a4',
-        orientation: 'portrait',
-        quality: 90
+        orientation: 'auto'
       }
       this.done = false
       this.resultBlob = null
+      this.previews.forEach(url => {
+        if (url?.startsWith('blob:')) {
+          URL.revokeObjectURL(url)
+        }
+      })
       this.previews = []
       this.downloadFileName = 'images.pdf'
     }

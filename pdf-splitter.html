@@ -151,11 +151,10 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.min.js"></script>
@@ -165,7 +164,7 @@
   
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -704,6 +703,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   };
   
+  Vue.use(antd)
   new Vue({
   el: '#app',
   data() {
@@ -724,7 +724,7 @@ document.addEventListener('DOMContentLoaded', function() {
       zoomScale: 1,
       renderQueue: [],
       isRendering: false,
-      downloadFileName: ''
+      downloadFileName: 'split'
     }
   },
   mounted() {
@@ -791,13 +791,7 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     handleDrawerClose() {
       if (!this.splitting) {
-        this.drawerStage = 'mode'
-        this.done = false
-        this.splitResults = []
-        this.selectedPages = []
-        this.form.mode = 'every'
-        this.form.ranges = ''
-        this.showDrawer = false
+        this.reset()
       }
     },
     getDrawerActionText() {
@@ -840,11 +834,7 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     goToNext() { 
       if (this.selectedFiles.length === 0) {
-        this.$notify({
-          title: '提示',
-          message: 'Please upload a PDF file first',
-          type: 'warning'
-        });
+        this.$message.warning('Please upload a PDF file first');
         return;
       }
       this.currentStep = '1' 
@@ -876,14 +866,14 @@ document.addEventListener('DOMContentLoaded', function() {
     handleTabClick(tab) {
       const targetStep = tab.name
       if (targetStep !== '0' && this.selectedFiles.length === 0) {
-        this.$notify({ title: '提示', message: 'Please upload a file first', type: 'warning' })
+        this.$message.warning('Please upload a file first')
         this.$nextTick(() => {
           this.currentStep = '0'
         })
         return
       }
       if (targetStep === '2' && !this.done) {
-        this.$notify({ title: '提示', message: 'Please complete splitting first', type: 'warning' })
+        this.$message.warning('Please complete splitting first')
         this.$nextTick(() => {
           this.currentStep = '1'
         })
@@ -891,7 +881,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     },
     handleExceed() {
-      this.$notify({ title: '提示', message: 'Only one file can be processed at a time', type: 'warning' })
+      this.$message.warning('Only one file can be processed at a time')
     },
     beforeUpload(file) {
       if (!file.name.endsWith('.pdf')) {
@@ -961,7 +951,6 @@ document.addEventListener('DOMContentLoaded', function() {
       const pdf = await pdfjsLib.getDocument({ data: buf }).promise
       item.pdfInstance = pdf
       item.pageCount = pdf.numPages
-      item.originalData = buf
       
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i)
@@ -971,7 +960,10 @@ document.addEventListener('DOMContentLoaded', function() {
         c.width = vp.width
         c.height = vp.height
         await page.render({ canvasContext: ctx, viewport: vp }).promise
-        item.thumbnails.push(c.toDataURL())
+        
+        const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'))
+        item.thumbnails.push(URL.createObjectURL(blob))
+        
         await new Promise(resolve => requestAnimationFrame(resolve))
       }
     },
@@ -980,7 +972,14 @@ document.addEventListener('DOMContentLoaded', function() {
         try { file.pdfInstance.destroy() } catch (e) { console.warn('Error destroying PDF:', e) }
         file.pdfInstance = null
       }
-      if (file.thumbnails) { file.thumbnails = [] }
+      if (file.thumbnails) {
+        file.thumbnails.forEach(url => {
+          if (url && url.startsWith('blob:')) {
+            URL.revokeObjectURL(url)
+          }
+        })
+        file.thumbnails = null
+      }
     },
     removeFile(idx) {
       const file = this.selectedFiles[idx]
@@ -1041,6 +1040,35 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       return ranges
     },
+    async generateThumbnail(bytes) {
+      const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
+      const pageData = await pdf.getPage(1)
+      const vp = pageData.getViewport({ scale: 0.4 })
+      const c = document.createElement('canvas')
+      const ctx = c.getContext('2d')
+      c.width = vp.width
+      c.height = vp.height
+      await pageData.render({ canvasContext: ctx, viewport: vp }).promise
+      
+      const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'))
+      const url = URL.createObjectURL(blob)
+      pdf.destroy()
+      return url
+    },
+    
+    async createSplitResult(src, pageIndices, name) {
+      const { PDFDocument } = window.PDFLib
+      const doc = await PDFDocument.create()
+      const pages = await doc.copyPages(src, pageIndices)
+      pages.forEach(p => doc.addPage(p))
+      
+      const bytes = await doc.save()
+      const blob = new Blob([bytes], { type: 'application/pdf' })
+      const thumbnail = await this.generateThumbnail(bytes)
+      
+      return { name, blob, thumbnail }
+    },
+    
     async startSplit() {
       this.splitting = true
       this.progress = 0
@@ -1054,33 +1082,14 @@ document.addEventListener('DOMContentLoaded', function() {
       
       this.splitResults = []
       
-      if (this.form.mode === 'every') {
+      try {
+        if (this.form.mode === 'every') {
         for (let i = 0; i < totalPages; i++) {
           this.progressText = `Processing page ${i + 1} of ${totalPages}...`
           this.progress = Math.round(((i + 1) / totalPages) * 80)
           
-          const doc = await PDFDocument.create()
-          const [page] = await doc.copyPages(src, [i])
-          doc.addPage(page)
-          
-          const bytes = await doc.save()
-          const blob = new Blob([bytes], { type: 'application/pdf' })
-          
-          const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
-          const pageData = await pdf.getPage(1)
-          const vp = pageData.getViewport({ scale: 0.4 })
-          const c = document.createElement('canvas')
-          const ctx = c.getContext('2d')
-          c.width = vp.width
-          c.height = vp.height
-          await pageData.render({ canvasContext: ctx, viewport: vp }).promise
-          
-          this.splitResults.push({
-            name: `page-${i + 1}.pdf`,
-            blob,
-            thumbnail: c.toDataURL()
-          })
-          pdf.destroy()
+          const result = await this.createSplitResult(src, [i], `page-${i + 1}.pdf`)
+          this.splitResults.push(result)
         }
       } else if (this.form.mode === 'select') {
         const selectedIndices = this.selectedPages.map(key => {
@@ -1093,28 +1102,8 @@ document.addEventListener('DOMContentLoaded', function() {
           this.progressText = `Processing page ${i + 1} of ${totalSelected}...`
           this.progress = Math.round(((i + 1) / totalSelected) * 80)
           
-          const doc = await PDFDocument.create()
-          const [page] = await doc.copyPages(src, [selectedIndices[i]])
-          doc.addPage(page)
-          
-          const bytes = await doc.save()
-          const blob = new Blob([bytes], { type: 'application/pdf' })
-          
-          const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
-          const pageData = await pdf.getPage(1)
-          const vp = pageData.getViewport({ scale: 0.4 })
-          const c = document.createElement('canvas')
-          const ctx = c.getContext('2d')
-          c.width = vp.width
-          c.height = vp.height
-          await pageData.render({ canvasContext: ctx, viewport: vp }).promise
-          
-          this.splitResults.push({
-            name: `page-${selectedIndices[i] + 1}.pdf`,
-            blob,
-            thumbnail: c.toDataURL()
-          })
-          pdf.destroy()
+          const result = await this.createSplitResult(src, [selectedIndices[i]], `page-${selectedIndices[i] + 1}.pdf`)
+          this.splitResults.push(result)
         }
       } else if (this.form.mode === 'range') {
         const ranges = this.parseRanges(this.form.ranges)
@@ -1136,30 +1125,15 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           
           if (indices.length > 0) {
-            const doc = await PDFDocument.create()
-            const pages = await doc.copyPages(src, indices)
-            pages.forEach(p => doc.addPage(p))
-            
-            const bytes = await doc.save()
-            const blob = new Blob([bytes], { type: 'application/pdf' })
-            
-            const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
-            const pageData = await pdf.getPage(1)
-            const vp = pageData.getViewport({ scale: 0.4 })
-            const c = document.createElement('canvas')
-            const ctx = c.getContext('2d')
-            c.width = vp.width
-            c.height = vp.height
-            await pageData.render({ canvasContext: ctx, viewport: vp }).promise
-            
-            this.splitResults.push({
-              name: `split-${fileIndex}.pdf`,
-              blob,
-              thumbnail: c.toDataURL()
-            })
-            pdf.destroy()
+            const result = await this.createSplitResult(src, indices, `split-${fileIndex}.pdf`)
+            this.splitResults.push(result)
             fileIndex++
           }
+        }
+      }
+      } finally {
+        if (src.destroy) {
+          src.destroy()
         }
       }
       
@@ -1170,7 +1144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         this.splitting = false
         this.done = true
         this.currentStep = '2'
-        this.$notify({ title: '成功', message: 'Split completed successfully!', type: 'success' })
+        this.$message.success('Split completed successfully!')
       }, 500)
     },
     downloadAll() {

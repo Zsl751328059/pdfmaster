@@ -210,14 +210,12 @@
   }
   </script>
 
-  <link rel="stylesheet" href="/lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   <style>
    
   </style>
-  <script src="/lib/vue/vue.js" defer></script>
-  <script src="/lib/element-ui/index.js" defer></script>
+  <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
   <script src="/lib/pdf-lib/pdf-lib.min.js" defer></script>
   <script src="/lib/pdfjs-dist/build/pdf.js" defer></script>
@@ -242,7 +240,7 @@
   
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -789,6 +787,7 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
     }
   };
   
+  Vue.use(antd)
   new Vue({
   el: '#app',
   data() {
@@ -826,12 +825,7 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
     },
     handleDrawerClose() {
       if (!this.merging) {
-        this.drawerStage = 'mode'
-        this.done = false
-        this.resultBlob = null
-        this.selectedPages = []
-        this.form.mode = 'full'
-        this.showDrawer = false
+        this.reset()
       }
     },
     getDrawerActionText() {
@@ -965,14 +959,13 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       }
       
       this.isRendering = true
+      const concurrency = 2
       
       while (this.renderQueue.length > 0) {
-        const item = this.renderQueue.shift()
-        item.rendering = true
-        await this.renderThumb(item)
-        item.rendering = false
-        item.rendered = true
-        await new Promise(resolve => setTimeout(resolve, 100))
+        const batch = this.renderQueue.splice(0, concurrency)
+        const promises = batch.map(item => this.renderThumb(item))
+        await Promise.all(promises)
+        await new Promise(resolve => requestAnimationFrame(resolve))
       }
       
       this.isRendering = false
@@ -987,7 +980,6 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
         }
         item.pdfInstance = pdf
         item.pageCount = pdf.numPages
-        item.originalData = buf
         
         const firstPage = await pdf.getPage(1)
         const vp = firstPage.getViewport({ scale: 2.0 })
@@ -1044,6 +1036,8 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
             await new Promise(resolve => requestAnimationFrame(resolve))
           }
         }
+        item.rendering = false
+        item.rendered = true
       } catch (error) {
         const idx = this.selectedFiles.indexOf(item)
         if (idx !== -1) {
@@ -1077,9 +1071,6 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
           }
         })
         file.thumbnails = null
-      }
-      if (file.originalData) {
-        file.originalData = null
       }
       if (file.pages) {
         file.pages.forEach(page => {
@@ -1157,50 +1148,80 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       const doc = await PDFDocument.create()
       const totalFiles = this.selectedFiles.length
       
-      for (const [fi, item] of this.selectedFiles.entries()) {
-        this.progressText = `Processing file ${fi + 1} of ${totalFiles}...`
-        this.progress = Math.round(((fi + 1) / totalFiles) * 60)
-        
-        const buf = await item.file.arrayBuffer()
-        const src = await PDFDocument.load(buf)
-        const indices = []
-        
-        if (this.form.mode === 'full') {
-          for (let i = 0; i < src.getPageCount(); i++) indices.push(i)
-        } else {
-          item.thumbnails.forEach((_, pi) => {
-            if (this.isSelected(fi, pi)) indices.push(pi)
-          })
+      try {
+        if (this.form.mode !== 'full') {
+          const hasSelected = this.selectedFiles.some((file, fi) =>
+            file.thumbnails.some((_, pi) => this.isSelected(fi, pi))
+          )
+          if (!hasSelected) {
+            this.merging = false
+            this.$message.warning('Please select at least one page to merge')
+            return
+          }
         }
         
-        const pages = await doc.copyPages(src, indices)
-        pages.forEach(p => doc.addPage(p))
+        for (const [fi, item] of this.selectedFiles.entries()) {
+          this.progressText = `Processing file ${fi + 1} of ${totalFiles}...`
+          this.progress = Math.round(((fi + 1) / totalFiles) * 60)
+          
+          const buf = await item.file.arrayBuffer()
+          const src = await PDFDocument.load(buf)
+          
+          let indices
+          if (this.form.mode === 'full') {
+            indices = Array.from({ length: src.getPageCount() }, (_, i) => i)
+          } else {
+            indices = item.thumbnails
+              .map((_, pi) => this.isSelected(fi, pi) ? pi : -1)
+              .filter(pi => pi !== -1)
+          }
+          
+          if (indices.length > 0) {
+            const pages = await doc.copyPages(src, indices)
+            pages.forEach(p => doc.addPage(p))
+          }
+          
+          if (src.destroy) {
+            src.destroy()
+          }
+        }
         
-        if (src.destroy) {
-          src.destroy()
+        this.progressText = 'Generating output...'
+        this.progress = 80
+        
+        const bytes = await doc.save()
+        this.resultBlob = new Blob([bytes], { type: 'application/pdf' })
+        
+        this.progressText = 'Creating preview...'
+        this.progress = 90
+        
+        await this.makePreviews()
+        
+        this.progress = 100
+        this.progressText = 'Complete!'
+        
+        setTimeout(() => {
+          this.merging = false
+          this.done = true
+          this.currentStep = '2'
+          this.$message.success('Merge completed successfully!')
+        }, 300)
+      } catch (error) {
+        console.error('Merge error:', error)
+        this.merging = false
+        this.progress = 0
+        this.progressText = ''
+        
+        if (error.message.includes('memory') || error.message.includes('Memory')) {
+          this.$message.error('Memory error: Please try merging fewer or smaller files.')
+        } else if (error.message.includes('password') || error.message.includes('encrypted')) {
+          this.$message.error('One or more files are password protected. Please remove passwords and try again.')
+        } else if (error.message.includes('corrupt') || error.message.includes('invalid')) {
+          this.$message.error('One or more files are corrupted. Please check your files.')
+        } else {
+          this.$message.error('An error occurred during merging. Please try again.')
         }
       }
-      
-      this.progressText = 'Generating output...'
-      this.progress = 80
-      
-      const bytes = await doc.save()
-      this.resultBlob = new Blob([bytes], { type: 'application/pdf' })
-      
-      this.progressText = 'Creating preview...'
-      this.progress = 90
-      
-      await this.makePreviews(bytes)
-      
-      this.progress = 100
-      this.progressText = 'Complete!'
-      
-      setTimeout(() => {
-        this.merging = false
-        this.done = true
-        this.currentStep = '2'
-        this.$message.success('Merge completed successfully!')
-      }, 500)
     },
     
     cleanupAllResources() {
@@ -1229,7 +1250,7 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       }
     },
     
-    async makePreviews(bytes) {
+    async makePreviews() {
       this.previews = []
       if (this.previewsPdf) {
         try {
@@ -1239,24 +1260,38 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
         }
         this.previewsPdf = null
       }
+      const bytes = await this.resultBlob.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
       const max = pdf.numPages
+      const concurrency = 4
+      const pageGroups = []
       
       for (let i = 1; i <= max; i++) {
-        const page = await pdf.getPage(i)
-        const vp = page.getViewport({ scale: 0.6 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.previews.push(c.toDataURL())
-        c.width = 0
-        c.height = 0
-        if (typeof page.destroy === 'function') {
-          await page.destroy()
-        }
-        await new Promise(resolve => requestAnimationFrame(resolve))
+        pageGroups.push(i)
+      }
+      
+      while (pageGroups.length > 0) {
+        const batch = pageGroups.splice(0, concurrency)
+        const promises = batch.map(async (pageNum) => {
+          const page = await pdf.getPage(pageNum)
+          const vp = page.getViewport({ scale: 0.6 })
+          const c = document.createElement('canvas')
+          const ctx = c.getContext('2d')
+          c.width = vp.width
+          c.height = vp.height
+          await page.render({ canvasContext: ctx, viewport: vp }).promise
+          const dataUrl = c.toDataURL()
+          c.width = 0
+          c.height = 0
+          if (typeof page.destroy === 'function') {
+            await page.destroy()
+          }
+          return { pageNum, dataUrl }
+        })
+        const results = await Promise.all(promises)
+        results.forEach(({ pageNum, dataUrl }) => {
+          this.$set(this.previews, pageNum - 1, dataUrl)
+        })
       }
       this.previewsPdf = pdf
     },

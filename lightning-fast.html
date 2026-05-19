@@ -9,9 +9,10 @@
   
   <link rel="canonical" href="https://pdfeasz.com/lightning-fast.html">
   
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
-  <script src="./lib/element-ui/index.js"></script>
+  <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
+  <script src="/lib/ant-design-vue/antd.min.js"></script>
   <link rel="stylesheet" href="/css/common.css">
   
   <style>
@@ -162,7 +163,7 @@
         </div>
         <nav class="header-links">
           <a href="index.html" class="back-btn">
-            <i class="el-icon-arrow-left" style="margin-right: 6px;"></i>
+            ←
             Back to Home
           </a>
         </nav>
@@ -208,26 +209,26 @@
       <div class="content-section">
         <h2>Frequently Asked Questions</h2>
         
-        <el-collapse-item title="Q: How fast is PDFMaster compared to other tools?">
+        <a-collapse-panel title="Q: How fast is PDFMaster compared to other tools?">
               <p>A: PDFMaster is significantly faster than most online PDF tools. Thanks to our WebAssembly-powered processing and optimized algorithms, we can process most PDFs in under a second.</p>
-            </el-collapse-item>
+            </a-collapse-panel>
         
-        <el-collapse-item title="Q: Does speed affect quality?">
+        <a-collapse-panel title="Q: Does speed affect quality?">
               <p>A: No. Our fast processing doesn't compromise on quality. Your PDFs will maintain their original quality while being processed quickly.</p>
-            </el-collapse-item>
+            </a-collapse-panel>
         
-        <el-collapse-item title="Q: Do larger files take longer?">
+        <a-collapse-panel title="Q: Do larger files take longer?">
               <p>A: While larger files naturally take more time, our optimized algorithms ensure even large PDFs are processed as quickly as possible.</p>
-            </el-collapse-item>
+            </a-collapse-panel>
         
-        <el-collapse-item title="Q: Is there a difference in speed between devices?">
+        <a-collapse-panel title="Q: Is there a difference in speed between devices?">
               <p>A: Processing speed can vary slightly depending on your device's capabilities, but our optimizations ensure fast performance across all modern devices.</p>
-            </el-collapse-item>
+            </a-collapse-panel>
       </div>
       
       <div class="site-link-box">
         <a href="https://pdfeasz.com" target="_blank">
-          <i class="el-icon-home"></i>
+          🏠
           Visit pdfeasz.com for free PDF tools
         </a>
       </div>
@@ -235,10 +236,10 @@
       <div class="related-links">
         <h3>Explore Other Features</h3>
         <ul>
-          <li><a href="privacy-first.html"><i class="el-icon-lock"></i> Privacy First</a></li>
-          <li><a href="easy-editing.html"><i class="el-icon-edit"></i> Easy Editing</a></li>
-          <li><a href="visual-preview.html"><i class="el-icon-view"></i> Visual Preview</a></li>
-          <li><a href="web-access.html"><i class="el-icon-monitor"></i> Web Access</a></li>
+          <li><a href="privacy-first.html">🔒 Privacy First</a></li>
+          <li><a href="easy-editing.html">✏️ Easy Editing</a></li>
+          <li><a href="visual-preview.html">👁️ Visual Preview</a></li>
+          <li><a href="web-access.html">🖥️ Web Access</a></li>
         </ul>
       </div>
       

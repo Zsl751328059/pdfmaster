@@ -162,11 +162,10 @@
   }
   </script>
 
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
@@ -217,7 +216,7 @@
   </style>
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -255,7 +254,6 @@
             :file-list="[]"
             accept=".pdf"
             :custom-request="handleFileChange"
-            :before-upload="beforeUpload"
             @drop="handleDrop"
           >
             <div class="upload-content">
@@ -292,7 +290,7 @@
           </div>
 
           <a-drawer
-            :title="drawerStage === 'options' ? 'Compression Options' : (drawerStage === 'result' ? 'Compression Result' : 'Compression Options')"
+            :title="drawerStage === 'options' ? 'Compression Options' : (drawerStage === 'progress' ? 'Compressing...' : 'Compression Result')"
             :visible="showDrawer"
             :width="600"
             :closable="true"
@@ -322,6 +320,16 @@
                     <div class="mode-desc">Maximum Compression</div>
                     <div class="mode-explanation">Maximum file size reduction. Images are heavily compressed. Best for web sharing and email attachments.</div>
                   </div>
+                </div>
+              </div>
+
+              <div v-if="drawerStage === 'progress'" class="progress-section">
+                <div class="progress-container">
+                  <div class="progress-info">
+                    <span class="progress-text">{{ progressText }}</span>
+                    <span class="progress-percent">{{ progress }}%</span>
+                  </div>
+                  <a-progress :percent="progress" :show-info="false" :stroke-width="8" />
                 </div>
               </div>
 
@@ -367,10 +375,10 @@
               </div>
 
               <div class="drawer-actions">
-                <a-button v-else @click="showDrawer = false">Cancel</a-button>
                 <a-button v-if="drawerStage === 'options'" type="primary" @click="handleCompress">
                   Compress PDF
                 </a-button>
+                <!-- <a-button v-else @click="showDrawer = false">Cancel</a-button> -->
               </div>
             </div>
           </a-drawer>
@@ -700,6 +708,7 @@
 </div>
 
 <script>
+Vue.use(antd)
 new Vue({
   el: '#app',
   data() {
@@ -803,11 +812,7 @@ new Vue({
     },
     goToNext() { 
       if (this.selectedFiles.length === 0) {
-        this.$notify({
-          title: '提示',
-          message: 'Please upload a PDF file first',
-          type: 'warning'
-        });
+        this.$message.warning('Please upload a PDF file first');
         return;
       }
       this.currentStep = '1' 
@@ -831,36 +836,19 @@ new Vue({
     handleTabClick(tab) {
       const targetStep = tab.name
       if (targetStep !== '0' && this.selectedFiles.length === 0) {
-        this.$notify({ title: '提示', message: 'Please upload files first', type: 'warning' })
+        this.$message.warning('Please upload files first')
         this.$nextTick(() => {
           this.currentStep = '0'
         })
         return
       }
       if (targetStep === '2' && !this.done) {
-        this.$notify({ title: '提示', message: 'Please complete compression first', type: 'warning' })
+        this.$message.warning('Please complete compression first')
         this.$nextTick(() => {
           this.currentStep = '1'
         })
         return
       }
-    },
-    
-    handleExceed() {
-      this.$notify({ title: '提示', message: 'You can upload only one file at a time', type: 'warning' })
-    },
-    
-    beforeUpload(file) {
-      if (!file.name.endsWith('.pdf')) {
-        this.$message.error('Only PDF files are allowed')
-        return false
-      }
-      const maxSize = 50 * 1024 * 1024
-      if (file.size > maxSize) {
-        this.$message.error('File size cannot exceed 50MB')
-        return false
-      }
-      return true
     },
     
     handleDrop(e) {
@@ -869,26 +857,36 @@ new Vue({
     
     handleDrawerClose() {
       if (!this.merging) {
-        this.drawerStage = 'options'
-        this.showDrawer = false
+        this.reset()
       }
+    },
+    
+    isValidPdf(file) {
+      return file.name.toLowerCase().endsWith('.pdf')
     },
     
     async handleFileChange({ file }) {
       const raw = file
-      if (!raw.name.endsWith('.pdf')) {
-        this.$message.error('Only PDF files are allowed')
-        return
-      }
       
-      if (this.selectedFiles.length >= 1) {
-        this.$message.warning('You can upload only one file at a time')
+      if (!this.isValidPdf(raw)) {
+        this.$message.error('Only PDF files are allowed')
         return
       }
       
       const maxSize = 50 * 1024 * 1024
       if (raw.size > maxSize) {
         this.$message.error('File size cannot exceed 50MB')
+        return
+      }
+      
+      const exists = this.selectedFiles.some(f => f.name === raw.name && f.size === raw.size)
+      if (exists) {
+        this.$message.warning('This file has already been added')
+        return
+      }
+      
+      if (this.selectedFiles.length >= 1) {
+        this.$message.warning('You can upload only one file at a time')
         return
       }
       
@@ -950,6 +948,14 @@ new Vue({
           c.height = vp.height
           await page.render({ canvasContext: ctx, viewport: vp }).promise
           item.thumbnails.push(c.toDataURL())
+          
+          c.width = 0
+          c.height = 0
+          
+          if (typeof page.destroy === 'function') {
+            page.destroy()
+          }
+          
           await new Promise(resolve => requestAnimationFrame(resolve))
         }
       } finally {
@@ -1007,6 +1013,7 @@ new Vue({
     },
     
     async handleCompress() {
+      this.drawerStage = 'progress'
       await this.startMerge()
       this.drawerStage = 'result'
     },
@@ -1024,7 +1031,7 @@ new Vue({
       const config = {
         high: { lossless: true, quality: 1.0, scale: 1.0 },
         balanced: { lossless: false, quality: 0.85, scale: 0.75 },
-        small: { lossless: false, quality: 0.6, scale: 0.5 }
+        low: { lossless: false, quality: 0.6, scale: 0.5 }
       }[this.form.mode]
 
       let pdfDoc = null
@@ -1073,12 +1080,12 @@ new Vue({
           this.merging = false
           this.done = true
           this.currentStep = '2'
-          this.$notify({ title: '成功', message: 'Compressed successfully!', type: 'success' })
+          this.$message.success('Compressed successfully!')
         }, 400)
 
       } catch (err) {
         console.error('Compression error:', err)
-        this.$notify({ title: '错误', message: 'Compression failed', type: 'error' })
+        this.$message.error('Compression failed')
         this.merging = false
       } finally {
         if (pdfDoc) {
@@ -1326,6 +1333,13 @@ new Vue({
           c.height = vp.height
           await page.render({ canvasContext: ctx, viewport: vp }).promise
           this.previews.push(c.toDataURL())
+          
+          c.width = 0
+          c.height = 0
+          
+          if (typeof page.destroy === 'function') {
+            page.destroy()
+          }
         }
       } finally {
         if (pdf) {

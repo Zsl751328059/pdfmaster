@@ -107,11 +107,10 @@
   }
   </script>
   <script src="/lib/signature_pad/signature_pad.umd.min.js"></script>
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
@@ -239,7 +238,7 @@
   
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -391,10 +390,10 @@
                   <div class="text-signature-input">
                     <a-input v-model="form.signatureText" class="signature-input" placeholder="Enter your signature text"></a-input>
                     <a-select v-model="form.signatureFont" class="font-select">
-                      <a-select-option label="Cursive" value="cursive"></a-select-option>
-                      <a-select-option label="Arial" value="arial"></a-select-option>
-                      <a-select-option label="Times New Roman" value="times"></a-select-option>
-                      <a-select-option label="Courier" value="courier"></a-select-option>
+                      <a-select-option value="cursive">Cursive</a-select-option>
+                      <a-select-option value="arial">Arial</a-select-option>
+                      <a-select-option value="times">Times New Roman</a-select-option>
+                      <a-select-option value="courier">Courier</a-select-option>
                     </a-select>
                   </div>
                 </template>
@@ -437,7 +436,7 @@
             <div v-if="!done && !signing" class="drawer-actions">
               <a-button v-if="drawerStage === 'signature'" @click="drawerStage = 'mode'">Back</a-button>
               <a-button v-else @click="showDrawer = false">Cancel</a-button>
-              <a-button type="primary" @click="handleDrawerAction" :disabled="signing">
+              <a-button type="primary" @click="handleDrawerAction" :disabled="signing || (drawerStage === 'signature' && !canSignPDF)">
                 {{ getDrawerActionText() }}
               </a-button>
             </div>
@@ -742,6 +741,7 @@
   </footer>
 </div>
 <script>
+Vue.use(antd)
 new Vue({
   el: '#app',
   data() {
@@ -786,14 +786,14 @@ new Vue({
     this.cleanupAllResources()
   },
   computed: {
-    canSignPDF() {
-      if (this.form.signatureType === 'draw') {
-        return this.signatureImage !== null
-      } else {
-        return this.form.signatureText.trim() !== '' || this.signatureImage !== null
+      canSignPDF() {
+        if (this.form.signatureType === 'draw') {
+          return this.signatureImage !== null
+        } else {
+          return this.form.signatureText.trim() !== ''
+        }
       }
-    }
-  },
+    },
   watch: {
     showDrawer(newVal) {
       if (newVal) {
@@ -815,20 +815,7 @@ new Vue({
   methods: {
     handleDrawerClose() {
       if (!this.signing) {
-        this.drawerStage = 'mode'
-        this.done = false
-        this.resultBlob = null
-        this.signatureImage = null
-        this.signatureHistory = []
-        this.form.signatureType = 'draw'
-        this.form.signatureColor = '#333333'
-        this.form.signatureText = ''
-        this.form.signatureFont = 'cursive'
-        this.form.pageNumber = ''
-        this.signaturePad = null
-        this.signatureCanvas = null
-        this.signatureCtx = null
-        this.showDrawer = false
+        this.reset()
       }
     },
     getDrawerActionText() {
@@ -885,9 +872,10 @@ new Vue({
         this.selectedFile = null
       }
       
-      if (this.signatureImage) {
-        this.signatureImage = null
+      if (this.signatureImage && this.signatureImage.startsWith('blob:')) {
+        URL.revokeObjectURL(this.signatureImage)
       }
+      this.signatureImage = null
       
       if (this.resultBlob) {
         this.resultBlob = null
@@ -897,6 +885,13 @@ new Vue({
         this.currentPreviewImage = null
       }
       
+      if (this.previews && this.previews.length > 0) {
+        this.previews.forEach(url => {
+          if (url && url.startsWith('blob:')) {
+            URL.revokeObjectURL(url)
+          }
+        })
+      }
       this.previews = []
     },
     
@@ -998,20 +993,9 @@ new Vue({
       const fileReader = new FileReader()
       fileReader.onload = async (e) => {
         const arrayBuffer = e.target.result
-        const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const numPages = pdf.numPages
-        this.previews = []
+        this.previews = await this.generatePagePreviews(arrayBuffer)
         this.selectedPages = []
-        
-        for (let i = 1; i <= numPages; i++) {
-          const page = await pdf.getPage(i)
-          const viewport = page.getViewport({ scale: 1.0 })
-          const canvas = document.createElement('canvas')
-          const ctx = canvas.getContext('2d')
-          canvas.width = viewport.width
-          canvas.height = viewport.height
-          await page.render({ canvasContext: ctx, viewport }).promise
-          this.previews.push(canvas.toDataURL('image/png'))
+        for (let i = 1; i <= this.previews.length; i++) {
           this.selectedPages.push(i)
         }
       }
@@ -1038,17 +1022,13 @@ new Vue({
       }
     },
     deselectAllPages() {
-      if (this.previews.length > 0) {
-        this.selectedPages = [1]
-      } else {
-        this.selectedPages = []
-      }
+      this.selectedPages = []
     },
     toggleAllPages() {
       const allPages = Array.from({ length: this.previews.length }, (_, i) => i + 1)
       const selectedSet = new Set(this.selectedPages)
       const newSelection = allPages.filter(p => !selectedSet.has(p))
-      this.selectedPages = newSelection.length > 0 ? newSelection : [1]
+      this.selectedPages = newSelection.length > 0 ? newSelection : []
     },
     async openPreview(img) {
       PreviewUtils.openPreview({
@@ -1074,6 +1054,49 @@ new Vue({
     zoomReset() {
       this.zoomScale = 1
     },
+    createTextSignature() {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      canvas.width = 300
+      canvas.height = 100
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.font = `48px ${this.form.signatureFont === 'cursive' ? 'Brush Script MT, cursive' : 
+                  this.form.signatureFont === 'arial' ? 'Arial' :
+                  this.form.signatureFont === 'times' ? 'Times New Roman' : 'Courier'}`
+      ctx.fillStyle = this.form.signatureColor
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(this.form.signatureText, canvas.width / 2, canvas.height / 2)
+      return canvas
+    },
+    
+    async generatePagePreviews(arrayBuffer) {
+      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise
+      const numPages = pdf.numPages
+      const previews = []
+      
+      try {
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdf.getPage(i)
+          const viewport = page.getViewport({ scale: 1.0 })
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          canvas.width = viewport.width
+          canvas.height = viewport.height
+          await page.render({ canvasContext: ctx, viewport }).promise
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+          previews.push(URL.createObjectURL(blob))
+        }
+      } finally {
+        if (pdf.destroy) {
+          pdf.destroy()
+        }
+      }
+      
+      return previews
+    },
+    
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
       const k = 1024
@@ -1082,6 +1105,14 @@ new Vue({
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
     clearFile() {
+      if (this.previews && this.previews.length > 0) {
+        this.previews.forEach(url => {
+          if (url && url.startsWith('blob:')) {
+            URL.revokeObjectURL(url)
+          }
+        })
+      }
+      
       if (this.selectedFile) {
         if (this.selectedFile.pdfInstance) {
           try {
@@ -1097,6 +1128,7 @@ new Vue({
           })
         }
       }
+      
       this.selectedFile = null
       this.previews = []
       this.selectedPages = []
@@ -1104,6 +1136,9 @@ new Vue({
     clearSignature() {
       if (this.signaturePad) {
         this.signaturePad.clear()
+      }
+      if (this.signatureImage && this.signatureImage.startsWith('blob:')) {
+        URL.revokeObjectURL(this.signatureImage)
       }
       this.signatureImage = null
     },
@@ -1116,33 +1151,24 @@ new Vue({
         }
       }
     },
-    saveSignature() {
+    async saveSignature() {
       if (this.form.signatureType === 'draw') {
         if (this.signaturePad && !this.signaturePad.isEmpty()) {
-          this.signatureImage = this.signaturePad.toDataURL('image/png')
-          this.$notify({ title: '成功', message: 'Signature saved!', type: 'success' })
+          const canvas = this.signaturePad.canvas
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+          this.signatureImage = URL.createObjectURL(blob)
+          this.$message.success('Signature saved!')
         } else {
-          this.$notify({ title: '提示', message: 'Please draw your signature first', type: 'warning' })
+          this.$message.warning('Please draw your signature first')
         }
       } else {
         if (this.form.signatureText.trim()) {
-          const canvas = document.createElement('canvas')
-          const ctx = canvas.getContext('2d')
-          canvas.width = 300
-          canvas.height = 100
-          ctx.fillStyle = '#ffffff'
-          ctx.fillRect(0, 0, canvas.width, canvas.height)
-          ctx.font = `48px ${this.form.signatureFont === 'cursive' ? 'Brush Script MT, cursive' : 
-                      this.form.signatureFont === 'arial' ? 'Arial' :
-                      this.form.signatureFont === 'times' ? 'Times New Roman' : 'Courier'}`
-          ctx.fillStyle = this.form.signatureColor
-          ctx.textAlign = 'center'
-          ctx.textBaseline = 'middle'
-          ctx.fillText(this.form.signatureText, canvas.width / 2, canvas.height / 2)
-          this.signatureImage = canvas.toDataURL('image/png')
-          this.$notify({ title: '成功', message: 'Signature saved!', type: 'success' })
+          const canvas = this.createTextSignature()
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+          this.signatureImage = URL.createObjectURL(blob)
+          this.$message.success('Signature saved!')
         } else {
-          this.$notify({ title: '提示', message: 'Please enter your signature text', type: 'warning' })
+          this.$message.warning('Please enter your signature text')
         }
       }
     },
@@ -1150,20 +1176,9 @@ new Vue({
       if (!this.selectedFile || !this.canSignPDF) return
       
       if (!this.signatureImage && this.form.signatureType === 'text' && this.form.signatureText.trim()) {
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        canvas.width = 300
-        canvas.height = 100
-        ctx.fillStyle = '#ffffff'
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-        ctx.font = `48px ${this.form.signatureFont === 'cursive' ? 'Brush Script MT, cursive' : 
-                    this.form.signatureFont === 'arial' ? 'Arial' :
-                    this.form.signatureFont === 'times' ? 'Times New Roman' : 'Courier'}`
-        ctx.fillStyle = this.form.signatureColor
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(this.form.signatureText, canvas.width / 2, canvas.height / 2)
-        this.signatureImage = canvas.toDataURL('image/png')
+        const canvas = this.createTextSignature()
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+        this.signatureImage = URL.createObjectURL(blob)
       }
       
       this.drawerStage = 'progress'
@@ -1177,7 +1192,17 @@ new Vue({
         this.progress = 25
         this.progressText = 'Adding signature...'
         
-        const pngImage = await pdfDoc.embedPng(this.signatureImage.split(',')[1])
+        let embedData
+        if (this.signatureImage.startsWith('blob:')) {
+          const response = await fetch(this.signatureImage)
+          const blob = await response.blob()
+          const array = await blob.arrayBuffer()
+          embedData = array
+        } else {
+          embedData = this.signatureImage.split(',')[1]
+        }
+        
+        const pngImage = await pdfDoc.embedPng(embedData)
         const pageCount = pdfDoc.getPageCount()
         
         const pagesToSign = this.selectedPages.length > 0 ? this.selectedPages : [pageCount]
@@ -1212,28 +1237,13 @@ new Vue({
         
       } catch (error) {
         console.error('Error signing PDF:', error)
-        this.$notify({ title: '错误', message: 'Failed to sign PDF. Please try again.', type: 'error' })
+        this.$message.error('Failed to sign PDF. Please try again.')
         this.signing = false
       }
     },
     async generateResultPreviews(blob) {
       const arrayBuffer = await blob.arrayBuffer()
-      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const numPages = pdf.numPages
-      const newPreviews = []
-      
-      for (let i = 1; i <= numPages; i++) {
-        const page = await pdf.getPage(i)
-        const viewport = page.getViewport({ scale: 1.0 })
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        canvas.width = viewport.width
-        canvas.height = viewport.height
-        await page.render({ canvasContext: ctx, viewport }).promise
-        newPreviews.push(canvas.toDataURL('image/png'))
-      }
-      
-      this.previews = newPreviews
+      this.previews = await this.generatePagePreviews(arrayBuffer)
     },
     download() {
       const url = URL.createObjectURL(this.resultBlob)

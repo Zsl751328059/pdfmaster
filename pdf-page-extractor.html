@@ -158,11 +158,10 @@
   }
   </script>
   
-  <link rel="stylesheet" href="./lib/element-ui/theme-chalk/index.css">
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
-  <script src="./lib/element-ui/index.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
@@ -173,7 +172,7 @@
 </head>
 
 <body>
-<div id="app" class="app">
+<div id="app" class="app" v-cloak>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -212,7 +211,6 @@
             :file-list="[]"
             accept=".pdf"
             :custom-request="handleFileChange"
-            :before-upload="beforeUpload"
             @drop="handleDrop"
           >
             <div class="upload-content">
@@ -733,6 +731,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   };
   
+  Vue.use(antd)
   new Vue({
     el: '#app',
     data() {
@@ -776,42 +775,24 @@ document.addEventListener('DOMContentLoaded', function() {
           this.pdfDoc = null
         }
         
-        if (this.selectedFiles.length > 0 && this.selectedFiles[0].pdfInstance) {
-          try {
-            this.selectedFiles[0].pdfInstance.destroy()
-          } catch (e) {}
-          this.selectedFiles[0].pdfInstance = null
+        if (this.currentPreviewImage?.startsWith('blob:')) {
+          URL.revokeObjectURL(this.currentPreviewImage)
         }
         
-        if (this.extractedBlob) {
-          this.extractedBlob = null
-        }
-        
-        this.resultThumbnails.forEach(url => {
-          if (url && url.startsWith('blob:')) {
-            URL.revokeObjectURL(url)
-          }
-        })
+        this.extractedBlob = null
         this.resultThumbnails = []
+        this.currentPreviewImage = ''
       },
-      beforeUpload(file) {
-        if (!file.name.toLowerCase().endsWith('.pdf')) {
-          this.$message.error('Only PDF files are allowed');
-          return false;
-        }
-        const maxSize = 50 * 1024 * 1024;
-        if (file.size > maxSize) {
-          this.$message.error('File size cannot exceed 50MB');
-          return false;
-        }
-        return true;
+      isValidPdf(file) {
+        return file.name.toLowerCase().endsWith('.pdf')
       },
       handleDrop(e) {
         e.preventDefault();
       },
       async handleFileChange({ file, onSuccess }) {
         const raw = file;
-        if (!raw.name.toLowerCase().endsWith('.pdf')) {
+        
+        if (!this.isValidPdf(raw)) {
           this.$message.error('Only PDF files are allowed');
           return;
         }
@@ -822,31 +803,20 @@ document.addEventListener('DOMContentLoaded', function() {
           return;
         }
         
-        await this.processFile(raw);
-        if (onSuccess) onSuccess('success');
-      },
-      async processFile(file) {
-        if (file.type !== 'application/pdf') {
-          this.$message.error('Please upload a PDF file');
-          return;
-        }
-        if (file.size > 50 * 1024 * 1024) {
-          this.$message.error('File size exceeds 50MB limit');
-          return;
-        }
-        
-        this.selectedFiles = [{ file, name: file.name, size: file.size, pageCount: 0 }];
-        this.selectedPages = [];
-        this.extractedBlob = null;
-        this.resultThumbnails = [];
-        
         try {
-          const arrayBuffer = await file.arrayBuffer();
+          this.selectedFiles = [{ file: raw, name: raw.name, size: raw.size, pageCount: 0 }];
+          this.selectedPages = [];
+          this.extractedBlob = null;
+          this.resultThumbnails = [];
+          
+          const arrayBuffer = await raw.arrayBuffer();
           this.pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
           this.pageCount = this.pdfDoc.numPages;
           if (this.selectedFiles[0]) {
             this.selectedFiles[0].pageCount = this.pageCount;
           }
+          
+          if (onSuccess) onSuccess('success');
         } catch (error) {
           this.$message.error('Failed to load PDF');
           console.error(error);
@@ -977,9 +947,16 @@ document.addEventListener('DOMContentLoaded', function() {
           const ctx = canvas.getContext('2d');
           await page.render({ canvasContext: ctx, viewport }).promise;
           this.resultThumbnails.push(canvas.toDataURL());
+          canvas.width = 0;
+          canvas.height = 0;
+          if (typeof page.destroy === 'function') {
+            await page.destroy();
+          }
         }
-        await pdf.destroy();
+        pdf.destroy();
+        return;
       },
+      
       downloadResult() {
         if (!this.extractedBlob) return;
         const url = URL.createObjectURL(this.extractedBlob);
@@ -1030,17 +1007,23 @@ document.addEventListener('DOMContentLoaded', function() {
       },
       handleDrawerClose() {
         if (!this.extracting) {
-          this.showDrawer = false;
-          this.drawerStage = 'options';
-          this.done = false;
-          this.extractedBlob = null;
-          this.resultThumbnails = [];
-          this.selectedPages = [];
+          this.reset()
         }
       },
       reset() {
-        this.handleDrawerClose();
-        this.clearAllFiles();
+        this.cleanupAllResources();
+        this.selectedFiles = [];
+        this.pageCount = 0;
+        this.selectedPages = [];
+        this.showDrawer = false;
+        this.drawerStage = 'options';
+        this.extracting = false;
+        this.done = false;
+        this.progress = 0;
+        this.resultThumbnails = [];
+        if (this.$refs.upload) {
+          this.$refs.upload.uploadFiles = [];
+        }
       },
       formatFileSize(bytes) {
         if (bytes < 1024) return bytes + ' B';
