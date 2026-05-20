@@ -406,16 +406,10 @@
             </div>
           </div>
 
-          <div v-if="selectedFiles.length" class="action-section">
-            <a-button type="primary" @click="showDrawer = true">
-              Add Watermark <i class="anticon anticon-right"></i>
-            </a-button>
-          </div>
-
           <a-drawer
             :title="drawerStage === 'options' ? 'Add Watermark' : (drawerStage === 'progress' ? 'Processing' : 'Watermark Result')"
             :visible="showDrawer"
-            :width="600"
+            :width="'100%'"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
@@ -554,12 +548,13 @@
               </div>
 
               <div class="action-section center">
+                <a-button type="default" @click="backToOptions">Back to Options</a-button>
                 <a-button type="default" @click="reset">Start Over</a-button>
               </div>
               </div>
 
               <div v-if="drawerStage === 'options'" class="drawer-actions">
-                <a-button @click="handleDrawerClose">Cancel</a-button>
+                <a-button @click="reset">Cancel</a-button>
                 <a-button type="primary" @click="addWatermark" :disabled="!canAddWatermark">
                   Add Watermark
                 </a-button>
@@ -910,13 +905,11 @@ new Vue({
       resultBlob: null,
       previews: [],
       downloadFileName: 'watermarked.pdf',
-      processing: false,
       progress: 0,
       progressText: '',
       showPreviewModal: false,
       currentPreviewImage: '',
       zoomScale: 1,
-      pages: [],
       showDrawer: false,
       drawerStage: 'options'
     }
@@ -947,7 +940,9 @@ new Vue({
       return file.name.toLowerCase().endsWith('.pdf')
     },
     handleDrop(event) {
-      event.preventDefault()
+      if (event.cancelable) {
+        event.preventDefault()
+      }
     },
     async openPreview(image) {
       PreviewUtils.openPreview({
@@ -975,6 +970,23 @@ new Vue({
     },
     handleDrawerClose() {
       this.reset()
+    },
+    backToOptions() {
+      this.cleanupResultResources()
+      this.done = false
+      this.drawerStage = 'options'
+    },
+    cleanupResultResources() {
+      this.previews.forEach(t => {
+        if (t && t.startsWith('blob:')) {
+          URL.revokeObjectURL(t)
+        }
+      })
+      this.previews = []
+      if (this.resultBlob) {
+        this.resultBlob = null
+      }
+      this.currentPreviewImage = ''
     },
     async handleFileChange({ file }) {
       const raw = file
@@ -1007,6 +1019,7 @@ new Vue({
           pageCount: pageCount
         }
         this.selectedFiles.push(item)
+        this.showDrawer = true
       } catch (error) {
         console.error('Error loading PDF:', error)
         this.$message.error('Failed to load PDF. Please try a different file.')
@@ -1043,7 +1056,7 @@ new Vue({
     async addWatermark() {
       if (!this.canAddWatermark) return
       
-      this.processing = true
+      this.drawerStage = 'progress'
       this.progress = 0
       this.progressText = 'Loading PDF...'
       this.previews = []
@@ -1154,14 +1167,13 @@ new Vue({
         await this.generatePreviews()
         
         this.progress = 100
-        this.processing = false
         this.done = true
         this.drawerStage = 'result'
         
       } catch (error) {
         console.error('Error adding watermark:', error)
         this.$message.error('Failed to add watermark. Please try again.')
-        this.processing = false
+        this.drawerStage = 'options'
       }
     },
     getXPosition(containerWidth, elementWidth) {
@@ -1266,7 +1278,6 @@ new Vue({
       this.currentPreviewImage = ''
       
       this.resultBlob = null
-      this.pages = []
     }
   }
 })

@@ -471,16 +471,10 @@
           </div>
         </div>
 
-        <div v-if="selectedFiles.length" class="action-section">
-          <a-button type="primary" @click="showDrawer = true">
-            Continue <i class="anticon anticon-right"></i>
-          </a-button>
-        </div>
-
         <a-drawer
           :title="drawerStage === 'options' ? 'Extraction Options' : (drawerStage === 'select' ? 'Select Pages' : (drawerStage === 'progress' ? 'Extracting' : 'Result'))"
           :visible="showDrawer"
-          :width="650"
+          :width="drawerWidth"
           :closable="true"
           :mask-closable="true"
           @close="handleDrawerClose"
@@ -594,7 +588,8 @@
               </div>
 
               <div class="action-section center">
-                <a-button type="default" @click="reset">Start Over</a-button>
+                <a-button type="default" @click="backToOptions">Back to Options</a-button>
+                <a-button type="primary" @click="reset">Start Over</a-button>
               </div>
             </div>
           </div>
@@ -901,7 +896,8 @@
           wordCount: 0,
           thumbnails: [],
           showDrawer: false,
-          drawerStage: 'options'
+          drawerStage: 'options',
+          drawerWidth: 650
         };
       },
       computed: {},
@@ -970,6 +966,9 @@
             
             this.selectedFiles.push({ name: raw.name, file: raw, size: raw.size, pageCount });
             
+            this.drawerWidth = '100%';
+            this.showDrawer = true;
+            
             if (onSuccess) {
               onSuccess('success');
             }
@@ -996,6 +995,19 @@
           if (!this.extracting) {
             this.reset()
           }
+        },
+        backToOptions() {
+          this.cleanupResultResources();
+          this.done = false;
+          this.extracting = false;
+          this.progress = 0;
+          this.drawerStage = 'options';
+        },
+        cleanupResultResources() {
+          this.extractedText = '';
+          this.pageCount = 0;
+          this.charCount = 0;
+          this.wordCount = 0;
         },
         getDrawerActionText() {
           if (this.drawerStage === 'options') {
@@ -1222,6 +1234,7 @@
         reset() {
           this.showDrawer = false;
           this.drawerStage = 'options';
+          this.drawerWidth = 650;
           this.selectedFiles = [];
           this.form = { pageRange: 'all', preserveFormatting: true };
           this.selectedPages = [];

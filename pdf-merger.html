@@ -310,50 +310,27 @@
             </div>
           </div>
 
-          <div v-if="selectedFiles.length >= 2" class="action-section">
-            <a-button type="primary" @click="showDrawer = true">
-              Continue <i class="anticon anticon-right"></i>
-            </a-button>
-          </div>
+          
 
           <a-drawer
-            :title="drawerStage === 'mode' ? 'Merge Options' : (drawerStage === 'select' ? 'Select Pages' : 'Merge Result')"
+            :title="drawerStage === 'select' ? 'Select Pages👆 Click on page thumbnails' : 'Merge Result'"
             :visible="showDrawer"
-            :width="600"
+            :width="drawerWidth"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
           >
             <div class="drawer-content">
-              <div v-if="drawerStage === 'mode'" class="options-section">
-                <div class="options-title">Merge Mode</div>
-                <div class="mode-description">Choose how you want to merge your PDF files</div>
-                <div class="merge-mode-options">
-                  <div class="mode-option popular" :class="{active: form.mode === 'full'}" @click="form.mode = 'full'">
-                    <div class="popular-badge">Most Popular</div>
-                    <div class="mode-icon">📋</div>
-                    <div class="mode-title">Full Documents</div>
-                    <div class="mode-desc">Merge all pages</div>
-                    <div class="mode-explanation">Merge all your PDF documents into one file.</div>
-                  </div>
-                  <div class="mode-option" :class="{active: form.mode === 'select'}" @click="form.mode = 'select'">
-                    <div class="mode-icon">🎯</div>
-                    <div class="mode-title">Select Pages</div>
-                    <div class="mode-desc">Choose specific pages</div>
-                    <div class="mode-explanation">Pick only the pages you need.</div>
-                  </div>
-                </div>
-              </div>
-
               <div v-if="drawerStage === 'select'" class="preview-section">
                 <div class="preview-header">
-                  <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
                   <div class="preview-actions">
-                    <a-button type="text" size="small" @click="selectAllPages">Select All</a-button>
-                    <a-button type="text" size="small" @click="deselectAllPages">Deselect All</a-button>
-                    <a-button type="text" size="small" @click="toggleAllPages">Toggle</a-button>
+                    <a-button type="primary" @click="triggerUpload">+ Add More</a-button>
+                    <a-button type="text" @click="selectAllPages">Select All</a-button>
+                    <a-button type="text" @click="deselectAllPages">Deselect All</a-button>
+                    <a-button type="text" @click="toggleAllPages">Toggle</a-button>
                   </div>
                 </div>
+            
                 <div class="page-preview-container">
                   <div v-for="(file, fi) in selectedFiles" :key="fi" class="file-pages-wrapper">
                     <div class="file-pages-header">{{ file.name }}</div>
@@ -396,14 +373,14 @@
                 </div>
 
                 <div class="action-section center">
-                  <a-button type="default" @click="reset">Start Over</a-button>
+                  <a-button type="default" @click="backToSelect">Back to Select Pages</a-button>
+                  <a-button type="primary" @click="reset">Start Over</a-button>
                 </div>
               </div>
 
-              <div v-if="!done && !merging" class="drawer-actions">
-                <a-button v-if="drawerStage === 'select'" @click="drawerStage = 'mode'">Back</a-button>
-                <a-button v-else @click="showDrawer = false">Cancel</a-button>
-                <a-button type="primary" @click="handleDrawerAction" :disabled="merging">
+              <div v-if="drawerStage === 'select'" class="drawer-actions">
+                <a-button type="default" size="large" @click="reset">Cancel</a-button>
+                <a-button type="primary" size="large" @click="handleDrawerAction">
                   {{ getDrawerActionText() }}
                 </a-button>
               </div>
@@ -792,10 +769,8 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
   el: '#app',
   data() {
     return {
-      currentStep: '0',
       showDrawer: false,
-      drawerStage: 'mode',
-      form: { mode: 'full' },
+      drawerStage: 'select',
       selectedFiles: [],
       selectedPages: [],
       done: false,
@@ -809,7 +784,8 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       currentPreviewImage: '',
       zoomScale: 1,
       renderQueue: [],
-      isRendering: false
+      isRendering: false,
+      drawerWidth: 600
     }
   },
   mounted() {
@@ -828,24 +804,22 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
         this.reset()
       }
     },
+    triggerUpload() {
+      const uploadInput = this.$refs.upload.$el.querySelector('input[type="file"]')
+      if (uploadInput) uploadInput.click()
+    },
     getDrawerActionText() {
-      if (this.drawerStage === 'mode') {
-        return this.form.mode === 'full' ? 'Merge' : 'Next'
-      }
       if (this.drawerStage === 'select') {
         return 'Merge'
       }
       return 'Merge PDFs'
     },
     handleDrawerAction() {
-      if (this.drawerStage === 'mode') {
-        if (this.form.mode === 'full') {
-          this.drawerStage = 'progress'
-          this.startMerge()
-        } else {
-          this.drawerStage = 'select'
+      if (this.drawerStage === 'select') {
+        if (this.selectedFiles.length < 2) {
+          this.$message.warning('Please upload at least 2 PDF files to merge')
+          return
         }
-      } else if (this.drawerStage === 'select') {
         if (this.selectedPages.length === 0) {
           this.$message.warning('Please select at least one page to merge')
           return
@@ -855,7 +829,6 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       }
     },
     goToUpload() {
-      this.currentStep = '0'
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
     
@@ -917,7 +890,9 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       return true
     },
     handleDrop(e) {
-      e.preventDefault()
+      if (e.cancelable) {
+        e.preventDefault()
+      }
     },
     
     async handleFileChange({ file, onSuccess }) {
@@ -940,6 +915,12 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       this.selectedFiles.push(item)
       this.renderQueue.push(item)
       this.processRenderQueue()
+      
+      if (this.selectedFiles.length === 1) {
+        this.drawerWidth = '100%'
+        this.showDrawer = true
+      }
+      
       if (onSuccess) {
         onSuccess('success')
       }
@@ -969,6 +950,7 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       }
       
       this.isRendering = false
+      this.selectAllPages()
     },
     
     async renderThumb(item) {
@@ -1149,17 +1131,6 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       const totalFiles = this.selectedFiles.length
       
       try {
-        if (this.form.mode !== 'full') {
-          const hasSelected = this.selectedFiles.some((file, fi) =>
-            file.thumbnails.some((_, pi) => this.isSelected(fi, pi))
-          )
-          if (!hasSelected) {
-            this.merging = false
-            this.$message.warning('Please select at least one page to merge')
-            return
-          }
-        }
-        
         for (const [fi, item] of this.selectedFiles.entries()) {
           this.progressText = `Processing file ${fi + 1} of ${totalFiles}...`
           this.progress = Math.round(((fi + 1) / totalFiles) * 60)
@@ -1167,14 +1138,9 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
           const buf = await item.file.arrayBuffer()
           const src = await PDFDocument.load(buf)
           
-          let indices
-          if (this.form.mode === 'full') {
-            indices = Array.from({ length: src.getPageCount() }, (_, i) => i)
-          } else {
-            indices = item.thumbnails
-              .map((_, pi) => this.isSelected(fi, pi) ? pi : -1)
-              .filter(pi => pi !== -1)
-          }
+          const indices = item.thumbnails
+            .map((_, pi) => this.isSelected(fi, pi) ? pi : -1)
+            .filter(pi => pi !== -1)
           
           if (indices.length > 0) {
             const pages = await doc.copyPages(src, indices)
@@ -1203,7 +1169,6 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
         setTimeout(() => {
           this.merging = false
           this.done = true
-          this.currentStep = '2'
           this.$message.success('Merge completed successfully!')
         }, 300)
       } catch (error) {
@@ -1238,15 +1203,24 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
         this.previewsPdf = null
       }
       
-      this.previews.length = 0
-      this.previews = null
+      // 先释放 blob URLs
+      if (this.previews && Array.isArray(this.previews)) {
+        this.previews.forEach(url => {
+          if (url && url.startsWith('blob:')) {
+            try {
+              URL.revokeObjectURL(url)
+            } catch (e) {}
+          }
+        })
+      }
+      this.previews = []
       
       if (this.resultBlob) {
         this.resultBlob = null
       }
       
       if (this.currentPreviewImage) {
-        this.currentPreviewImage = null
+        this.currentPreviewImage = ''
       }
     },
     
@@ -1309,6 +1283,32 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       URL.revokeObjectURL(url)
     },
     
+    backToSelect() {
+      this.cleanupResultResources()
+      this.done = false
+      this.merging = false
+      this.progress = 0
+      this.progressText = ''
+      this.drawerStage = 'select'
+    },
+    
+    cleanupResultResources() {
+      if (this.resultBlob) {
+        this.resultBlob = null
+      }
+      if (this.previews && Array.isArray(this.previews)) {
+        this.previews.forEach(url => {
+          if (url && url.startsWith('blob:')) {
+            try {
+              URL.revokeObjectURL(url)
+            } catch (e) {}
+          }
+        })
+      }
+      this.previews = []
+      this.currentPreviewImage = ''
+    },
+    
     reset() {
       this.cleanupAllResources()
       this.selectedFiles = []
@@ -1317,12 +1317,11 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       }
       this.selectedPages = []
       this.done = false
-      this.currentStep = '0'
       this.downloadFileName = 'merged.pdf'
       this.merging = false
       this.progress = 0
       this.progressText = ''
-      this.drawerStage = 'mode'
+      this.drawerStage = 'select'
       this.showDrawer = false
     }
   }

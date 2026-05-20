@@ -294,16 +294,10 @@
             </div>
           </div>
 
-          <div v-if="selectedFiles.length" class="action-section">
-            <a-button type="primary" @click="showDrawer = true">
-              Continue <i class="anticon anticon-right"></i>
-            </a-button>
-          </div>
-
           <a-drawer
             :title="drawerStage === 'options' ? 'Select Pages to Remove' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
             :visible="showDrawer"
-            :width="600"
+            :width="'100%'"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
@@ -333,7 +327,7 @@
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'progress' || removing" class="progress-section">
+              <div v-if="drawerStage === 'progress'" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
                 <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
@@ -366,8 +360,8 @@
 
               <div v-if="drawerStage === 'options'" class="drawer-actions">
                 <a-button @click="handleDrawerClose">Cancel</a-button>
-                <a-button type="primary" @click="removePages" :disabled="removing || pagesToRemove.length === 0">
-                  {{ removing ? 'Removing...' : 'Remove Pages' }}
+                <a-button type="primary" @click="removePages" :disabled="drawerStage === 'progress' || pagesToRemove.length === 0">
+                  {{ drawerStage === 'progress' ? 'Removing...' : 'Remove Pages' }}
                 </a-button>
               </div>
             </div>
@@ -700,7 +694,6 @@ document.addEventListener('DOMContentLoaded', function() {
       showDrawer: false,
       drawerStage: 'options',
       selectedFiles: [],
-      form: {},
       pagePreviews: [],
       pagesToRemove: [],
       done: false,
@@ -708,7 +701,6 @@ document.addEventListener('DOMContentLoaded', function() {
       resultPreviews: [],
       downloadFileName: 'pages-removed',
       removedCount: 0,
-      removing: false,
       showPreviewModal: false,
       currentPreviewImage: '',
       zoomScale: 1,
@@ -735,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function() {
       this.cleanupAllResources()
     },
     handleDrawerClose() {
-      if (!this.removing) {
+      if (this.drawerStage !== 'progress') {
         this.reset()
       }
     },
@@ -747,7 +739,9 @@ document.addEventListener('DOMContentLoaded', function() {
       return file.name.toLowerCase().endsWith('.pdf')
     },
     handleDrop(e) {
-      e.preventDefault()
+      if (e.cancelable) {
+        e.preventDefault()
+      }
     },
     async handleFileChange({ file, onSuccess }) {
       const raw = file
@@ -780,6 +774,9 @@ document.addEventListener('DOMContentLoaded', function() {
           size: raw.size,
           pageCount: pageCount
         })
+        
+        await this.generatePagePreviews()
+        this.showDrawer = true
         
         if (onSuccess) {
           onSuccess('success')
@@ -849,7 +846,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!this.selectedFiles.length) return
       
       this.drawerStage = 'progress'
-      this.removing = true
       this.progress = 0
       this.progressText = 'Loading PDF...'
       
@@ -878,14 +874,12 @@ document.addEventListener('DOMContentLoaded', function() {
         await this.generateResultPreviews()
         
         this.progress = 100
-        this.removing = false
         this.done = true
         this.drawerStage = 'result'
         
       } catch (error) {
         console.error('Error removing pages:', error)
         this.$message.error('Failed to remove pages. Please try again.')
-        this.removing = false
         this.drawerStage = 'options'
       }
     },
@@ -1013,7 +1007,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = []
       }
-      this.form = {}
       this.pagePreviews = []
       this.pagesToRemove = []
       this.done = false

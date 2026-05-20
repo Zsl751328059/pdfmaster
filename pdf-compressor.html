@@ -283,16 +283,10 @@
             </div>
           </div>
 
-          <div v-if="selectedFiles.length >= 1" class="action-section">
-            <a-button type="primary" @click="showDrawer = true">
-              Continue <i class="anticon anticon-right"></i>
-            </a-button>
-          </div>
-
           <a-drawer
             :title="drawerStage === 'options' ? 'Compression Options' : (drawerStage === 'progress' ? 'Compressing...' : 'Compression Result')"
             :visible="showDrawer"
-            :width="600"
+            :width="drawerWidth"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
@@ -369,7 +363,8 @@
                   </div>
 
                   <div class="action-section center">
-                    <a-button type="default" @click="reset">Start Over</a-button>
+                    <a-button type="default" @click="backToOptions">Back to Options</a-button>
+                    <a-button type="primary" @click="reset">Start Over</a-button>
                   </div>
                 </div>
               </div>
@@ -731,7 +726,8 @@ new Vue({
       renderQueue: [],
       isRendering: false,
       showDrawer: false,
-      drawerStage: 'options'
+      drawerStage: 'options',
+      drawerWidth: 600
     }
   },
   mounted() {
@@ -860,6 +856,28 @@ new Vue({
         this.reset()
       }
     },
+    backToOptions() {
+      this.cleanupResultResources();
+      this.done = false;
+      this.merging = false;
+      this.progress = 0;
+      this.progressText = '';
+      this.drawerStage = 'options';
+    },
+    cleanupResultResources() {
+      if (this.resultBlob) {
+        this.resultBlob = null;
+      }
+      this.previews.forEach(url => {
+        if (url && url.startsWith('blob:')) {
+          try {
+            URL.revokeObjectURL(url)
+          } catch (e) {}
+        }
+      });
+      this.previews = [];
+      this.currentPreviewImage = '';
+    },
     
     isValidPdf(file) {
       return file.name.toLowerCase().endsWith('.pdf')
@@ -902,6 +920,9 @@ new Vue({
       this.selectedFiles.push(item)
       this.renderQueue.push(item)
       this.processRenderQueue()
+      
+      this.drawerWidth = '100%';
+      this.showDrawer = true;
     },
     
     formatFileSize(bytes) {
@@ -1381,6 +1402,7 @@ new Vue({
       this.progressText = ''
       this.showDrawer = false
       this.drawerStage = 'options'
+      this.drawerWidth = 600
     }
   }
 })

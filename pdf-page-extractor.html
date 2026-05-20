@@ -240,16 +240,10 @@
             </div>
           </div>
 
-          <div v-if="selectedFiles.length" class="action-section">
-            <a-button type="primary" @click="showDrawer = true">
-              Continue <i class="anticon anticon-right"></i>
-            </a-button>
-          </div>
-
           <a-drawer
             :title="drawerStage === 'options' ? 'Select Pages to Extract' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
             :visible="showDrawer"
-            :width="600"
+            :width="drawerWidth"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
@@ -313,7 +307,8 @@
                 </div>
 
                 <div class="action-section center">
-                  <a-button type="default" @click="reset">Start Over</a-button>
+                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
+                  <a-button type="primary" @click="reset">Start Over</a-button>
                 </div>
               </div>
 
@@ -752,7 +747,8 @@ document.addEventListener('DOMContentLoaded', function() {
         currentPreviewImage: '',
         zoomScale: 1,
         pdfDoc: null,
-        downloadFileName: 'extracted_pages.pdf'
+        downloadFileName: 'extracted_pages.pdf',
+        drawerWidth: 600
       }
     },
     mounted() {
@@ -815,6 +811,10 @@ document.addEventListener('DOMContentLoaded', function() {
           if (this.selectedFiles[0]) {
             this.selectedFiles[0].pageCount = this.pageCount;
           }
+          
+          this.selectAll();
+          this.drawerWidth = '100%';
+          this.showDrawer = true;
           
           if (onSuccess) onSuccess('success');
         } catch (error) {
@@ -1010,6 +1010,20 @@ document.addEventListener('DOMContentLoaded', function() {
           this.reset()
         }
       },
+      backToOptions() {
+        this.cleanupResultResources();
+        this.done = false;
+        this.extracting = false;
+        this.progress = 0;
+        this.drawerStage = 'options';
+      },
+      cleanupResultResources() {
+        if (this.extractedBlob) {
+          this.extractedBlob = null;
+        }
+        this.resultThumbnails = [];
+        this.currentPreviewImage = '';
+      },
       reset() {
         this.cleanupAllResources();
         this.selectedFiles = [];
@@ -1021,6 +1035,7 @@ document.addEventListener('DOMContentLoaded', function() {
         this.done = false;
         this.progress = 0;
         this.resultThumbnails = [];
+        this.drawerWidth = 600;
         if (this.$refs.upload) {
           this.$refs.upload.uploadFiles = [];
         }

@@ -242,16 +242,10 @@
           </div>
         </div>
 
-        <div v-if="selectedFiles.length" class="action-section">
-          <a-button type="primary" @click="showDrawer = true">
-            Convert to Image <i class="anticon anticon-right"></i>
-          </a-button>
-        </div>
-
         <a-drawer
           title="Convert to Image"
           :visible="showDrawer"
-          :width="600"
+          :width="'100%'"
           placement="right"
           :closable="true"
           :mask-closable="true"
@@ -270,39 +264,20 @@
                 </div>
               </div>
 
-              <a-collapse v-model="expandOptions" style="margin-top: 16px;">
-                <a-collapse-panel header="Advanced Settings (for advanced users only)" key="1">
-                  <div class="advanced-options">
-                    <div class="option-row">
-                      <label class="option-label">Image Quality: {{ form.quality }}%</label>
-                      <a-slider v-model="form.quality" :min="10" :max="100" :step="5"></a-slider>
-                    </div>
-                    <div class="option-row">
-                      <label class="option-label">Resolution: {{ form.resolution }} DPI</label>
-                      <a-select v-model="form.resolution" class="option-select">
-                        <a-select-option :value="72">72 DPI (Screen Quality)</a-select-option>
-                        <a-select-option :value="150">150 DPI (Medium Quality)</a-select-option>
-                        <a-select-option :value="300">300 DPI (High Quality)</a-select-option>
-                      </a-select>
-                    </div>
-                    
-                    <div class="page-select-section">
-                      <div class="mode-description" style="margin-top: 16px; margin-bottom: 8px;">Select Pages ({{ selectedPages.length }} of {{ pagePreviews.length }} selected)</div>
-                      <div class="page-preview-grid">
-                        <div v-for="(img, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{selected: selectedPages.includes(idx)}" @click="togglePage(idx)">
-                          <img :src="img" class="page-preview-image">
-                          <div class="page-number">{{ idx+1 }}</div>
-                          <div v-if="selectedPages.includes(idx)" class="selected-overlay">✓</div>
-                        </div>
-                      </div>
-                      <div style="margin-top: 12px; display: flex; gap: 12px;">
-                        <a-button size="small" @click="selectAllPages">Select All</a-button>
-                        <a-button size="small" @click="deselectAllPages">Deselect All</a-button>
-                      </div>
-                    </div>
+              <div class="page-select-section" style="margin-top: 16px;">
+                <div class="mode-description" style="margin-bottom: 8px;">Select Pages ({{ selectedPages.length }} of {{ pagePreviews.length }} selected)</div>
+                <div class="page-preview-grid">
+                  <div v-for="(img, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{selected: selectedPages.includes(idx)}" @click="togglePage(idx)">
+                    <img :src="img" class="page-preview-image">
+                    <div class="page-number">{{ idx+1 }}</div>
+                    <div v-if="selectedPages.includes(idx)" class="selected-overlay">✓</div>
                   </div>
-                </a-collapse-panel>
-              </a-collapse>
+                </div>
+                <div style="margin-top: 12px; display: flex; gap: 12px;">
+                  <a-button size="small" @click="selectAllPages">Select All</a-button>
+                  <a-button size="small" @click="deselectAllPages">Deselect All</a-button>
+                </div>
+              </div>
             </div>
 
             <div v-if="drawerStage === 'progress'" class="progress-section">
@@ -334,13 +309,14 @@
               </div>
 
               <div class="action-section center">
+                <a-button type="default" @click="backToOptions">Back to Options</a-button>
                 <a-button type="default" @click="reset">Start Over</a-button>
               </div>
             </div>
           </div>
 
           <div class="drawer-actions">
-            <a-button v-if="drawerStage === 'options'" type="default" @click="handleDrawerClose">Cancel</a-button>
+            <a-button v-if="drawerStage === 'options'" type="default" @click="reset">Cancel</a-button>
             <a-button v-if="drawerStage === 'options'" type="primary" @click="convert" :disabled="selectedPages.length === 0">
               Convert to Images
             </a-button>
@@ -762,6 +738,21 @@ new Vue({
         this.reset()
       }
     },
+    backToOptions() {
+      this.cleanupResultResources()
+      this.done = false
+      this.converting = false
+      this.drawerStage = 'options'
+    },
+    cleanupResultResources() {
+      this.convertedImages.forEach(img => {
+        if (img.data && img.data.startsWith('blob:')) {
+          URL.revokeObjectURL(img.data)
+        }
+      })
+      this.convertedImages = []
+      this.currentPreviewImage = ''
+    },
     async openPreview(img) {
       this.currentPreviewImage = img.data
       this.showPreviewModal = true
@@ -874,6 +865,7 @@ new Vue({
       this.selectedFiles.push(item)
       this.pagePreviews = item.thumbnails
       this.selectedPages = Array.from({length: pageCount}, (_, i) => i)
+      this.showDrawer = true
     },
     
     togglePage(idx) {
@@ -944,8 +936,8 @@ new Vue({
         const file = this.selectedFiles[0]
         const arrayBuffer = await file.file.arrayBuffer()
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const scale = this.form.resolution / 72
-        const quality = this.form.quality / 100
+        const scale = 150 / 72
+        const quality = 0.9
         
         for (let i = 0; i < this.selectedPages.length; i++) {
           const pageNum = this.selectedPages[i] + 1

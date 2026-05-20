@@ -231,60 +231,22 @@
             </div>
           </div>
 
-          <div v-if="selectedFiles.length >= 1" class="action-section">
-            <a-button type="primary" @click="showDrawer = true">
-              Continue <i class="anticon anticon-right"></i>
-            </a-button>
-          </div>
-
           <a-drawer
-            :title="drawerStage === 'mode' ? 'Split Options' : (drawerStage === 'select' ? 'Select Pages' : (drawerStage === 'range' ? 'Page Ranges' : 'Split Result'))"
+            :title="drawerStage === 'select' ? 'Select Pages👆 Click on page thumbnails' : 'Split Result'"
             :visible="showDrawer"
-            :width="600"
+            :width="'100%'"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
           >
             <div class="drawer-content">
-              <div v-if="drawerStage === 'mode'" class="options-section">
-                <div class="options-title">Split Mode</div>
-                <div class="mode-description">Choose how you want to split your PDF</div>
-                <div class="merge-mode-options">
-                  <div class="mode-option" :class="{active: form.mode === 'every'}" @click="form.mode = 'every'">
-                    <div class="mode-icon">📄</div>
-                    <div class="mode-title">Every Page</div>
-                    <div class="mode-desc">Split each page</div>
-                    <div class="mode-explanation">Split PDF into individual pages, creating a separate file for each page.</div>
-                  </div>
-                  <div class="mode-option" :class="{active: form.mode === 'select'}" @click="form.mode = 'select'">
-                    <div class="mode-icon">🎯</div>
-                    <div class="mode-title">Select Pages</div>
-                    <div class="mode-desc">Choose specific pages</div>
-                    <div class="mode-explanation">Pick only the pages you need. Click on page thumbnails to select/deselect.</div>
-                  </div>
-                  <div class="mode-option" :class="{active: form.mode === 'range'}" @click="form.mode = 'range'">
-                    <div class="mode-icon">📋</div>
-                    <div class="mode-title">Page Ranges</div>
-                    <div class="mode-desc">Custom ranges</div>
-                    <div class="mode-explanation">Define custom page ranges like 1-5, 7-10 to create multiple output files.</div>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="drawerStage === 'range'" class="options-section">
-                <div class="options-title">Page Ranges</div>
-                <div class="mode-description">Enter page ranges separated by commas (e.g., 1-5,7-10)</div>
-                <a-input v-model="form.ranges" placeholder="Example: 1-5,7-10,15" style="width: 100%; margin-bottom: 12px;" />
-                <div class="mode-description">Each range will create a separate PDF file</div>
-              </div>
-
               <div v-if="drawerStage === 'select'" class="preview-section">
                 <div class="preview-header">
-                  <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
+                  <!-- <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div> -->
                   <div class="preview-actions">
-                    <a-button type="text" size="small" @click="selectAllPages">Select All</a-button>
-                    <a-button type="text" size="small" @click="deselectAllPages">Deselect All</a-button>
-                    <a-button type="text" size="small" @click="toggleAllPages">Toggle</a-button>
+                    <a-button type="text" @click="selectAllPages">Select All</a-button>
+                    <a-button type="text" @click="deselectAllPages">Deselect All</a-button>
+                    <a-button type="text" @click="toggleAllPages">Toggle</a-button>
                   </div>
                 </div>
                 <div class="page-preview-container">
@@ -310,10 +272,15 @@
                 <div class="result-title">Split Completed!</div>
                 <p class="result-desc">Your PDF has been split into {{ splitResults.length }} file(s)</p>
                 <div class="result-preview">
-                  <div v-for="(r, i) in splitResults.slice(0, 6)" :key="i" class="page-preview-item clickable" @click="openPreview(r)" >
-                    <img :src="r.thumbnail" class="page-preview-image">
-                    <div class="page-number">{{ i+1 }}</div>
-                    <div class="preview-overlay">Click to zoom</div>
+                  <div v-for="(r, i) in splitResults.slice(0, 6)" :key="i" class="split-result-item">
+                    <div class="page-preview-item clickable" @click="openPreview(r)" >
+                      <img :src="r.thumbnail" class="page-preview-image">
+                      <div class="page-number">{{ i+1 }}</div>
+                      <div class="preview-overlay">Click to zoom</div>
+                    </div>
+                    <button class="download-single-btn" @click="downloadSingle(r, i)">
+                      <i class="anticon anticon-download"></i> Download
+                    </button>
                   </div>
                 </div>
                 <div v-if="splitResults.length > 6" style="color: #6b7280; font-size: 14px;">
@@ -331,14 +298,14 @@
                 </div>
 
                 <div class="action-section center">
-                  <a-button type="default" @click="reset">Start Over</a-button>
+                  <a-button type="default" @click="backToSelect">Back to Select Pages</a-button>
+                  <a-button type="primary" @click="reset">Start Over</a-button>
                 </div>
               </div>
 
-              <div v-if="!done && !splitting" class="drawer-actions">
-                <a-button v-if="drawerStage === 'select' || drawerStage === 'range'" @click="drawerStage = 'mode'">Back</a-button>
-                <a-button v-else @click="showDrawer = false">Cancel</a-button>
-                <a-button type="primary" @click="handleDrawerAction" :disabled="splitting">
+              <div v-if="drawerStage === 'select'" class="drawer-actions">
+                <a-button type="default" size="large" @click="reset">Cancel</a-button>
+                <a-button type="primary" size="large" @click="handleDrawerAction">
                   {{ getDrawerActionText() }}
                 </a-button>
               </div>
@@ -708,10 +675,8 @@ document.addEventListener('DOMContentLoaded', function() {
   el: '#app',
   data() {
     return {
-      currentStep: '0',
       showDrawer: false,
-      drawerStage: 'mode',
-      form: { mode: 'every', ranges: '' },
+      drawerStage: 'select',
       selectedFiles: [],
       selectedPages: [],
       done: false,
@@ -736,11 +701,7 @@ document.addEventListener('DOMContentLoaded', function() {
   },
   computed: {
     canSplit() {
-      if (this.selectedFiles.length === 0) return false
-      if (this.form.mode === 'every') return true
-      if (this.form.mode === 'select') return this.selectedPages.length > 0
-      if (this.form.mode === 'range') return this.form.ranges.trim().length > 0
-      return false
+      return this.selectedFiles.length > 0 && this.selectedPages.length > 0
     }
   },
   methods: {
@@ -794,52 +755,47 @@ document.addEventListener('DOMContentLoaded', function() {
         this.reset()
       }
     },
-    getDrawerActionText() {
-      if (this.drawerStage === 'mode') {
-        if (this.form.mode === 'select') return 'Next'
-        if (this.form.mode === 'range') return 'Next'
-        if (this.form.mode === 'every') return 'Split'
-        return 'Next'
+    backToSelect() {
+      this.cleanupResultResources()
+      this.done = false
+      this.splitting = false
+      this.progress = 0
+      this.progressText = ''
+      this.drawerStage = 'select'
+    },
+    cleanupResultResources() {
+      if (this.splitResults && Array.isArray(this.splitResults)) {
+        this.splitResults.forEach(result => {
+          if (result.thumbnail && result.thumbnail.startsWith('blob:')) {
+            try {
+              URL.revokeObjectURL(result.thumbnail)
+            } catch (e) {}
+          }
+          if (result.blob) {
+            result.blob = null
+          }
+        })
       }
-      if (this.drawerStage === 'select' || this.drawerStage === 'range') {
+      this.splitResults = []
+      this.currentPreviewImage = ''
+    },
+    getDrawerActionText() {
+      if (this.drawerStage === 'select') {
         return 'Split'
       }
       return 'Split PDF'
     },
     handleDrawerAction() {
-      if (this.drawerStage === 'mode') {
-        if (this.form.mode === 'select') {
-          this.drawerStage = 'select'
-        } else if (this.form.mode === 'range') {
-          this.drawerStage = 'range'
-        } else if (this.form.mode === 'every') {
-          this.drawerStage = 'progress'
-          this.startSplit()
-        }
-      } else if (this.drawerStage === 'select') {
+      if (this.drawerStage === 'select') {
         if (this.selectedPages.length === 0) {
           this.$message.warning('Please select at least one page to split')
           return
         }
         this.drawerStage = 'progress'
         this.startSplit()
-      } else if (this.drawerStage === 'range') {
-        if (!this.form.ranges.trim()) {
-          this.$message.warning('Please enter page ranges')
-          return
-        }
-        this.drawerStage = 'progress'
-        this.startSplit()
       }
     },
-    goToNext() { 
-      if (this.selectedFiles.length === 0) {
-        this.$message.warning('Please upload a PDF file first');
-        return;
-      }
-      this.currentStep = '1' 
-    },
-    goToPrev() { this.currentStep = '0' },
+    
     async openPreview(result) {
       PreviewUtils.openPreviewFirstPage({
         resultBlob: result.blob,
@@ -863,23 +819,13 @@ document.addEventListener('DOMContentLoaded', function() {
     zoomReset() {
       this.zoomScale = 1
     },
-    handleTabClick(tab) {
-      const targetStep = tab.name
-      if (targetStep !== '0' && this.selectedFiles.length === 0) {
-        this.$message.warning('Please upload a file first')
-        this.$nextTick(() => {
-          this.currentStep = '0'
-        })
-        return
-      }
-      if (targetStep === '2' && !this.done) {
-        this.$message.warning('Please complete splitting first')
-        this.$nextTick(() => {
-          this.currentStep = '1'
-        })
-        return
+    triggerUpload() {
+      const uploadInput = this.$refs.upload.$el.querySelector('input[type="file"]')
+      if (uploadInput) {
+        uploadInput.click()
       }
     },
+    
     handleExceed() {
       this.$message.warning('Only one file can be processed at a time')
     },
@@ -945,6 +891,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       this.isRendering = false
+      
+      if (this.selectedFiles.length === 1) {
+        this.selectAllPages()
+        this.showDrawer = true
+      }
     },
     async renderThumb(item) {
       const buf = await item.file.arrayBuffer()
@@ -1062,6 +1013,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const pages = await doc.copyPages(src, pageIndices)
       pages.forEach(p => doc.addPage(p))
       
+      // 使用默认保存方式，与其他工具保持一致
       const bytes = await doc.save()
       const blob = new Blob([bytes], { type: 'application/pdf' })
       const thumbnail = await this.generateThumbnail(bytes)
@@ -1077,21 +1029,10 @@ document.addEventListener('DOMContentLoaded', function() {
       const { PDFDocument } = window.PDFLib
       const file = this.selectedFiles[0]
       const buf = await file.file.arrayBuffer()
-      const src = await PDFDocument.load(buf)
-      const totalPages = src.getPageCount()
       
       this.splitResults = []
       
       try {
-        if (this.form.mode === 'every') {
-        for (let i = 0; i < totalPages; i++) {
-          this.progressText = `Processing page ${i + 1} of ${totalPages}...`
-          this.progress = Math.round(((i + 1) / totalPages) * 80)
-          
-          const result = await this.createSplitResult(src, [i], `page-${i + 1}.pdf`)
-          this.splitResults.push(result)
-        }
-      } else if (this.form.mode === 'select') {
         const selectedIndices = this.selectedPages.map(key => {
           const [, pi] = key.split('-')
           return parseInt(pi)
@@ -1102,39 +1043,22 @@ document.addEventListener('DOMContentLoaded', function() {
           this.progressText = `Processing page ${i + 1} of ${totalSelected}...`
           this.progress = Math.round(((i + 1) / totalSelected) * 80)
           
-          const result = await this.createSplitResult(src, [selectedIndices[i]], `page-${selectedIndices[i] + 1}.pdf`)
-          this.splitResults.push(result)
-        }
-      } else if (this.form.mode === 'range') {
-        const ranges = this.parseRanges(this.form.ranges)
-        let fileIndex = 1
-        
-        for (const range of ranges) {
-          this.progressText = `Processing range ${fileIndex} of ${ranges.length}...`
-          this.progress = Math.round((fileIndex / ranges.length) * 80)
-          
-          const indices = []
-          if (range.type === 'single') {
-            if (range.page <= totalPages) indices.push(range.page - 1)
-          } else {
-            const start = Math.min(range.start, totalPages)
-            const end = Math.min(range.end, totalPages)
-            for (let i = start - 1; i < end; i++) {
-              indices.push(i)
+          // 每次都重新加载PDF，避免复用同一个PDF对象导致的问题
+          const src = await PDFDocument.load(buf)
+          try {
+            const result = await this.createSplitResult(src, [selectedIndices[i]], `page-${selectedIndices[i] + 1}.pdf`)
+            this.splitResults.push(result)
+          } finally {
+            if (src.destroy) {
+              src.destroy()
             }
           }
-          
-          if (indices.length > 0) {
-            const result = await this.createSplitResult(src, indices, `split-${fileIndex}.pdf`)
-            this.splitResults.push(result)
-            fileIndex++
-          }
         }
-      }
-      } finally {
-        if (src.destroy) {
-          src.destroy()
-        }
+      } catch (error) {
+        console.error('Split error:', error)
+        this.$message.error('An error occurred during splitting. Please try again.')
+        this.splitting = false
+        return
       }
       
       this.progress = 100
@@ -1143,9 +1067,22 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         this.splitting = false
         this.done = true
-        this.currentStep = '2'
         this.$message.success('Split completed successfully!')
       }, 500)
+    },
+    downloadSingle(result, index) {
+      const prefix = this.downloadFileName.trim() || 'split'
+      const url = URL.createObjectURL(result.blob)
+      const a = document.createElement('a')
+      a.href = url
+      const ext = result.name.split('.').pop()
+      a.download = `${prefix}-${index + 1}.${ext}`
+      
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      
+      URL.revokeObjectURL(url)
     },
     downloadAll() {
       const prefix = this.downloadFileName.trim() || 'split'
@@ -1178,21 +1115,18 @@ document.addEventListener('DOMContentLoaded', function() {
       this.selectedPages = []
       this.done = false
       this.splitResults = []
-      this.currentStep = '0'
       this.showDrawer = false
-      this.drawerStage = 'mode'
-      this.form.mode = 'every'
-      this.form.ranges = ''
+      this.drawerStage = 'select'
       this.splitting = false
       this.progress = 0
       this.progressText = ''
-      this.downloadFileName = ''
+      this.downloadFileName = 'split'
     }
   },
   watch: {
     showDrawer(newVal) {
       if (newVal) {
-        this.drawerStage = 'mode';
+        this.drawerStage = 'select';
         this.splitting = false;
         this.done = false;
       }

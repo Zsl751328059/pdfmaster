@@ -189,16 +189,10 @@
             </div>
           </div>
 
-          <div v-if="selectedFiles.length" class="action-section">
-            <a-button type="primary" @click="showDrawer = true">
-              Continue <i class="anticon anticon-right"></i>
-            </a-button>
-          </div>
-
           <a-drawer
             :title="drawerStage === 'options' ? 'Convert Images to PDF' : (drawerStage === 'progress' ? 'Converting...' : 'Conversion Result')"
             :visible="showDrawer"
-            :width="600"
+            :width="'100%'"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
@@ -207,6 +201,11 @@
               <div v-if="drawerStage === 'options'" class="options-section">
                 <div class="options-title">Convert Images to PDF</div>
                 <div class="mode-description">Choose your conversion options</div>
+                
+                <div class="preview-actions" style="margin-bottom: 16px;">
+                  <a-button type="primary" @click="triggerUpload">+ Add More</a-button>
+                </div>
+                
                 <div class="image-preview-grid">
                   <div v-for="(file, idx) in selectedFiles" :key="idx" class="image-preview-item">
                     <img :src="file.preview" class="preview-image">
@@ -706,7 +705,13 @@ document.addEventListener('DOMContentLoaded', function() {
       return allowedTypes.includes(file.type) || fileName.match(/\.(jpg|jpeg|png|gif|bmp|tiff)$/)
     },
     handleDrop(event) {
-      event.preventDefault()
+      if (event.cancelable) {
+        event.preventDefault()
+      }
+    },
+    triggerUpload() {
+      const uploadInput = this.$refs.upload.$el.querySelector('input[type="file"]')
+      if (uploadInput) uploadInput.click()
     },
     async openPreview(image) {
       const idx = this.previews.indexOf(image)
@@ -778,6 +783,7 @@ document.addEventListener('DOMContentLoaded', function() {
         preview: preview
       }
       this.selectedFiles.push(item)
+      this.showDrawer = true
       if (onSuccess) {
         onSuccess('success')
       }

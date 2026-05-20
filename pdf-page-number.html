@@ -288,7 +288,8 @@
             downloadFileName: 'page-numbered.pdf',
             showPreviewModal: false,
             currentPreviewImage: '',
-            zoomScale: 1
+            zoomScale: 1,
+            drawerWidth: 600
           };
         },
         mounted() {
@@ -352,6 +353,9 @@
               this.selectedFiles.push({ file: raw, name: raw.name, size: raw.size, pageCount })
               this.pageCount = this.selectedFiles.reduce((sum, f) => sum + (f.pageCount || 0), 0)
               
+              this.drawerWidth = '100%';
+              this.showDrawer = true;
+              
               onSuccess('success');
             } catch (error) {
               console.error('Error loading PDF:', error)
@@ -374,6 +378,20 @@
           
           handleDrawerClose() {
             this.reset()
+          },
+          backToOptions() {
+            this.cleanupResultResources();
+            this.done = false;
+            this.processing = false;
+            this.progress = 0;
+            this.drawerStage = 'options';
+          },
+          cleanupResultResources() {
+            if (this.resultBlob) {
+              this.resultBlob = null;
+            }
+            this.resultPreviews = [];
+            this.currentPreviewImage = '';
           },
           
           async addPageNumbers() {
@@ -605,6 +623,7 @@
           reset() {
             this.showDrawer = false;
             this.drawerStage = 'options';
+            this.drawerWidth = 600;
             this.clearAllFiles();
             this.form = {
               position: 'bottom-center',
@@ -709,16 +728,10 @@
           </div>
         </div>
 
-        <div v-if="selectedFiles.length" class="action-section">
-          <a-button type="primary" @click="showDrawer = true">
-            Continue <i class="anticon anticon-right"></i>
-          </a-button>
-        </div>
-
         <a-drawer
           :title="drawerStage === 'options' ? 'Customize Page Numbers' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
           :visible="showDrawer"
-          :width="600"
+          :width="drawerWidth"
           :closable="true"
           :mask-closable="true"
           @close="handleDrawerClose"
@@ -860,7 +873,8 @@
               </div>
 
               <div class="action-section center">
-                <a-button type="default" @click="reset">Start Over</a-button>
+                <a-button type="default" @click="backToOptions">Back to Options</a-button>
+                <a-button type="primary" @click="reset">Start Over</a-button>
               </div>
             </div>
           </div>

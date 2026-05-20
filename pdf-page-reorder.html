@@ -343,16 +343,10 @@
           </div>
         </div>
 
-        <div v-if="selectedFiles.length" class="action-section">
-          <a-button type="primary" @click="showDrawer = true">
-            Continue <i class="anticon anticon-right"></i>
-          </a-button>
-        </div>
-
         <a-drawer
           :title="drawerStage === 'reorder' ? 'Reorder Pages' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
           :visible="showDrawer"
-          :width="700"
+          :width="drawerWidth"
           :closable="true"
           :mask-closable="true"
           @close="handleDrawerClose"
@@ -421,8 +415,9 @@
               </div>
 
               <div class="action-section center">
-                <a-button type="default" @click="reset">Start Over</a-button>
-              </div>
+                  <a-button type="default" @click="backToReorder">Back to Reorder</a-button>
+                  <a-button type="primary" @click="reset">Start Over</a-button>
+                </div>
             </div>
           </div>
         </a-drawer>
@@ -790,7 +785,8 @@
           downloadFileName: 'reordered.pdf',
           showPreviewModal: false,
           currentPreviewImage: '',
-          zoomScale: 1
+          zoomScale: 1,
+          drawerWidth: 700
         };
       },
       watch: {
@@ -855,6 +851,10 @@
           }
           
           this.selectedFiles.push({ name: raw.name, file: raw, size: raw.size, pageCount: 0 });
+          
+          this.drawerWidth = '100%';
+          this.showDrawer = true;
+          
           if (onSuccess) {
             onSuccess('success');
           }
@@ -890,6 +890,19 @@
           if (!this.processing) {
             this.reset()
           }
+        },
+        backToReorder() {
+          this.cleanupResultResources();
+          this.processing = false;
+          this.progress = 0;
+          this.drawerStage = 'reorder';
+        },
+        cleanupResultResources() {
+          if (this.resultBlob) {
+            this.resultBlob = null;
+          }
+          this.resultPreviews = [];
+          this.currentPreviewImage = '';
         },
         async waitForPdfJs() {
           return new Promise((resolve) => {
@@ -1060,6 +1073,7 @@
         reset() {
           this.showDrawer = false;
           this.drawerStage = 'reorder';
+          this.drawerWidth = 700;
           this.clearAllFiles();
           this.downloadFileName = 'reordered.pdf';
         },
