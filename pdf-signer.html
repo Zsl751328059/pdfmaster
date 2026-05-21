@@ -844,6 +844,9 @@ new Vue({
       this.signing = false
       this.progress = 0
       this.progressText = ''
+      this.$nextTick(() => {
+        this.initSignaturePad()
+      })
     },
     cleanupResultResources() {
       if (this.resultBlob) {

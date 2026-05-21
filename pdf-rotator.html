@@ -750,6 +750,7 @@ new Vue({
     },
     backToOptions() {
       this.cleanupResultResources()
+      this.done = false
       this.drawerStage = 'options'
     },
     cleanupResultResources() {

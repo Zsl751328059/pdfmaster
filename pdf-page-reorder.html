@@ -910,6 +910,7 @@
           this.cleanupResultResources();
           this.processing = false;
           this.progress = 0;
+          this.done = false;
           this.drawerStage = 'reorder';
           this.$nextTick(() => {
             this.initSortable();
