@@ -7,12 +7,12 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0"> -->
   <title>Compress PDF Online Free - Reduce PDF File Size | PDFMaster</title>
-  <meta name="description" content="Compress PDF online free - reduce PDF file size without losing quality. 100% local processing, no upload, no watermark, no registration. Up to 80% size reduction, 50MB max. Works on Mac, Windows, iPhone & Android.">
+  <meta name="description" content="Compress PDF online free - reduce PDF file size without losing quality. No watermark, no registration, up to 80% size reduction. Fast server-based processing, 50MB max. Works on Mac, Windows, iPhone & Android.">
 
   <link rel="canonical" href="https://pdfeasz.com/pdf-compressor.html" />
 
   <meta property="og:title" content="Compress PDF Online Free - PDF Compressor | Reduce PDF Size Without Losing Quality" />
-  <meta property="og:description" content="Free PDF compressor online - Compress PDF files without losing quality. Reduce PDF size free, optimize PDF online, shrink PDF file size. No registration, no watermark, no signup required. All processing happens locally in browser." />
+  <meta property="og:description" content="Free PDF compressor online - Compress PDF files without losing quality. Reduce PDF size free, no registration, no watermark. Up to 80% size reduction with fast server processing." />
   <meta property="og:image" content="https://pdfeasz.com/assets/share.png" />
   <meta property="og:url" content="https://pdfeasz.com/pdf-compressor.html" />
   <meta property="og:type" content="website" />
@@ -115,7 +115,7 @@
         "name": "Does my data get uploaded to servers?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No! 100% local processing means your files never leave your device. We never see your documents - perfect for confidential files."
+          "text": "Your files are uploaded temporarily for compression and automatically deleted after processing. We never store or share your documents."
         }
       },
       {
@@ -155,7 +155,7 @@
         "name": "Why choose PDFMaster?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "PDFMaster is 100% free, 100% private with local processing, no watermarks, and no registration required. Your files never leave your device - perfect for confidential documents."
+          "text": "PDFMaster is 100% free, no watermarks, and no registration required. Fast compression with files automatically deleted after processing."
         }
       }
     ]
@@ -400,7 +400,7 @@
     <div class="container">
       <div class="page-header">
         <h1 class="page-title">Compress PDF Online Free | PDF Compressor</h1>
-        <p class="page-subtitle">Compress PDF online for free with the best PDF compressor. Reduce PDF file size without losing quality - no watermark, no registration, no signup required. Optimize and shrink PDFs by up to 80%. All processing happens locally in your browser for complete privacy.</p>
+        <p class="page-subtitle">Compress PDF online for free with the best PDF compressor. Reduce PDF file size without losing quality - no watermark, no registration. Optimize and shrink PDFs by up to 80%. Fast server-based processing for optimal results.</p>
       </div>
 
       <a-card class="tool-card" hoverable>
@@ -599,11 +599,11 @@
       </a-card>
 
       <a-card class="privacy-card" hoverable>
-        <h2 class="section-title">Local Processing - Your Privacy, Protected</h2>
+        <h2 class="section-title">Why Choose PDFMaster?</h2>
         <div class="privacy-content">
-          <p>What does <strong>"local processing"</strong> mean? When you use our PDF Compressor, <strong>all file processing happens directly in your web browser</strong>, right on your device. Your files <strong>never leave your computer or mobile device</strong> - they are <strong>not uploaded to any external server</strong>.</p>
-          <p>This means your sensitive documents stay <strong>private and secure</strong>. There's <strong>no risk of data breaches</strong>, <strong>no third-party access</strong>, and <strong>no server logs</strong> containing your information. Even if you're offline, our tool continues to work because everything runs locally in your browser.</p>
-          <p>Unlike other online tools that require uploading your files to remote servers, PDFMaster processes everything locally. You can compress confidential contracts, personal documents, or sensitive business files with <strong>complete peace of mind</strong>.</p>
+          <p><strong>Powerful Compression:</strong> Our PDF compressor uses advanced algorithms to reduce file size by up to 80% while maintaining excellent quality.</p>
+          <p><strong>Fast Processing:</strong> Files are uploaded to our high-speed servers for efficient compression, ensuring quick and reliable results.</p>
+          <p><strong>Secure Handling:</strong> All uploaded files are automatically and permanently deleted immediately after processing. We never store, keep, or share your documents.</p>
         </div>
       </a-card>
 
@@ -686,7 +686,7 @@
             <p>Our tool works on all modern browsers: Chrome, Firefox, Safari, Edge, and Opera. For best performance, we recommend using the latest version.</p>
           </a-collapse-panel>
           <a-collapse-panel key="14" header="Why choose PDFMaster for compressing PDFs?">
-            <p>PDFMaster is 100% free, 100% private with local processing, no watermarks, and no registration required. Your files never leave your device - perfect for confidential documents.</p>
+            <p>PDFMaster is 100% free, no watermarks, and no registration required. Fast compression with files automatically deleted after processing.</p>
           </a-collapse-panel>
         </a-collapse>
       </a-card>
@@ -749,7 +749,7 @@
           <div class="blog-card-wrapper">
             <i class="anticon anticon-file-text blog-icon"></i>
             <h3>Legal Documents</h3>
-            <p>Securely reduce contracts, agreements, and court filings. All processing happens locally in your browser for complete confidentiality. Perfect for tax documents and official submissions.</p>
+            <p>Securely reduce contracts, agreements, and court filings. Your files are uploaded temporarily and automatically deleted after processing. Perfect for tax documents and official submissions.</p>
           </div>
           <div class="blog-card-wrapper">
             <i class="anticon anticon-presentation blog-icon"></i>
@@ -1097,7 +1097,7 @@ new Vue({
         formData.append('level', this.form.mode || 'medium')
 
         this.progress = 30
-        this.progressText = 'Compressing on server...'
+        this.progressText = 'Compressing on server... Please wait, this may take a moment'
 
         const response = await fetch('https://myword-1.onrender.com/compress-pdf', {
           method: 'POST',

@@ -199,8 +199,8 @@
           >
             <div class="drawer-content">
               <div v-if="drawerStage === 'options'" class="options-section">
-                <div class="options-title">Convert Images to PDF</div>
-                <div class="mode-description">Choose your conversion options</div>
+                <!-- <div class="options-title">Convert Images to PDF</div>
+                <div class="mode-description">Choose your conversion options</div> -->
                 
                 <div class="preview-actions" style="margin-bottom: 16px;">
                   <a-button type="primary" @click="triggerUpload">+ Add More</a-button>
@@ -247,7 +247,7 @@
                 </div>
 
                 <div class="button-bar">
-                  <span></span>
+                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
                   <a-button type="primary" size="large" @click="download">Download PDF</a-button>
                   <a-button type="primary" @click="reset">Start Over</a-button>
                 </div>
@@ -907,6 +907,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
           this.converting = false
           this.done = true
+          this.drawerStage = 'result'
           this.$message.success('Conversion completed successfully!')
         }, 300)
         
@@ -948,6 +949,10 @@ document.addEventListener('DOMContentLoaded', function() {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
+    },
+    backToOptions() {
+      this.drawerStage = 'options'
+      this.done = false
     },
     reset() {
       this.showDrawer = false
