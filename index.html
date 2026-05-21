@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -547,6 +547,12 @@
     .hero-btn-secondary:hover {
       background: rgba(255, 255, 255, 0.25);
       transform: translateY(-3px);
+      color: white;
+    }
+    
+    .hero-btn-secondary:active {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
     }
     
     /* Quick Tools Section */
@@ -599,6 +605,11 @@
     .quick-tools-btn:hover {
       transform: translateY(-3px);
       box-shadow: 0 10px 30px rgba(64, 158, 255, 0.4);
+      color: white;
+    }
+    
+    .quick-tools-btn:active {
+      color: white;
     }
     
     .quick-tools-grid {
@@ -783,24 +794,26 @@
     
     .trust-item {
       text-align: center;
-      padding: 30px 20px;
+      padding: 24px 20px;
       background: linear-gradient(145deg, #f8fafc, #ffffff);
       border-radius: 16px;
       border: 1px solid rgba(64, 158, 255, 0.06);
     }
     
+    .trust-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    
     .trust-number {
-      font-size: 42px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 6px;
     }
     
     .trust-label {
-      font-size: 14px;
+      font-size: 13px;
       color: #64748b;
       font-weight: 500;
     }
@@ -1457,14 +1470,13 @@
 
   <!-- Hero Section -->
   <section class="hero-section">
-    <div class="hero-privacy-badge">
+  
+    <h1 class="hero-title">PDF Tools Made Simple</h1>
+    <p class="hero-subtitle">Merge, split, compress & convert PDFs. 100% free, local processing with visual preview.</p>
+     <div class="hero-privacy-badge">
       <span class="privacy-icon">🔒</span>
       <span class="privacy-text">Your files never leave your browser. Complete privacy guaranteed.</span>
     </div>
-    
-    <h1 class="hero-title">PDF Tools Made Simple</h1>
-    <p class="hero-subtitle">Merge, split, compress & convert PDFs. 100% free, local processing with visual preview.</p>
-    
     <div class="hero-cta">
       <a href="#quick-tools" class="hero-btn">Start Using Now</a>
       <a href="#features" class="hero-btn-secondary">Learn More</a>
@@ -1571,20 +1583,24 @@
     <div class="trust-container">
       <div class="trust-grid">
         <div class="trust-item">
-          <div class="trust-number">50M+</div>
-          <div class="trust-label">Active Users</div>
+          <div class="trust-icon">🔐</div>
+          <div class="trust-number">Privacy First</div>
+          <div class="trust-label">Files never uploaded</div>
         </div>
         <div class="trust-item">
-          <div class="trust-number">1B+</div>
-          <div class="trust-label">Files Processed</div>
+          <div class="trust-icon">⚡</div>
+          <div class="trust-number">No Registration</div>
+          <div class="trust-label">Start using instantly</div>
         </div>
         <div class="trust-item">
-          <div class="trust-number">4.9/5</div>
-          <div class="trust-label">User Rating</div>
+          <div class="trust-icon">🖥️</div>
+          <div class="trust-number">Local Processing</div>
+          <div class="trust-label">Your data stays yours</div>
         </div>
         <div class="trust-item">
-          <div class="trust-number">99.9%</div>
-          <div class="trust-label">Uptime</div>
+          <div class="trust-icon">💯</div>
+          <div class="trust-number">100% Free</div>
+          <div class="trust-label">No hidden fees</div>
         </div>
       </div>
     </div>
