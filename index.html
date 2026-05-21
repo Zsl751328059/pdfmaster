@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -118,7 +118,7 @@
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      background: white;
       color: #1e293b;
       line-height: 1.6;
       min-height: 100vh;
@@ -393,6 +393,40 @@
       overflow: hidden;
     }
     
+    .hero-privacy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .privacy-icon {
+      font-size: 18px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+    
+    .privacy-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 500;
+    }
+    
     .hero-section::before {
       content: '';
       position: absolute;
@@ -471,6 +505,306 @@
       color: #fff;
     }
     
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-btn {
+      display: inline-block;
+      padding: 14px 36px;
+      background: white;
+      color: #409EFF;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .hero-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+    }
+    
+    .hero-btn-secondary {
+      display: inline-block;
+      padding: 14px 36px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      color: white;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s;
+    }
+    
+    .hero-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px);
+    }
+    
+    /* Quick Tools Section */
+    .quick-tools-section {
+      padding: 60px 20px;
+      background: white;
+      position: relative;
+      margin-top: -40px;
+      border-radius: 30px 30px 0 0;
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.05);
+    }
+    
+    .quick-tools-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .quick-tools-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+    
+    .quick-tools-subtitle {
+      text-align: center;
+      font-size: 15px;
+      color: #64748b;
+      margin-bottom: 40px;
+    }
+    
+    .quick-tools-more {
+      text-align: center;
+      margin-top: 30px;
+    }
+    
+    .quick-tools-btn {
+      display: inline-block;
+      padding: 14px 36px;
+      background: linear-gradient(135deg, #409EFF, #337ecc);
+      color: white;
+      border-radius: 30px;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 6px 20px rgba(64, 158, 255, 0.3);
+    }
+    
+    .quick-tools-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(64, 158, 255, 0.4);
+    }
+    
+    .quick-tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .quick-tool-card {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .quick-tool-card:hover {
+      background: white;
+      border-color: rgba(64, 158, 255, 0.15);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      transform: translateX(4px);
+    }
+    
+    .quick-tool-icon {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(64, 158, 255, 0.08), rgba(103, 194, 58, 0.08));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    
+    .quick-tool-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .quick-tool-content h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .quick-tool-content p {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.5;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .quick-tool-arrow {
+      color: #94a3b8;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .quick-tool-card:hover .quick-tool-arrow {
+      color: #409EFF;
+      transform: translateX(4px);
+    }
+    
+    /* How It Works Section */
+    .how-it-works-section {
+      padding: 80px 20px;
+      background: white;
+    }
+    
+    .how-it-works-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .how-it-works-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 16px;
+    }
+    
+    .how-it-works-subtitle {
+      text-align: center;
+      font-size: 16px;
+      color: #64748b;
+      margin-bottom: 60px;
+    }
+    
+    .how-it-works-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 40px;
+    }
+    
+    .how-step {
+      text-align: center;
+      position: relative;
+    }
+    
+    .how-step::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(64, 158, 255, 0.3), transparent);
+      transform: translateX(-50%);
+      z-index: -1;
+    }
+    
+    .how-step:last-child::before {
+      display: none;
+    }
+    
+    .step-number {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background: linear-gradient(135deg, #409EFF, #67C23A);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 10px 30px rgba(64, 158, 255, 0.3);
+      transition: all 0.3s;
+    }
+    
+    .how-step:hover .step-number {
+      transform: scale(1.1);
+      box-shadow: 0 15px 40px rgba(64, 158, 255, 0.4);
+    }
+    
+    .how-step h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+    
+    .how-step p {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+    
+    /* Trust Section */
+    .trust-section {
+      padding: 60px 20px;
+      background: white;
+    }
+    
+    .trust-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+    }
+    
+    .trust-item {
+      text-align: center;
+      padding: 30px 20px;
+      background: linear-gradient(145deg, #f8fafc, #ffffff);
+      border-radius: 16px;
+      border: 1px solid rgba(64, 158, 255, 0.06);
+    }
+    
+    .trust-number {
+      font-size: 42px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #409EFF, #67C23A);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    
+    .trust-label {
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    
     /* Tools Grid */
     .tools-section {
       padding: 60px 20px;
@@ -496,34 +830,30 @@
     
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-      max-width: none;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      max-width: 900px;
       width: 100%;
       margin: 0 auto;
-      padding: 0 30px;
+      padding: 0 20px;
     }
     
     .tool-card {
-      background: white;
-      border-radius: 16px;
+      background: #f8fafc;
+      border-radius: 12px;
       padding: 20px;
-      text-align: center;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid rgba(64, 158, 255, 0.08);
       display: flex;
-      flex-direction: column;
-      min-height: 200px;
-      flex: 1;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
     }
     
     .tool-card.hot {
-      background: linear-gradient(145deg, #fff8f9, #ffffff);
-      border: 2px solid rgba(255, 71, 87, 0.15);
-      box-shadow: 0 6px 20px rgba(255, 71, 87, 0.08);
+      background: #f8fafc;
+      border-color: rgba(255, 71, 87, 0.1);
     }
     
     .hot-badge {
@@ -532,94 +862,72 @@
       right: 0;
       background: linear-gradient(135deg, #ff4757, #ff6b81);
       color: white;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 0 16px 0 12px;
+      padding: 4px 12px;
+      border-radius: 0 12px 0 10px;
       white-space: nowrap;
       display: flex;
       align-items: center;
-      gap: 4px;
-      box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+      gap: 3px;
+      box-shadow: 0 2px 6px rgba(255, 71, 87, 0.3);
     }
     
     .hot-badge::before {
       content: '🔥';
-      font-size: 12px;
-      animation: bounce 1.5s ease-in-out infinite;
-    }
-    
-    @keyframes bounce {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-2px);
-      }
+      font-size: 10px;
     }
     
     .tool-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 16px 32px rgba(64, 158, 255, 0.12);
-      border-color: rgba(64, 158, 255, 0.2);
+      background: white;
+      border-color: rgba(64, 158, 255, 0.15);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      transform: translateX(4px);
     }
     
     .tool-card.hot:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(255, 71, 87, 0.15);
-      border-color: rgba(255, 71, 87, 0.3);
+      border-color: rgba(255, 71, 87, 0.2);
+      box-shadow: 0 4px 20px rgba(255, 71, 87, 0.08);
     }
     
     .tool-icon-wrapper {
-      width: 56px;
-      height: 56px;
-      margin: 0 auto 16px;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
       background: linear-gradient(135deg, rgba(64, 158, 255, 0.08), rgba(103, 194, 58, 0.08));
-      border-radius: 14px;
+      border-radius: 11px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.4s;
+      font-size: 20px;
     }
     
     .tool-card.hot .tool-icon-wrapper {
-      background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), rgba(255, 107, 129, 0.1));
-    }
-    
-    .tool-card:hover .tool-icon-wrapper {
-      transform: scale(1.15);
-      background: linear-gradient(135deg, rgba(64, 158, 255, 0.15), rgba(103, 194, 58, 0.15));
-    }
-    
-    .tool-card.hot:hover .tool-icon-wrapper {
-      background: linear-gradient(135deg, rgba(255, 71, 87, 0.18), rgba(255, 107, 129, 0.18));
+      background: linear-gradient(135deg, rgba(255, 71, 87, 0.08), rgba(255, 107, 129, 0.08));
     }
     
     .tool-icon {
-      font-size: 28px;
+      font-size: 20px;
       color: #409EFF;
-      transition: all 0.4s;
     }
     
     .tool-card.hot .tool-icon {
       color: #ff4757;
     }
     
-    .tool-card:hover .tool-icon {
-      color: #67C23A;
-      transform: scale(1.1);
-    }
-    
-    .tool-card.hot:hover .tool-icon {
-      color: #ff6b81;
+    .tool-card-content {
+      flex: 1;
+      min-width: 0;
     }
     
     .tool-card h3 {
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 600;
       color: #1e293b;
-      margin-bottom: 10px;
-      line-height: 1.3;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .tool-card.hot h3 {
@@ -629,108 +937,93 @@
     .tool-card p {
       font-size: 12px;
       color: #64748b;
-      line-height: 1.6;
-      margin-bottom: 20px;
+      line-height: 1.5;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
     
-    .tool-btn {
-      display: inline-block;
-      padding: 6px 18px;
-      background: linear-gradient(135deg, #409EFF, #337ecc);
-      color: white;
-      border-radius: 18px;
-      margin-top: auto;
-      font-size: 12px;
-      font-weight: 500;
-      transition: all 0.3s;
+    .tool-arrow {
+      color: #94a3b8;
+      font-size: 14px;
+      transition: all 0.3s ease;
     }
     
-    .tool-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(64, 158, 255, 0.3);
+    .tool-card:hover .tool-arrow {
+      color: #409EFF;
+      transform: translateX(4px);
     }
     
     /* Features Section */
     .features-section {
-      padding: 60px 20px;
-      background: white;
+      padding: 80px 20px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     }
     
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 30px;
-      max-width: 1200px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      max-width: 900px;
       margin: 0 auto;
     }
     
     .feature-card-link {
       text-decoration: none;
-      display: flex;
-      flex-direction: column;
-      min-height: 280px;
     }
     
     .feature-card {
-      text-align: center;
-      padding: 32px 24px;
-      background: linear-gradient(145deg, #f8fafc, #ffffff);
-      border-radius: 20px;
-      border: 1px solid rgba(64, 158, 255, 0.06);
-      transition: all 0.4s;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
       display: flex;
-      flex-direction: column;
-      flex: 1;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
     }
     
     .feature-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+      border-color: rgba(64, 158, 255, 0.15);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      transform: translateX(4px);
     }
     
     .feature-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 20px;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      border-radius: 16px;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(64, 158, 255, 0.1), rgba(103, 194, 58, 0.1));
+      border-radius: 11px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      color: white;
+      font-size: 20px;
+    }
+    
+    .feature-card-content {
+      flex: 1;
+      min-width: 0;
     }
     
     .feature-card h3 {
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 600;
       color: #1e293b;
-      margin-bottom: 12px;
+      margin-bottom: 4px;
     }
     
     .feature-card p {
-      font-size: 14px;
+      font-size: 12px;
       color: #64748b;
-      line-height: 1.7;
-      margin-bottom: 16px;
-    }
-    
-    .read-more {
-      display: inline-block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #409EFF;
-      transition: all 0.3s ease;
-      margin-top: auto;
-      padding: 8px 16px;
-      background: rgba(64, 158, 255, 0.08);
-      border-radius: 20px;
-    }
-    
-    .feature-card:hover .read-more {
-      color: #fff;
-      background: linear-gradient(135deg, #409EFF, #67C23A);
-      transform: translateX(4px);
+      line-height: 1.5;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
     
     /* CTA Section */
@@ -879,6 +1172,20 @@
         font-size: 24px;
       }
       
+      .hero-cta {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      .hero-btn,
+      .hero-btn-secondary {
+        padding: 12px 28px;
+        font-size: 14px;
+        width: 200px;
+        text-align: center;
+      }
+      
       .header {
         padding: 10px 0;
       }
@@ -946,6 +1253,83 @@
         padding: 8px 18px !important;
         font-size: 12px !important;
         margin-left: 0;
+      }
+      
+      .quick-tools-section {
+        padding: 40px 15px;
+        margin-top: -25px;
+      }
+      
+      .quick-tools-title {
+        font-size: 20px;
+        margin-bottom: 25px;
+      }
+      
+      .quick-tools-grid {
+        gap: 15px;
+      }
+      
+      .quick-tool-card {
+        padding: 20px 15px;
+      }
+      
+      .quick-tool-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 26px;
+        margin-bottom: 14px;
+      }
+      
+      .quick-tool-card h3 {
+        font-size: 16px;
+      }
+      
+      .quick-tool-card p {
+        font-size: 12px;
+      }
+      
+      .how-it-works-section {
+        padding: 50px 15px;
+      }
+      
+      .how-it-works-title {
+        font-size: 24px;
+      }
+      
+      .how-it-works-steps {
+        gap: 30px;
+      }
+      
+      .step-number {
+        width: 64px;
+        height: 64px;
+        font-size: 22px;
+        margin-bottom: 16px;
+      }
+      
+      .how-step h3 {
+        font-size: 16px;
+      }
+      
+      .how-step p {
+        font-size: 13px;
+      }
+      
+      .trust-section {
+        padding: 40px 15px;
+      }
+      
+      .trust-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      
+      .trust-item {
+        padding: 20px 15px;
+      }
+      
+      .trust-number {
+        font-size: 32px;
       }
       
       .tools-grid {
@@ -1073,16 +1457,136 @@
 
   <!-- Hero Section -->
   <section class="hero-section">
-    <h1 class="hero-title">PDFMaster | Free Online PDF Tools</h1>
-    <p class="hero-subtitle">Merge documents, extract pages, reduce file size, and convert formats. All processing happens locally in your browser for complete privacy and security.</p>
+    <div class="hero-privacy-badge">
+      <span class="privacy-icon">🔒</span>
+      <span class="privacy-text">Your files never leave your browser. Complete privacy guaranteed.</span>
+    </div>
+    
+    <h1 class="hero-title">PDF Tools Made Simple</h1>
+    <p class="hero-subtitle">Merge, split, compress & convert PDFs. 100% free, local processing with visual preview.</p>
+    
+    <div class="hero-cta">
+      <a href="#quick-tools" class="hero-btn">Start Using Now</a>
+      <a href="#features" class="hero-btn-secondary">Learn More</a>
+    </div>
     
     <div class="hero-features">
-      <span class="hero-feature">🔒 Secure Processing</span>
-      <span class="hero-feature">⚡ Fast Processing</span>
+      <span class="hero-feature">🔒 Local Processing</span>
       <span class="hero-feature">👁️ Visual Preview</span>
-      <span class="hero-feature">📱 Page Selection</span>
-      <span class="hero-feature">🔓 No Signup</span>
-      <span class="hero-feature">📲 Mobile Friendly</span>
+      <span class="hero-feature">📄 Page Selection</span>
+      <span class="hero-feature">🔓 100% Free</span>
+      <span class="hero-feature">⚡ No Uploads</span>
+      <span class="hero-feature">📲 Any Device</span>
+    </div>
+  </section>
+
+  <!-- Quick Tools Section -->
+  <section id="quick-tools" class="quick-tools-section">
+    <div class="quick-tools-container">
+      <h2 class="quick-tools-title">Most Popular PDF Tools</h2>
+      <p class="quick-tools-subtitle">16 tools to merge, split, compress, and edit PDFs for free. Try it out today!</p>
+      <div class="quick-tools-grid">
+        <a href="./pdf-merger.html" class="quick-tool-card">
+          <div class="quick-tool-icon">📄</div>
+          <div class="quick-tool-content">
+            <h3>PDF Merger</h3>
+            <p>Combine multiple PDFs into one unified document</p>
+          </div>
+          <span class="quick-tool-arrow">→</span>
+        </a>
+        <a href="./pdf-splitter.html" class="quick-tool-card">
+          <div class="quick-tool-icon">✂️</div>
+          <div class="quick-tool-content">
+            <h3>PDF Splitter</h3>
+            <p>Split PDFs into separate pages or documents</p>
+          </div>
+          <span class="quick-tool-arrow">→</span>
+        </a>
+        <a href="./pdf-compressor.html" class="quick-tool-card">
+          <div class="quick-tool-icon">📦</div>
+          <div class="quick-tool-content">
+            <h3>PDF Compressor</h3>
+            <p>Reduce the size of your PDF without losing quality</p>
+          </div>
+          <span class="quick-tool-arrow">→</span>
+        </a>
+        <a href="./pdf-to-word.html" class="quick-tool-card">
+          <div class="quick-tool-icon">📝</div>
+          <div class="quick-tool-content">
+            <h3>PDF to Word</h3>
+            <p>Convert PDFs to editable Word documents</p>
+          </div>
+          <span class="quick-tool-arrow">→</span>
+        </a>
+        <a href="./pdf-signer.html" class="quick-tool-card">
+          <div class="quick-tool-icon">✏️</div>
+          <div class="quick-tool-content">
+            <h3>PDF Signer</h3>
+            <p>Create electronic signatures and sign documents</p>
+          </div>
+          <span class="quick-tool-arrow">→</span>
+        </a>
+        <a href="./image-to-pdf.html" class="quick-tool-card">
+          <div class="quick-tool-icon">🖼️</div>
+          <div class="quick-tool-content">
+            <h3>Image to PDF</h3>
+            <p>Transform images into PDF documents</p>
+          </div>
+          <span class="quick-tool-arrow">→</span>
+        </a>
+      </div>
+      <div class="quick-tools-more">
+        <a href="#tools" class="quick-tools-btn">See All PDF Tools</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works-section">
+    <div class="how-it-works-container">
+      <h2 class="how-it-works-title">How It Works</h2>
+      <p class="how-it-works-subtitle">Simple steps to process your PDFs in seconds</p>
+      <div class="how-it-works-steps">
+        <div class="how-step">
+          <div class="step-number">1</div>
+          <h3>Upload Your File</h3>
+          <p>Drag & drop or select your PDF document</p>
+        </div>
+        <div class="how-step">
+          <div class="step-number">2</div>
+          <h3>Preview & Select</h3>
+          <p>View pages and choose what to include</p>
+        </div>
+        <div class="how-step">
+          <div class="step-number">3</div>
+          <h3>Download Result</h3>
+          <p>Get your processed PDF instantly</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust Section -->
+  <section class="trust-section">
+    <div class="trust-container">
+      <div class="trust-grid">
+        <div class="trust-item">
+          <div class="trust-number">50M+</div>
+          <div class="trust-label">Active Users</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-number">1B+</div>
+          <div class="trust-label">Files Processed</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-number">4.9/5</div>
+          <div class="trust-label">User Rating</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-number">99.9%</div>
+          <div class="trust-label">Uptime</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1094,114 +1598,146 @@
     <div class="tools-grid">
       <a href="./pdf-merger.html" class="tool-card hot"><span class="hot-badge">Hot</span>
         <div class="tool-icon-wrapper">📄</div>
-        <h3>Free PDF Merger</h3>
-        <p>Merge PDF files online for free. Combine multiple PDFs into a single document. Supports files up to 50MB.</p>
-        <span class="tool-btn">Start Merging</span>
+        <div class="tool-card-content">
+          <h3>PDF Merger</h3>
+          <p>Merge PDF files online for free. Combine multiple PDFs into a single document. Supports files up to 50MB.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-splitter.html" class="tool-card hot"><span class="hot-badge">Hot</span>
         <div class="tool-icon-wrapper">✂️</div>
-        <h3>Free PDF Splitter</h3>
-        <p>Split PDF into multiple files. Extract specific pages or split by page ranges. Visual preview supported.</p>
-        <span class="tool-btn">Split Document</span>
+        <div class="tool-card-content">
+          <h3>PDF Splitter</h3>
+          <p>Split PDF into multiple files. Extract specific pages or split by page ranges. Visual preview supported.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-signer.html" class="tool-card hot"><span class="hot-badge">Hot</span>
         <div class="tool-icon-wrapper">✏️</div>
-        <h3>Free PDF Signer</h3>
-        <p>Edit PDF online with digital signatures. Draw or type your signature using our online PDF editor.</p>
-        <span class="tool-btn">Sign Document</span>
+        <div class="tool-card-content">
+          <h3>PDF Signer</h3>
+          <p>Edit PDF online with digital signatures. Draw or type your signature using our online PDF editor.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-to-word.html" class="tool-card hot"><span class="hot-badge">Hot</span>
-        <div class="tool-icon-wrapper"><span class="tool-icon">📄</span></div>
-        <h3>Free PDF to Word</h3>
-        <p>Free PDF to Word converter. Convert PDF to editable Word document. No software installation required.</p>
-        <span class="tool-btn">Convert Now</span>
+        <div class="tool-icon-wrapper">📄</div>
+        <div class="tool-card-content">
+          <h3>PDF to Word</h3>
+          <p>Free PDF to Word converter. Convert PDF to editable Word document. No software installation required.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-compressor.html" class="tool-card hot"><span class="hot-badge">Hot</span>
         <div class="tool-icon-wrapper">➖</div>
-        <h3>Free PDF Compressor</h3>
-        <p>Compress PDF without losing quality. Reduce PDF file size online. Supports files up to 50MB.</p>
-        <span class="tool-btn">Compress Now</span>
+        <div class="tool-card-content">
+          <h3>PDF Compressor</h3>
+          <p>Compress PDF without losing quality. Reduce PDF file size online. Supports files up to 50MB.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-redact.html" class="tool-card hot"><span class="hot-badge">Hot</span>
         <div class="tool-icon-wrapper">🔒</div>
-        <h3>Free PDF Redact</h3>
-        <p>Black out sensitive information in PDF. Hide phone numbers, IDs, bank accounts, and more.</p>
-        <span class="tool-btn">Redact Now</span>
+        <div class="tool-card-content">
+          <h3>PDF Redact</h3>
+          <p>Black out sensitive information in PDF. Hide phone numbers, IDs, bank accounts, and more.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-metadata-remover.html" class="tool-card hot"><span class="hot-badge">Hot</span>
         <div class="tool-icon-wrapper">✂️</div>
-        <h3>Remove PDF Metadata</h3>
-        <p>Strip author, date, title and other metadata from PDF files. Protect your privacy before sharing.</p>
-        <span class="tool-btn">Remove Now</span>
+        <div class="tool-card-content">
+          <h3>Remove Metadata</h3>
+          <p>Strip author, date, title and other metadata from PDF files. Protect your privacy before sharing.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-rotator.html" class="tool-card">
         <div class="tool-icon-wrapper">🔄</div>
-        <h3>Free Rotate PDF</h3>
-        <p>Edit PDF online by rotating pages. Supports 90, 180, and 270 degree rotation with our free PDF tools.</p>
-        <span class="tool-btn">Adjust Rotation</span>
+        <div class="tool-card-content">
+          <h3>Rotate PDF</h3>
+          <p>Edit PDF online by rotating pages. Supports 90, 180, and 270 degree rotation with our free PDF tools.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-page-reorder.html" class="tool-card">
         <div class="tool-icon-wrapper">🔀</div>
-        <h3>Free Reorder Pages</h3>
-        <p>Rearrange pages with visual drag-and-drop. Organize PDFs in any order you want.</p>
-        <span class="tool-btn">Reorder Now</span>
+        <div class="tool-card-content">
+          <h3>Reorder Pages</h3>
+          <p>Rearrange pages with visual drag-and-drop. Organize PDFs in any order you want.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-watermark.html" class="tool-card">
         <div class="tool-icon-wrapper">✏️</div>
-        <h3>Free PDF Watermark</h3>
-        <p>Edit PDF online by adding custom watermarks. Protect your documents with text or image stamps.</p>
-        <span class="tool-btn">Add Watermark</span>
+        <div class="tool-card-content">
+          <h3>PDF Watermark</h3>
+          <p>Edit PDF online by adding custom watermarks. Protect your documents with text or image stamps.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-margin.html" class="tool-card">
         <div class="tool-icon-wrapper">📂</div>
-        <h3>Free PDF Margin</h3>
-        <p>Adjust margins for printing and binding. Customize padding for professional documents.</p>
-        <span class="tool-btn">Customize Margins</span>
+        <div class="tool-card-content">
+          <h3>PDF Margin</h3>
+          <p>Adjust margins for printing and binding. Customize padding for professional documents.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-to-image.html" class="tool-card">
         <div class="tool-icon-wrapper">🖼️</div>
-        <h3>Free PDF to Image</h3>
-        <p>Convert PDF pages to high-quality images. Our PDF converter supports PNG and JPG formats.</p>
-        <span class="tool-btn">Export as Image</span>
+        <div class="tool-card-content">
+          <h3>PDF to Image</h3>
+          <p>Convert PDF pages to high-quality images. Our PDF converter supports PNG and JPG formats.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./image-to-pdf.html" class="tool-card">
         <div class="tool-icon-wrapper">🖼️</div>
-        <h3>Free Image to PDF</h3>
-        <p>Create PDFs from photos and scans. Our PDF file converter combines multiple images into one document.</p>
-        <span class="tool-btn">Create PDF</span>
+        <div class="tool-card-content">
+          <h3>Image to PDF</h3>
+          <p>Create PDFs from photos and scans. Our PDF file converter combines multiple images into one document.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-page-remover.html" class="tool-card">
         <div class="tool-icon-wrapper">🗑️</div>
-        <h3>Free Remove Pages</h3>
-        <p>Remove unwanted pages from PDFs. Visual preview before saving with our online PDF editor.</p>
-        <span class="tool-btn">Trim Document</span>
+        <div class="tool-card-content">
+          <h3>Remove Pages</h3>
+          <p>Remove unwanted pages from PDFs. Visual preview before saving with our online PDF editor.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-page-extractor.html" class="tool-card">
         <div class="tool-icon-wrapper">📤</div>
-        <h3>Free Extract Pages</h3>
-        <p>Extract specific pages from PDFs. Save selected pages as new documents with our PDF converter.</p>
-        <span class="tool-btn">Save Pages</span>
+        <div class="tool-card-content">
+          <h3>Extract Pages</h3>
+          <p>Extract specific pages from PDFs. Save selected pages as new documents with our PDF converter.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
       
       <a href="./pdf-page-number.html" class="tool-card">
         <div class="tool-icon-wrapper">📋</div>
-        <h3>Free Add Page Numbers</h3>
-        <p>Edit PDF online by adding page numbers. Multiple styles available with our free PDF tools.</p>
-        <span class="tool-btn">Insert Numbers</span>
+        <div class="tool-card-content">
+          <h3>Add Page Numbers</h3>
+          <p>Edit PDF online by adding page numbers. Multiple styles available with our free PDF tools.</p>
+        </div>
+        <span class="tool-arrow">→</span>
       </a>
     </div>
   </section>
@@ -1209,78 +1745,66 @@
   <!-- Features Section -->
   <section id="features" class="features-section">
     <h2 class="section-title">Why Choose PDFMaster?</h2>
-    <p class="section-subtitle">Powerful features designed for everyone. From casual users to professionals.</p>
+    <p class="section-subtitle">Professional PDF tools with your privacy in mind</p>
     
     <div class="features-grid">
       <a href="privacy-first.html" class="feature-card-link">
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
-          <h3>Privacy First</h3>
-          <p>All processing happens locally in your browser. Your files never leave your device.</p>
-          <span class="read-more">Learn more</span>
-        </div>
-      </a>
-      
-      <a href="lightning-fast.html" class="feature-card-link">
-        <div class="feature-card">
-          <div class="feature-icon">⚡</div>
-          <h3>Lightning Fast</h3>
-          <p>Optimized algorithms deliver instant results. No waiting for uploads or downloads.</p>
-          <span class="read-more">Learn more</span>
+          <div class="feature-card-content">
+            <h3>Files Never Uploaded</h3>
+            <p>Your documents never leave your device. No server uploads, complete privacy.</p>
+          </div>
         </div>
       </a>
       
       <a href="completely-free.html" class="feature-card-link">
         <div class="feature-card">
           <div class="feature-icon">🔓</div>
-          <h3>Completely Free</h3>
-          <p>All tools are free with no hidden fees, subscriptions, or usage limits.</p>
-          <span class="read-more">Learn more</span>
+          <div class="feature-card-content">
+            <h3>100% Free Forever</h3>
+            <p>No hidden fees, no subscriptions. All tools are completely free.</p>
+          </div>
         </div>
       </a>
       
-      <a href="web-access.html" class="feature-card-link">
+      <a href="lightning-fast.html" class="feature-card-link">
         <div class="feature-card">
-          <div class="feature-icon">🖥️</div>
-          <h3>Web-Based</h3>
-          <p>Access from any device - desktop, laptop, iPhone, or Android. No downloads needed.</p>
-          <span class="read-more">Learn more</span>
+          <div class="feature-icon">⚡</div>
+          <div class="feature-card-content">
+            <h3>Instant Results</h3>
+            <p>Process files in seconds. No waiting for uploads or downloads.</p>
+          </div>
         </div>
       </a>
       
       <a href="visual-preview.html" class="feature-card-link">
         <div class="feature-card">
           <div class="feature-icon">👀</div>
-          <h3>Visual Preview</h3>
-          <p>Preview pages before processing. See exactly what you're getting.</p>
-          <span class="read-more">Learn more</span>
-        </div>
-      </a>
-      
-      <a href="secure-processing.html" class="feature-card-link">
-        <div class="feature-card">
-          <div class="feature-icon">☁️</div>
-          <h3>Secure</h3>
-          <p>SSL encrypted connection. GDPR and CCPA compliant.</p>
-          <span class="read-more">Learn more</span>
+          <div class="feature-card-content">
+            <h3>Visual Preview</h3>
+            <p>See exactly what you're getting. Select specific pages to process.</p>
+          </div>
         </div>
       </a>
       
       <a href="web-access.html" class="feature-card-link">
         <div class="feature-card">
           <div class="feature-icon">📲</div>
-          <h3>Mobile Friendly</h3>
-          <p>Works seamlessly on all devices - iPhone, Android, tablet, and desktop.</p>
-          <span class="read-more">Learn more</span>
+          <div class="feature-card-content">
+            <h3>Works Anywhere</h3>
+            <p>Use on iPhone, Android, Mac, Windows - any device with a browser.</p>
+          </div>
         </div>
       </a>
       
-      <a href="easy-editing.html" class="feature-card-link">
+      <a href="secure-processing.html" class="feature-card-link">
         <div class="feature-card">
-          <div class="feature-icon">🖱️</div>
-          <h3>Easy to Use</h3>
-          <p>Intuitive interface with one-click operations. No technical skills required.</p>
-          <span class="read-more">Learn more</span>
+          <div class="feature-icon">�️</div>
+          <div class="feature-card-content">
+            <h3>Your Data Stays Yours</h3>
+            <p>We can't see your files. Perfect for confidential documents.</p>
+          </div>
         </div>
       </a>
     </div>
