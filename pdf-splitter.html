@@ -286,20 +286,20 @@
                 <div v-if="splitResults.length > 6" style="color: #6b7280; font-size: 14px;">
                   ...and {{ splitResults.length - 6 }} more files
                 </div>
-                <div class="download-section">
-                  <div class="filename-input">
-                    <label>Custom File Name:</label>
-                    <a-input v-model="downloadFileName" placeholder="Enter file name prefix" style="width: 200px;" />
-                  </div>
-                  <a-button type="primary" size="large" @click="downloadAll">Download All Files</a-button>
-                </div>
-                <div class="recommend-section">
-                  <p>Need to merge PDFs? <a href="pdf-merger.html" class="recommend-link">Try our PDF Merger Tool →</a></p>
+                
+                <div class="filename-input">
+                  <label>Custom File Name:</label>
+                  <a-input v-model="downloadFileName" placeholder="Enter file name prefix" style="width: 200px;" />
                 </div>
 
-                <div class="action-section center">
+                <div class="button-bar">
                   <a-button type="default" @click="backToSelect">Back to Select Pages</a-button>
+                  <a-button type="primary" size="large" @click="downloadAll">Download All Files</a-button>
                   <a-button type="primary" @click="reset">Start Over</a-button>
+                </div>
+
+                <div class="recommend-section">
+                  <p>Need to merge PDFs? <a href="pdf-merger.html" class="recommend-link">Try our PDF Merger Tool →</a></p>
                 </div>
               </div>
 

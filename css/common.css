@@ -961,6 +961,18 @@ body {
     padding: 12px 24px;
     font-size: 14px;
   }
+  
+  .filename-input {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .filename-input label {
+    text-align: left;
+  }
+  .filename-input .ant-input {
+    width: 100% !important;
+  }
 }
 
 .filename-input {
