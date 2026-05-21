@@ -937,6 +937,7 @@ body {
   padding: 20px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-radius: 12px;
+  flex-wrap: wrap;
 }
 
 .button-bar .ant-btn-primary:nth-child(2) {
@@ -945,6 +946,21 @@ body {
   font-weight: 600;
   padding: 0 40px;
   border-radius: 12px;
+}
+
+@media (max-width: 576px) {
+  .button-bar {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .button-bar .ant-btn {
+    width: 100%;
+  }
+  .button-bar .ant-btn-primary:nth-child(2) {
+    height: auto;
+    padding: 12px 24px;
+    font-size: 14px;
+  }
 }
 
 .filename-input {
