@@ -279,36 +279,46 @@
                 <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
 
-              <div v-if="drawerStage === 'result' && done" class="result-content">
-                <div class="result-title">Pages Extracted Successfully!</div>
-                <p class="result-desc">Extracted {{ selectedPages.length }} page(s) from your PDF</p>
-                <div class="result-desc">New PDF size: {{ formatFileSize(extractedBlob.size) }}</div>
-                <div v-if="resultThumbnails.length > 0" class="result-preview">
-                  <div 
-                    v-for="(thumb, idx) in resultThumbnails" 
-                    :key="idx" 
-                    class="page-preview-item clickable"
-                    @click="openPreview(idx)" 
-                  >
-                    <img :src="thumb" class="page-preview-image" :alt="'Page ' + (idx + 1)">
-                    <div class="page-number">{{ idx + 1 }}</div>
-                    <div class="preview-overlay">Click to zoom</div>
-                  </div>
+              <div v-if="done" class="result-content">
+                <div class="result-header">
+                  <div class="result-icon">✓</div>
+                  <div class="result-title">Pages Extracted Successfully!</div>
+                  <p class="result-desc">Extracted {{ selectedPages.length }} page(s) from your PDF</p>
                 </div>
-                <div class="download-section">
-                  <div class="filename-input">
-                    <label>File Name:</label>
-                    <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-                  </div>
+
+                <div class="filename-input">
+                  <label>File Name:</label>
+                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                </div>
+
+                <div class="button-bar">
+                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
                   <a-button type="primary" size="large" @click="downloadResult">Download PDF</a-button>
+                  <a-button type="primary" @click="reset">Start Over</a-button>
                 </div>
+
                 <div class="recommend-section">
                   <p>Need to remove pages instead? <a href="pdf-page-remover.html" class="recommend-link">Try our Page Remover Tool →</a></p>
                 </div>
 
-                <div class="action-section center">
-                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                  <a-button type="primary" @click="reset">Start Over</a-button>
+                <div class="preview-layout" v-if="resultThumbnails.length > 0">
+                  <div class="sidebar">
+                    <div class="sidebar-title">Pages</div>
+                    <div class="thumbnails-list">
+                      <div v-for="(thumb, i) in resultThumbnails" :key="i" 
+                           class="sidebar-thumbnail" 
+                           :class="{ active: currentPage === i }"
+                           @click="scrollToPage(i)">
+                        <img :src="thumb" class="sidebar-image" :alt="'Page ' + (i+1)" />
+                        <div class="sidebar-page-num">{{ i + 1 }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="main-preview">
+                    <div v-for="(thumb, i) in resultThumbnails" :key="i" class="page-wrapper" :id="'page-' + i">
+                      <img :src="thumb" class="page-image" :alt="'Page ' + (i+1)" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -748,7 +758,8 @@ document.addEventListener('DOMContentLoaded', function() {
         zoomScale: 1,
         pdfDoc: null,
         downloadFileName: 'extracted_pages.pdf',
-        drawerWidth: 600
+        drawerWidth: 600,
+        currentPage: 0
       }
     },
     mounted() {
@@ -921,11 +932,14 @@ document.addEventListener('DOMContentLoaded', function() {
           
           await this.generateResultThumbnails();
           
+          this.progress = 100;
+          this.progressText = 'Complete!';
+          
           setTimeout(() => {
             this.extracting = false;
             this.done = true;
-            this.drawerStage = 'result';
-          }, 500);
+            this.$message.success('Pages extracted successfully!');
+          }, 300);
           
         } catch (error) {
           this.extracting = false;
@@ -938,9 +952,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const arrayBuffer = await this.extractedBlob.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         
-        for (let i = 1; i <= Math.min(5, pdf.numPages); i++) {
+        for (let i = 1; i <= Math.min(10, pdf.numPages); i++) {
           const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 0.5 });
+          const viewport = page.getViewport({ scale: 1.5 });
           const canvas = document.createElement('canvas');
           canvas.width = viewport.width;
           canvas.height = viewport.height;
@@ -1038,6 +1052,13 @@ document.addEventListener('DOMContentLoaded', function() {
         this.drawerWidth = 600;
         if (this.$refs.upload) {
           this.$refs.upload.uploadFiles = [];
+        }
+      },
+      scrollToPage(pageIndex) {
+        this.currentPage = pageIndex;
+        const element = document.getElementById('page-' + pageIndex);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       },
       formatFileSize(bytes) {

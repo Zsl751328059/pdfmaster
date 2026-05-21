@@ -167,6 +167,11 @@
   <script src="./lib/jszip/jszip.min.js"></script>
   <!-- Using JSZip for DOCX generation - more stable in browser -->
 
+  <style>
+    .main-content {
+      padding-bottom: 80px;
+    }
+  </style>
 </head>
 <body>
 <div id="app" class="app" v-cloak>
@@ -247,30 +252,18 @@
           <a-drawer
             :title="drawerStage === 'progress' ? 'Converting...' : (drawerStage === 'result' ? 'Conversion Complete' : 'Convert to Word')"
             :visible="showDrawer"
-            :width="600"
+            :width="drawerWidth"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
           >
             <div class="drawer-content">
-              <div v-if="drawerStage === 'options' && selectedFile" class="options-section">
-                <div class="options-title">File Information</div>
-                <div class="file-info-box">
-                  <i class="anticon anticon-file-text" style="font-size: 48px; color: #409EFF;"></i>
-                  <div class="file-details">
-                    <div class="file-name">{{ selectedFile.name }}</div>
-                    <div class="file-meta">{{ formatFileSize(selectedFile.size) }} | {{ pageCount }} pages</div>
-                  </div>
-                </div>
-                <div class="options-hint">Click "Convert to Word" to start the conversion process.</div>
-              </div>
-
               <div v-if="drawerStage === 'progress'" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
                 <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
 
-              <div v-if="drawerStage === 'result' && resultBlob" class="result-content">
+              <div v-if="resultBlob" class="result-content">
                 <div class="result-title">Conversion Complete!</div>
                 <p class="result-desc">Your PDF has been converted to Word DOCX</p>
                 <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
@@ -292,13 +285,6 @@
               <div class="action-section center">
                 <a-button type="default" @click="reset">Start Over</a-button>
               </div>
-              </div>
-
-              <div v-if="!processing && drawerStage !== 'result'" class="drawer-actions">
-                <a-button @click="showDrawer = false">Cancel</a-button>
-                <a-button type="primary" @click="convertToWord">
-                  Convert to Word
-                </a-button>
               </div>
             </div>
           </a-drawer>
@@ -598,7 +584,23 @@
       </div>
     </div>
   </footer>
-</div>
+
+      <div v-if="showPrivacyBanner" class="privacy-banner">
+        <div class="banner-content">
+          <div class="banner-title">🔒 Privacy Notice for PDF to Word Conversion</div>
+          <div class="banner-text">
+            We respect all users and are obligated to fully inform every visitor clearly.<br>
+            Unlike our other tools that process files 100% locally in your browser, PDF to Word conversion cannot be completed by pure front-end technology.<br>
+            Almost all mainstream online PDF conversion platforms need temporary server upload and processing to restore complete document formatting and layout.<br>
+            Your files will only be uploaded temporarily for conversion purposes. All uploaded files will be automatically and permanently deleted immediately after processing. We will never store, keep or record any of your file content and personal information.
+          </div>
+        </div>
+        <div class="banner-actions">
+          <a-button type="default" @click="showPrivacyBanner = false">Remind me later</a-button>
+          <a-button type="primary" @click="acknowledgePrivacy">I understand</a-button>
+        </div>
+      </div>
+    </div>
 
 <script>
 Vue.use(antd)
@@ -614,10 +616,12 @@ new Vue({
       progress: 0,
       progressText: '',
       isDragging: false,
+      showPrivacyBanner: true,
       pages: [],  // 存储每页的内容
       downloadFileName: '',  // 自定义下载文件名
       showDrawer: false,
-      drawerStage: 'options'
+      drawerStage: 'options',
+      drawerWidth: '600'
     };
   },
   computed: {
@@ -627,12 +631,19 @@ new Vue({
   },
   mounted() {
     window.addEventListener('beforeunload', this.handleBeforeUnload)
+    if (localStorage.getItem('pdf-to-word-privacy-ack') === 'true') {
+      this.showPrivacyBanner = false
+    }
   },
   beforeDestroy() {
     window.removeEventListener('beforeunload', this.handleBeforeUnload)
     this.cleanupAllResources()
   },
   methods: {
+    acknowledgePrivacy() {
+      this.showPrivacyBanner = false
+      localStorage.setItem('pdf-to-word-privacy-ack', 'true')
+    },
     handleBeforeUnload() {
       this.cleanupAllResources()
     },
@@ -716,6 +727,10 @@ new Vue({
     },
 
     async processFile(file) {
+      if (this.showPrivacyBanner) {
+        this.$message.error('Please acknowledge the privacy notice before uploading files');
+        return;
+      }
       if (file.type !== 'application/pdf') {
         this.$message.error('Please upload a PDF file');
         return;
@@ -735,6 +750,11 @@ new Vue({
       } catch (error) {
         console.error('Error loading PDF:', error);
       }
+      
+      this.drawerWidth = '100%';
+      this.showDrawer = true;
+      this.drawerStage = 'progress';
+      this.convertToWord();
     },
     
     handleTabClick(tab) {
@@ -755,144 +775,36 @@ new Vue({
       }
     },
     
-    // ✅ 修复2：彻底重写转换逻辑，无解构、无语法错误
     async convertToWord() {
       if (!this.selectedFile) return;
       
       this.processing = true;
       this.progress = 0;
-      this.progressText = 'Loading PDF...';
+      this.progressText = 'Uploading PDF...';
       this.drawerStage = 'progress';
       
       try {
-        const arrayBuffer = await this.selectedFile.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const formData = new FormData();
+        formData.append('file', this.selectedFile);
         
-        this.progress = 20;
-        this.progressText = 'Extracting text...';
+        this.progress = 30;
+        this.progressText = 'Converting on server...';
         
-        this.pages = [];
-        const paragraphThreshold = 15;
+        const response = await fetch('https://myword-1.onrender.com/convert', {
+          method: 'POST',
+          body: formData
+        });
         
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const textContent = await page.getTextContent();
-          
-          const pageParagraphs = [];
-          
-          if (textContent.items.length === 0) {
-            this.pages.push({ pageNumber: i, paragraphs: [] });
-          } else {
-            // ✅ 关键修复：按照阅读顺序排序文本块
-            // transform[5] = Y坐标（顶部为大值），transform[4] = X坐标（左边为小值）
-            // transform[3] = 字体大小（缩放因子）
-            const sortedItems = [...textContent.items].sort((a, b) => {
-              // 首先按Y坐标降序（从上到下）
-              const yDiff = b.transform[5] - a.transform[5];
-              if (Math.abs(yDiff) > paragraphThreshold) {
-                return yDiff;
-              }
-              // 同一行内按X坐标升序（从左到右）
-              return a.transform[4] - b.transform[4];
-            });
-            
-            let currentParagraph = '';
-            let lastY = sortedItems[0].transform[5];
-            let currentFontSize = sortedItems[0].transform[3] || 16; // 默认16号字
-            
-            for (const item of sortedItems) {
-              const currentY = item.transform[5];
-              const itemFontSize = item.transform[3] || 16;
-              const yDiff = Math.abs(lastY - currentY);
-              
-              if (yDiff > paragraphThreshold && currentParagraph.trim()) {
-                // 保存段落及字体大小信息
-                pageParagraphs.push({ text: currentParagraph.trim(), fontSize: currentFontSize });
-                currentParagraph = '';
-                currentFontSize = itemFontSize;
-              }
-              
-              currentParagraph += item.str;
-              lastY = currentY;
-              // 使用当前最大的字体大小
-              if (itemFontSize > currentFontSize) {
-                currentFontSize = itemFontSize;
-              }
-            }
-            
-            if (currentParagraph.trim()) {
-              pageParagraphs.push({ text: currentParagraph.trim(), fontSize: currentFontSize });
-            }
-            
-            this.pages.push({ pageNumber: i, paragraphs: pageParagraphs });
-          }
-          
-          
-          
-          this.progress = 20 + Math.round((i / pdf.numPages) * 60);
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
         }
-        
-        await pdf.destroy();
         
         this.progress = 80;
-        this.progressText = 'Creating Word document...';
-
-        // ✅ 使用 JSZip 生成 DOCX 文件（浏览器稳定版本）
-        // DOCX本质是ZIP格式，包含XML文件
-        const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-</Types>`;
-
-        const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`;
-
-        // 构建文档内容（保留字体大小信息）
-        // 使用字符串数组优化性能
-        const bodyContent = [];
-        for (const page of this.pages) {
-          for (const p of page.paragraphs) {
-            if (!p || !p.text || !p.text.trim()) continue;
-            const trimmedText = p.text.trim();
-            // 转义XML特殊字符
-            const escapedText = trimmedText
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;')
-              .replace(/'/g, '&apos;');
-            const fontSize = Math.round((p.fontSize || 16) * 2);
-            bodyContent.push(`<w:p><w:r><w:rPr><w:sz w:val="${fontSize}"/><w:szCs w:val="${fontSize}"/></w:rPr><w:t>${escapedText}</w:t></w:r></w:p>`);
-          }
-        }
-        const bodyContentStr = bodyContent.join('\n');
-
-        const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>
-${bodyContentStr}
-    <w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr>
-  </w:body>
-</w:document>`;
-
-        // 创建ZIP包
-        const zip = new JSZip();
-        zip.file('[Content_Types].xml', contentTypesXml);
-        zip.folder('_rels').file('.rels', relsXml);
-        zip.folder('word').file('document.xml', documentXml);
-
-        this.progress = 90;
-        this.progressText = 'Generating file...';
-
-        // 生成ZIP文件
-        const blob = await zip.generateAsync({ type: 'blob' });
+        this.progressText = 'Downloading result...';
+        
+        const blob = await response.blob();
         this.resultBlob = blob;
         
-        // 设置默认下载文件名（使用原PDF文件名，去掉.pdf扩展名）
         if (this.selectedFile) {
           this.downloadFileName = this.selectedFile.name.replace(/\.pdf$/i, '');
         } else {
@@ -902,13 +814,12 @@ ${bodyContentStr}
         setTimeout(() => {
           this.processing = false;
           this.progress = 100;
-          this.drawerStage = 'result';
           this.$message.success('Conversion completed successfully!');
         }, 300);
         
       } catch (error) {
         this.processing = false;
-        this.$message.error('Failed to convert PDF');
+        this.$message.error('Failed to convert PDF: ' + error.message);
         console.error(error);
         this.drawerStage = 'options';
       }
@@ -952,6 +863,7 @@ ${bodyContentStr}
       this.downloadFileName = ''
       this.showDrawer = false
       this.drawerStage = 'options'
+      this.drawerWidth = '600'
       if (this.$refs.fileInput) {
         this.$refs.fileInput.value = ''
       }

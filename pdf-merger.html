@@ -213,7 +213,6 @@
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   <style>
-   
   </style>
   <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
@@ -351,30 +350,46 @@
               </div>
 
               <div v-if="done" class="result-content">
-                <div class="result-title">Merge Completed!</div>
-                <p class="result-desc">Your PDF is ready to download</p>
-                <div class="result-preview">
-                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)" >
-                    <img :src="t" class="page-preview-image">
-                    <div class="page-number">{{ i+1 }}</div>
-                    <div class="preview-overlay">Click to zoom</div>
-                  </div>
+                <div class="result-header">
+                  <div class="result-icon">✓</div>
+                  <div class="result-title">Merge Completed!</div>
+                  <p class="result-desc">Your PDF is ready to download</p>
                 </div>
-                <div class="download-section">
-                  <div class="filename-input">
-                    <label>File Name:</label>
-                    <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-                  </div>
+
+                <div class="filename-input">
+                  <label>File Name:</label>
+                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                </div>
+
+                <div class="button-bar">
+                  <a-button type="default" @click="backToSelect">Back to Select Pages</a-button>
                   <a-button type="primary" size="large" @click="download">Download PDF</a-button>
+                  <a-button type="primary" @click="reset">Start Over</a-button>
                 </div>
 
                 <div class="recommend-section">
                   <p>Need to reorder PDF pages? <a href="pdf-page-reorder.html" class="recommend-link">Try our PDF Page Reorder Tool →</a></p>
                 </div>
-
-                <div class="action-section center">
-                  <a-button type="default" @click="backToSelect">Back to Select Pages</a-button>
-                  <a-button type="primary" @click="reset">Start Over</a-button>
+                
+                <div class="preview-layout">
+                  <div class="sidebar">
+                    <div class="sidebar-title">Pages</div>
+                    <div class="thumbnails-list">
+                      <div v-for="(t, i) in previews" :key="i" 
+                           class="sidebar-thumbnail" 
+                           :class="{active: currentPreviewPage === i + 1}"
+                           @click="scrollToPage(i)">
+                        <img :src="t" class="sidebar-image">
+                        <div class="sidebar-page-num">{{ i+1 }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="main-preview">
+                    <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
+                      <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -785,7 +800,8 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       zoomScale: 1,
       renderQueue: [],
       isRendering: false,
-      drawerWidth: 600
+      drawerWidth: 600,
+      currentPreviewPage: 1
     }
   },
   mounted() {
@@ -813,6 +829,13 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
         return 'Merge'
       }
       return 'Merge PDFs'
+    },
+    scrollToPage(pageIndex) {
+      this.currentPreviewPage = pageIndex + 1
+      const pageElement = document.getElementById('page-' + pageIndex)
+      if (pageElement) {
+        pageElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
     },
     handleDrawerAction() {
       if (this.drawerStage === 'select') {
@@ -1237,7 +1260,7 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       const bytes = await this.resultBlob.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
       const max = pdf.numPages
-      const concurrency = 4
+      const concurrency = 2
       const pageGroups = []
       
       for (let i = 1; i <= max; i++) {
@@ -1248,7 +1271,7 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
         const batch = pageGroups.splice(0, concurrency)
         const promises = batch.map(async (pageNum) => {
           const page = await pdf.getPage(pageNum)
-          const vp = page.getViewport({ scale: 0.6 })
+          const vp = page.getViewport({ scale: 1.5 })
           const c = document.createElement('canvas')
           const ctx = c.getContext('2d')
           c.width = vp.width

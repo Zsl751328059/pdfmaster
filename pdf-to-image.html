@@ -285,17 +285,19 @@
               <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
             </div>
 
-            <div v-if="drawerStage === 'result' && done" class="result-content">
+            <div v-if="done" class="result-content">
               <div class="result-title">Conversion Completed!</div>
               <p class="result-desc">Successfully converted {{ convertedImages.length }} page(s) to {{ form.format.toUpperCase() }} format</p>
               <div class="result-preview">
-                <div v-for="(img, idx) in convertedImages.slice(0, 6)" :key="idx" class="page-preview-item clickable" @click="openPreview(img)" >
-                  <img :src="img.data" class="page-preview-image">
-                  <div class="preview-overlay">Click to zoom</div>
+                <div v-for="(img, idx) in convertedImages" :key="idx" class="split-result-item" >
+                  <div class="page-preview-item clickable" @click="openPreview(img)" >
+                    <img :src="img.data" class="page-preview-image">
+                    <div class="preview-overlay">Click to zoom</div>
+                  </div>
+                  <button class="download-single-btn" @click="downloadSingle(img, idx)">
+                    <i class="anticon anticon-download"></i> Download
+                  </button>
                 </div>
-              </div>
-              <div v-if="convertedImages.length > 6" style="color: #6b7280; font-size: 14px;">
-                ...and {{ convertedImages.length - 6 }} more images
               </div>
               <div class="download-section">
                 <div class="filename-input">
@@ -964,9 +966,15 @@ new Vue({
         }
         
         pdf.destroy()
-        this.converting = false
-        this.done = true
-        this.drawerStage = 'result'
+        
+        this.progress = 100
+        this.progressText = 'Complete!'
+        
+        setTimeout(() => {
+          this.converting = false
+          this.done = true
+          this.$message.success('Conversion completed successfully!')
+        }, 300)
         
       } catch (error) {
         console.error('Error converting PDF:', error)
@@ -974,6 +982,15 @@ new Vue({
         this.converting = false
         this.drawerStage = 'options'
       }
+    },
+    downloadSingle(img, idx) {
+      const prefix = this.downloadFileName.trim() || 'pdf-image'
+      const link = document.createElement('a')
+      link.href = img.data
+      link.download = `${prefix}-page-${idx + 1}.${this.form.format}`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     },
     async downloadAll() {
       if (this.convertedImages.length === 1) {

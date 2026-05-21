@@ -526,31 +526,47 @@
                 <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
 
-              <div v-if="drawerStage === 'result' && done" class="result-content">
-                <div class="result-title">Watermark Added Successfully!</div>
-                <p class="result-desc">Your PDF has been watermarked successfully</p>
-                <div class="result-preview">
-                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)">
-                    <img :src="t" class="page-preview-image">
-                    <div class="page-number">{{ i+1 }}</div>
-                    <div class="preview-overlay">Click to zoom</div>
-                  </div>
+              <div v-if="done" class="result-content">
+                <div class="result-header">
+                  <div class="result-icon">✓</div>
+                  <div class="result-title">Watermark Added Successfully!</div>
+                  <p class="result-desc">Your PDF has been watermarked successfully</p>
                 </div>
-                <div class="download-section">
-                  <div class="filename-input">
-                    <label>File Name:</label>
-                    <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-                  </div>
-                  <a-button type="primary" size="large" @click="download">Download PDF</a-button>
-                </div>
-                <div class="recommend-section">
-                <p>Need to protect your PDF with a digital signature? <a href="pdf-signer.html" class="recommend-link">Try our PDF Signer Tool →</a></p>
-              </div>
 
-              <div class="action-section center">
-                <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                <a-button type="default" @click="reset">Start Over</a-button>
-              </div>
+                <div class="filename-input">
+                  <label>File Name:</label>
+                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                </div>
+
+                <div class="button-bar">
+                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
+                  <a-button type="primary" size="large" @click="download">Download PDF</a-button>
+                  <a-button type="default" @click="reset">Start Over</a-button>
+                </div>
+
+                <div class="recommend-section">
+                  <p>Need to protect your PDF with a digital signature? <a href="pdf-signer.html" class="recommend-link">Try our PDF Signer Tool →</a></p>
+                </div>
+
+                <div class="preview-layout" v-if="previews.length > 0">
+                  <div class="sidebar">
+                    <div class="sidebar-title">Pages</div>
+                    <div class="thumbnails-list">
+                      <div v-for="(t, i) in previews" :key="i" 
+                           class="sidebar-thumbnail" 
+                           :class="{ active: currentPage === i }"
+                           @click="scrollToPage(i)">
+                        <img :src="t" class="sidebar-image" :alt="'Page ' + (i+1)" />
+                        <div class="sidebar-page-num">{{ i + 1 }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="main-preview">
+                    <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
+                      <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div v-if="drawerStage === 'options'" class="drawer-actions">
@@ -911,7 +927,8 @@ new Vue({
       currentPreviewImage: '',
       zoomScale: 1,
       showDrawer: false,
-      drawerStage: 'options'
+      drawerStage: 'options',
+      currentPage: 0
     }
   },
   computed: {
@@ -1167,8 +1184,12 @@ new Vue({
         await this.generatePreviews()
         
         this.progress = 100
-        this.done = true
-        this.drawerStage = 'result'
+        this.progressText = 'Complete!'
+        
+        setTimeout(() => {
+          this.done = true
+          this.$message.success('Watermark added successfully!')
+        }, 300)
         
       } catch (error) {
         console.error('Error adding watermark:', error)
@@ -1212,11 +1233,11 @@ new Vue({
     async generatePreviews() {
       const arrayBuffer = await this.resultBlob.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const totalPages = Math.min(pdf.numPages, 6)
+      const totalPages = Math.min(pdf.numPages, 10)
       
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
-        const vp = page.getViewport({ scale: 0.4 })
+        const vp = page.getViewport({ scale: 1.5 })
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
         canvas.width = vp.width
@@ -1263,6 +1284,13 @@ new Vue({
       }
       this.done = false
       this.downloadFileName = 'watermarked.pdf'
+    },
+    scrollToPage(pageIndex) {
+      this.currentPage = pageIndex;
+      const element = document.getElementById('page-' + pageIndex);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     },
     
     cleanupAllResources() {

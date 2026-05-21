@@ -235,28 +235,45 @@
               </div>
 
               <div v-if="done" class="result-content">
-                <div class="result-title">Conversion Completed!</div>
-                <p class="result-desc">Successfully converted {{ selectedFiles.length }} image(s) to PDF</p>
-                <div class="result-preview">
-                  <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)" >
-                    <img :src="t" class="page-preview-image">
-                    <div class="page-number">{{ i+1 }}</div>
-                    <div class="preview-overlay">Click to zoom</div>
-                  </div>
+                <div class="result-header">
+                  <div class="result-icon">✓</div>
+                  <div class="result-title">Conversion Completed!</div>
+                  <p class="result-desc">Successfully converted {{ selectedFiles.length }} image(s) to PDF</p>
                 </div>
-                <div class="download-section">
-                  <div class="filename-input">
-                    <label>File Name:</label>
-                    <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-                  </div>
+
+                <div class="filename-input">
+                  <label>File Name:</label>
+                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                </div>
+
+                <div class="button-bar">
+                  <span></span>
                   <a-button type="primary" size="large" @click="download">Download PDF</a-button>
+                  <a-button type="primary" @click="reset">Start Over</a-button>
                 </div>
+
                 <div class="recommend-section">
                   <p>Need to convert PDF to images? <a href="pdf-to-image.html" class="recommend-link">Try our PDF to Image Tool →</a></p>
                 </div>
 
-                <div class="action-section center">
-                  <a-button type="default" @click="reset">Start Over</a-button>
+                <div class="preview-layout" v-if="previews.length > 0">
+                  <div class="sidebar">
+                    <div class="sidebar-title">Pages</div>
+                    <div class="thumbnails-list">
+                      <div v-for="(t, i) in previews" :key="i" 
+                           class="sidebar-thumbnail" 
+                           :class="{ active: currentPage === i }"
+                           @click="scrollToPage(i)">
+                        <img :src="t" class="sidebar-image" :alt="'Page ' + (i+1)" />
+                        <div class="sidebar-page-num">{{ i + 1 }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="main-preview">
+                    <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
+                      <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -664,7 +681,8 @@ document.addEventListener('DOMContentLoaded', function() {
       currentPreviewImage: '',
       zoomScale: 1,
       showDrawer: false,
-      drawerStage: 'options'
+      drawerStage: 'options',
+      currentPage: 0
     }
   },
   mounted() {
@@ -884,8 +902,13 @@ document.addEventListener('DOMContentLoaded', function() {
         await this.generatePreviews()
         
         this.progress = 100
-        this.converting = false
-        this.done = true
+        this.progressText = 'Complete!'
+        
+        setTimeout(() => {
+          this.converting = false
+          this.done = true
+          this.$message.success('Conversion completed successfully!')
+        }, 300)
         
       } catch (error) {
         console.error('Error converting images:', error)
@@ -900,7 +923,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
-        const vp = page.getViewport({ scale: 0.4 })
+        const vp = page.getViewport({ scale: 1.5 })
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
         canvas.width = vp.width
@@ -951,6 +974,13 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       this.previews = []
       this.downloadFileName = 'images.pdf'
+    },
+    scrollToPage(pageIndex) {
+      this.currentPage = pageIndex;
+      const element = document.getElementById('page-' + pageIndex);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   }
 })

@@ -339,33 +339,45 @@
                 <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
 
-              <div v-if="drawerStage === 'result'" class="preview-section">
-                <div class="result-content">
-                  <div class="result-info">
-                    <div class="result-icon">✅</div>
-                    <div class="result-text">Your PDF has been successfully rotated!</div>
-                  </div>
-                  <div class="result-preview">
-                    <div v-for="(t, i) in resultPreviews" :key="i" class="page-preview-item clickable" @click="openPreview(t)">
-                      <img :src="t" class="page-preview-image">
-                      <div class="page-number">{{ i+1 }}</div>
-                      <div class="preview-overlay">Click to zoom</div>
-                    </div>
-                  </div>
-                  <div class="download-section">
-                    <div class="filename-input">
-                      <label>File Name:</label>
-                      <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-                    </div>
-                    <a-button type="primary" size="large" @click="download">Download PDF</a-button>
-                  </div>
-                  <div class="recommend-section">
-                    <p>Need to reorder pages? <a href="pdf-page-reorder.html" class="recommend-link">Try our Page Reorder Tool →</a></p>
-                  </div>
+              <div v-if="done" class="result-content">
+                <div class="result-header">
+                  <div class="result-icon">✓</div>
+                  <div class="result-title">Rotation Completed!</div>
+                  <p class="result-desc">Your PDF has been successfully rotated!</p>
+                </div>
 
-                  <div class="action-section center">
-                    <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                    <a-button type="default" @click="reset">Start Over</a-button>
+                <div class="filename-input">
+                  <label>File Name:</label>
+                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                </div>
+
+                <div class="button-bar">
+                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
+                  <a-button type="primary" size="large" @click="download">Download PDF</a-button>
+                  <a-button type="default" @click="reset">Start Over</a-button>
+                </div>
+
+                <div class="recommend-section">
+                  <p>Need to reorder pages? <a href="pdf-page-reorder.html" class="recommend-link">Try our Page Reorder Tool →</a></p>
+                </div>
+
+                <div class="preview-layout" v-if="resultPreviews.length > 0">
+                  <div class="sidebar">
+                    <div class="sidebar-title">Pages</div>
+                    <div class="thumbnails-list">
+                      <div v-for="(t, i) in resultPreviews" :key="i" 
+                           class="sidebar-thumbnail" 
+                           :class="{ active: currentPage === i }"
+                           @click="scrollToPage(i)">
+                        <img :src="t" class="sidebar-image" :alt="'Page ' + (i+1)" />
+                        <div class="sidebar-page-num">{{ i + 1 }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="main-preview">
+                    <div v-for="(t, i) in resultPreviews" :key="i" class="page-wrapper" :id="'page-' + i">
+                      <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -708,7 +720,8 @@ new Vue({
       progress: 0,
       progressText: '',
       showDrawer: false,
-      drawerStage: 'options'
+      drawerStage: 'options',
+      currentPage: 0
     }
   },
   mounted() {
@@ -910,8 +923,13 @@ new Vue({
         await this.generateResultPreviews()
         
         this.progress = 100
-        this.done = true
-        this.drawerStage = 'result'
+        this.progressText = 'Complete!'
+        
+        setTimeout(() => {
+          this.done = true
+          this.drawerStage = 'result'
+          this.$message.success('PDF rotated successfully!')
+        }, 300)
         
       } catch (error) {
         console.error('Error rotating PDF:', error)
@@ -922,11 +940,11 @@ new Vue({
     async generateResultPreviews() {
       const arrayBuffer = await this.resultBlob.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const totalPages = Math.min(pdf.numPages, 6)
+      const totalPages = Math.min(pdf.numPages, 10)
       
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
-        const vp = page.getViewport({ scale: 0.4 })
+        const vp = page.getViewport({ scale: 1.5 })
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
         canvas.width = vp.width
@@ -1020,6 +1038,13 @@ new Vue({
       this.currentPreviewImage = null
       this.drawerStage = 'options'
       this.showDrawer = false
+    },
+    scrollToPage(pageIndex) {
+      this.currentPage = pageIndex;
+      const element = document.getElementById('page-' + pageIndex);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   }
 })

@@ -327,34 +327,51 @@
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'progress'" class="progress-section">
+              <div v-if="drawerStage === 'progress' || merging" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
                 <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
 
-              <div v-if="drawerStage === 'result' && done" class="result-content">
-                <div class="result-title">Pages Removed Successfully!</div>
-                <p class="result-desc">Successfully removed {{ removedCount }} page(s) from your PDF</p>
-                <div class="result-preview">
-                  <div v-for="(page, i) in resultPreviews" :key="i" class="page-preview-item clickable" @click="openPreview(page)">
-                    <img :src="page" class="page-preview-image">
-                    <div class="page-number">{{ i + 1 }}</div>
-                    <div class="preview-overlay">Click to zoom</div>
-                  </div>
+              <div v-if="done" class="result-content">
+                <div class="result-header">
+                  <div class="result-icon">✓</div>
+                  <div class="result-title">Pages Removed Successfully!</div>
+                  <p class="result-desc">Successfully removed {{ removedCount }} page(s) from your PDF</p>
                 </div>
-                <div class="download-section">
-                  <div class="filename-input">
-                    <label>File Name:</label>
-                    <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-                  </div>
+
+                <div class="filename-input">
+                  <label>File Name:</label>
+                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                </div>
+
+                <div class="button-bar">
+                  <a-button type="default" @click="reset">Start Over</a-button>
                   <a-button type="primary" size="large" @click="download">Download PDF</a-button>
+                  <span></span>
                 </div>
+
                 <div class="recommend-section">
                   <p>Need to extract specific pages? <a href="pdf-page-extractor.html" class="recommend-link">Try our Page Extractor Tool →</a></p>
                 </div>
 
-                <div class="action-section center">
-                  <a-button type="default" @click="reset">Start Over</a-button>
+                <div class="preview-layout" v-if="resultPreviews.length > 0">
+                  <div class="sidebar">
+                    <div class="sidebar-title">Pages</div>
+                    <div class="thumbnails-list">
+                      <div v-for="(page, i) in resultPreviews" :key="i" 
+                           class="sidebar-thumbnail" 
+                           :class="{ active: currentPage === i }"
+                           @click="scrollToPage(i)">
+                        <img :src="page" class="sidebar-image" :alt="'Page ' + (i+1)" />
+                        <div class="sidebar-page-num">{{ i + 1 }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="main-preview">
+                    <div v-for="(page, i) in resultPreviews" :key="i" class="page-wrapper" :id="'page-' + i">
+                      <img :src="page" class="page-image" :alt="'Page ' + (i+1)" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -697,6 +714,7 @@ document.addEventListener('DOMContentLoaded', function() {
       pagePreviews: [],
       pagesToRemove: [],
       done: false,
+      merging: false,
       resultBlob: null,
       resultPreviews: [],
       downloadFileName: 'pages-removed',
@@ -705,7 +723,8 @@ document.addEventListener('DOMContentLoaded', function() {
       currentPreviewImage: '',
       zoomScale: 1,
       progress: 0,
-      progressText: ''
+      progressText: '',
+      currentPage: 0
     }
   },
   mounted() {
@@ -845,6 +864,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async removePages() {
       if (!this.selectedFiles.length) return
       
+      this.merging = true
       this.drawerStage = 'progress'
       this.progress = 0
       this.progressText = 'Loading PDF...'
@@ -874,10 +894,16 @@ document.addEventListener('DOMContentLoaded', function() {
         await this.generateResultPreviews()
         
         this.progress = 100
-        this.done = true
-        this.drawerStage = 'result'
+        this.progressText = 'Complete!'
+        
+        setTimeout(() => {
+          this.merging = false
+          this.done = true
+          this.$message.success('Pages removed successfully!')
+        }, 300)
         
       } catch (error) {
+        this.merging = false
         console.error('Error removing pages:', error)
         this.$message.error('Failed to remove pages. Please try again.')
         this.drawerStage = 'options'
@@ -912,11 +938,11 @@ document.addEventListener('DOMContentLoaded', function() {
       this.resultPreviews = []
       const arrayBuffer = await this.resultBlob.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const totalPages = Math.min(pdf.numPages, 6)
+      const totalPages = Math.min(pdf.numPages, 10)
       
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
-        const vp = page.getViewport({ scale: 0.4 })
+        const vp = page.getViewport({ scale: 1.5 })
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
         canvas.width = vp.width
@@ -1010,6 +1036,7 @@ document.addEventListener('DOMContentLoaded', function() {
       this.pagePreviews = []
       this.pagesToRemove = []
       this.done = false
+      this.merging = false
       this.resultBlob = null
       this.resultPreviews = []
       this.downloadFileName = 'pages-removed'
@@ -1018,6 +1045,13 @@ document.addEventListener('DOMContentLoaded', function() {
       this.currentPreviewImage = null
       this.drawerStage = 'options'
       this.showDrawer = false
+    },
+    scrollToPage(pageIndex) {
+      this.currentPage = pageIndex;
+      const element = document.getElementById('page-' + pageIndex);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   }
 })

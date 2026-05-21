@@ -400,31 +400,45 @@
             </div>
 
             <div v-if="done" class="result-content">
-              <div class="result-title">Signature Added Successfully!</div>
-              <p class="result-desc">Your PDF has been signed and is ready to download</p>
-              
-              <div class="result-preview">
-                <div v-for="(t, i) in previews" :key="i" class="page-preview-item clickable" @click="openPreview(t)" >
-                  <img :src="t" class="page-preview-image">
-                  <div class="page-number">{{ i+1 }}</div>
-                  <div class="preview-overlay">Click to zoom</div>
-                </div>
+              <div class="result-header">
+                <div class="result-icon">✓</div>
+                <div class="result-title">Signature Added Successfully!</div>
+                <p class="result-desc">Your PDF has been signed and is ready to download</p>
               </div>
-              
-              <div class="download-section">
-                <div class="filename-input">
-                  <label>File Name:</label>
-                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-                </div>
+
+              <div class="filename-input">
+                <label>File Name:</label>
+                <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+              </div>
+
+              <div class="button-bar">
+                <a-button type="default" @click="backToSign">Back to Signing</a-button>
                 <a-button type="primary" size="large" @click="download">Download Signed PDF</a-button>
+                <a-button type="primary" @click="reset">Start Over</a-button>
               </div>
+
               <div class="recommend-section">
                 <p>Need to add watermarks? <a href="pdf-watermark.html" class="recommend-link">Try our Watermark Tool →</a></p>
               </div>
 
-              <div class="action-section center">
-                <a-button type="default" @click="backToSign">Back to Signing</a-button>
-                <a-button type="primary" @click="reset">Start Over</a-button>
+              <div class="preview-layout" v-if="previews.length > 0">
+                <div class="sidebar">
+                  <div class="sidebar-title">Pages</div>
+                  <div class="thumbnails-list">
+                    <div v-for="(t, i) in previews" :key="i" 
+                         class="sidebar-thumbnail" 
+                         :class="{ active: currentPage === i }"
+                         @click="scrollToPage(i)">
+                      <img :src="t" class="sidebar-image" :alt="'Page ' + (i+1)" />
+                      <div class="sidebar-page-num">{{ i + 1 }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="main-preview">
+                  <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
+                    <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -768,7 +782,8 @@ new Vue({
       selectedPages: [],
       showPreviewModal: false,
       currentPreviewImage: '',
-      zoomScale: 1
+      zoomScale: 1,
+      currentPage: 0
     }
   },
   mounted() {
@@ -1077,13 +1092,13 @@ new Vue({
     
     async generatePagePreviews(arrayBuffer) {
       const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const numPages = pdf.numPages
+      const numPages = Math.min(pdf.numPages, 10)
       const previews = []
       
       try {
         for (let i = 1; i <= numPages; i++) {
           const page = await pdf.getPage(i)
-          const viewport = page.getViewport({ scale: 1.0 })
+          const viewport = page.getViewport({ scale: 1.5 })
           const canvas = document.createElement('canvas')
           const ctx = canvas.getContext('2d')
           canvas.width = viewport.width
@@ -1235,9 +1250,9 @@ new Vue({
         await this.generateResultPreviews(this.resultBlob)
         
         this.progress = 100
+        this.progressText = 'Complete!'
         this.signing = false
         this.done = true
-        this.drawerStage = 'result'
         
       } catch (error) {
         console.error('Error signing PDF:', error)
@@ -1277,6 +1292,13 @@ new Vue({
       this.downloadFileName = 'signed-document'
       if (this.signaturePad) {
         this.signaturePad.clear()
+      }
+    },
+    scrollToPage(pageIndex) {
+      this.currentPage = pageIndex;
+      const element = document.getElementById('page-' + pageIndex);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
   }

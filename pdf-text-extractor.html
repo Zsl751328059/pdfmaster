@@ -552,7 +552,7 @@
               <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
             </div>
 
-            <div v-if="drawerStage === 'result'" class="result-content">
+            <div v-if="done" class="result-content">
               <div class="result-title">Extraction Completed!</div>
               <p class="result-desc">Successfully extracted text from your PDF</p>
               
@@ -1195,9 +1195,14 @@
             this.charCount = this.extractedText.length;
             this.wordCount = this.extractedText.split(/\s+/).filter(w => w.length > 0).length;
             
-            this.extracting = false;
-            this.done = true;
-            this.drawerStage = 'result';
+            this.progress = 100;
+            this.progressText = 'Complete!';
+            
+            setTimeout(() => {
+              this.extracting = false;
+              this.done = true;
+              this.$message.success('Text extracted successfully!');
+            }, 300);
             
           } catch (error) {
             console.error('Error extracting text:', error);

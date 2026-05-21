@@ -289,7 +289,8 @@
             showPreviewModal: false,
             currentPreviewImage: '',
             zoomScale: 1,
-            drawerWidth: 600
+            drawerWidth: '600',
+            currentPage: 0
           };
         },
         mounted() {
@@ -486,11 +487,13 @@
               
               await this.generateResultPreviews(pdfBytes);
               
+              this.progress = 100;
+              this.progressText = 'Complete!';
+              
               setTimeout(() => {
                 this.processing = false;
                 this.done = true;
-                this.progress = 100;
-                this.drawerStage = 'result';
+                this.$message.success('Page numbers added successfully!');
               }, 300);
               
             } catch (error) {
@@ -563,7 +566,7 @@
             
             for (let i = 1; i <= maxPages; i++) {
               const page = await pdf.getPage(i);
-              const viewport = page.getViewport({ scale: 0.6 });
+              const viewport = page.getViewport({ scale: 1.5 });
               const canvas = document.createElement('canvas');
               canvas.width = viewport.width;
               canvas.height = viewport.height;
@@ -623,7 +626,7 @@
           reset() {
             this.showDrawer = false;
             this.drawerStage = 'options';
-            this.drawerWidth = 600;
+            this.drawerWidth = '600';
             this.clearAllFiles();
             this.form = {
               position: 'bottom-center',
@@ -637,6 +640,13 @@
             this.done = false;
             this.resultBlob = null;
             this.resultPreviews = [];
+          },
+          scrollToPage(pageIndex) {
+            this.currentPage = pageIndex;
+            const element = document.getElementById('page-' + pageIndex);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
           },
           
           formatFileSize(bytes) {
@@ -832,49 +842,54 @@
               </div>
             </div>
 
-            <div v-if="drawerStage === 'progress'" class="progress-section">
+            <div v-if="drawerStage === 'progress' || processing" class="progress-section">
               <div class="progress-text">{{ progressText }}</div>
-              <div class="progress-bar">
-                <div class="progress-fill" :style="{width: progress + '%'}"></div>
-              </div>
+              <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
             </div>
 
-            <div v-if="drawerStage === 'result'" class="result-content">
-              <div class="result-title">
-                ✓
-                Page Numbers Added Successfully
+            <div v-if="done" class="result-content">
+              <div class="result-header">
+                <div class="result-icon">✓</div>
+                <div class="result-title">Page Numbers Added Successfully!</div>
+                <p class="result-desc">Your PDF now has page numbers added</p>
               </div>
-              <p class="result-desc">Your PDF now has page numbers added</p>
-              <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
-              <div v-if="resultPreviews.length > 0" class="result-preview">
-                <div 
-                  v-for="(thumb, idx) in resultPreviews" 
-                  :key="idx" 
-                  class="page-preview-item clickable"
-                  @click="openPreview(idx)" 
-                >
-                  <img :src="thumb" class="page-preview-image">
-                  <div class="page-number">{{ idx + 1 }}</div>
-                  <div class="preview-overlay">Click to zoom</div>
-                </div>
+
+              <div class="filename-input">
+                <label>File Name:</label>
+                <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
               </div>
-              <div class="download-section">
-                <div class="filename-input">
-                  <label>File Name:</label>
-                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-                </div>
+
+              <div class="button-bar">
+                <a-button type="default" @click="backToOptions">Back to Options</a-button>
                 <a-button type="primary" size="large" @click="download">
                   <i class="anticon anticon-download" style="margin-right: 8px;"></i>
                   Download PDF
                 </a-button>
+                <a-button type="primary" @click="reset">Start Over</a-button>
               </div>
+
               <div class="recommend-section">
                 <p>Need to add margins? <a href="pdf-margin.html" class="recommend-link">Try our Add Margins Tool →</a></p>
               </div>
 
-              <div class="action-section center">
-                <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                <a-button type="primary" @click="reset">Start Over</a-button>
+              <div class="preview-layout" v-if="resultPreviews.length > 0">
+                <div class="sidebar">
+                  <div class="sidebar-title">Pages</div>
+                  <div class="thumbnails-list">
+                    <div v-for="(thumb, i) in resultPreviews" :key="i" 
+                         class="sidebar-thumbnail" 
+                         :class="{ active: currentPage === i }"
+                         @click="scrollToPage(i)">
+                      <img :src="thumb" class="sidebar-image" :alt="'Page ' + (i+1)" />
+                      <div class="sidebar-page-num">{{ i + 1 }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="main-preview">
+                  <div v-for="(thumb, i) in resultPreviews" :key="i" class="page-wrapper" :id="'page-' + i">
+                    <img :src="thumb" class="page-image" :alt="'Page ' + (i+1)" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

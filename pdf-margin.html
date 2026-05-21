@@ -387,36 +387,50 @@
               <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
             </div>
 
-            <div v-if="drawerStage === 'result'" class="result-content">
-              <div class="result-title">Margins Added Successfully!</div>
-              <p class="result-desc">Your PDF now has custom margins</p>
-              <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
-              
-              <div class="result-preview" v-if="resultPreviews.length > 0">
-                <div v-for="(page, i) in resultPreviews.slice(0, 5)" :key="i" class="page-preview-item clickable" @click="openPreview(page)">
-                  <img :src="page" class="page-preview-image">
-                  <div class="page-number">{{ i + 1 }}</div>
-                  <div class="preview-overlay">Click to zoom</div>
-                </div>
+            <div v-if="done" class="result-content">
+              <div class="result-header">
+                <div class="result-icon">✓</div>
+                <div class="result-title">Margins Added Successfully!</div>
+                <p class="result-desc">Your PDF now has custom margins</p>
               </div>
-              <div class="download-section">
-                <div class="filename-input">
-                  <label>File Name:</label>
-                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
-                </div>
+
+              <div class="filename-input">
+                <label>File Name:</label>
+                <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+              </div>
+
+              <div class="button-bar">
+                <a-button type="default" @click="backToOptions">Back to Options</a-button>
                 <a-button type="primary" size="large" @click="download">
                   <i class="anticon anticon-download" style="margin-right: 8px;"></i>
                   Download PDF
                 </a-button>
+                <a-button type="primary" @click="reset">Start Over</a-button>
               </div>
+
               <div class="recommend-section">
                 <p>Need to add page numbers? <a href="pdf-page-number.html" class="recommend-link">Try our Add Page Numbers Tool →</a></p>
               </div>
 
-              <div class="action-section center">
-                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                  <a-button type="primary" @click="reset">Start Over</a-button>
+              <div class="preview-layout" v-if="resultPreviews.length > 0">
+                <div class="sidebar">
+                  <div class="sidebar-title">Pages</div>
+                  <div class="thumbnails-list">
+                    <div v-for="(page, i) in resultPreviews" :key="i" 
+                         class="sidebar-thumbnail" 
+                         :class="{ active: currentPage === i }"
+                         @click="scrollToPage(i)">
+                      <img :src="page" class="sidebar-image" :alt="'Page ' + (i+1)" />
+                      <div class="sidebar-page-num">{{ i + 1 }}</div>
+                    </div>
+                  </div>
                 </div>
+                <div class="main-preview">
+                  <div v-for="(page, i) in resultPreviews" :key="i" class="page-wrapper" :id="'page-' + i">
+                    <img :src="page" class="page-image" :alt="'Page ' + (i+1)" />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div v-if="drawerStage === 'options'" class="drawer-actions">
@@ -797,7 +811,8 @@
           currentPreviewImage: '',
           zoomScale: 1,
           done: false,
-          drawerWidth: 600
+          drawerWidth: 600,
+          currentPage: 0
         };
       },
       watch: {
@@ -986,11 +1001,13 @@
             this.progressText = 'Generating previews...';
             await this.generateResultPreviews();
             
+            this.progress = 100;
+            this.progressText = 'Complete!';
+            
             setTimeout(() => {
               this.processing = false;
               this.done = true;
-              this.progress = 100;
-              this.drawerStage = 'result';
+              this.$message.success('Margins added successfully!');
             }, 300);
             
           } catch (error) {
@@ -1023,6 +1040,13 @@
           this.resultPreviews = [];
           this.cleanupAllResources();
         },
+        scrollToPage(pageIndex) {
+          this.currentPage = pageIndex;
+          const element = document.getElementById('page-' + pageIndex);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        },
         async generateResultPreviews() {
           this.resultPreviews = [];
           if (!this.resultBlob) return;
@@ -1030,11 +1054,11 @@
           try {
             const arrayBuffer = await this.resultBlob.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            const numPages = Math.min(pdf.numPages, 5);
+            const numPages = Math.min(pdf.numPages, 10);
             
             for (let i = 1; i <= numPages; i++) {
               const page = await pdf.getPage(i);
-              const viewport = page.getViewport({ scale: 0.8 });
+              const viewport = page.getViewport({ scale: 1.5 });
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
 
