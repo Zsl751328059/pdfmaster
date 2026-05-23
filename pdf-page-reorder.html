@@ -170,7 +170,7 @@
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 12px;
       padding: 16px;
-      background: #fafafa;
+      background: rgba(30, 41, 59, 0.8);
       border-radius: 12px;
       min-height: 200px;
     }
@@ -179,12 +179,13 @@
       cursor: grab;
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       transition: all 0.3s ease;
+      background: rgba(51, 65, 85, 0.8);
     }
     .page-preview-item:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
     }
     .page-preview-item:active {
       cursor: grabbing;
@@ -201,7 +202,7 @@
       left: 8px;
       width: 24px;
       height: 24px;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(59, 130, 246, 0.9);
       color: #fff;
       border-radius: 50%;
       display: flex;
@@ -215,7 +216,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.8);
       color: #fff;
       padding: 4px 8px;
       font-size: 11px;
@@ -344,13 +345,19 @@
         </div>
 
         <a-drawer
-          :title="drawerStage === 'reorder' ? 'Reorder Pages' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
+          :body-style="{ padding: 0 }"
+          :title="'Reorder Pages'"
           :visible="showDrawer"
           :width="drawerWidth"
           :closable="true"
           :mask-closable="true"
           @close="handleDrawerClose"
         >
+          <div class="drawer-top-bar">
+            <div class="drawer-top-actions">
+              <a-button type="default" @click="handleDrawerClose">Cancel</a-button>
+            </div>
+          </div>
           <div class="drawer-content">
             <div v-if="drawerStage === 'reorder'" class="options-section">
               <div v-if="pages.length === 0" class="upload-area" style="pointer-events: none;">
@@ -359,10 +366,7 @@
               </div>
 
               <div v-else class="pages-container">
-                <div class="preview-header">
-                  <div class="preview-title">Reorder Pages</div>
-                  <div class="preview-hint">👆 Drag and drop to reorder</div>
-                </div>
+                
                 <div ref="pagesList" class="page-preview-grid">
                   <div 
                     v-for="(page, index) in pages" 
@@ -377,13 +381,22 @@
                 </div>
               </div>
 
-              <div v-if="pages.length > 0" class="drawer-actions">
-                <a-button @click="handleDrawerClose">Cancel</a-button>
-                <a-button type="primary" @click="reorderPages" :disabled="processing">{{ processing ? 'Reordering...' : 'Apply Reorder' }}</a-button>
+              <div v-if="pages.length > 0" class="drawer-bottom-actions">
+                <div class="drawer-actions-right">
+                  <a-button 
+                    type="primary" 
+                    size="large" 
+                    class="drawer-export-btn"
+                    :disabled="processing"
+                    @click="reorderPages"
+                  >
+                    {{ processing ? 'Reordering...' : 'Apply Reorder' }}
+                  </a-button>
+                </div>
               </div>
             </div>
 
-            <div v-if="drawerStage === 'progress'" class="progress-section">
+            <div v-if="drawerStage === 'progress' && progress < 100" class="progress-section">
               <div class="progress-text">{{ progressText }}</div>
               <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
             </div>
@@ -413,25 +426,7 @@
                 <p>Need to merge PDFs? <a href="pdf-merger.html" class="recommend-link">Try our PDF Merger Tool →</a></p>
               </div>
 
-              <div class="preview-layout" v-if="resultPreviews.length > 0">
-                <div class="sidebar">
-                  <div class="sidebar-title">Pages</div>
-                  <div class="thumbnails-list">
-                    <div v-for="(page, i) in resultPreviews" :key="i" 
-                         class="sidebar-thumbnail" 
-                         :class="{ active: currentPage === i }"
-                         @click="scrollToPage(i)">
-                      <img :src="page" class="sidebar-image" :alt="'Page ' + (i+1)" />
-                      <div class="sidebar-page-num">{{ i + 1 }}</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="main-preview">
-                  <div v-for="(page, i) in resultPreviews" :key="i" class="page-wrapper" :id="'page-' + i">
-                    <img :src="page" class="page-image" :alt="'Page ' + (i+1)" />
-                  </div>
-                </div>
-              </div>
+
             </div>
           </div>
         </a-drawer>

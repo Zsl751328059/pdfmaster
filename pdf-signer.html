@@ -109,7 +109,6 @@
   <script src="/lib/signature_pad/signature_pad.umd.min.js"></script>
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
@@ -165,9 +164,9 @@
     }
     .signature-canvas-wrapper {
       width: 100%;
-      border: 2px dashed #d1d5db;
+      border: 2px dashed rgba(255, 255, 255, 0.2);
       border-radius: 12px;
-      background: #fafafa;
+      background: rgba(30, 41, 59, 0.8);
       overflow: hidden;
       min-height: 250px;
     }
@@ -175,6 +174,7 @@
       display: block;
       width: 100%;
       height: auto;
+      background: transparent;
     }
     .signature-actions {
       display: flex;
@@ -192,26 +192,28 @@
       transition: all 0.3s;
     }
     .sig-btn-clear {
-      background: #fee2e2;
-      color: #dc2626;
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
     .sig-btn-clear:hover {
-      background: #fecaca;
+      background: rgba(239, 68, 68, 0.3);
     }
     .sig-btn-undo {
-      background: #dbeafe;
-      color: #2563eb;
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
     }
     .sig-btn-undo:hover {
-      background: #bfdbfe;
+      background: rgba(59, 130, 246, 0.3);
     }
     .sig-btn-save {
-      background: linear-gradient(135deg, #409EFF, #337ecc);
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
       color: white;
     }
     .sig-btn-save:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
     }
     .text-signature-input {
       display: flex;
@@ -223,16 +225,64 @@
       flex: 1;
       min-width: 200px;
       padding: 12px 16px;
-      border: 2px solid #e5e7eb;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 10px;
       font-size: 14px;
+      background: rgba(30, 41, 59, 0.6);
+      color: #f1f5f9;
     }
     .signature-input:focus {
       outline: none;
-      border-color: #409EFF;
+      border-color: #3b82f6;
+    }
+    .signature-input::placeholder {
+      color: #64748b;
     }
     .font-select {
       min-width: 150px;
+    }
+    .options-title {
+      color: #f1f5f9;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .mode-description {
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .option-label {
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .color-picker-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .color-input {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+    }
+    .color-value {
+      color: #94a3b8;
+      font-size: 14px;
+      font-family: monospace;
+    }
+    .signature-title {
+      color: #f1f5f9;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
   </style>
   
@@ -306,95 +356,161 @@
         </div>
 
         <a-drawer
-          :title="done ? 'Signing Result' : 'Create Signature'"
+          :title="done ? 'Signing Result' : ''"
           :visible="showDrawer"
           :width="'100%'"
           :closable="true"
           :mask-closable="true"
           @close="handleDrawerClose"
+          :body-style="{ padding: '0' }"
         >
           <div class="drawer-content">
-            <div v-if="!done && !signing" class="options-section" style="margin-bottom: 24px;">
-              <div class="options-title">Signature Mode</div>
-              <div class="mode-description">Choose how you want to create your signature</div>
-              
-              <div class="merge-mode-options">
-                <div class="mode-option" :class="{active: form.signatureType === 'draw'}" @click="form.signatureType = 'draw'">
-                  <div class="mode-icon">✏️</div>
-                  <div class="mode-title">Draw Signature</div>
-                  <div class="mode-desc">Draw with mouse/touch</div>
-                  <div class="mode-explanation">Draw your signature using your mouse or touch device for a personal touch.</div>
+            <div v-if="!done && !signing" class="drawer-select-stage">
+              <div class="drawer-top-bar">
+                <div class="drawer-top-content">
+                  <div class="drawer-view-tabs">
+                    <button 
+                      class="drawer-tab-btn" 
+                      :class="{active: currentView === 'files'}" 
+                      @click="switchView('files')"
+                    >
+                      <span class="tab-icon">📄</span>
+                      <span>Files</span>
+                    </button>
+                    <button 
+                      class="drawer-tab-btn" 
+                      :class="{active: currentView === 'pages'}" 
+                      @click="switchView('pages')"
+                    >
+                      <span class="tab-icon">📑</span>
+                      <span>Pages</span>
+                    </button>
+                  </div>
+                  <div class="drawer-toolbar-buttons">
+                    <a-button type="default" @click="clearFile" danger>
+                      Clear All
+                    </a-button>
+                    <a-button type="default" @click="reset">
+                      Cancel
+                    </a-button>
+                  </div>
                 </div>
-                <div class="mode-option" :class="{active: form.signatureType === 'text'}" @click="form.signatureType = 'text'">
-                  <div class="mode-icon">📝</div>
-                  <div class="mode-title">Text Signature</div>
-                  <div class="mode-desc">Type your signature</div>
-                  <div class="mode-explanation">Type your name and choose from several font options for a clean signature.</div>
+              </div>
+
+              <div v-if="currentView === 'files'" class="drawer-files-view">
+                <div class="drawer-files-grid">
+                  <div v-if="selectedFile" class="drawer-file-card">
+                    <div class="drawer-file-thumbnail">
+                      <img v-if="previews[0]" :src="previews[0]" class="drawer-file-preview">
+                      <div v-else class="drawer-file-placeholder">
+                        <i class="anticon anticon-file-pdf" style="font-size: 48px; color: #ff4444;"></i>
+                      </div>
+                    </div>
+                    <div class="drawer-file-info">
+                      <div class="drawer-file-name">{{ selectedFile.name }}</div>
+                      <div class="drawer-file-meta">{{ previews.length }} pages · {{ formatFileSize(selectedFile.size) }}</div>
+                    </div>
+                    <button class="drawer-file-remove" @click="clearFile">
+                      <span class="close-icon">×</span>
+                    </button>
+                  </div>
+                  
+                  <div v-if="!selectedFile" class="drawer-file-card drawer-add-card" @click="triggerUpload">
+                    <div class="drawer-add-content">
+                      <span class="drawer-add-icon">+</span>
+                      <div class="drawer-add-text">Add Files</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div v-else-if="currentView === 'pages'" class="drawer-pages-view">
+                <div class="drawer-pages-header">
+                  <div class="drawer-select-actions">
+                    <a-button size="small" @click="selectAllPages">Select All</a-button>
+                    <a-button size="small" @click="deselectAllPages">Deselect All</a-button>
+                    <a-button size="small" @click="toggleAllPages">Toggle</a-button>
+                  </div>
+                </div>
+                <div class="drawer-all-pages">
+                  <div class="drawer-file-pages-group">
+                    <div class="drawer-file-group-title">{{ selectedFile?.name || 'PDF File' }}</div>
+                    <div class="drawer-pages-grid">
+                      <div 
+                        v-for="(img, pi) in previews" 
+                        :key="pi" 
+                        class="drawer-page-item"
+                        :class="{selected: isSelected(pi + 1)}"
+                        @click="togglePage(pi + 1)"
+                      >
+                        <img :src="img" class="drawer-page-thumb">
+                        <div class="drawer-page-num">{{ pi + 1 }}</div>
+                        <div v-if="isSelected(pi + 1)" class="drawer-page-selected">✓</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="currentView === 'files'" class="options-section" style="padding: 16px 20px;">
+                <div class="options-title">Signature Mode</div>
+                <div class="mode-description">Choose how you want to create your signature</div>
+                
+                <div class="merge-mode-options">
+                  <div class="mode-option" :class="{active: form.signatureType === 'draw'}" @click="form.signatureType = 'draw'">
+                    <div class="mode-icon">✏️</div>
+                    <div class="mode-title">Draw Signature</div>
+                    <div class="mode-desc">Draw with mouse/touch</div>
+                    <div class="mode-explanation">Draw your signature using your mouse or touch device for a personal touch.</div>
+                  </div>
+                  <div class="mode-option" :class="{active: form.signatureType === 'text'}" @click="form.signatureType = 'text'">
+                    <div class="mode-icon">📝</div>
+                    <div class="mode-title">Text Signature</div>
+                    <div class="mode-desc">Type your signature</div>
+                    <div class="mode-explanation">Type your name and choose from several font options for a clean signature.</div>
+                  </div>
+                </div>
+
+                <div class="output-options" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #374151;">
+                  <div class="option-row">
+                    <label class="option-label">Signature Color</label>
+                    <div class="color-picker-container">
+                      <input v-model="form.signatureColor" type="color" class="color-input" @input="updateSignatureColor">
+                      <div class="color-value">{{ form.signatureColor }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="signature-section">
+                  <div class="signature-title">Create Your Signature</div>
+                  
+                  <template v-if="form.signatureType === 'draw'">
+                    <div class="signature-canvas-wrapper" style="height: 200px;">
+                      <canvas id="signatureCanvas" style="width: 100%; height: 100%;"></canvas>
+                    </div>
+                    <div class="signature-actions">
+                      <button class="sig-btn sig-btn-clear" @click="clearSignature">Clear</button>
+                      <button class="sig-btn sig-btn-undo" @click="undoSignature">Undo</button>
+                      <button class="sig-btn sig-btn-save" @click="saveSignature">Save Signature</button>
+                    </div>
+                  </template>
+                  
+                  <template v-else>
+                    <div class="text-signature-input">
+                      <a-input v-model="form.signatureText" class="signature-input" placeholder="Enter your signature text"></a-input>
+                      <a-select v-model="form.signatureFont" class="font-select">
+                        <a-select-option value="cursive">Cursive</a-select-option>
+                        <a-select-option value="arial">Arial</a-select-option>
+                        <a-select-option value="times">Times New Roman</a-select-option>
+                        <a-select-option value="courier">Courier</a-select-option>
+                      </a-select>
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
 
-            <div v-if="!done && !signing" class="preview-section">
-              <div class="preview-header">
-                <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
-                <div class="preview-actions">
-                  <a-button type="text" @click="selectAllPages">Select All</a-button>
-                  <a-button type="text" @click="deselectAllPages">Deselect All</a-button>
-                  <a-button type="text" @click="toggleAllPages">Toggle</a-button>
-                </div>
-              </div>
-              <div class="page-preview-container">
-                <div class="page-preview-grid">
-                  <div v-for="(img, index) in previews" :key="index" 
-                       class="page-preview-item" 
-                       :class="{selected: isSelected(index + 1)}" 
-                       @click="togglePage(index + 1)">
-                    <img :src="img" class="page-preview-image">
-                    <div class="page-number">{{ index + 1 }}</div>
-                    <div v-if="isSelected(index + 1)" class="selected-overlay">✓</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="output-options" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
-                <div class="option-row">
-                  <label class="option-label">Signature Color</label>
-                  <div class="color-picker-container">
-                    <input v-model="form.signatureColor" type="color" class="color-input" @input="updateSignatureColor">
-                    <div class="color-value">{{ form.signatureColor }}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="signature-section">
-                <div class="signature-title">Create Your Signature</div>
-                
-                <template v-if="form.signatureType === 'draw'">
-                  <div class="signature-canvas-wrapper" style="height: 200px;">
-                    <canvas id="signatureCanvas" style="width: 100%; height: 100%;"></canvas>
-                  </div>
-                  <div class="signature-actions">
-                    <button class="sig-btn sig-btn-clear" @click="clearSignature">Clear</button>
-                    <button class="sig-btn sig-btn-undo" @click="undoSignature">Undo</button>
-                    <button class="sig-btn sig-btn-save" @click="saveSignature">Save Signature</button>
-                  </div>
-                </template>
-                
-                <template v-else>
-                  <div class="text-signature-input">
-                    <a-input v-model="form.signatureText" class="signature-input" placeholder="Enter your signature text"></a-input>
-                    <a-select v-model="form.signatureFont" class="font-select">
-                      <a-select-option value="cursive">Cursive</a-select-option>
-                      <a-select-option value="arial">Arial</a-select-option>
-                      <a-select-option value="times">Times New Roman</a-select-option>
-                      <a-select-option value="courier">Courier</a-select-option>
-                    </a-select>
-                  </div>
-                </template>
-              </div>
-            </div>
-
-            <div v-if="drawerStage === 'progress' || signing" class="progress-section">
+            <div v-if="(drawerStage === 'progress' || signing) && progress < 100" class="progress-section">
               <div class="progress-text">{{ progressText }}</div>
               <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
             </div>
@@ -413,27 +529,21 @@
 
               <div class="button-bar">
                 <a-button type="default" @click="backToSign">Back to Signing</a-button>
-                <a-button type="primary" size="large" @click="download">Download Signed PDF</a-button>
-                <a-button type="primary" @click="reset">Start Over</a-button>
+                <a-button type="primary" size="large" @click="download">
+                  <i class="anticon anticon-download"></i>
+                  Download
+                </a-button>
+                <a-button type="primary" @click="reset">
+                  <i class="anticon anticon-redo"></i>
+                  Start Over
+                </a-button>
               </div>
 
               <div class="recommend-section">
                 <p>Need to add watermarks? <a href="pdf-watermark.html" class="recommend-link">Try our Watermark Tool →</a></p>
               </div>
 
-              <div class="preview-layout" v-if="previews.length > 0">
-                <div class="sidebar">
-                  <div class="sidebar-title">Pages</div>
-                  <div class="thumbnails-list">
-                    <div v-for="(t, i) in previews" :key="i" 
-                         class="sidebar-thumbnail" 
-                         :class="{ active: currentPage === i }"
-                         @click="scrollToPage(i)">
-                      <img :src="t" class="sidebar-image" :alt="'Page ' + (i+1)" />
-                      <div class="sidebar-page-num">{{ i + 1 }}</div>
-                    </div>
-                  </div>
-                </div>
+              <div class="preview-layout">
                 <div class="main-preview">
                   <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
                     <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
@@ -442,11 +552,12 @@
               </div>
             </div>
 
-            <div v-if="!done && !signing" class="drawer-actions">
-              <a-button type="default" size="large" @click="reset">Cancel</a-button>
-              <a-button type="primary" size="large" @click="handleDrawerAction" :disabled="signing || !canSignPDF">
-                {{ getDrawerActionText() }}
-              </a-button>
+            <div v-if="!done && !signing && selectedFile" class="drawer-bottom-actions">
+              <div class="drawer-actions-right">
+                <a-button type="primary" size="large" @click="handleDrawerAction" :disabled="signing || !canSignPDF">
+                  {{ getDrawerActionText() }}
+                </a-button>
+              </div>
             </div>
           </div>
         </a-drawer>
@@ -783,7 +894,8 @@ new Vue({
       showPreviewModal: false,
       currentPreviewImage: '',
       zoomScale: 1,
-      currentPage: 0
+      currentPage: 0,
+      currentView: 'files'
     }
   },
   mounted() {
@@ -838,12 +950,31 @@ new Vue({
         this.reset()
       }
     },
+    switchView(view) {
+      this.currentView = view
+      if (view === 'files' && this.form.signatureType === 'draw') {
+        setTimeout(() => {
+          this.initSignaturePad()
+        }, 100)
+      }
+    },
+    triggerUpload() {
+      const uploadEl = this.$refs.upload
+      if (uploadEl) {
+        const input = uploadEl.$el?.querySelector('input[type="file"]')
+        if (input) {
+          input.click()
+        }
+      }
+    },
     backToSign() {
       this.cleanupResultResources()
       this.done = false
       this.signing = false
       this.progress = 0
       this.progressText = ''
+      this.drawerStage = 'select'
+      this.currentView = 'files'
     },
     cleanupResultResources() {
       if (this.resultBlob) {

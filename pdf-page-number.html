@@ -162,61 +162,170 @@
   <link rel="stylesheet" href="/css/common.css">
   
   <style>
-    .position-options {
+    .position-buttons {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 16px;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-top: 12px;
     }
     .position-option {
-      padding: 16px;
-      border: 2px solid #e4e7ed;
-      border-radius: 12px;
+      padding: 12px 8px;
+      border: 2px solid #374151;
+      border-radius: 10px;
       cursor: pointer;
       text-align: center;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
+      background: #1f2937;
     }
     .position-option:hover {
-      border-color: #409eff;
-      background: #f0f7ff;
+      border-color: #3b82f6;
+      background: #374151;
     }
     .position-option.active {
-      border-color: #409eff;
-      background: #e8f4fd;
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.2);
     }
     .position-icon {
-      font-size: 24px;
-      margin-bottom: 8px;
+      font-size: 20px;
+      margin-bottom: 4px;
     }
     .position-title {
       font-weight: 500;
-      color: #303133;
-      font-size: 14px;
+      color: #f9fafb;
+      font-size: 12px;
     }
     .options-group {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      padding: 14px;
+      background: #1f2937;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      display: flex;
+      flex-direction: column;
     }
     .options-group label {
       display: block;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       font-weight: 500;
-      color: #606266;
+      color: #d1d5db;
+      font-size: 13px;
     }
     .margin-presets {
       display: flex;
-      gap: 8px;
-      margin-top: 12px;
+      gap: 6px;
+      margin-top: 10px;
       flex-wrap: wrap;
     }
     .margin-presets .ant-btn-text {
-      padding: 4px 12px;
-      font-size: 12px;
-      background: #f5f5f5;
+      padding: 3px 10px;
+      font-size: 11px;
+      background: #374151;
       border-radius: 4px;
+      color: #d1d5db;
+      border-color: #4b5563;
     }
     .margin-presets .ant-btn-text:hover {
-      background: #e8f4fd;
-      color: #409eff;
+      background: rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      border-color: #3b82f6;
+    }
+    .drawer-export-btn {
+      min-width: 160px;
+    }
+    .drawer-form-content {
+      padding: 20px;
+      background: #0f172a;
+    }
+    .drawer-form-content label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #d1d5db;
+      font-size: 13px;
+    }
+    .drawer-form-content .position-options {
+      background: #1f2937;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      margin-bottom: 14px;
+    }
+    .drawer-form-content .options-group {
+      background: #1f2937;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      margin-bottom: 14px;
+    }
+    .drawer-form-content .margin-presets {
+      background: transparent;
+      padding: 0;
+    }
+    .drawer-form-content .margin-presets .ant-btn-text {
+      background: #374151;
+      color: #d1d5db;
+    }
+    .drawer-form-content .margin-presets .ant-btn-text:hover {
+      background: rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+    }
+    .drawer-content .ant-select {
+      background: #1f2937;
+      border-color: #4b5563;
+      color: #f9fafb;
+    }
+    .drawer-content .ant-select-selector {
+      background: #1f2937 !important;
+      border-color: #4b5563 !important;
+      color: #f9fafb !important;
+    }
+    .drawer-content .ant-select-arrow {
+      color: #9ca3af;
+    }
+    .drawer-content .ant-select-dropdown {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    .drawer-content .ant-select-item {
+      color: #d1d5db;
+    }
+    .drawer-content .ant-select-item-option-selected {
+      background: #374151;
+    }
+    .drawer-content .ant-select-item-option-active {
+      background: #374151;
+    }
+    .drawer-content .ant-slider-rail {
+      background: #374151;
+    }
+    .drawer-content .ant-slider-track {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+    }
+    .drawer-content .ant-slider-handle {
+      border-color: #3b82f6;
+      background: #1f2937;
+    }
+    .drawer-content .ant-input-number {
+      background: #1f2937;
+      border-color: #4b5563;
+      color: #f9fafb;
+    }
+    .drawer-content .ant-input-number-input {
+      color: #f9fafb;
+    }
+    .options-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 20px;
+      align-items: stretch;
+    }
+    .options-row .options-group {
+      margin-bottom: 0;
+      min-height: 100%;
+    }
+    .drawer-form-content .options-row + .options-row {
+      margin-top: 14px;
     }
   </style>
   <script src="/lib/vue/vue.js"></script>
@@ -739,112 +848,147 @@
         </div>
 
         <a-drawer
-          :title="drawerStage === 'options' ? 'Customize Page Numbers' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
+          :title="drawerStage === 'options' ? 'Customize Page Numbers' : 'Result'"
           :visible="showDrawer"
           :width="drawerWidth"
           :closable="true"
           :mask-closable="true"
           @close="handleDrawerClose"
+          :body-style="{ padding: '0' }"
         >
           <div class="drawer-content">
-            <div v-if="drawerStage === 'options'" class="options-section">
-              <div class="options-title">Customize Page Numbers</div>
-              <div class="mode-description">Set position, font size, format, and start number for your page numbers</div>
-              <div class="options-group">
-                <label>Position</label>
+            <div v-if="drawerStage === 'options'" class="drawer-select-stage">
+              <!-- 抽屉顶部工具栏 -->
+              <div class="drawer-top-bar">
+                <div class="drawer-toolbar-buttons">
+                  <a-button type="danger" @click="handleDrawerClose">
+                    Cancel
+                  </a-button>
+                </div>
+              </div>
+              <div class="drawer-form-content">
                 <div class="position-options">
-                  <div 
-                    class="position-option" 
-                    :class="{active: form.position === 'top-left'}" 
-                    @click="form.position = 'top-left'"
-                  >
-                    <div class="position-icon">⬆️</div>
-                    <div class="position-title">Top Left</div>
-                  </div>
-                  <div 
-                    class="position-option" 
-                    :class="{active: form.position === 'top-center'}" 
-                    @click="form.position = 'top-center'"
-                  >
-                    <div class="position-icon">⬆️</div>
-                    <div class="position-title">Top Center</div>
-                  </div>
-                  <div 
-                    class="position-option" 
-                    :class="{active: form.position === 'top-right'}" 
-                    @click="form.position = 'top-right'"
-                  >
-                    <div class="position-icon">⬆️</div>
-                    <div class="position-title">Top Right</div>
-                  </div>
-                  <div 
-                    class="position-option" 
-                    :class="{active: form.position === 'bottom-left'}" 
-                    @click="form.position = 'bottom-left'"
-                  >
-                    <div class="position-icon">⬇️</div>
-                    <div class="position-title">Bottom Left</div>
-                  </div>
-                  <div 
-                    class="position-option" 
-                    :class="{active: form.position === 'bottom-center'}" 
-                    @click="form.position = 'bottom-center'"
-                  >
-                    <div class="position-icon">⬇️</div>
-                    <div class="position-title">Bottom Center</div>
-                  </div>
-                  <div 
-                    class="position-option" 
-                    :class="{active: form.position === 'bottom-right'}" 
-                    @click="form.position = 'bottom-right'"
-                  >
-                    <div class="position-icon">⬇️</div>
-                    <div class="position-title">Bottom Right</div>
+                  <label>Position</label>
+                  <div class="position-buttons">
+                    <div 
+                      class="position-option" 
+                      :class="{active: form.position === 'top-left'}" 
+                      @click="form.position = 'top-left'"
+                    >
+                      <div class="position-icon">⬆️</div>
+                      <div class="position-title">Top Left</div>
+                    </div>
+                    <div 
+                      class="position-option" 
+                      :class="{active: form.position === 'top-center'}" 
+                      @click="form.position = 'top-center'"
+                    >
+                      <div class="position-icon">⬆️</div>
+                      <div class="position-title">Top Center</div>
+                    </div>
+                    <div 
+                      class="position-option" 
+                      :class="{active: form.position === 'top-right'}" 
+                      @click="form.position = 'top-right'"
+                    >
+                      <div class="position-icon">⬆️</div>
+                      <div class="position-title">Top Right</div>
+                    </div>
+                    <div 
+                      class="position-option" 
+                      :class="{active: form.position === 'bottom-left'}" 
+                      @click="form.position = 'bottom-left'"
+                    >
+                      <div class="position-icon">⬇️</div>
+                      <div class="position-title">Bottom Left</div>
+                    </div>
+                    <div 
+                      class="position-option" 
+                      :class="{active: form.position === 'bottom-center'}" 
+                      @click="form.position = 'bottom-center'"
+                    >
+                      <div class="position-icon">⬇️</div>
+                      <div class="position-title">Bottom Center</div>
+                    </div>
+                    <div 
+                      class="position-option" 
+                      :class="{active: form.position === 'bottom-right'}" 
+                      @click="form.position = 'bottom-right'"
+                    >
+                      <div class="position-icon">⬇️</div>
+                      <div class="position-title">Bottom Right</div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div class="options-group">
-                <label>Font Size: {{ form.fontSize }}pt</label>
-                <a-slider v-model="form.fontSize" :min="8" :max="36" :step="1"></a-slider>
-              </div>
-
-              <div class="options-group">
-                <label>Margin: {{ form.margin }}px ({{ Math.round(form.margin / 2.83) }}mm)</label>
-                <a-slider v-model="form.margin" :min="20" :max="150" :step="1"></a-slider>
-                <div class="margin-presets">
-                  <a-button type="text" size="small" @click="form.margin = 56">1/2"</a-button>
-                  <a-button type="text" size="small" @click="form.margin = 72">1"</a-button>
-                  <a-button type="text" size="small" @click="form.margin = 96">1.5"</a-button>
-                  <a-button type="text" size="small" @click="form.margin = 108">1.5" (APA)</a-button>
+              <div class="options-row">
+                <div class="options-group">
+                  <label>Font Size: {{ form.fontSize }}pt</label>
+                  <a-slider v-model="form.fontSize" :min="8" :max="36" :step="1"></a-slider>
+                </div>
+                <div class="options-group">
+                  <label>Start Number: {{ form.startNumber }}</label>
+                  <a-input-number v-model="form.startNumber" :min="1" :max="9999"></a-input-number>
                 </div>
               </div>
 
-              <div class="options-group">
-                <label>Start Number: {{ form.startNumber }}</label>
-                <a-input-number v-model="form.startNumber" :min="1" :max="9999"></a-input-number>
+              <div class="options-row">
+                <div class="options-group">
+                  <label>Margin: {{ form.margin }}px ({{ Math.round(form.margin / 2.83) }}mm)</label>
+                  <a-slider v-model="form.margin" :min="20" :max="150" :step="1"></a-slider>
+                  <div class="margin-presets">
+                    <a-button type="text" size="small" @click="form.margin = 56">1/2"</a-button>
+                    <a-button type="text" size="small" @click="form.margin = 72">1"</a-button>
+                    <a-button type="text" size="small" @click="form.margin = 96">1.5"</a-button>
+                    <a-button type="text" size="small" @click="form.margin = 108">1.5" (APA)</a-button>
+                  </div>
+                </div>
+                <div class="options-group">
+                  <label>Number Format</label>
+                  <a-select v-model="form.format" placeholder="Select format">
+                    <a-select-option value="number">1, 2, 3...</a-select-option>
+                    <a-select-option value="fraction">1/10, 2/10...</a-select-option>
+                    <a-select-option value="page-x-of-y">Page 1 of 10</a-select-option>
+                    <a-select-option value="roman">I, II, III...</a-select-option>
+                    <a-select-option value="alpha">A, B, C...</a-select-option>
+                  </a-select>
+                </div>
               </div>
 
-              <div class="options-group">
-                <label>Number Format</label>
-                <a-select v-model="form.format" placeholder="Select format">
-                  <a-select-option value="number">1, 2, 3...</a-select-option>
-                  <a-select-option value="fraction">1/10, 2/10...</a-select-option>
-                  <a-select-option value="page-x-of-y">Page 1 of 10</a-select-option>
-                  <a-select-option value="roman">I, II, III...</a-select-option>
-                  <a-select-option value="alpha">A, B, C...</a-select-option>
-                </a-select>
+              <div v-if="drawerStage === 'options'" class="drawer-bottom-actions">
+                <div class="drawer-actions-right">
+                  <a-button 
+                    type="primary" 
+                    size="large" 
+                    class="drawer-export-btn"
+                    :disabled="!selectedFiles.length"
+                    @click="addPageNumbers"
+                  >
+                    <i class="anticon anticon-plus"></i>
+                    Add Page Numbers
+                  </a-button>
+                </div>
               </div>
 
-              <div class="drawer-actions">
-                <a-button @click="handleDrawerClose">Cancel</a-button>
-                <a-button type="primary" @click="addPageNumbers">Add Page Numbers</a-button>
+              <div v-if="(drawerStage === 'progress' || processing) && progress < 100" class="progress-section">
+                <div class="progress-text">{{ progressText }}</div>
+                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
-            </div>
 
-            <div v-if="drawerStage === 'progress' || processing" class="progress-section">
-              <div class="progress-text">{{ progressText }}</div>
-              <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+              <div v-if="drawerStage === 'progress' || processing" class="drawer-bottom-actions" style="visibility: hidden;">
+                <div class="drawer-actions-right">
+                  <a-button 
+                    type="primary" 
+                    size="large" 
+                    class="drawer-export-btn"
+                    disabled
+                  >
+                    <i class="anticon anticon-plus"></i>
+                    Add Page Numbers
+                  </a-button>
+                </div>
+              </div>
             </div>
 
             <div v-if="done" class="result-content">
@@ -860,12 +1004,18 @@
               </div>
 
               <div class="button-bar">
-                <a-button type="default" @click="backToOptions">Back to Options</a-button>
+                <a-button type="default" @click="backToOptions">
+                  <i class="anticon anticon-left"></i>
+                  Back to Options
+                </a-button>
                 <a-button type="primary" size="large" @click="download">
-                  <i class="anticon anticon-download" style="margin-right: 8px;"></i>
+                  <i class="anticon anticon-download"></i>
                   Download PDF
                 </a-button>
-                <a-button type="primary" @click="reset">Start Over</a-button>
+                <a-button type="primary" @click="reset">
+                  <i class="anticon anticon-redo"></i>
+                  Start Over
+                </a-button>
               </div>
 
               <div class="recommend-section">
@@ -873,18 +1023,6 @@
               </div>
 
               <div class="preview-layout" v-if="resultPreviews.length > 0">
-                <div class="sidebar">
-                  <div class="sidebar-title">Pages</div>
-                  <div class="thumbnails-list">
-                    <div v-for="(thumb, i) in resultPreviews" :key="i" 
-                         class="sidebar-thumbnail" 
-                         :class="{ active: currentPage === i }"
-                         @click="scrollToPage(i)">
-                      <img :src="thumb" class="sidebar-image" :alt="'Page ' + (i+1)" />
-                      <div class="sidebar-page-num">{{ i + 1 }}</div>
-                    </div>
-                  </div>
-                </div>
                 <div class="main-preview">
                   <div v-for="(thumb, i) in resultPreviews" :key="i" class="page-wrapper" :id="'page-' + i">
                     <img :src="thumb" class="page-image" :alt="'Page ' + (i+1)" />

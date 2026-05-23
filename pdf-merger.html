@@ -288,7 +288,7 @@
                 <polyline points="17 8 12 3 7 8"></polyline>
                 <line x1="12" y1="3" x2="12" y2="15"></line>
               </svg>
-              <div class="upload-text">Drag & drop PDF files here</div>
+              <!-- <div class="upload-text">Drag & drop PDF files here</div> -->
               <div class="upload-hint">Supports PDF files up to <strong>50MB</strong>, max 20 files - Free, no watermarks</div>
             </div>
           </a-upload>
@@ -312,39 +312,107 @@
           
 
           <a-drawer
-            :title="drawerStage === 'select' ? 'Select Pages👆 Click on page thumbnails' : 'Merge Result'"
+            :title="drawerStage === 'select' ? '' : 'Merge Result'"
             :visible="showDrawer"
             :width="drawerWidth"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
+            :body-style="{ padding: '0' }"
           >
             <div class="drawer-content">
-              <div v-if="drawerStage === 'select'" class="preview-section">
-                <div class="preview-header">
-                  <div class="preview-actions">
-                    <a-button type="primary" @click="triggerUpload">+ Add More</a-button>
-                    <a-button type="text" @click="selectAllPages">Select All</a-button>
-                    <a-button type="text" @click="deselectAllPages">Deselect All</a-button>
-                    <a-button type="text" @click="toggleAllPages">Toggle</a-button>
+              <div v-if="drawerStage === 'select'" class="drawer-select-stage">
+                <!-- 抽屉顶部工具栏 -->
+                <div class="drawer-top-bar">
+                  <div class="drawer-top-content">
+                    <div class="drawer-view-tabs">
+                      <button 
+                        class="drawer-tab-btn" 
+                        :class="{active: currentView === 'files'}" 
+                        @click="switchView('files')"
+                      >
+                        <span class="tab-icon">📄</span>
+                        <span>Files</span>
+                      </button>
+                      <button 
+                        class="drawer-tab-btn" 
+                        :class="{active: currentView === 'pages'}" 
+                        @click="switchView('pages')"
+                      >
+                        <span class="tab-icon">📑</span>
+                        <span>Pages</span>
+                      </button>
+                    </div>
+                    <div class="drawer-toolbar-buttons">
+                      <a-button type="default" @click="clearAllFiles" danger>
+                        Clear All
+                      </a-button>
+                      <a-button type="default" @click="reset">
+                        Cancel
+                      </a-button>
+                    </div>
                   </div>
                 </div>
-            
-                <div class="page-preview-container">
-                  <div v-for="(file, fi) in selectedFiles" :key="fi" class="file-pages-wrapper">
-                    <div class="file-pages-header">{{ file.name }}</div>
-                    <div class="page-preview-grid">
-                      <div v-for="(img, pi) in file.thumbnails" :key="pi" class="page-preview-item" :class="{selected: isSelected(fi, pi)}" @click="toggle(fi, pi)">
-                        <img :src="img" class="page-preview-image">
-                        <div class="page-number">{{ pi+1 }}</div>
-                        <div v-if="isSelected(fi, pi)" class="selected-overlay">✓</div>
+
+                <!-- 文件视图 -->
+                <div v-if="currentView === 'files'" class="drawer-files-view">
+                  <div class="drawer-files-grid">
+                    <div v-for="(file, fi) in selectedFiles" :key="fi" class="drawer-file-card">
+                      <div class="drawer-file-thumbnail">
+                        <img v-if="file.thumbnails[0]" :src="file.thumbnails[0]" class="drawer-file-preview">
+                        <div v-else class="drawer-file-placeholder">
+                          <i class="anticon anticon-file-pdf" style="font-size: 48px; color: #ff4444;"></i>
+                        </div>
+                      </div>
+                      <div class="drawer-file-info">
+                        <div class="drawer-file-name">{{ file.name }}</div>
+                        <div class="drawer-file-meta">{{ file.pageCount || 0 }} pages · {{ formatFileSize(file.size) }}</div>
+                      </div>
+                      <button class="drawer-file-remove" @click="removeFile(fi)">
+                        <span class="close-icon">×</span>
+                      </button>
+                    </div>
+                    
+                    <!-- 添加更多卡片 -->
+                    <div class="drawer-file-card drawer-add-card" @click="triggerUpload">
+                      <div class="drawer-add-content">
+                        <span class="drawer-add-icon">+</span>
+                        <div class="drawer-add-text">Add Files</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 页面视图 -->
+                <div v-else-if="currentView === 'pages'" class="drawer-pages-view">
+                  <div class="drawer-pages-header">
+                    <div class="drawer-select-actions">
+                      <a-button size="small" @click="selectAllPages">Select All</a-button>
+                      <a-button size="small" @click="deselectAllPages">Deselect All</a-button>
+                    </div>
+                  </div>
+                  <div class="drawer-all-pages">
+                    <div v-for="(item, fi) in selectedFiles" :key="fi" class="drawer-file-pages-group">
+                      <div class="drawer-file-group-title">{{ item.name }}</div>
+                      <div class="drawer-pages-grid">
+                        <div 
+                          v-for="(img, pi) in item.thumbnails" 
+                          :key="pi" 
+                          class="drawer-page-item"
+                          :class="{selected: isSelected(fi, pi)}"
+                          @click="toggle(fi, pi)"
+                        >
+                          <img :src="img" class="drawer-page-thumb">
+                          <div class="drawer-page-num">{{ pi + 1 }}</div>
+                          <div v-if="isSelected(fi, pi)" class="drawer-page-selected">✓</div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'progress' || merging" class="progress-section">
+              <div v-if="(drawerStage === 'progress' || merging) && progress < 100" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
                 <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
@@ -362,29 +430,22 @@
                 </div>
 
                 <div class="button-bar">
-                  <a-button type="default" @click="backToSelect">Back to Select Pages</a-button>
-                  <a-button type="primary" size="large" @click="download">Download PDF</a-button>
-                  <a-button type="primary" @click="reset">Start Over</a-button>
+                  <a-button type="default" @click="backToSelect">Back</a-button>
+                  <a-button type="primary" size="large" @click="download">
+                    <i class="anticon anticon-download"></i>
+                    Download
+                  </a-button>
+                  <a-button type="primary" @click="reset">
+                    <i class="anticon anticon-redo"></i>
+                    Start Over
+                  </a-button>
                 </div>
 
                 <div class="recommend-section">
-                  <p>Need to reorder PDF pages? <a href="pdf-page-reorder.html" class="recommend-link">Try our PDF Page Reorder Tool →</a></p>
+                  <p>Need to reorder PDF pages? <br/><a href="pdf-page-reorder.html" class="recommend-link">Try our PDF Page Reorder Tool →</a></p>
                 </div>
                 
                 <div class="preview-layout">
-                  <div class="sidebar">
-                    <div class="sidebar-title">Pages</div>
-                    <div class="thumbnails-list">
-                      <div v-for="(t, i) in previews" :key="i" 
-                           class="sidebar-thumbnail" 
-                           :class="{active: currentPreviewPage === i + 1}"
-                           @click="scrollToPage(i)">
-                        <img :src="t" class="sidebar-image">
-                        <div class="sidebar-page-num">{{ i+1 }}</div>
-                      </div>
-                    </div>
-                  </div>
-                  
                   <div class="main-preview">
                     <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
                       <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
@@ -393,11 +454,19 @@
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'select'" class="drawer-actions">
-                <a-button type="default" size="large" @click="reset">Cancel</a-button>
-                <a-button type="primary" size="large" @click="handleDrawerAction">
-                  {{ getDrawerActionText() }}
-                </a-button>
+              <div v-if="drawerStage === 'select'" class="drawer-bottom-actions">
+                <div class="drawer-actions-right">
+                  <a-button 
+                    type="primary" 
+                    size="large" 
+                    class="drawer-export-btn"
+                    :disabled="selectedFiles.length < 2 || selectedPages.length === 0"
+                    @click="handleDrawerAction"
+                  >
+                    <i class="anticon anticon-download"></i>
+                    Start Merge
+                  </a-button>
+                </div>
               </div>
             </div>
           </a-drawer>
@@ -801,7 +870,8 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       renderQueue: [],
       isRendering: false,
       drawerWidth: 600,
-      currentPreviewPage: 1
+      currentPreviewPage: 1,
+      currentView: 'files'  // 'files' 或 'pages'
     }
   },
   mounted() {
@@ -819,6 +889,9 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
       if (!this.merging) {
         this.reset()
       }
+    },
+    switchView(view) {
+      this.currentView = view
     },
     triggerUpload() {
       const uploadInput = this.$refs.upload.$el.querySelector('input[type="file"]')
@@ -893,12 +966,6 @@ document.addEventListener('DOMContentLoaded', function() {    // 隐藏溯源水
     },
     zoomReset() {
       this.zoomScale = 1
-    },
-    triggerUpload() {
-      const uploadInput = this.$refs.upload.$el.querySelector('input[type="file"]')
-      if (uploadInput) {
-        uploadInput.click()
-      }
     },
     beforeUpload(file) {
       if (!file.name.endsWith('.pdf')) {

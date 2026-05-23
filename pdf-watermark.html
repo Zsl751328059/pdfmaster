@@ -171,19 +171,21 @@
     .type-option {
       flex: 1;
       padding: 20px;
-      border: 2px solid #e4e7ed;
+      border: 2px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       cursor: pointer;
       text-align: center;
       transition: all 0.3s ease;
+      background: rgba(30, 41, 59, 0.8);
     }
     .type-option:hover {
-      border-color: #409eff;
-      background: #f0f7ff;
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
     }
     .type-option.active {
-      border-color: #409eff;
-      background: #e8f4fd;
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.2);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
     }
     .type-icon {
       font-size: 32px;
@@ -191,56 +193,103 @@
     }
     .type-title {
       font-weight: 600;
-      color: #303133;
+      color: #f1f5f9;
     }
     .watermark-form {
-      margin-top: 24px;
-      padding: 20px;
-      background: #fafafa;
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(30, 41, 59, 0.8);
       border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .watermark-form .file-info {
+      color: #e2e8f0;
+      font-weight: 500;
+      font-size: 14px;
     }
     .form-row {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
     .form-row-row {
       display: flex;
       gap: 24px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     .form-col {
       flex: 1;
     }
+    .form-row-row-three {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 0;
+    }
+    .form-col-three {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
     .form-label {
       display: block;
-      margin-bottom: 8px;
       font-weight: 500;
-      color: #606266;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .watermark-form .option-select {
+      min-width: 100%;
+      background: #1f2937;
+      border-color: #4b5563;
+    }
+    .watermark-form .option-select .ant-select-selector {
+      background: #1f2937 !important;
+      border-color: #4b5563 !important;
+      color: #f9fafb !important;
+    }
+    .watermark-form .option-select .ant-select-arrow {
+      color: #9ca3af;
+    }
+    .watermark-form .option-select .ant-select-dropdown {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    .watermark-form .option-select .ant-select-item {
+      color: #d1d5db;
+    }
+    .watermark-form .option-select .ant-select-item-option-selected {
+      background: #374151;
     }
     .form-input {
       width: 100%;
       padding: 10px 15px;
-      border: 1px solid #dcdfe6;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       font-size: 14px;
       transition: border-color 0.3s;
+      background: rgba(51, 65, 85, 0.8);
+      color: #f1f5f9;
     }
     .form-input:focus {
       outline: none;
-      border-color: #409eff;
+      border-color: #3b82f6;
     }
     .form-textarea {
       width: 100%;
       padding: 12px 15px;
-      border: 1px solid #dcdfe6;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       font-size: 14px;
       resize: vertical;
       min-height: 80px;
       transition: border-color 0.3s;
+      background: rgba(51, 65, 85, 0.8);
+      color: #f1f5f9;
     }
     .form-textarea:focus {
       outline: none;
-      border-color: #409eff;
+      border-color: #3b82f6;
     }
     .color-col {
       flex: 1;
@@ -324,7 +373,6 @@
       border-radius: 8px;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
@@ -407,125 +455,318 @@
           </div>
 
           <a-drawer
-            :title="drawerStage === 'options' ? 'Add Watermark' : (drawerStage === 'progress' ? 'Processing' : 'Watermark Result')"
+            :body-style="{ padding: 0 }"
+            :title="'Add Watermark'"
             :visible="showDrawer"
             :width="'100%'"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
           >
+            <div class="drawer-top-bar">
+              <div class="drawer-top-content">
+                <div class="drawer-view-tabs">
+                  <button 
+                    class="drawer-tab-btn" 
+                    :class="{active: currentView === 'files'}" 
+                    @click="switchView('files')"
+                  >
+                    <span class="tab-icon">📄</span>
+                    <span>Files</span>
+                  </button>
+                  <button 
+                    class="drawer-tab-btn" 
+                    :class="{active: currentView === 'pages'}" 
+                    @click="switchView('pages')"
+                  >
+                    <span class="tab-icon">📑</span>
+                    <span>Pages</span>
+                  </button>
+                </div>
+                <div class="drawer-toolbar-buttons">
+                  <a-button type="default" @click="clearAllFiles" danger>
+                    Clear All
+                  </a-button>
+                </div>
+              </div>
+            </div>
             <div class="drawer-content">
-              <div v-if="drawerStage === 'options'" class="options-section">
-                <div class="options-title">Watermark Type</div>
-                <div class="mode-description">Choose the type of watermark to add</div>
-                <div class="watermark-type-options">
-                  <div class="type-option" :class="{active: form.type === 'text'}" @click="form.type = 'text'">
-                    <div class="type-icon">📝</div>
-                    <div class="type-title">Text Watermark</div>
+              <!-- Options Stage -->
+              <div v-if="drawerStage === 'options'" class="drawer-select-stage">
+                <!-- Files View -->
+                <div v-if="currentView === 'files'" class="drawer-files-view">
+                  <div class="drawer-files-grid">
+                    <div v-for="(file, fi) in selectedFiles" :key="fi" class="drawer-file-card">
+                      <div class="drawer-file-thumbnail">
+                        <img v-if="file.thumbnails[0]" :src="file.thumbnails[0]" class="drawer-file-preview">
+                        <div v-else class="drawer-file-placeholder">
+                          <i class="anticon anticon-file-pdf" style="font-size: 48px; color: #ff4444;"></i>
+                        </div>
+                      </div>
+                      <div class="drawer-file-info">
+                        <div class="drawer-file-name">{{ file.name }}</div>
+                        <div class="drawer-file-meta">{{ file.pageCount || 0 }} pages · {{ formatFileSize(file.size) }}</div>
+                      </div>
+                      <button class="drawer-file-remove" @click="removeFile(fi)">
+                        <span class="close-icon">×</span>
+                      </button>
+                    </div>
                   </div>
-                  <div class="type-option" :class="{active: form.type === 'image'}" @click="form.type = 'image'">
-                    <div class="type-icon">🖼️</div>
-                    <div class="type-title">Image Watermark</div>
+
+                  <!-- Watermark Options -->
+                  <div class="watermark-options-section">
+                    <div class="watermark-type-options">
+                      <div class="type-option" :class="{active: form.type === 'text'}" @click="form.type = 'text'">
+                        <div class="type-icon">📝</div>
+                        <div class="type-title">Text Watermark</div>
+                      </div>
+                      <div class="type-option" :class="{active: form.type === 'image'}" @click="form.type = 'image'">
+                        <div class="type-icon">🖼️</div>
+                        <div class="type-title">Image Watermark</div>
+                      </div>
+                    </div>
+
+                    <div v-if="form.type === 'text'" class="watermark-form">
+                      <div class="form-row">
+                        <label class="form-label">Watermark Text</label>
+                        <textarea v-model="form.text" class="form-textarea" placeholder="Enter your watermark text (e.g., Confidential)"></textarea>
+                      </div>
+                      <div class="form-row-row">
+                        <div class="form-col">
+                          <label class="form-label">Font Size</label>
+                          <input v-model.number="form.fontSize" type="number" class="form-input" min="10" max="100" placeholder="48">
+                        </div>
+                        <div class="form-col color-col">
+                          <label class="form-label">Color</label>
+                          <div class="color-picker-container">
+                            <input v-model="form.color" type="color" class="color-input">
+                            <div class="color-value">{{ form.color }}</div>
+                          </div>
+                          <div class="preset-colors">
+                            <span class="preset-color" style="background: #808080" @click="form.color = '#808080'"></span>
+                            <span class="preset-color" style="background: #000000" @click="form.color = '#000000'"></span>
+                            <span class="preset-color" style="background: #FF0000" @click="form.color = '#FF0000'"></span>
+                            <span class="preset-color" style="background: #0066CC" @click="form.color = '#0066CC'"></span>
+                            <span class="preset-color" style="background: #FF6600" @click="form.color = '#FF6600'"></span>
+                            <span class="preset-color" style="background: #9933CC" @click="form.color = '#9933CC'"></span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-row-row">
+                        <div class="form-col">
+                          <label class="form-label">Opacity: {{ form.opacity }}%</label>
+                          <a-slider v-model="form.opacity" :min="10" :max="100" :step="5"></a-slider>
+                        </div>
+                        <div class="form-col">
+                          <label class="form-label">Position</label>
+                          <a-select v-model="form.position" class="option-select">
+                            <a-select-option value="center">Center</a-select-option>
+                            <a-select-option value="top-left">Top Left</a-select-option>
+                            <a-select-option value="top-right">Top Right</a-select-option>
+                            <a-select-option value="bottom-left">Bottom Left</a-select-option>
+                            <a-select-option value="bottom-right">Bottom Right</a-select-option>
+                            <a-select-option value="tiled">Tiled (Full Page)</a-select-option>
+                          </a-select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-if="form.type === 'image'" class="watermark-form">
+                      <div class="form-row">
+                        <label class="form-label">Upload Watermark Image</label>
+                        <a-upload
+                          ref="imageUpload"
+                          :file-list="[]"
+                          :custom-request="handleImageChange"
+                          :show-upload-list="false"
+                          accept=".png,.jpg,.jpeg"
+                        >
+                          <a-button type="default">
+                            <i class="anticon anticon-upload"></i>
+                            {{ form.imageFile ? 'Change Image' : 'Select Image' }}
+                          </a-button>
+                        </a-upload>
+                        <div v-if="form.imageFile" class="file-info" style="margin-top: 8px;">
+                          Selected: {{ form.imageFile.name }}
+                        </div>
+                      </div>
+                      <div class="form-row-row-three">
+                        <div class="form-col-three">
+                          <label class="form-label">Opacity: {{ form.opacity }}%</label>
+                          <a-slider v-model="form.opacity" :min="10" :max="100" :step="5"></a-slider>
+                        </div>
+                        <div class="form-col-three">
+                          <label class="form-label">Position</label>
+                          <a-select v-model="form.position" class="option-select">
+                            <a-select-option value="center">Center</a-select-option>
+                            <a-select-option value="top-left">Top Left</a-select-option>
+                            <a-select-option value="top-right">Top Right</a-select-option>
+                            <a-select-option value="bottom-left">Bottom Left</a-select-option>
+                            <a-select-option value="bottom-right">Bottom Right</a-select-option>
+                            <a-select-option value="tiled">Tiled (Full Page)</a-select-option>
+                          </a-select>
+                        </div>
+                        <div class="form-col-three">
+                          <label class="form-label">Scale: {{ form.scale }}%</label>
+                          <a-slider v-model="form.scale" :min="10" :max="200" :step="5"></a-slider>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div v-if="form.type === 'text'" class="watermark-form">
-                  <div class="form-row">
-                    <label class="form-label">Watermark Text</label>
-                    <textarea v-model="form.text" class="form-textarea" placeholder="Enter your watermark text (e.g., Confidential)"></textarea>
-                  </div>
-                  <div class="form-row-row">
-                    <div class="form-col">
-                      <label class="form-label">Font Size</label>
-                      <input v-model.number="form.fontSize" type="number" class="form-input" min="10" max="100" placeholder="48">
-                    </div>
-                    <div class="form-col color-col">
-                      <label class="form-label">Color</label>
-                      <div class="color-picker-container">
-                        <input v-model="form.color" type="color" class="color-input">
-                        <div class="color-value">{{ form.color }}</div>
-                      </div>
-                      <div class="preset-colors">
-                        <span class="preset-color" style="background: #808080" @click="form.color = '#808080'"></span>
-                        <span class="preset-color" style="background: #000000" @click="form.color = '#000000'"></span>
-                        <span class="preset-color" style="background: #FF0000" @click="form.color = '#FF0000'"></span>
-                        <span class="preset-color" style="background: #0066CC" @click="form.color = '#0066CC'"></span>
-                        <span class="preset-color" style="background: #FF6600" @click="form.color = '#FF6600'"></span>
-                        <span class="preset-color" style="background: #9933CC" @click="form.color = '#9933CC'"></span>
-                      </div>
+                <!-- Pages View -->
+                <div v-else-if="currentView === 'pages'" class="drawer-pages-view">
+                  <div class="drawer-pages-header">
+                    <div class="drawer-select-actions">
+                      <a-button size="small" @click="selectAllPages">Select All</a-button>
+                      <a-button size="small" @click="deselectAllPages">Deselect All</a-button>
                     </div>
                   </div>
-                  <div class="form-row-row">
-                    <div class="form-col">
-                      <label class="form-label">Opacity: {{ form.opacity }}%</label>
-                      <a-slider v-model="form.opacity" :min="10" :max="100" :step="5"></a-slider>
+                  <div class="drawer-all-pages">
+                    <div v-for="(item, fi) in selectedFiles" :key="fi" class="drawer-file-pages-group">
+                      <div class="drawer-file-group-title">{{ item.name }}</div>
+                      <div class="drawer-pages-grid">
+                        <div 
+                          v-for="(img, pi) in item.thumbnails" 
+                          :key="pi" 
+                          class="drawer-page-item"
+                          :class="{selected: isSelected(fi, pi)}"
+                          @click="toggle(fi, pi)"
+                        >
+                          <img :src="img" class="drawer-page-thumb">
+                          <div class="drawer-page-num">{{ pi + 1 }}</div>
+                          <div v-if="isSelected(fi, pi)" class="drawer-page-selected">✓</div>
+                        </div>
+                      </div>
                     </div>
-                    <div class="form-col">
-                      <label class="form-label">Position</label>
-                      <a-select v-model="form.position" class="option-select">
-                        <a-select-option value="center">Center</a-select-option>
-                        <a-select-option value="top-left">Top Left</a-select-option>
-                        <a-select-option value="top-right">Top Right</a-select-option>
-                        <a-select-option value="bottom-left">Bottom Left</a-select-option>
-                        <a-select-option value="bottom-right">Bottom Right</a-select-option>
-                        <a-select-option value="tiled">Tiled (Full Page)</a-select-option>
-                      </a-select>
+                  </div>
+
+                  <!-- Watermark Options -->
+                  <div class="watermark-options-section">
+                    <div class="watermark-type-options">
+                      <div class="type-option" :class="{active: form.type === 'text'}" @click="form.type = 'text'">
+                        <div class="type-icon">📝</div>
+                        <div class="type-title">Text Watermark</div>
+                      </div>
+                      <div class="type-option" :class="{active: form.type === 'image'}" @click="form.type = 'image'">
+                        <div class="type-icon">🖼️</div>
+                        <div class="type-title">Image Watermark</div>
+                      </div>
+                    </div>
+
+                    <div v-if="form.type === 'text'" class="watermark-form">
+                      <div class="form-row">
+                        <label class="form-label">Watermark Text</label>
+                        <textarea v-model="form.text" class="form-textarea" placeholder="Enter your watermark text (e.g., Confidential)"></textarea>
+                      </div>
+                      <div class="form-row-row">
+                        <div class="form-col">
+                          <label class="form-label">Font Size</label>
+                          <input v-model.number="form.fontSize" type="number" class="form-input" min="10" max="100" placeholder="48">
+                        </div>
+                        <div class="form-col color-col">
+                          <label class="form-label">Color</label>
+                          <div class="color-picker-container">
+                            <input v-model="form.color" type="color" class="color-input">
+                            <div class="color-value">{{ form.color }}</div>
+                          </div>
+                          <div class="preset-colors">
+                            <span class="preset-color" style="background: #808080" @click="form.color = '#808080'"></span>
+                            <span class="preset-color" style="background: #000000" @click="form.color = '#000000'"></span>
+                            <span class="preset-color" style="background: #FF0000" @click="form.color = '#FF0000'"></span>
+                            <span class="preset-color" style="background: #0066CC" @click="form.color = '#0066CC'"></span>
+                            <span class="preset-color" style="background: #FF6600" @click="form.color = '#FF6600'"></span>
+                            <span class="preset-color" style="background: #9933CC" @click="form.color = '#9933CC'"></span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-row-row">
+                        <div class="form-col">
+                          <label class="form-label">Opacity: {{ form.opacity }}%</label>
+                          <a-slider v-model="form.opacity" :min="10" :max="100" :step="5"></a-slider>
+                        </div>
+                        <div class="form-col">
+                          <label class="form-label">Position</label>
+                          <a-select v-model="form.position" class="option-select">
+                            <a-select-option value="center">Center</a-select-option>
+                            <a-select-option value="top-left">Top Left</a-select-option>
+                            <a-select-option value="top-right">Top Right</a-select-option>
+                            <a-select-option value="bottom-left">Bottom Left</a-select-option>
+                            <a-select-option value="bottom-right">Bottom Right</a-select-option>
+                            <a-select-option value="tiled">Tiled (Full Page)</a-select-option>
+                          </a-select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-if="form.type === 'image'" class="watermark-form">
+                      <div class="form-row">
+                        <label class="form-label">Upload Watermark Image</label>
+                        <a-upload
+                          ref="imageUpload"
+                          :file-list="[]"
+                          :custom-request="handleImageChange"
+                          :show-upload-list="false"
+                          accept=".png,.jpg,.jpeg"
+                        >
+                          <a-button type="default">
+                            <i class="anticon anticon-upload"></i>
+                            {{ form.imageFile ? 'Change Image' : 'Select Image' }}
+                          </a-button>
+                        </a-upload>
+                        <div v-if="form.imageFile" class="file-info" style="margin-top: 8px;">
+                          Selected: {{ form.imageFile.name }}
+                        </div>
+                      </div>
+                      <div class="form-row-row-three">
+                        <div class="form-col-three">
+                          <label class="form-label">Opacity: {{ form.opacity }}%</label>
+                          <a-slider v-model="form.opacity" :min="10" :max="100" :step="5"></a-slider>
+                        </div>
+                        <div class="form-col-three">
+                          <label class="form-label">Position</label>
+                          <a-select v-model="form.position" class="option-select">
+                            <a-select-option value="center">Center</a-select-option>
+                            <a-select-option value="top-left">Top Left</a-select-option>
+                            <a-select-option value="top-right">Top Right</a-select-option>
+                            <a-select-option value="bottom-left">Bottom Left</a-select-option>
+                            <a-select-option value="bottom-right">Bottom Right</a-select-option>
+                            <a-select-option value="tiled">Tiled (Full Page)</a-select-option>
+                          </a-select>
+                        </div>
+                        <div class="form-col-three">
+                          <label class="form-label">Scale: {{ form.scale }}%</label>
+                          <a-slider v-model="form.scale" :min="10" :max="200" :step="5"></a-slider>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div v-if="form.type === 'image'" class="watermark-form">
-                  <div class="form-row">
-                    <label class="form-label">Upload Watermark Image</label>
-                    <a-upload
-                      ref="imageUpload"
-                      class="upload-area"
-                      :file-list="[]"
-                      :custom-request="handleImageChange"
-                      :show-upload-list="false"
-                      accept=".png,.jpg,.jpeg"
+                <!-- Bottom Actions -->
+                <div class="drawer-bottom-actions">
+                  <div class="drawer-actions-right">
+                    <a-button 
+                      type="primary" 
+                      size="large" 
+                      class="drawer-export-btn"
+                      :disabled="!canAddWatermark"
+                      @click="addWatermark"
                     >
-                      <div class="upload-content">
-                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                          <polyline points="17 8 12 3 7 8"></polyline>
-                          <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                        <div class="upload-text">Drag & drop image here</div>
-                        <div class="upload-hint">Supports JPG, PNG up to <strong>50MB</strong> - Free, no watermarks</div>
-                      </div>
-                    </a-upload>
-                    <div v-if="form.imageFile" class="file-info" style="margin-top: 8px;">
-                      Selected: {{ form.imageFile.name }}
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <label class="form-label">Opacity: {{ form.opacity }}%</label>
-                    <a-slider v-model="form.opacity" :min="10" :max="100" :step="5"></a-slider>
-                  </div>
-                  <div class="form-row">
-                    <label class="form-label">Position</label>
-                    <a-select v-model="form.position" class="option-select">
-                      <a-select-option value="center">Center</a-select-option>
-                      <a-select-option value="top-left">Top Left</a-select-option>
-                      <a-select-option value="top-right">Top Right</a-select-option>
-                      <a-select-option value="bottom-left">Bottom Left</a-select-option>
-                      <a-select-option value="bottom-right">Bottom Right</a-select-option>
-                      <a-select-option value="tiled">Tiled (Full Page)</a-select-option>
-                    </a-select>
-                  </div>
-                  <div class="form-row">
-                    <label class="form-label">Scale: {{ form.scale }}%</label>
-                    <a-slider v-model="form.scale" :min="10" :max="200" :step="5"></a-slider>
+                      Add Watermark
+                    </a-button>
                   </div>
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'progress'" class="progress-section">
+              <!-- Progress Stage -->
+              <div v-if="drawerStage === 'progress' && progress < 100" class="progress-section">
                 <div class="progress-text">{{ progressText }}</div>
                 <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
 
+              <!-- Result Stage -->
               <div v-if="done" class="result-content">
                 <div class="result-header">
                   <div class="result-icon">✓</div>
@@ -549,31 +790,12 @@
                 </div>
 
                 <div class="preview-layout" v-if="previews.length > 0">
-                  <div class="sidebar">
-                    <div class="sidebar-title">Pages</div>
-                    <div class="thumbnails-list">
-                      <div v-for="(t, i) in previews" :key="i" 
-                           class="sidebar-thumbnail" 
-                           :class="{ active: currentPage === i }"
-                           @click="scrollToPage(i)">
-                        <img :src="t" class="sidebar-image" :alt="'Page ' + (i+1)" />
-                        <div class="sidebar-page-num">{{ i + 1 }}</div>
-                      </div>
-                    </div>
-                  </div>
                   <div class="main-preview">
                     <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
                       <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div v-if="drawerStage === 'options'" class="drawer-actions">
-                <a-button @click="reset">Cancel</a-button>
-                <a-button type="primary" @click="addWatermark" :disabled="!canAddWatermark">
-                  Add Watermark
-                </a-button>
               </div>
             </div>
           </a-drawer>
@@ -928,7 +1150,8 @@ new Vue({
       zoomScale: 1,
       showDrawer: false,
       drawerStage: 'options',
-      currentPage: 0
+      currentPage: 0,
+      currentView: 'files'
     }
   },
   computed: {
@@ -960,6 +1183,47 @@ new Vue({
       if (event.cancelable) {
         event.preventDefault()
       }
+    },
+    switchView(view) {
+      this.currentView = view
+    },
+    selectAllPages() {
+      this.selectedFiles.forEach(file => {
+        if (file.thumbnails && file.thumbnails.length > 0) {
+          if (!file.selectedPages) {
+            file.selectedPages = []
+          }
+          for (let i = 0; i < file.thumbnails.length; i++) {
+            if (!file.selectedPages.includes(i)) {
+              file.selectedPages.push(i)
+            }
+          }
+        }
+      })
+    },
+    deselectAllPages() {
+      this.selectedFiles.forEach(file => {
+        if (file.selectedPages) {
+          file.selectedPages = []
+        }
+      })
+    },
+    isSelected(fileIndex, pageIndex) {
+      const file = this.selectedFiles[fileIndex]
+      return file && file.selectedPages && file.selectedPages.includes(pageIndex)
+    },
+    toggle(fileIndex, pageIndex) {
+      const file = this.selectedFiles[fileIndex]
+      if (!file.selectedPages) {
+        this.$set(file, 'selectedPages', [])
+      }
+      const idx = file.selectedPages.indexOf(pageIndex)
+      if (idx !== -1) {
+        file.selectedPages.splice(idx, 1)
+      } else {
+        file.selectedPages.push(pageIndex)
+      }
+      this.$forceUpdate()
     },
     async openPreview(image) {
       PreviewUtils.openPreview({
@@ -1026,20 +1290,93 @@ new Vue({
       try {
         const arrayBuffer = await raw.arrayBuffer()
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const pageCount = pdf.numPages
-        pdf.destroy()
-
+        
         const item = {
           name: raw.name,
           file: raw,
           size: raw.size,
-          pageCount: pageCount
+          pageCount: pdf.numPages,
+          thumbnails: [],
+          rendering: true,
+          rendered: false,
+          pdfInstance: pdf
         }
         this.selectedFiles.push(item)
         this.showDrawer = true
+        
+        await this.renderThumbnails(item)
       } catch (error) {
         console.error('Error loading PDF:', error)
         this.$message.error('Failed to load PDF. Please try a different file.')
+      }
+    },
+    async renderThumbnails(item) {
+      try {
+        const pdf = item.pdfInstance
+        
+        const firstPage = await pdf.getPage(1)
+        const vp = firstPage.getViewport({ scale: 2.0 })
+        const c = document.createElement('canvas')
+        const ctx = c.getContext('2d')
+        c.width = vp.width
+        c.height = vp.height
+        await firstPage.render({ canvasContext: ctx, viewport: vp }).promise
+        const firstThumbnail = c.toDataURL()
+        c.width = 0
+        c.height = 0
+        if (typeof firstPage.destroy === 'function') {
+          await firstPage.destroy()
+        }
+        
+        const idx = this.selectedFiles.indexOf(item)
+        if (idx !== -1) {
+          if (!this.selectedFiles[idx].thumbnails) {
+            this.selectedFiles[idx].thumbnails = []
+          }
+          this.$set(this.selectedFiles[idx].thumbnails, 0, firstThumbnail)
+          this.$forceUpdate()
+        }
+        
+        if (pdf.numPages > 1) {
+          const concurrency = 2
+          const pages = []
+          for (let i = 2; i <= pdf.numPages; i++) {
+            pages.push(i)
+          }
+          
+          while (pages.length > 0) {
+            const batch = pages.splice(0, concurrency)
+            const promises = batch.map(async (pageNum) => {
+              const page = await pdf.getPage(pageNum)
+              const vp = page.getViewport({ scale: 2.0 })
+              const c = document.createElement('canvas')
+              const ctx = c.getContext('2d')
+              c.width = vp.width
+              c.height = vp.height
+              await page.render({ canvasContext: ctx, viewport: vp }).promise
+              const thumbnail = c.toDataURL()
+              c.width = 0
+              c.height = 0
+              if (typeof page.destroy === 'function') {
+                await page.destroy()
+              }
+              const fileIdx = this.selectedFiles.indexOf(item)
+              if (fileIdx !== -1) {
+                this.$set(this.selectedFiles[fileIdx].thumbnails, pageNum - 1, thumbnail)
+              }
+            })
+            await Promise.all(promises)
+            await new Promise(resolve => requestAnimationFrame(resolve))
+          }
+        }
+        item.rendering = false
+        item.rendered = true
+      } catch (error) {
+        console.error('Error rendering thumbnails:', error)
+        const idx = this.selectedFiles.indexOf(item)
+        if (idx !== -1) {
+          this.selectedFiles.splice(idx, 1)
+        }
       }
     },
     handleImageChange({ file, onSuccess }) {

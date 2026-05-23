@@ -247,6 +247,47 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
     }
+    .drawer-form-dark {
+      padding: 20px;
+    }
+    .drawer-form-dark .margin-sliders {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid #374151;
+    }
+    .drawer-form-dark .slider-item label {
+      color: #f9fafb;
+    }
+    .drawer-form-dark .slider-item .ant-slider-rail {
+      background: #374151;
+    }
+    .drawer-form-dark .options-group {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid #374151;
+    }
+    .drawer-form-dark .options-group label {
+      color: #f9fafb;
+    }
+    .drawer-form-dark .preset-buttons button {
+      border: 2px solid #374151;
+      background: #111827;
+      color: #d1d5db;
+    }
+    .drawer-form-dark .preset-buttons button:hover {
+      border-color: #3b82f6;
+      color: #60a5fa;
+      background: rgba(59, 130, 246, 0.1);
+    }
+    .drawer-form-dark .preset-buttons button.active {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+    }
   </style>
   <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
@@ -343,10 +384,23 @@
           :width="drawerWidth"
           :closable="true"
           :mask-closable="true"
+          :body-style="{ padding: '0' }"
           @close="handleDrawerClose"
         >
           <div class="drawer-content">
-            <div v-if="drawerStage === 'options'" class="options-section">
+            <div v-if="drawerStage === 'options'" class="drawer-select-stage">
+              <div class="drawer-top-bar">
+                <div class="drawer-top-content">
+                  <div class="drawer-toolbar-buttons">
+                    <a-button type="default" @click="handleDrawerClose" danger>
+                      Cancel
+                    </a-button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="drawer-files-view">
+              <div class="drawer-form-dark">
               <div class="margin-sliders">
                 <div class="slider-row">
                   <div class="slider-item">
@@ -380,9 +434,11 @@
                   <button @click="setPreset('reset')">Reset</button>
                 </div>
               </div>
+              </div>
+              </div>
             </div>
 
-            <div v-if="drawerStage === 'progress'" class="progress-section">
+            <div v-if="(drawerStage === 'progress' || processing) && progress < 100" class="progress-section">
               <div class="progress-text">{{ progressText }}</div>
               <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
             </div>
@@ -400,12 +456,18 @@
               </div>
 
               <div class="button-bar">
-                <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                <a-button type="primary" size="large" @click="download">
-                  <i class="anticon anticon-download" style="margin-right: 8px;"></i>
-                  Download PDF
+                <a-button type="default" @click="backToOptions">
+                  <i class="anticon anticon-left"></i>
+                  Back
                 </a-button>
-                <a-button type="primary" @click="reset">Start Over</a-button>
+                <a-button type="primary" size="large" @click="download">
+                  <i class="anticon anticon-download"></i>
+                  Download
+                </a-button>
+                <a-button type="primary" @click="reset">
+                  <i class="anticon anticon-redo"></i>
+                  Start Over
+                </a-button>
               </div>
 
               <div class="recommend-section">
@@ -413,18 +475,6 @@
               </div>
 
               <div class="preview-layout" v-if="resultPreviews.length > 0">
-                <div class="sidebar">
-                  <div class="sidebar-title">Pages</div>
-                  <div class="thumbnails-list">
-                    <div v-for="(page, i) in resultPreviews" :key="i" 
-                         class="sidebar-thumbnail" 
-                         :class="{ active: currentPage === i }"
-                         @click="scrollToPage(i)">
-                      <img :src="page" class="sidebar-image" :alt="'Page ' + (i+1)" />
-                      <div class="sidebar-page-num">{{ i + 1 }}</div>
-                    </div>
-                  </div>
-                </div>
                 <div class="main-preview">
                   <div v-for="(page, i) in resultPreviews" :key="i" class="page-wrapper" :id="'page-' + i">
                     <img :src="page" class="page-image" :alt="'Page ' + (i+1)" />
@@ -433,9 +483,18 @@
               </div>
             </div>
 
-            <div v-if="drawerStage === 'options'" class="drawer-actions">
-              <a-button @click="handleDrawerClose">Cancel</a-button>
-              <a-button type="primary" @click="addMargins">Add Margins</a-button>
+            <div v-if="drawerStage === 'options'" class="drawer-bottom-actions">
+              <div class="drawer-actions-right">
+                <a-button 
+                  type="primary" 
+                  size="large" 
+                  class="drawer-export-btn"
+                  @click="addMargins"
+                >
+                  <i class="anticon anticon-save"></i>
+                  Add Margins
+                </a-button>
+              </div>
             </div>
           </div>
         </a-drawer>

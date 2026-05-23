@@ -391,6 +391,323 @@
       gap: 12px;
       margin-bottom: 16px;
     }
+    /* Drawer 深色主题样式 */
+    .drawer-content {
+      background: #1f1f1f;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer-top-bar {
+      background: #2d2d2d;
+      border-bottom: 1px solid #404040;
+      padding: 16px 24px;
+    }
+    .drawer-top-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .drawer-view-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .drawer-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: transparent;
+      border: 1px solid #404040;
+      border-radius: 8px;
+      color: #a0a0a0;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .drawer-tab-btn:hover {
+      background: #363636;
+      border-color: #505050;
+      color: #d0d0d0;
+    }
+    .drawer-tab-btn.active {
+      background: #409EFF;
+      border-color: #409EFF;
+      color: #fff;
+    }
+    .tab-icon {
+      font-size: 16px;
+    }
+    .drawer-toolbar-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .drawer-form-content {
+      flex: 1;
+      padding: 24px;
+      background: #1f1f1f;
+      overflow-y: auto;
+    }
+    .drawer-options-stage,
+    .drawer-select-stage {
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 48px);
+    }
+    .drawer-bottom-actions {
+      background: #2d2d2d;
+      border-top: 1px solid #404040;
+      padding: 16px 24px;
+    }
+    .drawer-actions-right {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .drawer-export-btn {
+      min-width: 160px;
+    }
+    .drawer-form-content .options-section {
+      background: #2d2d2d;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .drawer-form-content .options-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .drawer-form-content .mode-description {
+      font-size: 13px;
+      color: #a0a0a0;
+      margin-bottom: 16px;
+    }
+    .drawer-form-content .mode-option {
+      background: #363636;
+      border: 2px solid #404040;
+      padding: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    .drawer-form-content .mode-option:hover {
+      border-color: #409EFF;
+      background: #3a3a3a;
+    }
+    .drawer-form-content .mode-option.active {
+      border-color: #409EFF;
+      background: rgba(64, 158, 255, 0.1);
+    }
+    .drawer-form-content .mode-title {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .drawer-form-content .mode-desc {
+      font-size: 13px;
+      color: #a0a0a0;
+      margin-bottom: 8px;
+    }
+    .drawer-form-content .mode-explanation {
+      font-size: 12px;
+      color: #888;
+      line-height: 1.5;
+    }
+    .drawer-form-content .format-options {
+      background: #2d2d2d;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+    .drawer-form-content .format-option {
+      margin-top: 12px;
+    }
+    .drawer-form-content .format-option label {
+      color: #d0d0d0;
+    }
+    .drawer-form-content .option-hint {
+      font-size: 13px;
+      color: #888;
+      margin: 4px 0 0 30px;
+    }
+    .drawer-form-content .preview-section {
+      background: #2d2d2d;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .drawer-form-content .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #404040;
+    }
+    .drawer-form-content .preview-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .drawer-form-content .preview-hint {
+      color: #888;
+      margin-left: 8px;
+    }
+    .drawer-form-content .preview-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .drawer-form-content .page-preview-grid {
+      background: #363636;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 100px;
+    }
+    .drawer-form-content .page-preview-item {
+      background: #404040;
+      position: relative;
+      cursor: pointer;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s;
+    }
+    .drawer-form-content .page-preview-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+    .drawer-form-content .page-preview-item.selected {
+      box-shadow: 0 0 0 3px #409EFF;
+    }
+    .drawer-form-content .page-preview-image {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      background: #fff;
+    }
+    .drawer-form-content .page-number {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 24px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .drawer-form-content .selected-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(64, 158, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #fff;
+    }
+    .drawer-form-content .progress-section {
+      background: #2d2d2d;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .drawer-form-content .progress-text {
+      font-size: 16px;
+      color: #d0d0d0;
+      margin-bottom: 16px;
+    }
+    .drawer-form-content .result-content {
+      background: #2d2d2d;
+      padding: 24px;
+      margin: 0;
+    }
+    .drawer-form-content .result-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .drawer-form-content .result-desc {
+      font-size: 14px;
+      color: #a0a0a0;
+      margin-bottom: 16px;
+    }
+    .drawer-form-content .format-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(64, 158, 255, 0.2);
+      color: #409EFF;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      margin: 8px 0;
+    }
+    .drawer-form-content .text-stats {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin: 16px 0;
+      padding: 16px;
+      background: #363636;
+      border-radius: 12px;
+    }
+    .drawer-form-content .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .drawer-form-content .stat-label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    .drawer-form-content .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #409EFF;
+    }
+    .drawer-form-content .download-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 24px 0;
+      padding: 16px;
+      background: #363636;
+      border-radius: 12px;
+    }
+    .drawer-form-content .filename-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .drawer-form-content .filename-input label {
+      color: #d0d0d0;
+      font-weight: 500;
+    }
+    .drawer-form-content .button-bar {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .drawer-form-content .button-bar .ant-btn {
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 10px;
+    }
   </style>
   <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
@@ -472,82 +789,149 @@
         </div>
 
         <a-drawer
-          :title="drawerStage === 'options' ? 'Extraction Options' : (drawerStage === 'select' ? 'Select Pages' : (drawerStage === 'progress' ? 'Extracting' : 'Result'))"
+          :title="drawerStage === 'options' ? '' : (drawerStage === 'select' ? '' : (drawerStage === 'progress' ? '' : 'Result'))"
           :visible="showDrawer"
           :width="drawerWidth"
           :closable="true"
           :mask-closable="true"
           @close="handleDrawerClose"
+          :body-style="{ padding: '0' }"
         >
           <div class="drawer-content">
-            <div v-if="drawerStage === 'options'" class="options-section">
-              <div class="options-title">Extraction Mode</div>
-              <div class="mode-description">Choose how you want to extract text from your PDF</div>
-              
-              <div class="merge-mode-options">
-                <div class="mode-option" :class="{active: form.pageRange === 'all'}" @click="form.pageRange = 'all'">
-                  <div class="mode-icon">📋</div>
-                  <div class="mode-title">All Pages</div>
-                  <div class="mode-desc">Extract all pages</div>
-                  <div class="mode-explanation">Extract text from all pages of your PDF document.</div>
-                </div>
-                <div class="mode-option" :class="{active: form.pageRange === 'custom'}" @click="form.pageRange = 'custom'">
-                  <div class="mode-icon">🎯</div>
-                  <div class="mode-title">Select Pages</div>
-                  <div class="mode-desc">Choose specific pages</div>
-                  <div class="mode-explanation">Pick only the pages you need.</div>
-                </div>
-              </div>
-
-              <div class="format-options">
-                <div class="options-title">Format Options</div>
-                <div class="format-option">
-                  <a-checkbox v-model="form.preserveFormatting">
-                    Preserve Formatting
-                  </a-checkbox>
-                  <p class="option-hint">Keep indentation, bullet points, and spacing</p>
-                </div>
-              </div>
-
-              <div class="drawer-actions">
-                <a-button @click="handleDrawerClose">Cancel</a-button>
-                <a-button type="primary" @click="handleDrawerAction" :disabled="extracting || !selectedFiles.length">
-                  {{ getDrawerActionText() }}
-                </a-button>
-              </div>
-            </div>
-
-            <div v-if="drawerStage === 'select'" class="preview-section">
-              <div class="preview-header">
-                <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
-                <div class="preview-actions">
-                  <a-button type="text" size="small" @click="selectAllPages">Select All</a-button>
-                  <a-button type="text" size="small" @click="deselectAllPages">Deselect All</a-button>
-                </div>
-              </div>
-              <div class="page-preview-container">
-                <div v-if="thumbnails.length === 0" class="upload-area" style="pointer-events: none;">
-                  🖼️
-                  <div class="upload-text">Loading page thumbnails...</div>
-                </div>
-                <div v-else class="page-preview-grid">
-                  <div v-for="(img, pi) in thumbnails" :key="pi" class="page-preview-item" :class="{selected: isSelected(pi)}" @click="toggle(pi)">
-                    <img :src="img" class="page-preview-image">
-                    <div class="page-number">{{ pi+1 }}</div>
-                    <div v-if="isSelected(pi)" class="selected-overlay">✓</div>
+            <div v-if="drawerStage === 'options'" class="drawer-options-stage">
+              <!-- 抽屉顶部工具栏 -->
+              <div class="drawer-top-bar">
+                <div class="drawer-top-content">
+                  <div class="drawer-view-tabs">
+                    <button class="drawer-tab-btn active">
+                      <span class="tab-icon">📄</span>
+                      <span>Options</span>
+                    </button>
+                  </div>
+                  <div class="drawer-toolbar-buttons">
+                    <a-button type="default" @click="handleDrawerClose">
+                      <i class="anticon anticon-close"></i>
+                      Cancel
+                    </a-button>
                   </div>
                 </div>
               </div>
 
-              <div class="drawer-actions">
-                <a-button @click="drawerStage = 'options'">Back</a-button>
-                <a-button type="primary" @click="extractText" :disabled="extracting || selectedPages.length === 0">
-                  {{ extracting ? 'Extracting...' : 'Extract Text' }}
-                </a-button>
+              <div class="drawer-form-content">
+                <div class="options-section">
+                  <div class="options-title">Extraction Mode</div>
+                  <div class="mode-description">Choose how you want to extract text from your PDF</div>
+                  
+                  <div class="merge-mode-options">
+                    <div class="mode-option" :class="{active: form.pageRange === 'all'}" @click="form.pageRange = 'all'">
+                      <div class="mode-icon">📋</div>
+                      <div class="mode-title">All Pages</div>
+                      <div class="mode-desc">Extract all pages</div>
+                      <div class="mode-explanation">Extract text from all pages of your PDF document.</div>
+                    </div>
+                    <div class="mode-option" :class="{active: form.pageRange === 'custom'}" @click="form.pageRange = 'custom'">
+                      <div class="mode-icon">🎯</div>
+                      <div class="mode-title">Select Pages</div>
+                      <div class="mode-desc">Choose specific pages</div>
+                      <div class="mode-explanation">Pick only the pages you need.</div>
+                    </div>
+                  </div>
+
+                  <div class="format-options">
+                    <div class="options-title">Format Options</div>
+                    <div class="format-option">
+                      <a-checkbox v-model="form.preserveFormatting">
+                        Preserve Formatting
+                      </a-checkbox>
+                      <p class="option-hint">Keep indentation, bullet points, and spacing</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="drawer-bottom-actions">
+                <div class="drawer-actions-right">
+                  <a-button 
+                    type="primary" 
+                    size="large" 
+                    class="drawer-export-btn"
+                    :disabled="extracting || !selectedFiles.length"
+                    @click="handleDrawerAction"
+                  >
+                    <i class="anticon anticon-right"></i>
+                    {{ getDrawerActionText() }}
+                  </a-button>
+                </div>
               </div>
             </div>
 
-            <div v-if="drawerStage === 'progress'" class="progress-section">
+            <div v-if="drawerStage === 'select'" class="drawer-select-stage">
+              <!-- 抽屉顶部工具栏 -->
+              <div class="drawer-top-bar">
+                <div class="drawer-top-content">
+                  <div class="drawer-view-tabs">
+                    <button class="drawer-tab-btn active">
+                      <span class="tab-icon">📑</span>
+                      <span>Select Pages</span>
+                    </button>
+                  </div>
+                  <div class="drawer-toolbar-buttons">
+                    <a-button type="default" @click="drawerStage = 'options'">
+                      <i class="anticon anticon-left"></i>
+                      Back
+                    </a-button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="drawer-form-content">
+                <div class="preview-section">
+                  <div class="preview-header">
+                    <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
+                    <div class="preview-actions">
+                      <a-button type="text" size="small" @click="selectAllPages">
+                        <i class="anticon anticon-check-square"></i>
+                        Select All
+                      </a-button>
+                      <a-button type="text" size="small" @click="deselectAllPages">
+                        <i class="anticon anticon-border"></i>
+                        Deselect All
+                      </a-button>
+                    </div>
+                  </div>
+                  <div class="page-preview-container">
+                    <div v-if="thumbnails.length === 0" class="upload-area" style="pointer-events: none;">
+                      🖼️
+                      <div class="upload-text">Loading page thumbnails...</div>
+                    </div>
+                    <div v-else class="page-preview-grid">
+                      <div v-for="(img, pi) in thumbnails" :key="pi" class="page-preview-item" :class="{selected: isSelected(pi)}" @click="toggle(pi)">
+                        <img :src="img" class="page-preview-image">
+                        <div class="page-number">{{ pi+1 }}</div>
+                        <div v-if="isSelected(pi)" class="selected-overlay">✓</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="drawer-bottom-actions">
+                <div class="drawer-actions-right">
+                  <a-button 
+                    type="primary" 
+                    size="large" 
+                    class="drawer-export-btn"
+                    :disabled="extracting || selectedPages.length === 0"
+                    @click="extractText"
+                  >
+                    <i class="anticon anticon-file-text"></i>
+                    {{ extracting ? 'Extracting...' : 'Extract Text' }}
+                  </a-button>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="(drawerStage === 'progress' || extracting) && progress < 100" class="progress-section">
               <div class="progress-text">{{ progressText }}</div>
               <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
             </div>
@@ -588,8 +972,14 @@
               </div>
 
               <div class="button-bar">
-                <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                <a-button type="primary" @click="reset">Start Over</a-button>
+                <a-button type="default" @click="backToOptions">
+                  <i class="anticon anticon-left"></i>
+                  Back to Options
+                </a-button>
+                <a-button type="primary" @click="reset">
+                  <i class="anticon anticon-redo"></i>
+                  Start Over
+                </a-button>
               </div>
             </div>
           </div>
