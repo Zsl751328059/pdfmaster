@@ -109,7 +109,6 @@
   <script src="/lib/signature_pad/signature_pad.umd.min.js"></script>
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
@@ -161,13 +160,13 @@
       font-size: 15px;
       font-weight: 600;
       color: #374151;
-      margin-bottom: 16px;
+      /* margin-bottom: 16px; */
     }
     .signature-canvas-wrapper {
       width: 100%;
-      border: 2px dashed #d1d5db;
+      border: 2px dashed rgba(255, 255, 255, 0.2);
       border-radius: 12px;
-      background: #fafafa;
+      background: rgba(30, 41, 59, 0.8);
       overflow: hidden;
       min-height: 250px;
     }
@@ -175,6 +174,7 @@
       display: block;
       width: 100%;
       height: auto;
+      background: transparent;
     }
     .signature-actions {
       display: flex;
@@ -192,26 +192,28 @@
       transition: all 0.3s;
     }
     .sig-btn-clear {
-      background: #fee2e2;
-      color: #dc2626;
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
     .sig-btn-clear:hover {
-      background: #fecaca;
+      background: rgba(239, 68, 68, 0.3);
     }
     .sig-btn-undo {
-      background: #dbeafe;
-      color: #2563eb;
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
     }
     .sig-btn-undo:hover {
-      background: #bfdbfe;
+      background: rgba(59, 130, 246, 0.3);
     }
     .sig-btn-save {
-      background: linear-gradient(135deg, #409EFF, #337ecc);
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
       color: white;
     }
     .sig-btn-save:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
     }
     .text-signature-input {
       display: flex;
@@ -223,18 +225,66 @@
       flex: 1;
       min-width: 200px;
       padding: 12px 16px;
-      border: 2px solid #e5e7eb;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 10px;
       font-size: 14px;
+      background: rgba(30, 41, 59, 0.6);
+      color: #f1f5f9;
     }
     .signature-input:focus {
       outline: none;
-      border-color: #409EFF;
+      border-color: #3b82f6;
+    }
+    .signature-input::placeholder {
+      color: #64748b;
     }
     .font-select {
       min-width: 150px;
     }
-  </style>
+    .options-title {
+      color: #f1f5f9;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .mode-description {
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .option-label {
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .color-picker-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .color-input {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+    }
+    .color-value {
+      color: #94a3b8;
+      font-size: 14px;
+      font-family: monospace;
+    }
+    .signature-title {
+        color: #f1f5f9;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        /* margin-top: 24px; */
+        /* padding-top: 24px; */
+        /* border-top: 1px solid rgba(255, 255, 255, 0.1); */
+    }
+</style>
   
 </head>
 <body>
@@ -288,115 +338,211 @@
           </div>
         </a-upload>
 
-        <div v-if="selectedFile" class="file-list-section">
+        <div v-if="selectedFiles.length" class="file-list-section">
           <div class="file-list-header">
-
-            <a-button type="text" danger size="small" @click="clearFile">Clear All</a-button>
+            <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
           </div>
-          <div class="file-item">
+          <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
             <i class="anticon anticon-file-text file-icon"></i>
             <div class="file-info">
-              <span class="file-name" :title="selectedFile.name">{{ selectedFile.name }}</span>
-              <span class="file-details">{{ formatFileSize(selectedFile.size) }}</span>
+              <span class="file-name" :title="file.name">{{ file.name }}</span>
+              <span class="file-details">{{ file.pageCount || 0 }} pages · {{ formatFileSize(file.size) }}</span>
             </div>
-            <button class="remove-btn" @click="clearFile" aria-label="Remove file">
+            <button class="remove-btn" @click="removeFile(idx)" aria-label="Remove file">
               Remove
             </button>
           </div>
         </div>
 
         <a-drawer
-          :title="done ? 'Signing Result' : 'Create Signature'"
+          :title="done ? 'Signing Result' : ''"
           :visible="showDrawer"
           :width="'100%'"
           :closable="true"
           :mask-closable="true"
           @close="handleDrawerClose"
+          :body-style="{ padding: '0' }"
         >
           <div class="drawer-content">
-            <div v-if="!done && !signing" class="options-section" style="margin-bottom: 24px;">
-              <div class="options-title">Signature Mode</div>
-              <div class="mode-description">Choose how you want to create your signature</div>
-              
-              <div class="merge-mode-options">
-                <div class="mode-option" :class="{active: form.signatureType === 'draw'}" @click="form.signatureType = 'draw'">
-                  <div class="mode-icon">✏️</div>
-                  <div class="mode-title">Draw Signature</div>
-                  <div class="mode-desc">Draw with mouse/touch</div>
-                  <div class="mode-explanation">Draw your signature using your mouse or touch device for a personal touch.</div>
+            <div v-if="!done && !signing" class="drawer-select-stage">
+              <div class="drawer-top-bar">
+                <div class="drawer-top-content">
+                  <div class="drawer-view-tabs">
+                    <button 
+                      class="drawer-tab-btn" 
+                      :class="{active: currentView === 'files'}" 
+                      @click="switchView('files')"
+                    >
+                      <span class="tab-icon">📄</span>
+                      <span>Files</span>
+                    </button>
+                    <a-popconfirm
+                      title="If you have no custom page selection needs, you do not need to enter this page.\n\nThis page only supports:\n- Page preview by pagination\n- Manually select/deselect pages"
+                      ok-text="Enter Pages"
+                      cancel-text="Cancel"
+                      @confirm="switchView('pages')"
+                    >
+                      <template slot="icon"></template>
+                      <button 
+                        class="drawer-tab-btn" 
+                        :class="{active: currentView === 'pages'}"
+                      >
+                        <span class="tab-icon">📑</span>
+                        <span>Pages</span>
+                      </button>
+                    </a-popconfirm>
+                  </div>
+                  <div class="drawer-toolbar-buttons">
+                    <a-button type="default" @click="clearAllFiles" danger>
+                      <span>🗑️</span>
+                      <span>Clear All</span>
+                    </a-button>
+                  </div>
                 </div>
-                <div class="mode-option" :class="{active: form.signatureType === 'text'}" @click="form.signatureType = 'text'">
-                  <div class="mode-icon">📝</div>
-                  <div class="mode-title">Text Signature</div>
-                  <div class="mode-desc">Type your signature</div>
-                  <div class="mode-explanation">Type your name and choose from several font options for a clean signature.</div>
+              </div>
+
+              <div v-if="currentView === 'files'" class="drawer-files-view">
+                <div class="drawer-files-grid">
+                  <div v-for="(file, fi) in selectedFiles" :key="fi" class="drawer-file-card">
+                    <div class="drawer-file-thumbnail">
+                      <img v-if="file.thumbnails[0]" :src="file.thumbnails[0]" class="drawer-file-preview">
+                      <div v-else class="drawer-file-placeholder">
+                        <i class="anticon anticon-file-pdf" style="font-size: 48px; color: #ff4444;"></i>
+                      </div>
+                    </div>
+                    <div class="drawer-file-info">
+                      <div class="drawer-file-name">{{ file.name }}</div>
+                      <div class="drawer-file-meta">{{ file.pageCount || 0 }} pages · {{ formatFileSize(file.size) }}</div>
+                    </div>
+                    <button class="drawer-file-remove" @click="removeFile(fi)">
+                      <span class="close-icon">×</span>
+                    </button>
+                  </div>
+                  
+                  <div class="drawer-file-card drawer-add-card" @click="triggerUpload">
+                    <div class="drawer-add-content">
+                      <span class="drawer-add-icon">+</span>
+                      <div class="drawer-add-text">Add Files</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div v-else-if="currentView === 'pages'" class="drawer-pages-view">
+                <div class="drawer-pages-header">
+                  <div class="drawer-select-actions">
+                    <a-button size="small" @click="selectAllPages"><span>✅</span><span>Select All</span></a-button>
+                    <a-button size="small" @click="deselectAllPages"><span>❌</span><span>Deselect All</span></a-button>
+                  </div>
+                </div>
+                <div class="drawer-all-pages">
+                  <div v-for="(file, fi) in selectedFiles" :key="fi" class="drawer-file-pages-group">
+                    <div class="drawer-file-group-title">{{ file.name }}</div>
+                    <div class="drawer-pages-grid">
+                      <div 
+                        v-for="(pi) in file.visibleThumbnails" 
+                        :key="pi" 
+                        class="drawer-page-item"
+                        :class="{selected: isSelected(fi, pi), loading: file.thumbnails[pi] === null}"
+                        @click="toggle(fi, pi)"
+                      >
+                        <img v-if="file.thumbnails[pi] !== null" :src="file.thumbnails[pi]" class="drawer-page-thumb">
+                        <div v-else class="drawer-page-placeholder">
+                          <i class="anticon anticon-file-text"></i>
+                          <span class="placeholder-text">Loading...</span>
+                        </div>
+                        <div class="drawer-page-num">{{ pi + 1 }}</div>
+                        <div v-if="isSelected(fi, pi)" class="drawer-page-selected">✓</div>
+                      </div>
+                      <div 
+                        v-if="file.hasMorePages" 
+                        class="drawer-page-item drawer-show-more-card"
+                        @click="loadMorePages(fi)"
+                        :class="{loading: file.isLoadingMore}"
+                      >
+                        <div class="drawer-show-more-content">
+                          <span class="drawer-show-more-icon">▼</span>
+                          <span class="drawer-show-more-text">Load More</span>
+                          <span class="drawer-show-more-count">{{ file.pageCount - file.visibleThumbnails.length }} more</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="drawer-file-card drawer-add-card" @click="triggerUpload">
+                    <div class="drawer-add-content">
+                      <span class="drawer-add-icon">+</span>
+                      <div class="drawer-add-text">Add Files</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="options-section" style="padding: 16px 20px;">
+                <div class="options-title">Signature Mode</div>
+                <div class="mode-description">Choose how you want to create your signature</div>
+                
+                <div class="merge-mode-options">
+                  <div class="mode-option" :class="{active: form.signatureType === 'draw'}" @click="form.signatureType = 'draw'">
+                    <div class="mode-icon">✏️</div>
+                    <div class="mode-title">Draw Signature</div>
+                    <div class="mode-desc">Draw with mouse/touch</div>
+                    <div class="mode-explanation">Draw your signature using your mouse or touch device for a personal touch.</div>
+                  </div>
+                  <div class="mode-option" :class="{active: form.signatureType === 'text'}" @click="form.signatureType = 'text'">
+                    <div class="mode-icon">📝</div>
+                    <div class="mode-title">Text Signature</div>
+                    <div class="mode-desc">Type your signature</div>
+                    <div class="mode-explanation">Type your name and choose from several font options for a clean signature.</div>
+                  </div>
+                </div>
+
+                <div class="output-options" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #374151;">
+                  <div class="option-row">
+                    <label class="option-label">Signature Color</label>
+                    <div class="color-picker-container">
+                      <input v-model="form.signatureColor" type="color" class="color-input" @input="updateSignatureColor">
+                      <div class="color-value">{{ form.signatureColor }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="signature-section">
+                  <div class="signature-title">Create Your Signature</div>
+                  
+                  <template v-if="form.signatureType === 'draw'">
+                    <div class="signature-canvas-wrapper" style="height: 200px;">
+                      <canvas id="signatureCanvas" style="width: 100%; height: 100%;"></canvas>
+                    </div>
+                    <div class="signature-actions">
+                      <button class="sig-btn sig-btn-clear" @click="clearSignature">Clear</button>
+                      <button class="sig-btn sig-btn-undo" @click="undoSignature">Undo</button>
+                      <button class="sig-btn sig-btn-save" @click="saveSignature">Save Signature</button>
+                    </div>
+                  </template>
+                  
+                  <template v-else>
+                    <div class="text-signature-input">
+                      <a-input v-model="form.signatureText" class="signature-input" placeholder="Enter your signature text"></a-input>
+                      <a-select v-model="form.signatureFont" class="font-select">
+                        <a-select-option value="cursive">Cursive</a-select-option>
+                        <a-select-option value="arial">Arial</a-select-option>
+                        <a-select-option value="times">Times New Roman</a-select-option>
+                        <a-select-option value="courier">Courier</a-select-option>
+                      </a-select>
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
 
-            <div v-if="!done && !signing" class="preview-section">
-              <div class="preview-header">
-                <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div>
-                <div class="preview-actions">
-                  <a-button type="text" @click="selectAllPages">Select All</a-button>
-                  <a-button type="text" @click="deselectAllPages">Deselect All</a-button>
-                  <a-button type="text" @click="toggleAllPages">Toggle</a-button>
+            <div v-if="(drawerStage === 'progress' || signing) && progress < 100" class="progress-section">
+              <div class="progress-container">
+                <div class="progress-info">
+                  <span class="progress-text">{{ progressText }}</span>
+                  <span class="progress-percent">{{ progress }}%</span>
                 </div>
+                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" :stroke-width="8" />
               </div>
-              <div class="page-preview-container">
-                <div class="page-preview-grid">
-                  <div v-for="(img, index) in previews" :key="index" 
-                       class="page-preview-item" 
-                       :class="{selected: isSelected(index + 1)}" 
-                       @click="togglePage(index + 1)">
-                    <img :src="img" class="page-preview-image">
-                    <div class="page-number">{{ index + 1 }}</div>
-                    <div v-if="isSelected(index + 1)" class="selected-overlay">✓</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="output-options" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
-                <div class="option-row">
-                  <label class="option-label">Signature Color</label>
-                  <div class="color-picker-container">
-                    <input v-model="form.signatureColor" type="color" class="color-input" @input="updateSignatureColor">
-                    <div class="color-value">{{ form.signatureColor }}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="signature-section">
-                <div class="signature-title">Create Your Signature</div>
-                
-                <template v-if="form.signatureType === 'draw'">
-                  <div class="signature-canvas-wrapper" style="height: 200px;">
-                    <canvas id="signatureCanvas" style="width: 100%; height: 100%;"></canvas>
-                  </div>
-                  <div class="signature-actions">
-                    <button class="sig-btn sig-btn-clear" @click="clearSignature">Clear</button>
-                    <button class="sig-btn sig-btn-undo" @click="undoSignature">Undo</button>
-                    <button class="sig-btn sig-btn-save" @click="saveSignature">Save Signature</button>
-                  </div>
-                </template>
-                
-                <template v-else>
-                  <div class="text-signature-input">
-                    <a-input v-model="form.signatureText" class="signature-input" placeholder="Enter your signature text"></a-input>
-                    <a-select v-model="form.signatureFont" class="font-select">
-                      <a-select-option value="cursive">Cursive</a-select-option>
-                      <a-select-option value="arial">Arial</a-select-option>
-                      <a-select-option value="times">Times New Roman</a-select-option>
-                      <a-select-option value="courier">Courier</a-select-option>
-                    </a-select>
-                  </div>
-                </template>
-              </div>
-            </div>
-
-            <div v-if="drawerStage === 'progress' || signing" class="progress-section">
-              <div class="progress-text">{{ progressText }}</div>
-              <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
             </div>
 
             <div v-if="done" class="result-content">
@@ -412,28 +558,20 @@
               </div>
 
               <div class="button-bar">
-                <a-button type="default" @click="backToSign">Back to Signing</a-button>
-                <a-button type="primary" size="large" @click="download">Download Signed PDF</a-button>
-                <a-button type="primary" @click="reset">Start Over</a-button>
+                <a-button type="default" @click="backToSelect">Back</a-button>
+                <a-button type="primary" size="large" @click="download">
+                  Download
+                </a-button>
+                <a-button type="primary" @click="reset">
+                  Start Over
+                </a-button>
               </div>
 
               <div class="recommend-section">
                 <p>Need to add watermarks? <a href="pdf-watermark.html" class="recommend-link">Try our Watermark Tool →</a></p>
               </div>
 
-              <div class="preview-layout" v-if="previews.length > 0">
-                <div class="sidebar">
-                  <div class="sidebar-title">Pages</div>
-                  <div class="thumbnails-list">
-                    <div v-for="(t, i) in previews" :key="i" 
-                         class="sidebar-thumbnail" 
-                         :class="{ active: currentPage === i }"
-                         @click="scrollToPage(i)">
-                      <img :src="t" class="sidebar-image" :alt="'Page ' + (i+1)" />
-                      <div class="sidebar-page-num">{{ i + 1 }}</div>
-                    </div>
-                  </div>
-                </div>
+              <div class="preview-layout">
                 <div class="main-preview">
                   <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
                     <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
@@ -442,11 +580,12 @@
               </div>
             </div>
 
-            <div v-if="!done && !signing" class="drawer-actions">
-              <a-button type="default" size="large" @click="reset">Cancel</a-button>
-              <a-button type="primary" size="large" @click="handleDrawerAction" :disabled="signing || !canSignPDF">
-                {{ getDrawerActionText() }}
-              </a-button>
+            <div v-if="!done && !signing && selectedFiles.length" class="drawer-bottom-actions">
+              <div class="drawer-actions-right">
+                <a-button type="primary" size="large" @click="handleDrawerAction" :disabled="signing || !canSignPDF">
+                  {{ getDrawerActionText() }}
+                </a-button>
+              </div>
             </div>
           </div>
         </a-drawer>
@@ -754,7 +893,7 @@ new Vue({
   el: '#app',
   data() {
     return {
-      selectedFile: null,
+      selectedFiles: [],
       showDrawer: false,
       drawerStage: 'mode',
       form: {
@@ -778,12 +917,12 @@ new Vue({
       progress: 0,
       progressText: '',
       signaturePad: null,
-      previews: [],
       selectedPages: [],
       showPreviewModal: false,
       currentPreviewImage: '',
       zoomScale: 1,
-      currentPage: 0
+      currentPage: 0,
+      currentView: 'files'
     }
   },
   mounted() {
@@ -838,57 +977,108 @@ new Vue({
         this.reset()
       }
     },
-    backToSign() {
-      this.cleanupResultResources()
-      this.done = false
-      this.signing = false
-      this.progress = 0
-      this.progressText = ''
+    switchView(view) {
+      this.currentView = view
+      if (view === 'pages') {
+        this.selectedFiles.forEach(item => {
+          if (item.deferredRender && !item.rendered) {
+            item.deferredRender = false
+            if (item.pagesToRender && item.pagesToRender.length > 0) {
+              const visibleCount = item.visibleThumbnails.length
+              setTimeout(() => {
+                this.renderVisiblePages(item, visibleCount)
+              }, 100)
+            }
+            item.rendered = true
+          }
+        })
+        this.selectedPages = [] // pages视图默认不选中任何页面
+      }
+      if (this.form.signatureType === 'draw') {
+        setTimeout(() => {
+          this.initSignaturePad()
+        }, 100)
+      }
+    },
+    triggerUpload() {
+      const uploadEl = this.$refs.upload
+      if (uploadEl) {
+        const input = uploadEl.$el?.querySelector('input[type="file"]')
+        if (input) {
+          input.click()
+        }
+      }
     },
     cleanupResultResources() {
       if (this.resultBlob) {
         this.resultBlob = null
       }
+      
+      if (this.previewsPdf) {
+        try {
+          this.previewsPdf.destroy()
+        } catch (e) {
+          console.warn('Error destroying preview PDF:', e)
+        }
+        this.previewsPdf = null
+      }
+      
+      if (this.previews && Array.isArray(this.previews)) {
+        this.previews.forEach(url => {
+          if (url && url.startsWith('blob:')) {
+            try {
+              URL.revokeObjectURL(url)
+            } catch (e) {}
+          }
+        })
+      }
+      this.previews = []
       this.currentPreviewImage = ''
     },
+    backToSelect() {
+      this.cleanupResultResources()
+      this.done = false
+      this.signing = false
+      this.progress = 0
+      this.progressText = ''
+      this.drawerStage = 'mode'
+      this.currentView = 'files'
+    },
     getDrawerActionText() {
+      if (this.drawerStage === 'mode') {
+        return 'Sign'
+      }
       return 'Sign PDF'
     },
     handleDrawerAction() {
-      this.signPDF()
+      if (this.drawerStage === 'mode') {
+        if (this.selectedFiles.length === 0) {
+          this.$message.warning('Please upload a PDF file to sign')
+          return
+        }
+        // Files视图：总是处理所有页面
+        // Pages视图：使用用户选择的页面
+        if (this.currentView === 'files') {
+          this.selectAllPagesForSign()
+        } else {
+          if (this.selectedPages.length === 0) {
+            this.$message.warning('Please select at least one page to sign')
+          return
+        }
+        }
+        this.drawerStage = 'progress'
+        this.signPDF()
+      }
     },
     handleBeforeUnload() {
       this.cleanupAllResources()
     },
     
     cleanupAllResources() {
-      if (this.selectedFile) {
-        if (this.selectedFile.pdfInstance) {
-          try {
-            this.selectedFile.pdfInstance.destroy()
-          } catch (e) {
-            console.warn('Error destroying PDF instance:', e)
-          }
-          this.selectedFile.pdfInstance = null
-        }
-        if (this.selectedFile.thumbnails) {
-          this.selectedFile.thumbnails.forEach(url => {
-            if (url && url.startsWith('blob:')) {
-              URL.revokeObjectURL(url)
-            }
-          })
-          this.selectedFile.thumbnails = null
-        }
-        if (this.selectedFile.pages) {
-          this.selectedFile.pages.forEach(page => {
-            try {
-              page.destroy()
-            } catch (e) {}
-          })
-          this.selectedFile.pages = null
-        }
-        this.selectedFile = null
-      }
+      this.selectedFiles.forEach(file => {
+        this.destroyFileResources(file)
+      })
+      this.selectedFiles = []
       
       if (this.signatureImage && this.signatureImage.startsWith('blob:')) {
         URL.revokeObjectURL(this.signatureImage)
@@ -903,14 +1093,27 @@ new Vue({
         this.currentPreviewImage = null
       }
       
-      if (this.previews && this.previews.length > 0) {
+      // 清理结果预览
+      if (this.previewsPdf) {
+        try {
+          this.previewsPdf.destroy()
+        } catch (e) {
+          console.warn('Error destroying preview PDF:', e)
+        }
+        this.previewsPdf = null
+      }
+      
+      if (this.previews && Array.isArray(this.previews)) {
         this.previews.forEach(url => {
           if (url && url.startsWith('blob:')) {
-            URL.revokeObjectURL(url)
+            try {
+              URL.revokeObjectURL(url)
+            } catch (e) {}
           }
         })
       }
       this.previews = []
+      this.selectedPages = []
     },
     
     initSignaturePad() {
@@ -974,14 +1177,14 @@ new Vue({
         e.preventDefault()
       }
     },
-    clearFile() {
-      if (this.selectedFile) {
-        URL.revokeObjectURL(this.previews[0])
-        this.selectedFile = null
-        this.previews = []
-        this.selectedPages = []
-        this.done = false
-        this.resultBlob = null
+    clearAllFiles() {
+      this.selectedFiles.forEach(file => {
+        this.destroyFileResources(file)
+      })
+      this.selectedFiles = []
+      this.selectedPages = []
+      if (this.$refs.upload) {
+        this.$refs.upload.uploadFiles = []
       }
     },
     async handleFileChange({ file, onSuccess }) {
@@ -995,59 +1198,311 @@ new Vue({
         this.$message.error('File size cannot exceed 50MB')
         return
       }
-      if (this.selectedFile) {
-        this.$message.warning('You can upload only one file at a time. Please clear the current file first.')
+      if (this.selectedFiles.length >= 1) {
+        this.$message.warning('You can upload only one file at a time')
         return
       }
-      this.selectedFile = {
+      
+      const item = {
         name: raw.name,
         file: raw,
-        size: raw.size
+        size: raw.size,
+        thumbnails: [],
+        pageCount: 0,
+        visibleThumbnails: [],
+        hasMorePages: false,
+        isLoadingMore: false,
+        rendering: false,
+        rendered: false,
+        deferredRender: false,
+        pagesToRender: []
       }
-      this.generatePreviews(raw)
-      this.showDrawer = true
+      this.selectedFiles.push(item)
+      
+      await this.renderFirstPageOnly(item)
+      
       if (onSuccess) onSuccess()
+      
+      this.showDrawer = true
     },
-    async generatePreviews(file) {
-      const fileReader = new FileReader()
-      fileReader.onload = async (e) => {
-        const arrayBuffer = e.target.result
-        this.previews = await this.generatePagePreviews(arrayBuffer)
-        this.selectedPages = []
-        for (let i = 1; i <= this.previews.length; i++) {
-          this.selectedPages.push(i)
+    async renderFirstPageOnly(item) {
+      try {
+        const buf = await item.file.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+        
+        if (pdf.numPages === 0) {
+          throw new Error('Empty PDF')
+        }
+        
+        item.pageCount = pdf.numPages
+        
+        // 只渲染第一页缩略图
+        const firstPage = await pdf.getPage(1)
+        const vp = firstPage.getViewport({ scale: 1.0 })
+        const c = document.createElement('canvas')
+        const ctx = c.getContext('2d')
+        c.width = vp.width
+        c.height = vp.height
+        await firstPage.render({ canvasContext: ctx, viewport: vp }).promise
+        const firstThumbnail = c.toDataURL()
+        
+        if (typeof firstPage.destroy === 'function') {
+          await firstPage.destroy()
+        }
+        
+        // 设置第一页缩略图
+        const fileIdx = this.selectedFiles.indexOf(item)
+        if (fileIdx !== -1) {
+          if (!this.selectedFiles[fileIdx].thumbnails) {
+            this.selectedFiles[fileIdx].thumbnails = []
+          }
+          this.$set(this.selectedFiles[fileIdx].thumbnails, 0, firstThumbnail)
+        }
+        
+        const INITIAL_LOAD_COUNT = 10
+        
+        // 初始化所有页面的占位符（设为null）
+        for (let i = 1; i < pdf.numPages; i++) {
+          this.$set(this.selectedFiles[fileIdx].thumbnails, i, null)
+        }
+        
+        // 设置可见缩略图数量（默认最多显示10页）
+        const visibleCount = Math.min(pdf.numPages, INITIAL_LOAD_COUNT)
+        const visibleIndices = []
+        for (let i = 0; i < visibleCount; i++) {
+          visibleIndices.push(i)
+        }
+        this.$set(this.selectedFiles[fileIdx], 'visibleThumbnails', visibleIndices)
+        
+        // 设置是否有更多页面
+        this.$set(this.selectedFiles[fileIdx], 'hasMorePages', pdf.numPages > INITIAL_LOAD_COUNT)
+        
+        // 记录需要渲染的页面
+        item.pagesToRender = []
+        for (let i = 2; i <= visibleCount; i++) {
+          item.pagesToRender.push(i)
+        }
+        
+        // 如果用户在pages视图，渲染可见的缩略图
+        if (this.currentView === 'pages' && pdf.numPages > 1) {
+          if (visibleCount > 1) {
+            setTimeout(() => {
+              this.renderVisiblePages(item, visibleCount)
+            }, 100)
+          }
+          item.rendered = true
+        } else {
+          // 在files视图，标记为延迟渲染
+          item.deferredRender = true
+        }
+        
+        // 销毁PDF实例释放内存
+        if (pdf && typeof pdf.destroy === 'function') {
+          try {
+            await pdf.destroy()
+          } catch (e) {}
+        }
+        
+      } catch (error) {
+        const idx = this.selectedFiles.indexOf(item)
+        if (idx !== -1) {
+          this.selectedFiles.splice(idx, 1)
+        }
+        if (error.message.includes('password') || error.message.includes('encrypted')) {
+          this.$message.error(`File "${item.name}" is password protected. Please remove the password before uploading.`)
+        } else {
+          this.$message.error(`File "${item.name}" is not a valid PDF or is corrupted.`)
         }
       }
-      fileReader.readAsArrayBuffer(file)
     },
-    isSelected(pageNum) {
-      return this.selectedPages.includes(pageNum)
-    },
-    togglePage(pageNum) {
-      const index = this.selectedPages.indexOf(pageNum)
-      if (index > -1) {
-        if (this.selectedPages.length > 1) {
-          this.selectedPages.splice(index, 1)
+    async renderVisiblePages(item, visibleCount) {
+      if (!item.pagesToRender || item.pagesToRender.length === 0) {
+        return
+      }
+      
+      const buf = await item.file.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+      
+      try {
+        const batchSize = 2
+        while (item.pagesToRender && item.pagesToRender.length > 0) {
+          const batch = item.pagesToRender.splice(0, batchSize)
+          const promises = batch.map(async (pageNum) => {
+            if (pageNum > visibleCount) return
+            const page = await pdf.getPage(pageNum)
+            const vp = page.getViewport({ scale: 0.8 })
+            const c = document.createElement('canvas')
+            const ctx = c.getContext('2d')
+            c.width = vp.width
+            c.height = vp.height
+            await page.render({ canvasContext: ctx, viewport: vp }).promise
+            const thumbnail = c.toDataURL()
+            if (typeof page.destroy === 'function') {
+              await page.destroy()
+            }
+            const fileIdx = this.selectedFiles.indexOf(item)
+            if (fileIdx !== -1) {
+              this.$set(this.selectedFiles[fileIdx].thumbnails, pageNum - 1, thumbnail)
+            }
+          })
+          await Promise.all(promises)
+          await new Promise(resolve => requestAnimationFrame(resolve))
         }
+      } finally {
+        if (pdf && typeof pdf.destroy === 'function') {
+          try {
+            await pdf.destroy()
+          } catch (e) {
+            console.warn('Error destroying PDF instance:', e)
+          }
+        }
+      }
+    },
+    async loadMorePages(fi) {
+      const item = this.selectedFiles[fi]
+      if (!item || !item.hasMorePages || item.isLoadingMore) {
+        return
+      }
+      
+      item.isLoadingMore = true
+      
+      const LOAD_MORE_COUNT = 10
+      const currentVisible = item.visibleThumbnails.length
+      const newVisibleCount = Math.min(currentVisible + LOAD_MORE_COUNT, item.pageCount)
+      
+      try {
+        const buf = await item.file.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+        
+        try {
+          const startPage = currentVisible + 1
+          const endPage = newVisibleCount
+          
+          const batchSize = 2
+          const pagesToLoad = []
+          for (let i = startPage; i <= endPage; i++) {
+            pagesToLoad.push(i)
+          }
+          
+          while (pagesToLoad.length > 0) {
+            const batch = pagesToLoad.splice(0, batchSize)
+            const promises = batch.map(async (pageNum) => {
+              const page = await pdf.getPage(pageNum)
+              const vp = page.getViewport({ scale: 0.8 })
+              const c = document.createElement('canvas')
+              const ctx = c.getContext('2d')
+              c.width = vp.width
+              c.height = vp.height
+              await page.render({ canvasContext: ctx, viewport: vp }).promise
+              const thumbnail = c.toDataURL()
+              if (typeof page.destroy === 'function') {
+                await page.destroy()
+              }
+              this.$set(item.thumbnails, pageNum - 1, thumbnail)
+            })
+            await Promise.all(promises)
+            await new Promise(resolve => requestAnimationFrame(resolve))
+          }
+          
+          const newVisibleIndices = []
+          for (let i = 0; i < newVisibleCount; i++) {
+            newVisibleIndices.push(i)
+          }
+          this.$set(item, 'visibleThumbnails', newVisibleIndices)
+          this.$set(item, 'hasMorePages', newVisibleCount < item.pageCount)
+          
+        } finally {
+          if (pdf && typeof pdf.destroy === 'function') {
+            try {
+              await pdf.destroy()
+            } catch (e) {
+              console.warn('Error destroying PDF instance:', e)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading more pages:', error)
+      } finally {
+        item.isLoadingMore = false
+      }
+    },
+    destroyFileResources(file) {
+      if (file.pdfInstance) {
+        try {
+          file.pdfInstance.destroy()
+        } catch (e) {
+          console.warn('Error destroying PDF instance:', e)
+        }
+        file.pdfInstance = null
+      }
+      if (file.thumbnails) {
+        file.thumbnails.forEach(url => {
+          if (url && url.startsWith('blob:')) {
+            URL.revokeObjectURL(url)
+          }
+        })
+        file.thumbnails = null
+      }
+      if (file.pages) {
+        file.pages.forEach(page => {
+          if (page && typeof page.destroy === 'function') {
+            try {
+              page.destroy()
+            } catch (e) {
+              console.warn('Error destroying page:', e)
+            }
+          }
+        })
+        file.pages = null
+      }
+    },
+    removeFile(idx) {
+      const file = this.selectedFiles[idx]
+      if (file) {
+        this.destroyFileResources(file)
+      }
+      this.selectedFiles.splice(idx, 1)
+      this.selectedPages = []
+      if (this.$refs.upload) {
+        this.$refs.upload.uploadFiles.splice(idx, 1)
+      }
+    },
+    isSelected(fileIndex, pageIndex) {
+      return this.selectedPages.includes(`${fileIndex}-${pageIndex}`)
+    },
+    toggle(fileIndex, pageIndex) {
+      const key = `${fileIndex}-${pageIndex}`
+      const index = this.selectedPages.indexOf(key)
+      if (index > -1) {
+        this.selectedPages.splice(index, 1)
       } else {
-        this.selectedPages.push(pageNum)
-        this.selectedPages.sort((a, b) => a - b)
+        this.selectedPages.push(key)
       }
     },
     selectAllPages() {
-      this.selectedPages = []
-      for (let i = 1; i <= this.previews.length; i++) {
-        this.selectedPages.push(i)
-      }
+      this.selectedFiles.forEach((file, fi) => {
+        // 只选择可见的页面
+        const visibleIndices = file.visibleThumbnails || file.thumbnails || []
+        visibleIndices.forEach((_, pi) => {
+          const key = `${fi}-${pi}`
+          if (!this.selectedPages.includes(key)) {
+            this.selectedPages.push(key)
+          }
+        })
+      })
     },
     deselectAllPages() {
       this.selectedPages = []
     },
-    toggleAllPages() {
-      const allPages = Array.from({ length: this.previews.length }, (_, i) => i + 1)
-      const selectedSet = new Set(this.selectedPages)
-      const newSelection = allPages.filter(p => !selectedSet.has(p))
-      this.selectedPages = newSelection.length > 0 ? newSelection : []
+    selectAllPagesForSign() {
+      // 选择所有文件的所有页面（用于Files视图直接处理）
+      const newPages = []
+      this.selectedFiles.forEach((file, fi) => {
+        for (let pi = 0; pi < file.pageCount; pi++) {
+          newPages.push(`${fi}-${pi}`)
+        }
+      })
+      this.selectedPages = newPages
     },
     async openPreview(img) {
       PreviewUtils.openPreview({
@@ -1192,7 +1647,7 @@ new Vue({
       }
     },
     async signPDF() {
-      if (!this.selectedFile || !this.canSignPDF) return
+      if (this.selectedFiles.length === 0 || !this.canSignPDF) return
       
       if (!this.signatureImage && this.form.signatureType === 'text' && this.form.signatureText.trim()) {
         const canvas = this.createTextSignature()
@@ -1205,7 +1660,17 @@ new Vue({
       this.progress = 0
       this.progressText = 'Loading PDF...'
       try {
-        const arrayBuffer = await this.selectedFile.file.arrayBuffer()
+        // 将选中的页面转换为实际页码
+        const selectedPageIndices = []
+        this.selectedPages.forEach(key => {
+          const [fi, pi] = key.split('-').map(Number)
+          if (fi === 0) {
+            selectedPageIndices.push(pi + 1) // 转换为1-based页码
+          }
+        })
+        
+        const file = this.selectedFiles[0]
+        const arrayBuffer = await file.file.arrayBuffer()
         const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer)
         
         this.progress = 25
@@ -1224,7 +1689,7 @@ new Vue({
         const pngImage = await pdfDoc.embedPng(embedData)
         const pageCount = pdfDoc.getPageCount()
         
-        const pagesToSign = this.selectedPages.length > 0 ? this.selectedPages : [pageCount]
+        const pagesToSign = selectedPageIndices.length > 0 ? selectedPageIndices : [pageCount]
         
         pagesToSign.forEach((pageNum) => {
           const pageIndex = Math.min(pageNum - 1, pageCount - 1)

@@ -161,7 +161,6 @@
   
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
@@ -170,6 +169,48 @@
   <script src="./lib/components/preview-modal.js"></script>
   <script src="./lib/jszip/jszip.min.js"></script>
 
+  <style>
+    .advanced-options {
+      background: rgba(30, 41, 59, 0.6);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .advanced-options .options-title {
+      color: #f1f5f9;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .advanced-options .option-label {
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .advanced-options .option-select {
+      min-width: 200px;
+      background: #1f2937;
+      border-color: #4b5563;
+    }
+    .advanced-options .option-select .ant-select-selector {
+      background: #1f2937 !important;
+      border-color: #4b5563 !important;
+      color: #f9fafb !important;
+    }
+    .advanced-options .option-select .ant-select-arrow {
+      color: #9ca3af;
+    }
+    .advanced-options .option-select .ant-select-dropdown {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    .advanced-options .option-select .ant-select-item {
+      color: #d1d5db;
+    }
+    .advanced-options .option-select .ant-select-item-option-selected {
+      background: #374151;
+    }
+  </style>
 
 </head>
 <body>
@@ -228,7 +269,12 @@
 
         <div v-if="selectedFiles.length" class="file-list-section">
           <div class="file-list-header">
-            <a-button type="text" danger size="small" @click="clearAllFiles">Clear All</a-button>
+            <a-button type="text" danger size="small" @click="clearAllFiles">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Clear All
+            </a-button>
           </div>
           <div v-for="(file, idx) in selectedFiles" :key="idx" class="file-item">
             <i class="anticon anticon-file-text file-icon"></i>
@@ -249,47 +295,158 @@
           placement="right"
           :closable="true"
           :mask-closable="true"
+          :body-style="{ padding: 0 }"
           @close="handleDrawerClose"
         >
-          <div class="drawer-content">
-            <div v-if="drawerStage === 'options'" class="options-section">
-              <div class="options-title">Output Settings</div>
-              <div class="output-options">
-                <div class="option-row">
-                  <label class="option-label">Output Format</label>
-                  <a-select v-model="form.format" class="option-select">
-                    <a-select-option value="png">PNG (Transparent Background)</a-select-option>
-                    <a-select-option value="jpeg">JPEG (Compressed)</a-select-option>
-                  </a-select>
+          <div class="drawer-content dark-theme">
+            <div v-if="drawerStage === 'options'" class="drawer-select-stage">
+              <div class="drawer-top-bar">
+                <div class="drawer-top-content">
+                  <div class="drawer-view-tabs">
+                    <button 
+                      class="drawer-tab-btn" 
+                      :class="{active: currentView === 'files'}" 
+                      @click="switchView('files')"
+                    >
+                      <span class="tab-icon">📄</span>
+                      <span>Files</span>
+                    </button>
+                    <button 
+                      class="drawer-tab-btn" 
+                      :class="{active: currentView === 'pages'}" 
+                      @click="switchView('pages')"
+                    >
+                      <span class="tab-icon">📑</span>
+                      <span>Pages</span>
+                    </button>
+                  </div>
+                  <div class="drawer-toolbar-buttons">
+                    <a-button type="default" @click="clearAllFiles" danger>
+                        <span>🗑️</span>
+                        <span>Clear All</span>
+                      </a-button>
+                  </div>
                 </div>
               </div>
 
-              <div class="page-select-section" style="margin-top: 16px;">
-                <div class="mode-description" style="margin-bottom: 8px;">Select Pages ({{ selectedPages.length }} of {{ pagePreviews.length }} selected)</div>
-                <div class="page-preview-grid">
-                  <div v-for="(img, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{selected: selectedPages.includes(idx)}" @click="togglePage(idx)">
-                    <img :src="img" class="page-preview-image">
-                    <div class="page-number">{{ idx+1 }}</div>
-                    <div v-if="selectedPages.includes(idx)" class="selected-overlay">✓</div>
+              <!-- Files View -->
+              <div v-if="currentView === 'files'" class="drawer-files-view">
+                <div class="drawer-files-grid">
+                  <div v-for="(file, fi) in selectedFiles" :key="fi" class="drawer-file-card">
+                    <div class="drawer-file-thumbnail">
+                      <img v-if="file.thumbnails[0]" :src="file.thumbnails[0]" class="drawer-file-preview">
+                      <div v-else class="drawer-file-placeholder">
+                        <i class="anticon anticon-file-pdf" style="font-size: 48px; color: #ff4444;"></i>
+                      </div>
+                    </div>
+                    <div class="drawer-file-info">
+                      <div class="drawer-file-name">{{ file.name }}</div>
+                      <div class="drawer-file-meta">{{ file.pageCount || 0 }} pages · {{ formatFileSize(file.size) }}</div>
+                    </div>
+                    <button class="drawer-file-remove" @click="removeFile(fi)">
+                      <span class="close-icon">×</span>
+                    </button>
+                  </div>
+                  
+                  <div class="drawer-file-card drawer-add-card" @click="triggerUpload">
+                    <div class="drawer-add-content">
+                      <span class="drawer-add-icon">+</span>
+                      <div class="drawer-add-text">Add Files</div>
+                    </div>
                   </div>
                 </div>
-                <div style="margin-top: 12px; display: flex; gap: 12px;">
-                  <a-button size="small" @click="selectAllPages">Select All</a-button>
-                  <a-button size="small" @click="deselectAllPages">Deselect All</a-button>
+
+              </div>
+
+              <!-- Pages View -->
+              <div v-else-if="currentView === 'pages'" class="drawer-pages-view">
+                <div class="drawer-pages-header">
+                  <div class="drawer-select-actions">
+                    <a-button size="small" @click="selectAllPages"><span></span><span>Select All</span></a-button>
+                    <a-button size="small" @click="deselectAllPages"><span></span><span>Deselect All</span></a-button>
+                  </div>
+                </div>
+                <div class="drawer-all-pages">
+                  <div v-for="(item, fi) in selectedFiles" :key="fi" class="drawer-file-pages-group">
+                    <div class="drawer-file-group-title">{{ item.name }}</div>
+                    <div class="drawer-pages-grid">
+                      <div 
+                        v-for="pi in item.visibleThumbnails" 
+                        :key="pi" 
+                        class="drawer-page-item"
+                        :class="{selected: selectedPages.includes(pi)}"
+                        @click="togglePage(pi)"
+                      >
+                        <img 
+                          v-if="item.thumbnails[pi] !== null"
+                          :src="item.thumbnails[pi]" 
+                          class="drawer-page-thumb"
+                          :alt="'Page ' + (pi + 1)"
+                        >
+                        <div 
+                          v-else
+                          class="drawer-page-placeholder"
+                        >
+                          <i class="anticon anticon-file-text"></i>
+                          <span class="placeholder-text">Loading...</span>
+                        </div>
+                        <div class="drawer-page-num">{{ pi + 1 }}</div>
+                        <div v-if="selectedPages.includes(pi)" class="drawer-page-selected">✓</div>
+                      </div>
+                      <div 
+                        v-if="item.hasMorePages" 
+                        class="drawer-page-item drawer-show-more-card"
+                        @click="loadMorePages(fi)"
+                        :class="{loading: item.isLoadingMore}"
+                      >
+                        <div class="drawer-show-more-content">
+                          <span class="drawer-show-more-icon">▼</span>
+                          <div class="drawer-show-more-text">Load More</div>
+                          <div class="drawer-show-more-count">{{ item.pageCount - item.visibleThumbnails.length }} more</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="drawer-files-grid">
+                  <div class="drawer-file-card drawer-add-card" @click="triggerUpload">
+                    <div class="drawer-add-content">
+                      <span class="drawer-add-icon">+</span>
+                      <div class="drawer-add-text">Add Files</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="padding: 16px 0;">
+                <div class="advanced-options">
+                  <div class="options-title">Output Settings</div>
+                  <div class="option-row">
+                    <a-select v-model="form.format" class="option-select">
+                      <a-select-option value="png">PNG (Transparent Background)</a-select-option>
+                      <a-select-option value="jpeg">JPEG (Compressed)</a-select-option>
+                    </a-select>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div v-if="drawerStage === 'progress'" class="progress-section">
-              <div class="progress-text">{{ progressText }}</div>
-              <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+            <div v-if="drawerStage === 'progress' && progress < 100" class="progress-section">
+              <div class="progress-container">
+                <div class="progress-info">
+                  <span class="progress-text">{{ progressText }}</span>
+                  <span class="progress-percent">{{ progress }}%</span>
+                </div>
+                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" :stroke-width="8" />
+              </div>
             </div>
 
             <div v-if="done" class="result-content">
               <div class="result-title">Conversion Completed!</div>
               <p class="result-desc">Successfully converted {{ convertedImages.length }} page(s) to {{ form.format.toUpperCase() }} format</p>
               <div class="result-preview">
-                <div v-for="(img, idx) in convertedImages" :key="idx" class="split-result-item" >
+                <div v-for="(img, idx) in convertedImages.slice(0, visiblePreviews)" :key="idx" class="split-result-item" >
                   <div class="page-preview-item clickable" @click="openPreview(img)" >
                     <img :src="img.data" class="page-preview-image">
                     <div class="preview-overlay">Click to zoom</div>
@@ -298,30 +455,61 @@
                     <i class="anticon anticon-download"></i> Download
                   </button>
                 </div>
+                <div v-if="hasMorePreviews" class="load-more-wrapper">
+                  <a-button size="large" @click="loadMorePreviews">
+                    <span style="margin-right: 6px;">▼</span>
+                    Load More ({{ convertedImages.length - visiblePreviews }} more)
+                  </a-button>
+                </div>
               </div>
               <div class="download-section">
-                <div class="filename-input">
-                  <label>File Name:</label>
-                  <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                  <div class="filename-input">
+                    <label>File Name:</label>
+                    <a-input v-model="downloadFileName" placeholder="Enter file name" style="width: 200px;" />
+                  </div>
+                  <a-button type="primary" size="large" @click="downloadAll">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+                    </svg>
+                    Download All Images (ZIP)
+                  </a-button>
                 </div>
-                <a-button type="primary" size="large" @click="downloadAll">Download All Images (ZIP)</a-button>
-              </div>
               <div class="recommend-section">
                 <p>Need to convert images to PDF? <a href="image-to-pdf.html" class="recommend-link">Try our Image to PDF Tool →</a></p>
               </div>
 
               <div class="button-bar">
-                <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                <a-button type="default" @click="reset">Start Over</a-button>
+                <a-button @click="backToOptions">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                  </svg>
+                  Back
+                </a-button>
+                <a-button @click="reset">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                  </svg>
+                  Start Over
+                </a-button>
               </div>
             </div>
           </div>
 
-          <div class="drawer-actions">
-            <a-button v-if="drawerStage === 'options'" type="default" @click="reset">Cancel</a-button>
-            <a-button v-if="drawerStage === 'options'" type="primary" @click="convert" :disabled="selectedPages.length === 0">
-              Convert to Images
-            </a-button>
+          <div v-if="drawerStage === 'options'" class="drawer-bottom-actions">
+            <div class="drawer-actions-right">
+              <a-button 
+                type="primary" 
+                size="large" 
+                class="drawer-export-btn"
+                @click="convert" 
+                :disabled="selectedFiles.length === 0 || (currentView === 'pages' && selectedPages.length === 0)"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"></path>
+                </svg>
+                Convert to Images
+              </a-button>
+            </div>
           </div>
         </a-drawer>
 
@@ -334,11 +522,30 @@
         >
           <div class="preview-drawer-content">
             <div class="preview-zoom-controls">
-              <a-button size="small" @click="zoomOut" :disabled="zoomScale <= 0.5">-</a-button>
-              <span class="zoom-value">{{ Math.round(zoomScale * 100) }}%</span>
-              <a-button size="small" @click="zoomIn" :disabled="zoomScale >= 3">+</a-button>
-              <a-button size="small" @click="zoomReset">Reset</a-button>
-            </div>
+            <a-button size="small" @click="zoomOut" :disabled="zoomScale <= 0.5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <line x1="8" y1="11" x2="14" y2="11"></line>
+              </svg>
+            </a-button>
+            <span class="zoom-value">{{ Math.round(zoomScale * 100) }}%</span>
+            <a-button size="small" @click="zoomIn" :disabled="zoomScale >= 3">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <line x1="11" y1="8" x2="11" y2="14"></line>
+                <line x1="8" y1="11" x2="14" y2="11"></line>
+              </svg>
+            </a-button>
+            <a-button size="small" @click="zoomReset">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+              </svg>
+              Reset
+            </a-button>
+          </div>
             <div class="preview-scroll-container">
               <img v-if="currentPreviewImage" :src="currentPreviewImage" class="preview-image" :style="{ transform: `scale(${zoomScale})` }" alt="Image Preview" />
               <div v-else class="preview-empty">No preview available</div>
@@ -661,6 +868,7 @@ new Vue({
     return {
       currentStep: '0',
       selectedFiles: [],
+      currentView: 'files',
       pagePreviews: [],
       selectedPages: [],
       form: {
@@ -671,6 +879,8 @@ new Vue({
       expandOptions: [],
       done: false,
       convertedImages: [],
+      visiblePreviews: 10,
+      hasMorePreviews: false,
       converting: false,
       progress: 0,
       progressText: '',
@@ -692,6 +902,28 @@ new Vue({
   methods: {
     handleBeforeUnload() {
       this.cleanupAllResources()
+    },
+    switchView(view) {
+      this.currentView = view
+      if (view === 'pages') {
+        this.selectedPages = []
+        this.selectedFiles.forEach(item => {
+          if (item.pagesToRender && item.pagesToRender.length > 0) {
+            const visibleCount = item.visibleThumbnails.length
+            setTimeout(() => {
+              this.renderVisiblePages(item, visibleCount)
+            }, 100)
+          }
+          item.deferredRender = false
+          item.rendered = true
+        })
+      }
+    },
+    triggerUpload() {
+      const uploadInput = document.querySelector('.upload-area input[type="file"]')
+      if (uploadInput) {
+        uploadInput.click()
+      }
     },
     cleanupAllResources() {
       this.selectedFiles.forEach(file => {
@@ -838,36 +1070,177 @@ new Vue({
       }
     },
     async processFile(raw) {
-      const arrayBuffer = await raw.arrayBuffer()
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const pageCount = pdf.numPages
-      
       const item = {
         name: raw.name,
         file: raw,
         size: raw.size,
-        pageCount: pageCount,
-        thumbnails: []
+        thumbnails: [],
+        pageCount: 0,
+        visibleThumbnails: [],
+        hasMorePages: false,
+        isLoadingMore: false,
+        rendering: false,
+        rendered: false,
+        deferredRender: false,
+        pagesToRender: [],
+        pdfInstance: null
       }
-      
-      for (let i = 1; i <= pageCount; i++) {
-        const page = await pdf.getPage(i)
-        const vp = page.getViewport({ scale: 0.4 })
-        const c = document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = vp.width
-        c.height = vp.height
-        await page.render({ canvasContext: ctx, viewport: vp }).promise
-        const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'))
-        item.thumbnails.push(URL.createObjectURL(blob))
-        await new Promise(resolve => requestAnimationFrame(resolve))
-      }
-      pdf.destroy()
       
       this.selectedFiles.push(item)
-      this.pagePreviews = item.thumbnails
-      this.selectedPages = Array.from({length: pageCount}, (_, i) => i)
+      await this.renderFirstPageOnly(item)
       this.showDrawer = true
+    },
+    
+    async renderFirstPageOnly(item) {
+      item.rendering = true
+      const arrayBuffer = await item.file.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+      item.pageCount = pdf.numPages
+      
+      const page = await pdf.getPage(1)
+      const vp = page.getViewport({ scale: 1.0 })
+      const c = document.createElement('canvas')
+      const ctx = c.getContext('2d')
+      c.width = vp.width
+      c.height = vp.height
+      await page.render({ canvasContext: ctx, viewport: vp }).promise
+      const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'))
+      item.thumbnails[0] = URL.createObjectURL(blob)
+      pdf.destroy()
+      
+      const INITIAL_LOAD_COUNT = 10
+      const visibleCount = Math.min(item.pageCount, INITIAL_LOAD_COUNT)
+      const visibleIndices = []
+      for (let i = 0; i < visibleCount; i++) {
+        visibleIndices.push(i)
+      }
+      this.$set(item, 'visibleThumbnails', visibleIndices)
+      
+      for (let i = 1; i < item.pageCount; i++) {
+        this.$set(item.thumbnails, i, null)
+      }
+      
+      this.$set(item, 'hasMorePages', item.pageCount > INITIAL_LOAD_COUNT)
+      
+      if (item.pageCount > 1) {
+        for (let i = 1; i < item.pageCount; i++) {
+          item.pagesToRender.push(i)
+        }
+        item.deferredRender = true
+      }
+      
+      this.selectedPages = Array.from({length: item.pageCount}, (_, i) => i)
+      item.rendering = false
+    },
+    
+    async renderVisiblePages(item, startIndex) {
+      if (!item.pagesToRender || item.pagesToRender.length === 0) {
+        return
+      }
+      
+      const buf = await item.file.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+      
+      try {
+        const batchSize = 2
+        while (item.pagesToRender && item.pagesToRender.length > 0) {
+          const batch = item.pagesToRender.splice(0, batchSize)
+          const promises = batch.map(async (pageNum) => {
+            if (pageNum >= startIndex) return
+            const page = await pdf.getPage(pageNum + 1)
+            const vp = page.getViewport({ scale: 0.8 })
+            const c = document.createElement('canvas')
+            const ctx = c.getContext('2d')
+            c.width = vp.width
+            c.height = vp.height
+            await page.render({ canvasContext: ctx, viewport: vp }).promise
+            const thumbnail = c.toDataURL()
+            if (typeof page.destroy === 'function') {
+              await page.destroy()
+            }
+            const fileIdx = this.selectedFiles.indexOf(item)
+            if (fileIdx !== -1) {
+              this.$set(this.selectedFiles[fileIdx].thumbnails, pageNum, thumbnail)
+            }
+          })
+          await Promise.all(promises)
+          await new Promise(resolve => requestAnimationFrame(resolve))
+        }
+      } finally {
+        if (pdf && typeof pdf.destroy === 'function') {
+          try {
+            await pdf.destroy()
+          } catch (e) {
+            console.warn('Error destroying PDF instance:', e)
+          }
+        }
+      }
+    },
+    
+    async loadMorePages(fi) {
+      const item = this.selectedFiles[fi]
+      if (!item || !item.hasMorePages || item.isLoadingMore) {
+        return
+      }
+      
+      item.isLoadingMore = true
+      
+      const LOAD_MORE_COUNT = 10
+      const currentVisible = item.visibleThumbnails.length
+      const newVisibleCount = Math.min(currentVisible + LOAD_MORE_COUNT, item.pageCount)
+      
+      try {
+        const buf = await item.file.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+        
+        try {
+          const startPage = currentVisible + 1
+          const endPage = newVisibleCount
+          
+          const batchSize = 2
+          const pagesToLoad = []
+          for (let i = startPage; i <= endPage; i++) {
+            pagesToLoad.push(i)
+          }
+          
+          while (pagesToLoad.length > 0) {
+            const batch = pagesToLoad.splice(0, batchSize)
+            const promises = batch.map(async (pageNum) => {
+              const page = await pdf.getPage(pageNum)
+              const vp = page.getViewport({ scale: 0.8 })
+              const c = document.createElement('canvas')
+              const ctx = c.getContext('2d')
+              c.width = vp.width
+              c.height = vp.height
+              await page.render({ canvasContext: ctx, viewport: vp }).promise
+              const thumbnail = c.toDataURL()
+              if (typeof page.destroy === 'function') {
+                await page.destroy()
+              }
+              this.$set(item.thumbnails, pageNum - 1, thumbnail)
+            })
+            await Promise.all(promises)
+            await new Promise(resolve => requestAnimationFrame(resolve))
+          }
+          
+          const newVisibleIndices = []
+          for (let i = 0; i < newVisibleCount; i++) {
+            newVisibleIndices.push(i)
+          }
+          this.$set(item, 'visibleThumbnails', newVisibleIndices)
+          this.$set(item, 'hasMorePages', newVisibleCount < item.pageCount)
+        } finally {
+          if (pdf && typeof pdf.destroy === 'function') {
+            try {
+              await pdf.destroy()
+            } catch (e) {
+              console.warn('Error destroying PDF instance:', e)
+            }
+          }
+        }
+      } finally {
+        item.isLoadingMore = false
+      }
     },
     
     togglePage(idx) {
@@ -926,7 +1299,12 @@ new Vue({
       }
     },
     async convert() {
-      if (this.selectedPages.length === 0) return
+      if (this.currentView === 'files') {
+        this.selectedPages = Array.from({length: this.selectedFiles[0].pageCount}, (_, i) => i)
+      } else if (this.selectedPages.length === 0) {
+        this.$message.warning('Please select at least one page to convert')
+        return
+      }
       
       this.converting = true
       this.drawerStage = 'progress'
@@ -973,6 +1351,8 @@ new Vue({
         setTimeout(() => {
           this.converting = false
           this.done = true
+          this.visiblePreviews = 10
+          this.hasMorePreviews = this.convertedImages.length > 10
           this.$message.success('Conversion completed successfully!')
         }, 300)
         
@@ -1058,6 +1438,13 @@ new Vue({
       }
       this.done = false
       this.convertedImages = []
+      this.visiblePreviews = 10
+      this.hasMorePreviews = false
+    },
+    loadMorePreviews() {
+      const LOAD_BATCH = 10
+      this.visiblePreviews = Math.min(this.visiblePreviews + LOAD_BATCH, this.convertedImages.length)
+      this.hasMorePreviews = this.visiblePreviews < this.convertedImages.length
     }
   }
 })

@@ -153,7 +153,6 @@
   </script>
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
@@ -232,47 +231,141 @@
           </div>
 
           <a-drawer
-            :title="drawerStage === 'select' ? 'Select Pages👆 Click on page thumbnails' : 'Split Result'"
+            :title="drawerStage === 'select' ? '' : 'Split Result'"
             :visible="showDrawer"
             :width="'100%'"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
+            :body-style="{ padding: '0' }"
           >
             <div class="drawer-content">
-              <div v-if="drawerStage === 'select'" class="preview-section">
-                <div class="preview-header">
-                  <!-- <div class="preview-title">Select Pages <span class="preview-hint">👆 Click on page thumbnails</span></div> -->
-                  <div class="preview-actions">
-                    <a-button type="text" @click="selectAllPages">Select All</a-button>
-                    <a-button type="text" @click="deselectAllPages">Deselect All</a-button>
-                    <a-button type="text" @click="toggleAllPages">Toggle</a-button>
+              <div v-if="drawerStage === 'select'" class="drawer-select-stage">
+                <div class="drawer-top-bar">
+                  <div class="drawer-top-content">
+                    <div class="drawer-view-tabs">
+                      <button 
+                        class="drawer-tab-btn" 
+                        :class="{active: currentView === 'files'}" 
+                        @click="switchView('files')"
+                      >
+                        <span class="tab-icon">📄</span>
+                        <span>Files</span>
+                      </button>
+                      <a-popconfirm
+                        title="If you have no custom page selection needs, you do not need to enter this page.
+
+This page only supports:
+• Page preview by pagination
+• Manually select/deselect pages"
+                        ok-text="Enter Pages"
+                        cancel-text="Cancel"
+                        @confirm="switchView('pages')"
+                      >
+                        <template slot="icon"></template>
+                        <button 
+                          class="drawer-tab-btn" 
+                          :class="{active: currentView === 'pages'}"
+                        >
+                          <span class="tab-icon">📑</span>
+                          <span>Pages</span>
+                        </button>
+                      </a-popconfirm>
+                    </div>
+                    <div class="drawer-toolbar-buttons">
+                        <a-button type="default" @click="clearAllFiles" danger>
+                          <span>🗑️</span>
+                          <span>Clear All</span>
+                        </a-button>
+                      </div>
                   </div>
                 </div>
-                <div class="page-preview-container">
-                  <div v-for="(file, fi) in selectedFiles" :key="fi" class="file-pages-wrapper">
-                    <div class="file-pages-header">{{ file.name }}</div>
-                    <div class="page-preview-grid">
-                      <div v-for="(img, pi) in file.thumbnails" :key="pi" class="page-preview-item" :class="{selected: isSelected(fi, pi)}" @click="toggle(fi, pi)">
-                        <img :src="img" class="page-preview-image">
-                        <div class="page-number">{{ pi+1 }}</div>
-                        <div v-if="isSelected(fi, pi)" class="selected-overlay">✓</div>
+
+                <div v-if="currentView === 'files'" class="drawer-files-view">
+                  <div class="drawer-files-grid">
+                    <div v-for="(file, fi) in selectedFiles" :key="fi" class="drawer-file-card">
+                      <div class="drawer-file-thumbnail">
+                        <img v-if="file.thumbnails[0]" :src="file.thumbnails[0]" class="drawer-file-preview">
+                        <div v-else class="drawer-file-placeholder">
+                          <i class="anticon anticon-file-pdf" style="font-size: 48px; color: #ff4444;"></i>
+                        </div>
+                      </div>
+                      <div class="drawer-file-info">
+                        <div class="drawer-file-name">{{ file.name }}</div>
+                        <div class="drawer-file-meta">{{ file.pageCount || 0 }} pages · {{ formatFileSize(file.size) }}</div>
+                      </div>
+                      <button class="drawer-file-remove" @click="removeFile(fi)">
+                        <span class="close-icon">×</span>
+                      </button>
+                    </div>
+                    
+                    <div class="drawer-file-card drawer-add-card" @click="triggerUpload">
+                      <div class="drawer-add-content">
+                        <span class="drawer-add-icon">+</span>
+                        <div class="drawer-add-text">Add Files</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else-if="currentView === 'pages'" class="drawer-pages-view">
+                  <div class="drawer-pages-header">
+                    <div class="drawer-select-actions">
+                      <a-button size="small" @click="selectAllPages"><span>✅</span><span>Select All</span></a-button>
+                      <a-button size="small" @click="deselectAllPages"><span>❌</span><span>Deselect All</span></a-button>
+                    </div>
+                  </div>
+                  <div class="drawer-all-pages">
+                    <div v-for="(item, fi) in selectedFiles" :key="fi" class="drawer-file-pages-group">
+                      <div class="drawer-file-group-title">{{ item.name }}</div>
+                      <div class="drawer-pages-grid">
+                        <div 
+                          v-for="(idx) in item.visibleThumbnails" 
+                          :key="idx" 
+                          class="drawer-page-item"
+                          :class="{selected: isSelected(fi, idx)}"
+                          @click="toggle(fi, idx)"
+                        >
+                          <img v-if="item.thumbnails[idx] !== null" :src="item.thumbnails[idx]" class="drawer-page-thumb">
+                          <div v-else class="drawer-page-loading">Loading...</div>
+                          <div class="drawer-page-num">{{ idx + 1 }}</div>
+                          <div v-if="isSelected(fi, idx)" class="drawer-page-selected">✓</div>
+                        </div>
+                        <div 
+                          v-if="item.hasMorePages" 
+                          class="drawer-page-item drawer-show-more-card"
+                          @click="loadMorePages(fi)"
+                        >
+                          <div class="drawer-show-more-content">
+                            <span class="drawer-show-more-icon">▼</span>
+                            <span class="drawer-show-more-text">Load More</span>
+                            <span class="drawer-show-more-count">{{ item.pageCount - item.visibleThumbnails.length }} more</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'progress' || splitting" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+              <div v-if="(drawerStage === 'progress' || splitting) && progress < 100" class="progress-section">
+                <div class="progress-container">
+                  <div class="progress-info">
+                    <span class="progress-text">{{ progressText }}</span>
+                    <span class="progress-percent">{{ progress }}%</span>
+                  </div>
+                  <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" :stroke-width="8" />
+                </div>
               </div>
 
               <div v-if="done" class="result-content">
-                <div class="result-title">Split Completed!</div>
-                <p class="result-desc">Your PDF has been split into {{ splitResults.length }} file(s)</p>
+                <div class="result-header">
+                  <div class="result-icon">✓</div>
+                  <div class="result-title">Split Completed!</div>
+                  <p class="result-desc">Your PDF has been split into {{ splitResults.length }} file(s)</p>
+                </div>
                 <div class="result-preview">
-                  <div v-for="(r, i) in splitResults.slice(0, 6)" :key="i" class="split-result-item">
+                  <div v-for="(r, i) in splitResults.slice(0, visibleResultsCount)" :key="i" class="split-result-item">
                     <div class="page-preview-item clickable" @click="openPreview(r)" >
                       <img :src="r.thumbnail" class="page-preview-image">
                       <div class="page-number">{{ i+1 }}</div>
@@ -282,9 +375,18 @@
                       <i class="anticon anticon-download"></i> Download
                     </button>
                   </div>
-                </div>
-                <div v-if="splitResults.length > 6" style="color: #6b7280; font-size: 14px;">
-                  ...and {{ splitResults.length - 6 }} more files
+                  <div 
+                    v-if="splitResults.length > visibleResultsCount" 
+                    class="split-result-item load-more-item"
+                  >
+                    <div class="drawer-page-item drawer-show-more-card" @click="loadMoreResults">
+                      <div class="drawer-show-more-content">
+                        <span class="drawer-show-more-icon">▼</span>
+                        <div class="drawer-show-more-text">Load More</div>
+                        <div class="drawer-show-more-count">{{ splitResults.length - visibleResultsCount }} more</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
                 <div class="filename-input">
@@ -293,7 +395,7 @@
                 </div>
 
                 <div class="button-bar">
-                  <a-button type="default" @click="backToSelect">Back to Select Pages</a-button>
+                  <a-button type="default" @click="backToSelect">Back</a-button>
                   <a-button type="primary" size="large" @click="downloadAll">Download All Files</a-button>
                   <a-button type="primary" @click="reset">Start Over</a-button>
                 </div>
@@ -303,11 +405,19 @@
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'select'" class="drawer-actions">
-                <a-button type="default" size="large" @click="reset">Cancel</a-button>
-                <a-button type="primary" size="large" @click="handleDrawerAction">
-                  {{ getDrawerActionText() }}
-                </a-button>
+              <div v-if="drawerStage === 'select'" class="drawer-bottom-actions">
+                <div class="drawer-actions-right">
+                  <a-button 
+                    type="primary" 
+                    size="large" 
+                    class="drawer-export-btn"
+                    :disabled="selectedFiles.length === 0 || (currentView === 'pages' && selectedPages.length === 0)"
+                    @click="handleDrawerAction"
+                  >
+                    <i class="anticon anticon-download"></i>
+                    Split
+                  </a-button>
+                </div>
               </div>
             </div>
           </a-drawer>
@@ -687,9 +797,9 @@ document.addEventListener('DOMContentLoaded', function() {
       showPreviewModal: false,
       currentPreviewImage: '',
       zoomScale: 1,
-      renderQueue: [],
-      isRendering: false,
-      downloadFileName: 'split'
+      downloadFileName: 'split',
+      currentView: 'files',
+      visibleResultsCount: 10
     }
   },
   mounted() {
@@ -699,48 +809,20 @@ document.addEventListener('DOMContentLoaded', function() {
     window.removeEventListener('beforeunload', this.handleBeforeUnload)
     this.cleanupAllResources()
   },
-  computed: {
-    canSplit() {
-      return this.selectedFiles.length > 0 && this.selectedPages.length > 0
-    }
-  },
   methods: {
     handleBeforeUnload() {
       this.cleanupAllResources()
     },
     cleanupAllResources() {
       this.selectedFiles.forEach(file => {
-        if (file.pdfInstance) {
-          try {
-            file.pdfInstance.destroy()
-          } catch (e) {
-            console.warn('Error destroying PDF instance:', e)
-          }
-          file.pdfInstance = null
-        }
-        if (file.thumbnails) {
-          file.thumbnails.forEach(url => {
-            if (url && url.startsWith('blob:')) {
-              URL.revokeObjectURL(url)
-            }
-          })
-          file.thumbnails = null
-        }
-        if (file.pages) {
-          file.pages.forEach(page => {
-            if (page && typeof page.destroy === 'function') {
-              try {
-                page.destroy()
-              } catch (e) {}
-            }
-          })
-          file.pages = null
-        }
+        this.destroyFileResources(file)
       })
       
       this.splitResults.forEach(result => {
         if (result.thumbnail && result.thumbnail.startsWith('blob:')) {
-          URL.revokeObjectURL(result.thumbnail)
+          try {
+            URL.revokeObjectURL(result.thumbnail)
+          } catch (e) {}
         }
         if (result.blob) {
           result.blob = null
@@ -753,6 +835,23 @@ document.addEventListener('DOMContentLoaded', function() {
     handleDrawerClose() {
       if (!this.splitting) {
         this.reset()
+      }
+    },
+    switchView(view) {
+      this.currentView = view
+      if (view === 'pages') {
+        this.selectedFiles.forEach(item => {
+          if (item.deferredRender && !item.rendered) {
+            item.deferredRender = false
+            if (item.pagesToRender && item.pagesToRender.length > 0) {
+              const visibleCount = item.visibleThumbnails.length
+              setTimeout(() => {
+                this.renderVisiblePages(item, visibleCount)
+              }, 100)
+            }
+            item.rendered = true
+          }
+        })
       }
     },
     backToSelect() {
@@ -787,13 +886,34 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     handleDrawerAction() {
       if (this.drawerStage === 'select') {
-        if (this.selectedPages.length === 0) {
-          this.$message.warning('Please select at least one page to split')
+        if (this.selectedFiles.length === 0) {
+          this.$message.warning('Please upload a PDF file to split')
           return
+        }
+        // Files视图：总是分割全部页面
+        // Pages视图：使用用户选择的页面
+        if (this.currentView === 'files') {
+          this.selectAllPagesForSplit()
+        } else {
+          if (this.selectedPages.length === 0) {
+            this.$message.warning('Please select at least one page to split')
+            return
+          }
         }
         this.drawerStage = 'progress'
         this.startSplit()
       }
+    },
+    
+    selectAllPagesForSplit() {
+      // 选择所有文件的所有页面（用于Files视图直接分割）
+      const newPages = []
+      this.selectedFiles.forEach((file, fi) => {
+        for (let pi = 0; pi < file.pageCount; pi++) {
+          newPages.push(`${fi}-${pi}`)
+        }
+      })
+      this.selectedPages = newPages
     },
     
     async openPreview(result) {
@@ -858,15 +978,22 @@ document.addEventListener('DOMContentLoaded', function() {
         size: raw.size,
         thumbnails: [],
         pageCount: 0,
+        visibleThumbnails: [],
+        hasMorePages: false,
+        isLoadingMore: false,
         rendering: false,
-        rendered: false
+        rendered: false,
+        deferredRender: false
       }
       this.selectedFiles.push(item)
-      this.renderQueue.push(item)
-      this.processRenderQueue()
+      
+      await this.renderFirstPageOnly(item)
+      
       if (onSuccess) {
         onSuccess('success')
       }
+      
+      this.showDrawer = true
     },
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
@@ -875,35 +1002,163 @@ document.addEventListener('DOMContentLoaded', function() {
       const i = Math.floor(Math.log(bytes) / Math.log(k))
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
-    async processRenderQueue() {
-      if (this.isRendering || this.renderQueue.length === 0) {
-        return
-      }
-      this.isRendering = true
-      
-      while (this.renderQueue.length > 0) {
-        const item = this.renderQueue.shift()
-        item.rendering = true
-        await this.renderThumb(item)
-        item.rendering = false
-        item.rendered = true
-        await new Promise(resolve => setTimeout(resolve, 100))
-      }
-      
-      this.isRendering = false
-      
-      if (this.selectedFiles.length === 1) {
-        this.selectAllPages()
-        this.showDrawer = true
+    async renderFirstPageOnly(item) {
+      try {
+        const buf = await item.file.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+        
+        if (pdf.numPages === 0) {
+          throw new Error('Empty PDF')
+        }
+        
+        item.pageCount = pdf.numPages
+        
+        // 只渲染第一页缩略图
+        const firstPage = await pdf.getPage(1)
+        const vp = firstPage.getViewport({ scale: 1.0 })
+        const c = document.createElement('canvas')
+        const ctx = c.getContext('2d')
+        c.width = vp.width
+        c.height = vp.height
+        await firstPage.render({ canvasContext: ctx, viewport: vp }).promise
+        const firstThumbnail = c.toDataURL()
+        
+        if (typeof firstPage.destroy === 'function') {
+          await firstPage.destroy()
+        }
+        
+        // 设置第一页缩略图
+        const fileIdx = this.selectedFiles.indexOf(item)
+        if (fileIdx !== -1) {
+          if (!this.selectedFiles[fileIdx].thumbnails) {
+            this.selectedFiles[fileIdx].thumbnails = []
+          }
+          this.$set(this.selectedFiles[fileIdx].thumbnails, 0, firstThumbnail)
+        }
+        
+        const INITIAL_LOAD_COUNT = 10
+        
+        // 初始化所有页面的占位符（设为null）
+        for (let i = 1; i < pdf.numPages; i++) {
+          this.$set(this.selectedFiles[fileIdx].thumbnails, i, null)
+        }
+        
+        // 设置可见缩略图数量（默认最多显示10页）
+        const visibleCount = Math.min(pdf.numPages, INITIAL_LOAD_COUNT)
+        const visibleIndices = []
+        for (let i = 0; i < visibleCount; i++) {
+          visibleIndices.push(i)
+        }
+        this.$set(this.selectedFiles[fileIdx], 'visibleThumbnails', visibleIndices)
+        
+        // 设置是否有更多页面
+        this.$set(this.selectedFiles[fileIdx], 'hasMorePages', pdf.numPages > INITIAL_LOAD_COUNT)
+        
+        // 记录需要渲染的页面
+        item.pagesToRender = []
+        for (let i = 2; i <= visibleCount; i++) {
+          item.pagesToRender.push(i)
+        }
+        
+        // 如果用户在pages视图，渲染可见的缩略图
+        if (this.currentView === 'pages' && pdf.numPages > 1) {
+          if (visibleCount > 1) {
+            setTimeout(() => {
+              this.renderVisiblePages(item, visibleCount)
+            }, 100)
+          }
+          item.rendered = true
+        } else {
+          // 在files视图，标记为延迟渲染
+          item.deferredRender = true
+        }
+        
+        // 销毁PDF实例释放内存
+        if (pdf && typeof pdf.destroy === 'function') {
+          try {
+            await pdf.destroy()
+          } catch (e) {}
+        }
+        
+      } catch (error) {
+        const idx = this.selectedFiles.indexOf(item)
+        if (idx !== -1) {
+          this.selectedFiles.splice(idx, 1)
+        }
+        if (error.message.includes('password') || error.message.includes('encrypted')) {
+          this.$message.error(`File "${item.name}" is password protected. Please remove the password before uploading.`)
+        } else {
+          this.$message.error(`File "${item.name}" is not a valid PDF or is corrupted.`)
+        }
       }
     },
-    async renderThumb(item) {
+    
+    async renderVisiblePages(item, visibleCount) {
+      if (!item.pagesToRender || item.pagesToRender.length === 0) {
+        return
+      }
+      
       const buf = await item.file.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: buf }).promise
-      item.pdfInstance = pdf
-      item.pageCount = pdf.numPages
       
-      for (let i = 1; i <= pdf.numPages; i++) {
+      try {
+        const batchSize = 2
+        while (item.pagesToRender && item.pagesToRender.length > 0) {
+          const batch = item.pagesToRender.splice(0, batchSize)
+          const promises = batch.map(async (pageNum) => {
+            if (pageNum > visibleCount) return
+            const page = await pdf.getPage(pageNum)
+            const vp = page.getViewport({ scale: 0.8 })
+            const c = document.createElement('canvas')
+            const ctx = c.getContext('2d')
+            c.width = vp.width
+            c.height = vp.height
+            await page.render({ canvasContext: ctx, viewport: vp }).promise
+            const thumbnail = c.toDataURL()
+            if (typeof page.destroy === 'function') {
+              await page.destroy()
+            }
+            const fileIdx = this.selectedFiles.indexOf(item)
+            if (fileIdx !== -1) {
+              this.$set(this.selectedFiles[fileIdx].thumbnails, pageNum - 1, thumbnail)
+            }
+          })
+          await Promise.all(promises)
+          await new Promise(resolve => requestAnimationFrame(resolve))
+        }
+      } finally {
+        if (pdf && typeof pdf.destroy === 'function') {
+          try {
+            await pdf.destroy()
+          } catch (e) {
+            console.warn('Error destroying PDF instance:', e)
+          }
+        }
+      }
+    },
+    
+    async loadMoreResults() {
+      this.visibleResultsCount += 10
+    },
+    
+    async loadMorePages(fi) {
+      const item = this.selectedFiles[fi]
+      if (!item || !item.hasMorePages || item.isLoadingMore) return
+      
+      item.isLoadingMore = true
+      
+      const LOAD_BATCH = 10
+      const startIdx = item.visibleThumbnails.length
+      const endIdx = Math.min(startIdx + LOAD_BATCH, item.pageCount)
+      
+      if (!item.pdfInstance) {
+        const buf = await item.file.arrayBuffer()
+        item.pdfInstance = await pdfjsLib.getDocument({ data: buf }).promise
+      }
+      
+      const pdf = item.pdfInstance
+      
+      for (let i = startIdx + 1; i <= endIdx; i++) {
         const page = await pdf.getPage(i)
         const vp = page.getViewport({ scale: 0.4 })
         const c = document.createElement('canvas')
@@ -913,11 +1168,26 @@ document.addEventListener('DOMContentLoaded', function() {
         await page.render({ canvasContext: ctx, viewport: vp }).promise
         
         const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'))
-        item.thumbnails.push(URL.createObjectURL(blob))
+        const thumbnail = URL.createObjectURL(blob)
+        
+        this.$set(item.thumbnails, i - 1, thumbnail)
+        
+        if (typeof page.destroy === 'function') {
+          await page.destroy()
+        }
         
         await new Promise(resolve => requestAnimationFrame(resolve))
       }
+      
+      const newVisibleIndices = []
+      for (let i = 0; i < endIdx; i++) {
+        newVisibleIndices.push(i)
+      }
+      this.$set(item, 'visibleThumbnails', newVisibleIndices)
+      this.$set(item, 'hasMorePages', endIdx < item.pageCount)
+      item.isLoadingMore = false
     },
+    
     destroyFileResources(file) {
       if (file.pdfInstance) {
         try { file.pdfInstance.destroy() } catch (e) { console.warn('Error destroying PDF:', e) }
@@ -942,23 +1212,26 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     selectAllPages() {
       this.selectedFiles.forEach((file, fi) => {
-        file.thumbnails.forEach((_, pi) => {
-          const key = `${fi}-${pi}`
-          if (!this.selectedPages.includes(key)) {
-            this.selectedPages.push(key)
-          }
-        })
+        if (file.visibleThumbnails && file.visibleThumbnails.length > 0) {
+          file.visibleThumbnails.forEach(idx => {
+            const key = `${fi}-${idx}`
+            if (!this.selectedPages.includes(key)) {
+              this.selectedPages.push(key)
+            }
+          })
+        } else {
+          // 兼容旧数据
+          file.thumbnails.forEach((_, pi) => {
+            const key = `${fi}-${pi}`
+            if (!this.selectedPages.includes(key)) {
+              this.selectedPages.push(key)
+            }
+          })
+        }
       })
     },
     deselectAllPages() {
       this.selectedPages = []
-    },
-    toggleAllPages() {
-      this.selectedFiles.forEach((file, fi) => {
-        file.thumbnails.forEach((_, pi) => {
-          this.toggle(fi, pi)
-        })
-      })
     },
     clearAllFiles() {
       this.selectedFiles.forEach(file => { this.destroyFileResources(file) })
@@ -1033,6 +1306,12 @@ document.addEventListener('DOMContentLoaded', function() {
       this.splitResults = []
       
       try {
+        if (this.selectedPages.length === 0) {
+          for (let pi = 0; pi < file.pageCount; pi++) {
+            this.selectedPages.push(`0-${pi}`)
+          }
+        }
+        
         const selectedIndices = this.selectedPages.map(key => {
           const [, pi] = key.split('-')
           return parseInt(pi)
@@ -1121,6 +1400,7 @@ document.addEventListener('DOMContentLoaded', function() {
       this.progress = 0
       this.progressText = ''
       this.downloadFileName = 'split'
+      this.visibleResultsCount = 10
     }
   },
   watch: {
