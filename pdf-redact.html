@@ -195,9 +195,9 @@
     }
     .redact-canvas-container canvas {
       display: block;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      background: white;
+      border: none;
+      border-radius: 0;
+      background: transparent;
       max-width: 100%;
     }
     .redact-overlay {
@@ -217,7 +217,7 @@
     }
     .redact-redaction {
       position: absolute;
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.9);
       border: 2px solid #ef4444;
       pointer-events: none;
     }
@@ -227,6 +227,7 @@
       margin-bottom: 16px;
       flex-wrap: wrap;
       align-items: center;
+      padding: 0 20px;
     }
     .redact-mode-btn {
       padding: 8px 16px;
@@ -236,33 +237,60 @@
       transition: all 0.2s;
     }
     .redact-mode-btn.active {
-      background: #2563eb;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
       color: white;
-      border: 1px solid #2563eb;
+      border: 1px solid #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
     .redact-mode-btn.inactive {
-      background: white;
-      color: #374151;
-      border: 1px solid #d1d5db;
+      background: rgba(51, 65, 85, 0.8);
+      color: #94a3b8;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .redact-mode-btn:hover:not(.active) {
-      border-color: #2563eb;
-      color: #2563eb;
+      border-color: #3b82f6;
+      color: #93c5fd;
     }
     .page-redactions .redact-box {
       position: absolute;
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.95);
       box-shadow: 0 0 0 2px #ef4444;
+      border-radius: 2px;
     }
     .page-redactions .redact-box.hover {
-      background-color: rgba(239, 68, 68, 0.3);
+      background-color: rgba(239, 68, 68, 0.4);
     }
-    .redact-apply-section {
-      margin-top: 20px;
-      padding: 16px;
-      background: #f8fafc;
-      border-radius: 8px;
+    .redact-canvas-container {
+      padding: 0;
+    }
+    
+    .redact-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      /* background: rgba(30, 41, 59, 0.9); */
+    }
+    .redact-section {
+      padding-top: 16px;
+    }
+    .redact-hint {
       text-align: center;
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 16px;
+      padding: 0 20px;
+    }
+    .redact-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      background: transparent;
+      border-radius: 0;
+      overflow: visible;
+    }
+    .redact-canvas-container {
+      padding: 0 16px 16px;
+      background: transparent;
     }
   </style>
   <script src="/lib/vue/vue.js"></script>
@@ -357,66 +385,91 @@
           </div>
 
           <a-drawer
-            :title="drawerStage === 'redact' ? 'Draw Redaction Areas 👆 Click and drag to mark areas' : (drawerStage === 'progress' ? 'Applying Redactions...' : 'Redaction Complete')"
+            :title="drawerStage === 'redact' ? '' : (drawerStage === 'progress' ? '' : 'Redaction Complete')"
             :visible="showDrawer"
             :width="drawerWidth"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
+            :body-style="{ padding: '0' }"
           >
             <div class="drawer-content">
-              <div v-if="drawerStage === 'redact'" class="redact-section">
-                <div class="redact-controls">
-                  <button class="redact-mode-btn active">
-                    Draw Redaction
-                  </button>
-                  <a-button type="text" danger size="small" @click="clearAllRedactions">Clear All Redactions</a-button>
-                </div>
-
-                <div class="page-nav" style="margin-bottom: 16px; text-align: center;">
-                  <a-button-group>
-                    <a-button @click="prevPage" :disabled="currentPage <= 1">← Previous</a-button>
-                    <a-button disabled>Page {{ currentPage }} of {{ pageCount }}</a-button>
-                    <a-button @click="nextPage" :disabled="currentPage >= pageCount">Next →</a-button>
-                  </a-button-group>
-                </div>
-
-                <div class="redact-canvas-container">
-                  <div class="redact-canvas-wrapper">
-                    <canvas ref="pdfCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
-                    <div class="page-redactions" :style="{width: canvasWidth + 'px', height: canvasHeight + 'px'}" @mousedown="startDraw" @mousemove="onDraw" @mouseup="endDraw" @mouseleave="endDraw" @touchstart.prevent="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend="endDraw">
-                      <div
-                        v-for="(box, idx) in pageRedactions[currentPage] || []"
-                        :key="idx"
-                        class="redact-box"
-                        :style="{
-                          left: Math.min(box.x1, box.x2) * scale + 'px',
-                          top: Math.min(box.y1, box.y2) * scale + 'px',
-                          width: Math.abs(box.x2 - box.x1) * scale + 'px',
-                          height: Math.abs(box.y2 - box.y1) * scale + 'px'
-                        }"
-                      ></div>
-                      <div v-if="isDrawing" class="redact-box" :style="{
-                        left: Math.min(drawStartX, drawEndX) * scale + 'px',
-                        top: Math.min(drawStartY, drawEndY) * scale + 'px',
-                        width: Math.abs(drawEndX - drawStartX) * scale + 'px',
-                        height: Math.abs(drawEndY - drawStartY) * scale + 'px'
-                      }"></div>
+              <div v-if="drawerStage === 'redact'" class="drawer-select-stage">
+                <div class="drawer-top-bar">
+                  <div class="drawer-top-content">
+                    <div class="drawer-view-tabs">
+                      <button 
+                        class="drawer-tab-btn active"
+                      >
+                        <span class="tab-icon">✏️</span>
+                        <span>Redact</span>
+                      </button>
+                    </div>
+                    <div class="drawer-toolbar-buttons">
+                      <a-button type="default" @click="clearAllRedactions" danger>
+                        Clear All
                     </div>
                   </div>
                 </div>
 
-                <div class="redact-apply-section">
-                  <p style="color: #6b7280; margin-bottom: 12px;">You have marked {{ getTotalRedactionCount() }} area(s) to redact across {{ Object.keys(pageRedactions).length }} page(s)</p>
-                  <a-button type="primary" size="large" @click="applyRedactions" :loading="processing">
-                    Apply Redactions
-                  </a-button>
+                <div class="redact-section">
+                  <div class="redact-hint">
+                    👆 Click and drag to draw redaction boxes over sensitive areas
+                  </div>
+
+
+
+                  <div class="page-nav" style="margin-bottom: 16px; text-align: center;">
+                    <a-button-group>
+                      <a-button @click="prevPage" :disabled="currentPage <= 1">← Previous</a-button>
+                      <a-button disabled>Page {{ currentPage }} of {{ pageCount }}</a-button>
+                      <a-button @click="nextPage" :disabled="currentPage >= pageCount">Next →</a-button>
+                    </a-button-group>
+                  </div>
+
+                  <div class="redact-canvas-container">
+                    <div class="redact-canvas-wrapper">
+                      <canvas ref="pdfCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
+                      <div class="page-redactions" :style="{width: canvasWidth + 'px', height: canvasHeight + 'px'}" @mousedown="startDraw" @mousemove="onDraw" @mouseup="endDraw" @mouseleave="endDraw" @touchstart.prevent="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend="endDraw">
+                        <div
+                          v-for="(box, idx) in pageRedactions[currentPage] || []"
+                          :key="idx"
+                          class="redact-box"
+                          :style="{
+                            left: Math.min(box.x1, box.x2) * scale + 'px',
+                            top: Math.min(box.y1, box.y2) * scale + 'px',
+                            width: Math.abs(box.x2 - box.x1) * scale + 'px',
+                            height: Math.abs(box.y2 - box.y1) * scale + 'px'
+                          }"
+                        ></div>
+                        <div v-if="isDrawing" class="redact-box" :style="{
+                          left: Math.min(drawStartX, drawEndX) * scale + 'px',
+                          top: Math.min(drawStartY, drawEndY) * scale + 'px',
+                          width: Math.abs(drawEndX - drawStartX) * scale + 'px',
+                          height: Math.abs(drawEndY - drawStartY) * scale + 'px'
+                        }"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="drawer-bottom-actions">
+                  <div class="drawer-actions-right">
+                    <a-button type="primary" size="large" @click="applyRedactions" :loading="processing">
+                      Apply Redactions
+                    </a-button>
+                  </div>
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'progress'" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+              <div v-if="(drawerStage === 'progress') && progress < 100" class="progress-section">
+                <div class="progress-container">
+                  <div class="progress-info">
+                    <span class="progress-text">{{ progressText }}</span>
+                    <span class="progress-percent">{{ progress }}%</span>
+                  </div>
+                  <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" :stroke-width="8" />
+                </div>
               </div>
 
               <div v-if="done" class="result-content">
@@ -433,8 +486,14 @@
 
                 <div class="button-bar">
                   <a-button type="default" @click="backToRedact">Back to Redact</a-button>
-                  <a-button type="primary" size="large" @click="download">Download PDF</a-button>
-                  <a-button type="primary" @click="reset">Start Over</a-button>
+                  <a-button type="primary" size="large" @click="download">
+                    <i class="anticon anticon-download"></i>
+                    Download
+                  </a-button>
+                  <a-button type="primary" @click="reset">
+                    <i class="anticon anticon-redo"></i>
+                    Start Over
+                  </a-button>
                 </div>
 
                 <div class="recommend-section">
@@ -442,19 +501,6 @@
                 </div>
 
                 <div class="preview-layout">
-                  <div class="sidebar">
-                    <div class="sidebar-title">Pages</div>
-                    <div class="thumbnails-list">
-                      <div v-for="(t, i) in previews" :key="i"
-                           class="sidebar-thumbnail"
-                           :class="{active: currentPreviewPage === i + 1}"
-                           @click="scrollToPage(i)">
-                        <img :src="t" class="sidebar-image">
-                        <div class="sidebar-page-num">{{ i+1 }}</div>
-                      </div>
-                    </div>
-                  </div>
-
                   <div class="main-preview">
                     <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
                       <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />

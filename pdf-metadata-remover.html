@@ -179,7 +179,7 @@
   <link rel="stylesheet" href="/css/common.css">
   <style>
     .metadata-preview {
-      background: #f8fafc;
+      background: rgba(30, 41, 59, 0.8);
       border-radius: 8px;
       padding: 16px;
       margin-top: 16px;
@@ -188,17 +188,17 @@
       display: flex;
       justify-content: space-between;
       padding: 8px 0;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     .metadata-item:last-child {
       border-bottom: none;
     }
     .metadata-label {
       font-weight: 500;
-      color: #64748b;
+      color: #94a3b8;
     }
     .metadata-value {
-      color: #1e293b;
+      color: #f1f5f9;
       font-family: monospace;
       max-width: 250px;
       overflow: hidden;
@@ -206,7 +206,7 @@
       white-space: nowrap;
     }
     .metadata-empty {
-      color: #9ca3af;
+      color: #64748b;
       font-style: italic;
     }
     .metadata-removed {
@@ -220,10 +220,10 @@
       margin-top: 16px;
     }
     .before-after-card {
-      background: white;
+      background: rgba(30, 41, 59, 0.8);
       border-radius: 8px;
       padding: 16px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .before-after-title {
       font-weight: 600;
@@ -233,11 +233,11 @@
     }
     .before-after-title.before {
       border-color: #f59e0b;
-      color: #d97706;
+      color: #fbbf24;
     }
     .before-after-title.after {
       border-color: #10b981;
-      color: #059669;
+      color: #34d399;
     }
     .metadata-actions {
       margin-top: 20px;
@@ -343,11 +343,11 @@
           >
             <div class="drawer-content">
               <div v-if="drawerStage === 'preview'" class="preview-section">
-                <div class="preview-header">
+                <!-- <div class="preview-header">
                   <div class="preview-actions">
                     <a-button type="primary" @click="triggerUpload">+ Add Another</a-button>
                   </div>
-                </div>
+                </div> -->
 
                 <div class="before-after-section">
                   <div class="before-after-card">
@@ -379,9 +379,14 @@
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'progress'" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+              <div v-if="drawerStage === 'progress' && progress < 100" class="progress-section">
+                <div class="progress-container">
+                  <div class="progress-info">
+                    <span class="progress-text">{{ progressText }}</span>
+                    <span class="progress-percent">{{ progress }}%</span>
+                  </div>
+                  <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" :stroke-width="8" />
+                </div>
               </div>
 
               <div v-if="done" class="result-content">

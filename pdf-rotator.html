@@ -156,73 +156,61 @@
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   
-  <style>
-    .options-section {
-      margin-bottom: 24px;
-    }
-    .options-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 8px;
-    }
-    .mode-description {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 20px;
-    }
-    .rotation-options {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .rotation-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 20px;
-      background: #fff;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #4b5563;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .rotation-btn:hover {
-      border-color: #409EFF;
-      color: #409EFF;
-    }
-    .rotation-btn.active {
-      background: linear-gradient(135deg, #409EFF, #337ecc);
-      border-color: #409EFF;
-      color: #fff;
-    }
-    .rotation-icon {
-      font-size: 18px;
-    }
-    .output-options {
-      background: #f9fafb;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .option-hint {
-      font-size: 14px;
-      color: #4b5563;
-      line-height: 1.6;
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-  <script src="./lib/vue/vue.js"></script>
+  <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js'</script>
   <script src="./lib/preview-utils.js"></script>
   <script src="./lib/components/preview-modal.js"></script>
-
-
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist/build/pdf.worker.js';
+      }
+    });
+  </script>
+  
+  <style>
+  .options-section {
+    padding: 16px;
+  }
+  .mode-description {
+    color: #94a3b8;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+  .rotation-options {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .rotation-btn {
+    flex: 1;
+    padding: 16px;
+    background: rgba(30, 41, 59, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .rotation-btn:hover {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+  }
+  .rotation-btn.active {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+  }
+  .rotation-icon {
+    font-size: 32px;
+  }
+  </style>
 </head>
 <body>
 <div id="app" class="app" v-cloak>
@@ -291,52 +279,142 @@
           </div>
 
           <a-drawer
-            :title="drawerStage === 'options' ? 'Rotation Options' : (drawerStage === 'result' ? 'Rotation Complete' : 'Processing')"
+            :title="drawerStage === 'select' ? '' : (drawerStage === 'result' ? 'Rotation Complete' : 'Processing')"
             :visible="showDrawer"
             :width="'100%'"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
+            :body-style="{ padding: '0' }"
           >
             <div class="drawer-content">
-              <div v-if="drawerStage === 'options'" class="options-section">
-                <!-- <div class="options-title">Rotation Options</div> -->
-                <div class="mode-description">Select the rotation angle for your PDF pages</div>
-                
-                <div class="rotation-options">
-                  <button class="rotation-btn" :class="{ 'active': form.rotation === 90 }" @click="form.rotation = 90">
-                    <span class="rotation-icon">↻</span>
-                    <span>90° Clockwise</span>
-                  </button>
-                  <button class="rotation-btn" :class="{ 'active': form.rotation === 180 }" @click="form.rotation = 180">
-                    <span class="rotation-icon">⟳</span>
-                    <span>180°</span>
-                  </button>
-                  <button class="rotation-btn" :class="{ 'active': form.rotation === 270 }" @click="form.rotation = 270">
-                    <span class="rotation-icon">↺</span>
-                    <span>90° Counter-Clockwise</span>
-                  </button>
+              <div v-if="drawerStage === 'select'" class="drawer-select-stage">
+                <div class="drawer-top-bar">
+                  <div class="drawer-top-content">
+                    <div class="drawer-view-tabs">
+                      <button 
+                        class="drawer-tab-btn" 
+                        :class="{active: currentView === 'files'}" 
+                        @click="switchView('files')"
+                      >
+                        <i class="anticon anticon-file-text"></i>
+                        Files
+                      </button>
+                      <button 
+                        class="drawer-tab-btn" 
+                        :class="{active: currentView === 'pages'}" 
+                        @click="switchView('pages')"
+                      >
+                        <i class="anticon anticon-profile"></i>
+                        Pages
+                      </button>
+                    </div>
+                    <div class="drawer-toolbar-buttons">
+                      <a-button type="default" @click="clearAllFiles" danger>
+                        Clear All
+                    </div>
+                  </div>
                 </div>
-                <div class="output-options" style="margin-top: 20px;">
-                  <div class="option-hint">Click on pages in the preview below to select which pages to rotate</div>
-                </div>
-              </div>
 
-              <div v-if="drawerStage === 'options' && pagePreviews.length > 0" class="options-section">
-                <div class="options-title">Page Select</div>
-                <div class="mode-description">Click to select pages for rotation</div>
-                <div class="page-preview-grid">
-                  <div v-for="(page, idx) in pagePreviews" :key="idx" class="page-preview-item" :class="{ 'selected': selectedPages.includes(idx + 1) }" @click="togglePage(idx + 1)">
-                    <img :src="page" class="page-preview-image">
-                    <div class="page-number">{{ idx + 1 }}</div>
-                    <div v-if="selectedPages.includes(idx + 1)" class="selected-overlay">✓</div>
+                <div class="options-section">
+                  <div class="mode-description">Select the rotation angle for your PDF pages</div>
+                  
+                  <div class="rotation-options">
+                    <button class="rotation-btn" :class="{ 'active': form.rotation === 90 }" @click="form.rotation = 90">
+                      <span class="rotation-icon">↻</span>
+                      <span>90° Clockwise</span>
+                    </button>
+                    <button class="rotation-btn" :class="{ 'active': form.rotation === 180 }" @click="form.rotation = 180">
+                      <span class="rotation-icon">⟳</span>
+                      <span>180°</span>
+                    </button>
+                    <button class="rotation-btn" :class="{ 'active': form.rotation === 270 }" @click="form.rotation = 270">
+                      <span class="rotation-icon">↺</span>
+                      <span>90° Counter-Clockwise</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div v-if="currentView === 'files'" class="drawer-files-view">
+                  <div class="drawer-files-grid">
+                    <div v-for="(file, fi) in selectedFiles" :key="fi" class="drawer-file-card">
+                      <div class="drawer-file-thumbnail">
+                        <img v-if="file.thumbnails[0]" :src="file.thumbnails[0]" class="drawer-file-preview">
+                        <div v-else class="drawer-file-placeholder">
+                          <i class="anticon anticon-file-pdf" style="font-size: 48px; color: #ff4444;"></i>
+                        </div>
+                      </div>
+                      <div class="drawer-file-info">
+                        <div class="drawer-file-name">{{ file.name }}</div>
+                        <div class="drawer-file-meta">{{ file.pageCount || 0 }} pages · {{ formatFileSize(file.size) }}</div>
+                      </div>
+                      <button class="drawer-file-remove" @click="removeFile(fi)">
+                        <span class="close-icon">×</span>
+                      </button>
+                    </div>
+                    
+                    <!-- 添加更多卡片 -->
+                    <div class="drawer-file-card drawer-add-card" @click="triggerUpload">
+                      <div class="drawer-add-content">
+                        <span class="drawer-add-icon">+</span>
+                        <div class="drawer-add-text">Add Files</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else-if="currentView === 'pages'" class="drawer-pages-view">
+                  <div class="drawer-pages-header">
+                    <div class="drawer-select-actions">
+                      <a-button size="small" @click="selectAllPages">Select All</a-button>
+                      <a-button size="small" @click="deselectAllPages">Deselect All</a-button>
+                    </div>
+                  </div>
+
+                  <div class="drawer-all-pages">
+                    <div v-for="(item, fi) in selectedFiles" :key="fi" class="drawer-file-pages-group">
+                      <div class="drawer-file-group-title">{{ item.name }}</div>
+                      <div class="drawer-pages-grid">
+                        <div 
+                          v-for="(img, pi) in item.thumbnails" 
+                          :key="pi" 
+                          class="drawer-page-item"
+                          :class="{selected: isSelected(fi, pi)}"
+                          @click="toggle(fi, pi)"
+                        >
+                          <img :src="img" class="drawer-page-thumb">
+                          <div class="drawer-page-num">{{ pi + 1 }}</div>
+                          <div v-if="isSelected(fi, pi)" class="drawer-page-selected">✓</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="drawer-bottom-actions">
+                  <div class="drawer-actions-right">
+                    <a-button 
+                      type="primary" 
+                      size="large" 
+                      class="drawer-export-btn"
+                      :disabled="selectedPages.length === 0"
+                      @click="rotatePages"
+                    >
+                      <i class="anticon anticon-swap"></i>
+                      Rotate PDF
+                    </a-button>
                   </div>
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'progress'" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+              <div v-if="(drawerStage === 'progress') && progress < 100" class="progress-section">
+                <div class="progress-container">
+                  <div class="progress-info">
+                    <span class="progress-text">{{ progressText }}</span>
+                    <span class="progress-percent">{{ progress }}%</span>
+                  </div>
+                  <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" :stroke-width="8" />
+                </div>
               </div>
 
               <div v-if="done" class="result-content">
@@ -352,9 +430,18 @@
                 </div>
 
                 <div class="button-bar">
-                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                  <a-button type="primary" size="large" @click="download">Download PDF</a-button>
-                  <a-button type="default" @click="reset">Start Over</a-button>
+                  <a-button type="default" @click="backToOptions">
+                    <i class="anticon anticon-left"></i>
+                    Back
+                  </a-button>
+                  <a-button type="primary" size="large" @click="download">
+                    <i class="anticon anticon-download"></i>
+                    Download
+                  </a-button>
+                  <a-button type="primary" @click="reset">
+                    <i class="anticon anticon-redo"></i>
+                    Start Over
+                  </a-button>
                 </div>
 
                 <div class="recommend-section">
@@ -362,31 +449,12 @@
                 </div>
 
                 <div class="preview-layout" v-if="resultPreviews.length > 0">
-                  <div class="sidebar">
-                    <div class="sidebar-title">Pages</div>
-                    <div class="thumbnails-list">
-                      <div v-for="(t, i) in resultPreviews" :key="i" 
-                           class="sidebar-thumbnail" 
-                           :class="{ active: currentPage === i }"
-                           @click="scrollToPage(i)">
-                        <img :src="t" class="sidebar-image" :alt="'Page ' + (i+1)" />
-                        <div class="sidebar-page-num">{{ i + 1 }}</div>
-                      </div>
-                    </div>
-                  </div>
                   <div class="main-preview">
                     <div v-for="(t, i) in resultPreviews" :key="i" class="page-wrapper" :id="'page-' + i">
                       <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div class="drawer-actions">
-                <a-button v-if="drawerStage === 'options'" @click="reset">Cancel</a-button>
-                <a-button v-if="drawerStage === 'options'" type="primary" @click="handleRotate">
-                  Rotate PDF
-                </a-button>
               </div>
             </div>
           </a-drawer>
@@ -720,8 +788,10 @@ new Vue({
       progress: 0,
       progressText: '',
       showDrawer: false,
-      drawerStage: 'options',
-      currentPage: 0
+      drawerStage: 'select',
+      currentPage: 0,
+      currentView: 'files',
+      drawerWidth: '100%'
     }
   },
   mounted() {
@@ -734,6 +804,9 @@ new Vue({
   methods: {
     handleBeforeUnload() {
       this.cleanupAllResources()
+    },
+    switchView(view) {
+      this.currentView = view
     },
     isValidPdf(file) {
       return file.name.toLowerCase().endsWith('.pdf')
@@ -748,10 +821,14 @@ new Vue({
         this.reset()
       }
     },
+    triggerUpload() {
+      const uploadInput = this.$refs.upload.$el.querySelector('input[type="file"]')
+      if (uploadInput) uploadInput.click()
+    },
     backToOptions() {
       this.cleanupResultResources()
       this.done = false
-      this.drawerStage = 'options'
+      this.drawerStage = 'select'
     },
     cleanupResultResources() {
       this.resultPreviews.forEach(t => {
@@ -765,21 +842,24 @@ new Vue({
       }
       this.currentPreviewImage = ''
     },
-    async handleFileChange({ file }) {
+    async handleFileChange({ file, onSuccess }) {
       const raw = file
       if (!this.isValidPdf(raw)) {
         this.$message.error('Only PDF files are allowed')
+        if (onSuccess) onSuccess('error')
         return
       }
       
       if (this.selectedFiles.length >= 1) {
         this.$message.warning('You can upload only one file at a time')
+        if (onSuccess) onSuccess('error')
         return
       }
       
       const maxSize = 50 * 1024 * 1024
       if (raw.size > maxSize) {
         this.$message.error('File size cannot exceed 50MB')
+        if (onSuccess) onSuccess('error')
         return
       }
       
@@ -787,23 +867,19 @@ new Vue({
         this.selectedFile = {
           name: raw.name,
           file: raw,
-          size: raw.size
+          size: raw.size,
+          thumbnails: [],
+          pageCount: 0
         }
         this.selectedFiles = [this.selectedFile]
         await this.generatePagePreviews()
         this.showDrawer = true
+        if (onSuccess) onSuccess('success')
       } catch (error) {
         console.error('Error loading PDF:', error)
         this.$message.error('Failed to load PDF. Please try a different file.')
+        if (onSuccess) onSuccess('error')
       }
-    },
-    handleRotate() {
-      if (this.selectedPages.length === 0) {
-        this.$message.warning('Please select at least one page to rotate')
-        return
-      }
-      this.drawerStage = 'progress'
-      this.rotatePDF()
     },
     goToUpload() {
       this.reset()
@@ -822,6 +898,9 @@ new Vue({
       this.selectedPages = []
     },
     clearAllFiles() {
+      this.selectedFiles.forEach(file => {
+        this.destroyFileResources(file)
+      })
       this.selectedFiles = []
       this.selectedFile = null
       this.pagePreviews = []
@@ -830,7 +909,41 @@ new Vue({
         this.$refs.upload.uploadFiles = []
       }
     },
+    destroyFileResources(file) {
+      if (file.pdfInstance) {
+        try {
+          file.pdfInstance.destroy()
+        } catch (e) {
+          console.warn('Error destroying PDF instance:', e)
+        }
+        file.pdfInstance = null
+      }
+      if (file.thumbnails) {
+        file.thumbnails.forEach(url => {
+          if (url && url.startsWith('blob:')) {
+            URL.revokeObjectURL(url)
+          }
+        })
+        file.thumbnails = null
+      }
+      if (file.pages) {
+        file.pages.forEach(page => {
+          if (page && typeof page.destroy === 'function') {
+            try {
+              page.destroy()
+            } catch (e) {
+              console.warn('Error destroying page:', e)
+            }
+          }
+        })
+        file.pages = null
+      }
+    },
     removeFile(idx) {
+      const file = this.selectedFiles[idx]
+      if (file) {
+        this.destroyFileResources(file)
+      }
       this.selectedFiles.splice(idx, 1)
       if (this.selectedFiles.length === 0) {
         this.selectedFile = null
@@ -839,14 +952,30 @@ new Vue({
       } else {
         this.selectedFile = this.selectedFiles[0]
       }
-    },
-    togglePage(pageNum) {
-      const idx = this.selectedPages.indexOf(pageNum)
-      if (idx > -1) {
-        this.selectedPages.splice(idx, 1)
-      } else {
-        this.selectedPages.push(pageNum)
+      if (this.$refs.upload) {
+        this.$refs.upload.uploadFiles.splice(idx, 1)
       }
+    },
+    isSelected(fi, pi) {
+      return this.selectedPages.includes(`${fi}-${pi}`)
+    },
+    toggle(fi, pi) {
+      const key = `${fi}-${pi}`
+      const arr = this.selectedPages
+      arr.includes(key) ? arr.splice(arr.indexOf(key), 1) : arr.push(key)
+    },
+    selectAllPages() {
+      this.selectedFiles.forEach((file, fi) => {
+        file.thumbnails.forEach((_, pi) => {
+          const key = `${fi}-${pi}`
+          if (!this.selectedPages.includes(key)) {
+            this.selectedPages.push(key)
+          }
+        })
+      })
+    },
+    deselectAllPages() {
+      this.selectedPages = []
     },
     async generatePagePreviews() {
       if (!this.selectedFile) return
@@ -855,6 +984,7 @@ new Vue({
       const arrayBuffer = await this.selectedFile.file.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
       const totalPages = Math.min(pdf.numPages, 10)
+      this.selectedFile.pageCount = pdf.numPages
       
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
@@ -864,7 +994,9 @@ new Vue({
         canvas.width = vp.width
         canvas.height = vp.height
         await page.render({ canvasContext: ctx, viewport: vp }).promise
-        this.pagePreviews.push(canvas.toDataURL())
+        const dataUrl = canvas.toDataURL()
+        this.pagePreviews.push(dataUrl)
+        this.selectedFile.thumbnails.push(dataUrl)
         canvas.width = 0
         canvas.height = 0
         if (typeof page.destroy === 'function') {
@@ -873,7 +1005,7 @@ new Vue({
       }
       pdf.destroy()
       
-      this.selectedPages = Array.from({ length: this.pagePreviews.length }, (_, i) => i + 1)
+      this.selectAllPages()
     },
     parsePageRange(pagesText, totalPages) {
       const pages = new Set()
@@ -893,17 +1025,29 @@ new Vue({
       }
       return Array.from(pages).sort((a, b) => a - b)
     },
-    async rotatePDF() {
-      if (!this.selectedFile) return
+    async rotatePages() {
+      if (this.selectedFiles.length === 0) {
+        this.$message.warning('Please upload at least one PDF file')
+        return
+      }
+      if (this.selectedPages.length === 0) {
+        this.$message.warning('Please select at least one page to rotate')
+        return
+      }
       
       this.progress = 0
       this.progressText = 'Loading PDF...'
+      this.drawerStage = 'progress'
+      
       try {
-        const arrayBuffer = await this.selectedFile.file.arrayBuffer()
+        const arrayBuffer = await this.selectedFiles[0].file.arrayBuffer()
         const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer)
         
         const totalPages = pdfDoc.getPageCount()
-        const pagesToRotate = this.selectedPages.map(p => p - 1)
+        const pagesToRotate = this.selectedPages.map(key => {
+          const [fi, pi] = key.split('-').map(Number)
+          return pi
+        })
         
         this.progress = 25
         this.progressText = 'Rotating pages...'
@@ -935,7 +1079,7 @@ new Vue({
       } catch (error) {
         console.error('Error rotating PDF:', error)
         this.$message.error('Failed to rotate PDF. Please try again.')
-        this.drawerStage = 'options'
+        this.drawerStage = 'select'
       }
     },
     async generateResultPreviews() {
@@ -1013,6 +1157,16 @@ new Vue({
       if (this.currentPreviewImage?.startsWith('blob:')) {
         URL.revokeObjectURL(this.currentPreviewImage)
       }
+      this.selectedFiles.forEach(file => {
+        if (file.thumbnails) {
+          file.thumbnails.forEach(url => {
+            if (url && url.startsWith('blob:')) {
+              URL.revokeObjectURL(url)
+            }
+          })
+          file.thumbnails = []
+        }
+      })
       this.selectedFiles = []
       this.selectedFile = null
       this.pagePreviews = []
@@ -1023,6 +1177,10 @@ new Vue({
     },
     reset() {
       this.cleanupAllResources()
+      this.selectedFiles = []
+      this.selectedFile = null
+      this.selectedPages = []
+      this.pagePreviews = []
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = []
       }
@@ -1037,8 +1195,9 @@ new Vue({
       this.progressText = ''
       this.showPreviewModal = false
       this.currentPreviewImage = null
-      this.drawerStage = 'options'
+      this.drawerStage = 'select'
       this.showDrawer = false
+      this.currentView = 'files'
     },
     scrollToPage(pageIndex) {
       this.currentPage = pageIndex;

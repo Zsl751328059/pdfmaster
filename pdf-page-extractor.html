@@ -160,7 +160,6 @@
   
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
@@ -241,40 +240,77 @@
           </div>
 
           <a-drawer
-            :title="drawerStage === 'options' ? 'Select Pages to Extract' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
+            :title="drawerStage === 'options' ? '' : (drawerStage === 'progress' ? 'Processing' : 'Result')"
             :visible="showDrawer"
             :width="drawerWidth"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
+            :body-style="{ padding: 0 }"
           >
-            <div class="drawer-content">
-              <div v-if="drawerStage === 'options'" class="preview-section">
-                <div class="preview-header">
-                  <div class="preview-title"><span class="preview-hint">👆 Click on page thumbnails</span></div>
-                  <div class="preview-actions">
-                    <a-button type="text" size="small" @click="selectAll">Select All</a-button>
-                    <a-button type="text" size="small" @click="deselectAll">Deselect All</a-button>
+            <div class="drawer-content dark-theme">
+              <div v-if="drawerStage === 'options'" class="drawer-select-stage">
+                <div class="drawer-top-bar">
+                  <div class="drawer-top-content">
+                    <div class="drawer-view-tabs">
+                      <button 
+                        class="drawer-tab-btn" 
+                        :class="{active: currentView === 'files'}" 
+                        @click="switchView('files')"
+                      >
+                        <span class="tab-icon">📄</span>
+                        <span>Files</span>
+                      </button>
+                      <button 
+                        class="drawer-tab-btn" 
+                        :class="{active: currentView === 'pages'}" 
+                        @click="switchView('pages')"
+                      >
+                        <span class="tab-icon">📑</span>
+                        <span>Pages</span>
+                      </button>
+                    </div>
+                    <div class="drawer-toolbar-buttons">
+                      <a-button type="default" @click="clearAllFiles" danger>
+                        <i class="anticon anticon-delete"></i>
+                        Clear All
+                      </a-button>
+                    </div>
                   </div>
                 </div>
-                <div v-if="pageCount > 0" class="page-preview-container">
-                  <div class="page-preview-grid">
-                    <div 
-                      v-for="pageNum in pageCount" 
-                      :key="pageNum" 
-                      class="page-preview-item"
-                      :class="{ selected: selectedPages.includes(pageNum) }"
-                      @click="togglePage(pageNum)"
-                    >
-                      <canvas :ref="'canvas' + pageNum" class="page-preview-image"></canvas>
-                      <div class="page-number">{{ pageNum }}</div>
-                      <div v-if="selectedPages.includes(pageNum)" class="selected-overlay">✓</div>
+                
+                <div class="preview-section drawer-pages-view">
+                  <div class="drawer-pages-header">
+                    <div class="drawer-select-actions">
+                      <a-button size="small" @click="selectAll">
+                        <i class="anticon anticon-check-circle"></i>
+                        Select All
+                      </a-button>
+                      <a-button size="small" @click="deselectAll">
+                        <i class="anticon anticon-minus-circle"></i>
+                        Deselect All
+                      </a-button>
+                    </div>
+                  </div>
+                  <div class="page-preview-container">
+                    <div class="page-preview-grid">
+                      <div 
+                        v-for="pageNum in pageCount" 
+                        :key="pageNum" 
+                        class="page-preview-item"
+                        :class="{ selected: selectedPages.includes(pageNum) }"
+                        @click="togglePage(pageNum)"
+                      >
+                        <canvas :ref="'canvas' + pageNum" class="page-preview-image"></canvas>
+                        <div class="page-number">{{ pageNum }}</div>
+                        <div v-if="selectedPages.includes(pageNum)" class="selected-overlay">✓</div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'progress' || extracting" class="progress-section">
+              <div v-if="(drawerStage === 'progress' || extracting) && progress < 100" class="progress-section">
                 <div class="progress-text">{{ progressText }} {{ progress }}%</div>
                 <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
               </div>
@@ -292,9 +328,18 @@
                 </div>
 
                 <div class="button-bar">
-                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                  <a-button type="primary" size="large" @click="downloadResult">Download PDF</a-button>
-                  <a-button type="primary" @click="reset">Start Over</a-button>
+                  <a-button type="default" @click="backToOptions">
+                    <i class="anticon anticon-left"></i>
+                    Back
+                  </a-button>
+                  <a-button type="primary" size="large" @click="downloadResult">
+                    <i class="anticon anticon-download"></i>
+                    Download PDF
+                  </a-button>
+                  <a-button type="primary" @click="reset">
+                    <i class="anticon anticon-redo"></i>
+                    Start Over
+                  </a-button>
                 </div>
 
                 <div class="recommend-section">
@@ -302,18 +347,6 @@
                 </div>
 
                 <div class="preview-layout" v-if="resultThumbnails.length > 0">
-                  <div class="sidebar">
-                    <div class="sidebar-title">Pages</div>
-                    <div class="thumbnails-list">
-                      <div v-for="(thumb, i) in resultThumbnails" :key="i" 
-                           class="sidebar-thumbnail" 
-                           :class="{ active: currentPage === i }"
-                           @click="scrollToPage(i)">
-                        <img :src="thumb" class="sidebar-image" :alt="'Page ' + (i+1)" />
-                        <div class="sidebar-page-num">{{ i + 1 }}</div>
-                      </div>
-                    </div>
-                  </div>
                   <div class="main-preview">
                     <div v-for="(thumb, i) in resultThumbnails" :key="i" class="page-wrapper" :id="'page-' + i">
                       <img :src="thumb" class="page-image" :alt="'Page ' + (i+1)" />
@@ -322,11 +355,19 @@
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'options'" class="drawer-actions">
-                <a-button type="default" @click="handleDrawerClose">Cancel</a-button>
-                <a-button type="primary" @click="extractPages" :disabled="selectedPages.length === 0">
-                  Extract Pages
-                </a-button>
+              <div v-if="drawerStage === 'options'" class="drawer-bottom-actions">
+                <div class="drawer-actions-right">
+                  <a-button 
+                    type="primary" 
+                    size="large" 
+                    class="drawer-export-btn"
+                    :disabled="selectedPages.length === 0"
+                    @click="extractPages"
+                  >
+                    <i class="anticon anticon-scissor"></i>
+                    Extract Pages
+                  </a-button>
+                </div>
               </div>
             </div>
           </a-drawer>
@@ -759,7 +800,8 @@ document.addEventListener('DOMContentLoaded', function() {
         pdfDoc: null,
         downloadFileName: 'extracted_pages.pdf',
         drawerWidth: 600,
-        currentPage: 0
+        currentPage: 0,
+        currentView: 'pages'
       }
     },
     mounted() {
@@ -789,6 +831,9 @@ document.addEventListener('DOMContentLoaded', function() {
         this.extractedBlob = null
         this.resultThumbnails = []
         this.currentPreviewImage = ''
+      },
+      switchView(view) {
+        this.currentView = view
       },
       isValidPdf(file) {
         return file.name.toLowerCase().endsWith('.pdf')

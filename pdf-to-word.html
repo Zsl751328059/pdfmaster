@@ -159,7 +159,6 @@
   </script>
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdfjs-dist/build/pdf.js"></script>
@@ -258,15 +257,23 @@
             @close="handleDrawerClose"
           >
             <div class="drawer-content">
-              <div v-if="drawerStage === 'progress'" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+              <div v-if="drawerStage === 'progress' && progress < 100" class="progress-section">
+                <div class="progress-container">
+                  <div class="progress-info">
+                    <span class="progress-text">{{ progressText }}</span>
+                    <span class="progress-percent">{{ progress }}%</span>
+                  </div>
+                  <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" :stroke-width="8" />
+                </div>
               </div>
 
               <div v-if="resultBlob" class="result-content">
-                <div class="result-title">Conversion Complete!</div>
-                <p class="result-desc">Your PDF has been converted to Word DOCX</p>
-                <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
+                <div class="result-header">
+                  <div class="result-icon">✓</div>
+                  <div class="result-title">Conversion Complete!</div>
+                  <p class="result-desc">Your PDF has been converted to Word DOCX</p>
+                  <p class="result-desc">File size: {{ formatFileSize(resultBlob.size) }}</p>
+                </div>
                 
                 <div class="download-section">
                   <div class="filename-input">

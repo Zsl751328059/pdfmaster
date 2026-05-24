@@ -92,7 +92,46 @@
   <link rel="stylesheet" href="/lib/ant-design-vue/antd.min.css">
   <link rel="stylesheet" href="/css/common.css">
   <style>
-   
+    .advanced-options {
+      background: rgba(30, 41, 59, 0.6);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .advanced-options .options-title {
+      color: #f1f5f9;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .advanced-options .option-label {
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .advanced-options .option-select {
+      min-width: 200px;
+      background: #1f2937;
+      border-color: #4b5563;
+    }
+    .advanced-options .option-select .ant-select-selector {
+      background: #1f2937 !important;
+      border-color: #4b5563 !important;
+      color: #f9fafb !important;
+    }
+    .advanced-options .option-select .ant-select-arrow {
+      color: #9ca3af;
+    }
+    .advanced-options .option-select .ant-select-dropdown {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    .advanced-options .option-select .ant-select-item {
+      color: #d1d5db;
+    }
+    .advanced-options .option-select .ant-select-item-option-selected {
+      background: #374151;
+    }
   </style>
   <script src="/lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js" defer></script>
@@ -190,31 +229,51 @@
           </div>
 
           <a-drawer
-            :title="drawerStage === 'options' ? 'Convert Images to PDF' : (drawerStage === 'progress' ? 'Converting...' : 'Conversion Result')"
+            :title="drawerStage === 'options' ? '' : (drawerStage === 'progress' ? '' : 'Conversion Result')"
             :visible="showDrawer"
             :width="'100%'"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
+            :body-style="{ padding: '0' }"
           >
             <div class="drawer-content">
-              <div v-if="drawerStage === 'options'" class="options-section">
-                <!-- <div class="options-title">Convert Images to PDF</div>
-                <div class="mode-description">Choose your conversion options</div> -->
-                
-                <div class="preview-actions" style="margin-bottom: 16px;">
-                  <a-button type="primary" @click="triggerUpload">+ Add More</a-button>
-                </div>
-                
-                <div class="image-preview-grid">
-                  <div v-for="(file, idx) in selectedFiles" :key="idx" class="image-preview-item">
-                    <img :src="file.preview" class="preview-image">
+              <div v-if="drawerStage === 'options'" class="drawer-select-stage">
+                <div class="drawer-top-bar">
+                  <div class="drawer-top-content">
+                    <div class="drawer-toolbar-buttons">
+                      <a-button type="default" @click="clearAllFiles" danger>
+                        Clear All
+                    </div>
                   </div>
                 </div>
 
-                <a-collapse v-model="expandOptions" style="margin-top: 16px;">
-                  <a-collapse-panel header="Advanced Settings (for advanced users only)" key="1">
+                <div class="drawer-files-view">
+                  <div class="drawer-files-grid">
+                    <div v-for="(file, idx) in selectedFiles" :key="idx" class="drawer-file-card">
+                      <div class="drawer-file-thumbnail">
+                        <img :src="file.preview" class="drawer-file-preview">
+                      </div>
+                      <div class="drawer-file-info">
+                        <div class="drawer-file-name">{{ file.name }}</div>
+                        <div class="drawer-file-meta">{{ formatFileSize(file.size) }}</div>
+                      </div>
+                      <button class="drawer-file-remove" @click="removeFile(idx)">
+                        <span class="close-icon">×</span>
+                      </button>
+                    </div>
+
+                    <div class="drawer-file-card drawer-add-card" @click="triggerUpload">
+                      <div class="drawer-add-content">
+                        <span class="drawer-add-icon">+</span>
+                        <div class="drawer-add-text">Add Images</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="padding: 16px 0;">
                     <div class="advanced-options">
+                      <div class="options-title">Advanced Settings (for advanced users only)</div>
                       <div class="option-row">
                         <label class="option-label">Page Size</label>
                         <a-select v-model="form.pageSize" class="option-select">
@@ -225,13 +284,18 @@
                         </a-select>
                       </div>
                     </div>
-                  </a-collapse-panel>
-                </a-collapse>
+                  </div>
+                </div>
               </div>
 
-              <div v-if="drawerStage === 'progress' || converting" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+              <div v-if="(drawerStage === 'progress' || converting) && progress < 100" class="progress-section">
+                <div class="progress-container">
+                  <div class="progress-info">
+                    <span class="progress-text">{{ progressText }}</span>
+                    <span class="progress-percent">{{ progress }}%</span>
+                  </div>
+                  <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" :stroke-width="8" />
+                </div>
               </div>
 
               <div v-if="done" class="result-content">
@@ -247,28 +311,22 @@
                 </div>
 
                 <div class="button-bar">
-                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
-                  <a-button type="primary" size="large" @click="download">Download PDF</a-button>
-                  <a-button type="primary" @click="reset">Start Over</a-button>
+                  <a-button type="default" @click="backToOptions">Back</a-button>
+                  <a-button type="primary" size="large" @click="download">
+                    <i class="anticon anticon-download"></i>
+                    Download
+                  </a-button>
+                  <a-button type="primary" @click="reset">
+                    <i class="anticon anticon-redo"></i>
+                    Start Over
+                  </a-button>
                 </div>
 
                 <div class="recommend-section">
                   <p>Need to convert PDF to images? <a href="pdf-to-image.html" class="recommend-link">Try our PDF to Image Tool →</a></p>
                 </div>
 
-                <div class="preview-layout" v-if="previews.length > 0">
-                  <div class="sidebar">
-                    <div class="sidebar-title">Pages</div>
-                    <div class="thumbnails-list">
-                      <div v-for="(t, i) in previews" :key="i" 
-                           class="sidebar-thumbnail" 
-                           :class="{ active: currentPage === i }"
-                           @click="scrollToPage(i)">
-                        <img :src="t" class="sidebar-image" :alt="'Page ' + (i+1)" />
-                        <div class="sidebar-page-num">{{ i + 1 }}</div>
-                      </div>
-                    </div>
-                  </div>
+                <div class="preview-layout">
                   <div class="main-preview">
                     <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
                       <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
@@ -277,11 +335,15 @@
                 </div>
               </div>
 
-              <div v-if="!done && !converting" class="drawer-actions">
-                <a-button @click="handleDrawerClose">Cancel</a-button>
-                <a-button type="primary" @click="convert" :disabled="selectedFiles.length === 0">
-                  Convert to PDF
-                </a-button>
+              <div v-if="drawerStage === 'options'" class="drawer-bottom-actions">
+                <div class="drawer-actions-right">
+                  <a-button type="primary" size="large" class="drawer-export-btn" @click="convert" :disabled="selectedFiles.length === 0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"></path>
+                    </svg>
+                    Convert to PDF
+                  </a-button>
+                </div>
               </div>
             </div>
           </a-drawer>

@@ -168,79 +168,218 @@
       gap: 16px;
       margin-top: 16px;
     }
-    .type-option {
-      flex: 1;
-      padding: 20px;
-      border: 2px solid #e4e7ed;
-      border-radius: 12px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-    .type-option:hover {
-      border-color: #409eff;
-      background: #f0f7ff;
-    }
-    .type-option.active {
-      border-color: #409eff;
-      background: #e8f4fd;
-    }
-    .type-icon {
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
-    .type-title {
-      font-weight: 600;
-      color: #303133;
-    }
     .watermark-form {
-      margin-top: 24px;
-      padding: 20px;
-      background: #fafafa;
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(30, 41, 59, 0.8);
       border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .watermark-form .file-info {
+      color: #e2e8f0;
+      font-weight: 500;
+      font-size: 14px;
     }
     .form-row {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
     .form-row-row {
       display: flex;
       gap: 24px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     .form-col {
       flex: 1;
     }
+    .form-row-row-three {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 0;
+    }
+    .form-col-three {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
     .form-label {
       display: block;
-      margin-bottom: 8px;
       font-weight: 500;
-      color: #606266;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .watermark-form .option-select {
+      min-width: 100%;
+      background: #1f2937;
+      border-color: #4b5563;
+    }
+    .watermark-form .option-select .ant-select-selector {
+      background: #1f2937 !important;
+      border-color: #4b5563 !important;
+      color: #f9fafb !important;
+    }
+    .watermark-form .option-select .ant-select-arrow {
+      color: #9ca3af;
+    }
+    .watermark-form .option-select .ant-select-dropdown {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    .watermark-form .option-select .ant-select-item {
+      color: #d1d5db;
+    }
+    .watermark-form .option-select .ant-select-item-option-selected {
+      background: #374151;
+    }
+    .watermark-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      /* padding: 12px 16px; */
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 12px;
+      /* border: 1px solid rgba(255, 255, 255, 0.1); */
+    }
+    .watermark-toolbar .option-select {
+      min-width: 100px;
+      background: #1f2937;
+      border-color: #4b5563;
+    }
+    .watermark-toolbar .option-select.font-select {
+      min-width: 110px;
+      width: 110px;
+    }
+    .watermark-toolbar .option-select .ant-select-selector {
+      background: #1f2937 !important;
+      border-color: #4b5563 !important;
+      color: #f9fafb !important;
+      height: 40px !important;
+      border-radius: 8px;
+    }
+    .watermark-toolbar .option-select .ant-select-arrow {
+      color: #9ca3af;
+    }
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrapper .input-icon {
+      position: absolute;
+      left: 8px;
+      font-size: 14px;
+      z-index: 1;
+    }
+    .input-wrapper .form-input-small {
+      padding-left: 28px;
+      width: 80px;
+    }
+    /* Tooltip styles */
+    .watermark-toolbar [title] {
+      position: relative;
+    }
+    .watermark-toolbar [title]:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      white-space: nowrap;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .watermark-toolbar [title]:hover::before {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-bottom-color: #1f2937;
+      z-index: 1000;
+    }
+    .form-input-small {
+      width: 80px;
+      padding: 8px 12px;
+      border: 1px solid #4b5563;
+      border-radius: 8px;
+      font-size: 16px;
+      background: #1f2937;
+      color: #f9fafb;
+      text-align: center;
+      height: 40px;
+    }
+    .color-input-small {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #4b5563;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .watermark-preview-section {
+      margin-top: 16px;
+      text-align: center;
+    }
+    .watermark-preview-container {
+      position: relative;
+      display: block;
+      margin: 16px auto;
+      overflow: auto;
+      max-width: 100%;
+      padding: 0 16px 16px;
+      background: transparent;
+      text-align: center;
+    }
+    .watermark-preview-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .watermark-preview-container .watermark-preview-canvas {
+      display: block;
+      border: none;
+      border-radius: 0;
+      background: white;
+      max-width: 100%;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
     .form-input {
       width: 100%;
       padding: 10px 15px;
-      border: 1px solid #dcdfe6;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       font-size: 14px;
       transition: border-color 0.3s;
+      background: rgba(51, 65, 85, 0.8);
+      color: #f1f5f9;
     }
     .form-input:focus {
       outline: none;
-      border-color: #409eff;
+      border-color: #3b82f6;
     }
     .form-textarea {
       width: 100%;
       padding: 12px 15px;
-      border: 1px solid #dcdfe6;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       font-size: 14px;
       resize: vertical;
       min-height: 80px;
       transition: border-color 0.3s;
+      background: rgba(51, 65, 85, 0.8);
+      color: #f1f5f9;
     }
     .form-textarea:focus {
       outline: none;
-      border-color: #409eff;
+      border-color: #3b82f6;
     }
     .color-col {
       flex: 1;
@@ -324,7 +463,6 @@
       border-radius: 8px;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="./lib/vue/vue.js"></script>
   <script src="/lib/ant-design-vue/antd.min.js"></script>
   <script src="./lib/pdf-lib/pdf-lib.min.js"></script>
@@ -407,125 +545,106 @@
           </div>
 
           <a-drawer
-            :title="drawerStage === 'options' ? 'Add Watermark' : (drawerStage === 'progress' ? 'Processing' : 'Watermark Result')"
+            :body-style="{ padding: 0 }"
+            :title="'Add Watermark'"
             :visible="showDrawer"
             :width="'100%'"
             :closable="true"
             :mask-closable="true"
             @close="handleDrawerClose"
           >
+            <div class="drawer-top-bar">
+              <div class="drawer-top-content">
+                <div class="drawer-view-tabs">
+                  <button 
+                    class="drawer-tab-btn active"
+                  >
+                    <span class="tab-icon">💧</span>
+                    <span>Watermark</span>
+                  </button>
+                </div>
+                <div class="drawer-toolbar-buttons">
+                  <!-- <a-button type="default" @click="clearAllFiles" danger>
+                    Clear All
+                  </a-button> -->
+                </div>
+              </div>
+            </div>
             <div class="drawer-content">
-              <div v-if="drawerStage === 'options'" class="options-section">
-                <div class="options-title">Watermark Type</div>
-                <div class="mode-description">Choose the type of watermark to add</div>
-                <div class="watermark-type-options">
-                  <div class="type-option" :class="{active: form.type === 'text'}" @click="form.type = 'text'">
-                    <div class="type-icon">📝</div>
-                    <div class="type-title">Text Watermark</div>
-                  </div>
-                  <div class="type-option" :class="{active: form.type === 'image'}" @click="form.type = 'image'">
-                    <div class="type-icon">🖼️</div>
-                    <div class="type-title">Image Watermark</div>
-                  </div>
-                </div>
-
-                <div v-if="form.type === 'text'" class="watermark-form">
-                  <div class="form-row">
-                    <label class="form-label">Watermark Text</label>
-                    <textarea v-model="form.text" class="form-textarea" placeholder="Enter your watermark text (e.g., Confidential)"></textarea>
-                  </div>
-                  <div class="form-row-row">
-                    <div class="form-col">
-                      <label class="form-label">Font Size</label>
-                      <input v-model.number="form.fontSize" type="number" class="form-input" min="10" max="100" placeholder="48">
+              <div v-if="drawerStage === 'options'" class="drawer-select-stage">
+                <!-- Watermark Options -->
+                <div class="watermark-options-section">
+                  <div class="watermark-form">
+                    <div class="form-row">
+                      <label class="form-label">Watermark Text</label>
+                      <textarea v-model="form.text" class="form-textarea" placeholder="Enter your watermark text (e.g., Confidential)"></textarea>
                     </div>
-                    <div class="form-col color-col">
-                      <label class="form-label">Color</label>
-                      <div class="color-picker-container">
-                        <input v-model="form.color" type="color" class="color-input">
-                        <div class="color-value">{{ form.color }}</div>
-                      </div>
-                      <div class="preset-colors">
-                        <span class="preset-color" style="background: #808080" @click="form.color = '#808080'"></span>
-                        <span class="preset-color" style="background: #000000" @click="form.color = '#000000'"></span>
-                        <span class="preset-color" style="background: #FF0000" @click="form.color = '#FF0000'"></span>
-                        <span class="preset-color" style="background: #0066CC" @click="form.color = '#0066CC'"></span>
-                        <span class="preset-color" style="background: #FF6600" @click="form.color = '#FF6600'"></span>
-                        <span class="preset-color" style="background: #9933CC" @click="form.color = '#9933CC'"></span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="form-row-row">
-                    <div class="form-col">
-                      <label class="form-label">Opacity: {{ form.opacity }}%</label>
-                      <a-slider v-model="form.opacity" :min="10" :max="100" :step="5"></a-slider>
-                    </div>
-                    <div class="form-col">
-                      <label class="form-label">Position</label>
-                      <a-select v-model="form.position" class="option-select">
-                        <a-select-option value="center">Center</a-select-option>
-                        <a-select-option value="top-left">Top Left</a-select-option>
-                        <a-select-option value="top-right">Top Right</a-select-option>
-                        <a-select-option value="bottom-left">Bottom Left</a-select-option>
-                        <a-select-option value="bottom-right">Bottom Right</a-select-option>
-                        <a-select-option value="tiled">Tiled (Full Page)</a-select-option>
+                    <div class="watermark-toolbar">
+                      <a-select v-model="form.fontFamily" class="option-select font-select" title="Font">
+                        <a-select-option value="Arial">Arial</a-select-option>
+                        <a-select-option value="Times New Roman">Times</a-select-option>
+                        <a-select-option value="Georgia">Georgia</a-select-option>
+                        <a-select-option value="Verdana">Verdana</a-select-option>
+                        <a-select-option value="Courier New">Courier</a-select-option>
                       </a-select>
-                    </div>
-                  </div>
-                </div>
-
-                <div v-if="form.type === 'image'" class="watermark-form">
-                  <div class="form-row">
-                    <label class="form-label">Upload Watermark Image</label>
-                    <a-upload
-                      ref="imageUpload"
-                      class="upload-area"
-                      :file-list="[]"
-                      :custom-request="handleImageChange"
-                      :show-upload-list="false"
-                      accept=".png,.jpg,.jpeg"
-                    >
-                      <div class="upload-content">
-                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                          <polyline points="17 8 12 3 7 8"></polyline>
-                          <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                        <div class="upload-text">Drag & drop image here</div>
-                        <div class="upload-hint">Supports JPG, PNG up to <strong>50MB</strong> - Free, no watermarks</div>
+                      <div class="input-wrapper" title="Font Size">
+                        <span class="input-icon">📏</span>
+                        <input v-model.number="form.fontSize" type="number" class="form-input-small" min="10" max="100" placeholder="48">
                       </div>
-                    </a-upload>
-                    <div v-if="form.imageFile" class="file-info" style="margin-top: 8px;">
-                      Selected: {{ form.imageFile.name }}
+                      <input v-model="form.color" type="color" class="color-input-small" title="Color">
+                      <div class="input-wrapper" title="Opacity">
+                        <span class="input-icon">🔘</span>
+                        <input v-model.number="form.opacity" type="number" class="form-input-small" min="10" max="100">
+                      </div>
                     </div>
                   </div>
-                  <div class="form-row">
-                    <label class="form-label">Opacity: {{ form.opacity }}%</label>
-                    <a-slider v-model="form.opacity" :min="10" :max="100" :step="5"></a-slider>
+                </div>
+
+                <!-- PDF Preview -->
+                <div v-if="selectedFiles.length > 0" class="watermark-preview-section">
+                  <div class="page-nav" style="margin-bottom: 16px; text-align: center;">
+                    <a-button-group>
+                      <a-button @click="prevPage" :disabled="currentPage <= 1">← Previous</a-button>
+                      <a-button disabled>Page {{ currentPage }} of {{ totalPages }}</a-button>
+                      <a-button @click="nextPage" :disabled="currentPage >= totalPages">Next →</a-button>
+                    </a-button-group>
                   </div>
-                  <div class="form-row">
-                    <label class="form-label">Position</label>
-                    <a-select v-model="form.position" class="option-select">
-                      <a-select-option value="center">Center</a-select-option>
-                      <a-select-option value="top-left">Top Left</a-select-option>
-                      <a-select-option value="top-right">Top Right</a-select-option>
-                      <a-select-option value="bottom-left">Bottom Left</a-select-option>
-                      <a-select-option value="bottom-right">Bottom Right</a-select-option>
-                      <a-select-option value="tiled">Tiled (Full Page)</a-select-option>
-                    </a-select>
-                  </div>
-                  <div class="form-row">
-                    <label class="form-label">Scale: {{ form.scale }}%</label>
-                    <a-slider v-model="form.scale" :min="10" :max="200" :step="5"></a-slider>
+
+                  <div class="watermark-preview-container">
+                    <div class="watermark-preview-wrapper">
+                      <canvas ref="pdfCanvas" :width="canvasWidth" :height="canvasHeight" class="watermark-preview-canvas"></canvas>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div v-if="drawerStage === 'progress'" class="progress-section">
-                <div class="progress-text">{{ progressText }}</div>
-                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+              <!-- Bottom Actions -->
+              <div v-if="drawerStage === 'options' && !done" class="drawer-bottom-actions">
+                <div class="drawer-actions-right">
+                  <a-button 
+                    type="primary" 
+                    size="large" 
+                    class="drawer-export-btn"
+                    :disabled="!canAddWatermark"
+                    @click="addWatermark"
+                  >
+                    Add Watermark
+                  </a-button>
+                </div>
               </div>
 
+              <!-- Progress Stage -->
+              <div v-if="drawerStage === 'progress' && progress < 100" class="progress-section">
+                <div class="progress-container">
+                  <div class="progress-info">
+                    <span class="progress-text">{{ progressText }}</span>
+                    <span class="progress-percent">{{ progress }}%</span>
+                  </div>
+                  <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" :stroke-width="8" />
+                </div>
+              </div>
+
+              <!-- Result Stage -->
               <div v-if="done" class="result-content">
                 <div class="result-header">
                   <div class="result-icon">✓</div>
@@ -539,7 +658,7 @@
                 </div>
 
                 <div class="button-bar">
-                  <a-button type="default" @click="backToOptions">Back to Options</a-button>
+                  <a-button type="default" @click="backToOptions">Back</a-button>
                   <a-button type="primary" size="large" @click="download">Download PDF</a-button>
                   <a-button type="default" @click="reset">Start Over</a-button>
                 </div>
@@ -549,31 +668,12 @@
                 </div>
 
                 <div class="preview-layout" v-if="previews.length > 0">
-                  <div class="sidebar">
-                    <div class="sidebar-title">Pages</div>
-                    <div class="thumbnails-list">
-                      <div v-for="(t, i) in previews" :key="i" 
-                           class="sidebar-thumbnail" 
-                           :class="{ active: currentPage === i }"
-                           @click="scrollToPage(i)">
-                        <img :src="t" class="sidebar-image" :alt="'Page ' + (i+1)" />
-                        <div class="sidebar-page-num">{{ i + 1 }}</div>
-                      </div>
-                    </div>
-                  </div>
                   <div class="main-preview">
                     <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
                       <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div v-if="drawerStage === 'options'" class="drawer-actions">
-                <a-button @click="reset">Cancel</a-button>
-                <a-button type="primary" @click="addWatermark" :disabled="!canAddWatermark">
-                  Add Watermark
-                </a-button>
               </div>
             </div>
           </a-drawer>
@@ -908,14 +1008,11 @@ new Vue({
     return {
       selectedFiles: [],
       form: {
-        type: 'text',
         text: 'Confidential',
+        fontFamily: 'Arial',
         fontSize: 48,
-        color: '#808080',
-        opacity: 50,
-        position: 'center',
-        scale: 100,
-        imageFile: null
+        color: '#ff0000',
+        opacity: 50
       },
       done: false,
       resultBlob: null,
@@ -928,15 +1025,45 @@ new Vue({
       zoomScale: 1,
       showDrawer: false,
       drawerStage: 'options',
-      currentPage: 0
+      currentPage: 1,
+      totalPages: 0,
+      pdfDoc: null,
+      pdfData: null,
+      scale: 1.5,
+      canvasWidth: 500,
+      canvasHeight: 700
+    }
+  },
+  watch: {
+    'form.text': {
+      handler() {
+        this.updateWatermarkPreview()
+      }
+    },
+    'form.fontFamily': {
+      handler() {
+        this.updateWatermarkPreview()
+      }
+    },
+    'form.fontSize': {
+      handler() {
+        this.updateWatermarkPreview()
+      }
+    },
+    'form.color': {
+      handler() {
+        this.updateWatermarkPreview()
+      }
+    },
+    'form.opacity': {
+      handler() {
+        this.updateWatermarkPreview()
+      }
     }
   },
   computed: {
     canAddWatermark() {
-      if (this.form.type === 'text') {
-        return this.form.text.trim().length > 0 && this.selectedFiles.length === 1
-      }
-      return this.form.imageFile && this.selectedFiles.length === 1
+      return this.form.text.trim().length > 0 && this.selectedFiles.length === 1
     }
   },
   beforeDestroy() {
@@ -959,6 +1086,64 @@ new Vue({
     handleDrop(event) {
       if (event.cancelable) {
         event.preventDefault()
+      }
+    },
+    switchView(view) {
+      this.currentView = view
+    },
+    async renderPage(pageNum) {
+      if (!this.pdfDoc) return
+
+      const page = await this.pdfDoc.getPage(pageNum)
+      const viewport = page.getViewport({ scale: this.scale })
+
+      this.canvasWidth = viewport.width
+      this.canvasHeight = viewport.height
+
+      await this.$nextTick()
+
+      const canvas = this.$refs.pdfCanvas
+      if (!canvas) return
+
+      const ctx = canvas.getContext('2d')
+      canvas.width = this.canvasWidth
+      canvas.height = this.canvasHeight
+
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: viewport
+      }
+
+      await page.render(renderContext).promise
+      this.drawWatermarkPreview(ctx)
+    },
+    drawWatermarkPreview(ctx) {
+      if (!this.form.text) return
+
+      ctx.save()
+      ctx.globalAlpha = this.form.opacity / 100
+      ctx.font = `${this.form.fontSize}px ${this.form.fontFamily}`
+      ctx.fillStyle = this.form.color
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      const text = this.form.text
+      const centerX = this.canvasWidth / 2
+      const centerY = this.canvasHeight / 2
+
+      ctx.fillText(text, centerX, centerY)
+      ctx.restore()
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--
+        this.renderPage(this.currentPage)
+      }
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++
+        this.renderPage(this.currentPage)
       }
     },
     async openPreview(image) {
@@ -1025,31 +1210,32 @@ new Vue({
 
       try {
         const arrayBuffer = await raw.arrayBuffer()
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const pageCount = pdf.numPages
-        pdf.destroy()
-
+        this.pdfData = arrayBuffer
+        this.pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+        this.totalPages = this.pdfDoc.numPages
+        this.currentPage = 1
+        
         const item = {
           name: raw.name,
           file: raw,
           size: raw.size,
-          pageCount: pageCount
+          pageCount: this.pdfDoc.numPages,
+          pdfInstance: this.pdfDoc
         }
         this.selectedFiles.push(item)
         this.showDrawer = true
+        this.drawerStage = 'options'
+        
+        await this.renderPage(this.currentPage)
       } catch (error) {
         console.error('Error loading PDF:', error)
         this.$message.error('Failed to load PDF. Please try a different file.')
       }
     },
-    handleImageChange({ file, onSuccess }) {
-      const raw = file
-      if (!['image/png', 'image/jpeg', 'image/jpg'].includes(raw.type)) {
-        this.$message.error('Only PNG and JPG images are allowed')
-        return
+    updateWatermarkPreview() {
+      if (this.pdfDoc && this.selectedFiles.length > 0) {
+        this.renderPage(this.currentPage)
       }
-      this.form.imageFile = raw
-      if (onSuccess) onSuccess('success')
     },
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
@@ -1088,92 +1274,40 @@ new Vue({
         const pages = pdfDoc.getPages()
         const totalPages = pages.length
         
-        if (this.form.type === 'text') {
-          this.progressText = 'Adding text watermark...'
-          const embedFont = await pdfDoc.embedFont(window.PDFLib.StandardFonts.Helvetica)
-          const { rgb } = window.PDFLib
+        this.progressText = 'Adding text watermark...'
+        // 字体映射：将界面字体映射到PDF-lib支持的标准字体
+        const fontMap = {
+          'Arial': window.PDFLib.StandardFonts.Helvetica,
+          'Times New Roman': window.PDFLib.StandardFonts.TimesRoman,
+          'Georgia': window.PDFLib.StandardFonts.TimesRoman,
+          'Verdana': window.PDFLib.StandardFonts.Helvetica,
+          'Courier New': window.PDFLib.StandardFonts.Courier
+        }
+        const selectedFont = fontMap[this.form.fontFamily] || window.PDFLib.StandardFonts.Helvetica
+        const embedFont = await pdfDoc.embedFont(selectedFont)
+        const { rgb } = window.PDFLib
+        
+        const opacity = this.form.opacity / 100
+        const fontSize = this.form.fontSize
+        const colorRgb = this.hexToRgb(this.form.color)
+        const textColor = rgb(colorRgb.r, colorRgb.g, colorRgb.b)
+        const textWidth = embedFont.widthOfTextAtSize(this.form.text, fontSize)
+        
+        for (let i = 0; i < totalPages; i++) {
+          const page = pages[i]
+          const { width, height } = page.getSize()
           
-          const opacity = this.form.opacity / 100
-          const fontSize = this.form.fontSize
-          const colorRgb = this.hexToRgb(this.form.color)
-          const textColor = rgb(colorRgb.r, colorRgb.g, colorRgb.b)
-          const textWidth = embedFont.widthOfTextAtSize(this.form.text, fontSize)
+          // 居中添加水印
+          page.drawText(this.form.text, {
+            x: (width - textWidth) / 2,
+            y: height / 2 - fontSize / 2,
+            size: fontSize,
+            font: embedFont,
+            color: textColor,
+            opacity: opacity
+          })
           
-          for (let i = 0; i < totalPages; i++) {
-            const page = pages[i]
-            const { width, height } = page.getSize()
-            
-            page.drawText(this.form.text, {
-              x: this.getXPosition(width, textWidth),
-              y: this.getYPosition(height, fontSize),
-              size: fontSize,
-              font: embedFont,
-              color: textColor,
-              opacity: opacity
-            })
-            
-            if (this.form.position === 'tiled') {
-              const cols = Math.ceil(width / (textWidth * 2))
-              const rows = Math.ceil(height / (fontSize * 2))
-              
-              for (let row = 0; row < rows; row++) {
-                for (let col = 0; col < cols; col++) {
-                  page.drawText(this.form.text, {
-                    x: col * textWidth * 2,
-                    y: height - (row + 1) * fontSize * 2,
-                    size: fontSize,
-                    font: embedFont,
-                    color: textColor,
-                    opacity: opacity
-                  })
-                }
-              }
-            }
-            
-            this.progress = Math.round(((i + 1) / totalPages) * 80)
-          }
-        } else {
-          this.progressText = 'Processing image...'
-          const imageBuffer = await this.form.imageFile.arrayBuffer()
-          const isPng = this.form.imageFile.type === 'image/png'
-          const img = isPng ? await pdfDoc.embedPng(imageBuffer) : await pdfDoc.embedJpg(imageBuffer)
-          
-          const scale = this.form.scale / 100
-          const imageWidth = img.width * scale
-          const imageHeight = img.height * scale
-          const opacity = this.form.opacity / 100
-          
-          for (let i = 0; i < totalPages; i++) {
-            const page = pages[i]
-            const { width, height } = page.getSize()
-            
-            if (this.form.position === 'tiled') {
-              const cols = Math.ceil(width / imageWidth)
-              const rows = Math.ceil(height / imageHeight)
-              
-              for (let row = 0; row < rows; row++) {
-                for (let col = 0; col < cols; col++) {
-                  page.drawImage(img, {
-                    x: col * imageWidth,
-                    y: height - (row + 1) * imageHeight,
-                    width: imageWidth,
-                    height: imageHeight,
-                    opacity: opacity
-                  })
-                }
-              }
-            } else {
-              page.drawImage(img, {
-                x: this.getXPosition(width, imageWidth),
-                y: this.getYPosition(height, imageHeight),
-                width: imageWidth,
-                height: imageHeight,
-                opacity: opacity
-              })
-            }
-            
-            this.progress = Math.round(((i + 1) / totalPages) * 80)
-          }
+          this.progress = Math.round(((i + 1) / totalPages) * 80)
         }
         
         this.progressText = 'Saving PDF...'
@@ -1269,18 +1403,12 @@ new Vue({
       if (this.$refs.upload) {
         this.$refs.upload.uploadFiles = []
       }
-      if (this.$refs.imageUpload) {
-        this.$refs.imageUpload.uploadFiles = []
-      }
       this.form = {
-        type: 'text',
         text: 'Confidential',
+        fontFamily: 'Arial',
         fontSize: 48,
-        color: '#808080',
-        opacity: 50,
-        position: 'center',
-        scale: 100,
-        imageFile: null
+        color: '#ff0000',
+        opacity: 50
       }
       this.done = false
       this.downloadFileName = 'watermarked.pdf'
