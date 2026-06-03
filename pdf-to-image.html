@@ -210,6 +210,27 @@
     .advanced-options .option-select .ant-select-item-option-selected {
       background: #374151;
     }
+    .advanced-options .ant-radio-wrapper {
+      color: #e5e7eb;
+      margin-right: 24px;
+    }
+    .advanced-options .ant-radio-wrapper:hover {
+      color: #f9fafb;
+    }
+    .advanced-options .ant-radio-inner {
+      border-color: #6b7280;
+      background: #1f2937;
+    }
+    .advanced-options .ant-radio-wrapper:hover .ant-radio-inner {
+      border-color: #9ca3af;
+    }
+    .advanced-options .ant-radio-checked .ant-radio-inner {
+      border-color: #3b82f6;
+      background: #1f2937;
+    }
+    .advanced-options .ant-radio-checked .ant-radio-inner::after {
+      background: #3b82f6;
+    }
   </style>
 
 </head>
@@ -311,14 +332,25 @@
                       <span class="tab-icon">📄</span>
                       <span>Files</span>
                     </button>
-                    <button 
-                      class="drawer-tab-btn" 
-                      :class="{active: currentView === 'pages'}" 
-                      @click="switchView('pages')"
+                    <a-popconfirm
+                      title="If you have no custom page selection needs, you do not need to enter this page.
+
+This page only supports:
+• Page preview by pagination
+• Manually select/deselect pages"
+                      ok-text="Enter Pages"
+                      cancel-text="Cancel"
+                      @confirm="switchView('pages')"
                     >
-                      <span class="tab-icon">📑</span>
-                      <span>Pages</span>
-                    </button>
+                      <template slot="icon"></template>
+                      <button 
+                        class="drawer-tab-btn" 
+                        :class="{active: currentView === 'pages'}"
+                      >
+                        <span class="tab-icon">📑</span>
+                        <span>Pages</span>
+                      </button>
+                    </a-popconfirm>
                   </div>
                   <div class="drawer-toolbar-buttons">
                     <a-button type="default" @click="clearAllFiles" danger>
@@ -362,8 +394,14 @@
               <div v-else-if="currentView === 'pages'" class="drawer-pages-view">
                 <div class="drawer-pages-header">
                   <div class="drawer-select-actions">
-                    <a-button size="small" @click="selectAllPages"><span></span><span>Select All</span></a-button>
-                    <a-button size="small" @click="deselectAllPages"><span></span><span>Deselect All</span></a-button>
+                    <a-button size="small" @click="selectAllPages">
+                      <span>✅</span>
+                      <span>Select All</span>
+                    </a-button>
+                    <a-button size="small" @click="deselectAllPages">
+                      <span>❌</span>
+                      <span>Deselect All</span>
+                    </a-button>
                   </div>
                 </div>
                 <div class="drawer-all-pages">
@@ -423,10 +461,10 @@
                 <div class="advanced-options">
                   <div class="options-title">Output Settings</div>
                   <div class="option-row">
-                    <a-select v-model="form.format" class="option-select">
-                      <a-select-option value="png">PNG (Transparent Background)</a-select-option>
-                      <a-select-option value="jpeg">JPEG (Compressed)</a-select-option>
-                    </a-select>
+                    <a-radio-group v-model="form.format">
+                      <a-radio value="png">PNG (Transparent Background)</a-radio>
+                      <a-radio value="jpeg">JPEG (Compressed)</a-radio>
+                    </a-radio-group>
                   </div>
                 </div>
               </div>
@@ -504,9 +542,7 @@
                 @click="convert" 
                 :disabled="selectedFiles.length === 0 || (currentView === 'pages' && selectedPages.length === 0)"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"></path>
-                </svg>
+               
                 Convert to Images
               </a-button>
             </div>

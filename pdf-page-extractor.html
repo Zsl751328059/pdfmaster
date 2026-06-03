@@ -254,17 +254,7 @@
                   <div class="drawer-top-content">
                     <div class="drawer-view-tabs">
                       <button 
-                        class="drawer-tab-btn" 
-                        :class="{active: currentView === 'files'}" 
-                        @click="switchView('files')"
-                      >
-                        <span class="tab-icon">📄</span>
-                        <span>Files</span>
-                      </button>
-                      <button 
-                        class="drawer-tab-btn" 
-                        :class="{active: currentView === 'pages'}" 
-                        @click="switchView('pages')"
+                        class="drawer-tab-btn active"
                       >
                         <span class="tab-icon">📑</span>
                         <span>Pages</span>
@@ -272,8 +262,8 @@
                     </div>
                     <div class="drawer-toolbar-buttons">
                       <a-button type="default" @click="clearAllFiles" danger>
-                        <i class="anticon anticon-delete"></i>
-                        Clear All
+                        <span>🗑️</span>
+                        <span>Clear All</span>
                       </a-button>
                     </div>
                   </div>
@@ -283,27 +273,38 @@
                   <div class="drawer-pages-header">
                     <div class="drawer-select-actions">
                       <a-button size="small" @click="selectAll">
-                        <i class="anticon anticon-check-circle"></i>
-                        Select All
+                        <span>✅</span>
+                        <span>Select All</span>
                       </a-button>
                       <a-button size="small" @click="deselectAll">
-                        <i class="anticon anticon-minus-circle"></i>
-                        Deselect All
+                        <span>❌</span>
+                        <span>Deselect All</span>
                       </a-button>
                     </div>
                   </div>
-                  <div class="page-preview-container">
-                    <div class="page-preview-grid">
+                  <div class="drawer-all-pages">
+                    <div class="drawer-pages-grid">
                       <div 
-                        v-for="pageNum in pageCount" 
+                        v-for="pageNum in Math.min(pageCount, visiblePreviews)" 
                         :key="pageNum" 
-                        class="page-preview-item"
-                        :class="{ selected: selectedPages.includes(pageNum) }"
+                        class="drawer-page-item"
+                        :class="{selected: selectedPages.includes(pageNum)}"
                         @click="togglePage(pageNum)"
                       >
-                        <canvas :ref="'canvas' + pageNum" class="page-preview-image"></canvas>
-                        <div class="page-number">{{ pageNum }}</div>
-                        <div v-if="selectedPages.includes(pageNum)" class="selected-overlay">✓</div>
+                        <canvas :ref="'canvas' + pageNum" class="drawer-page-thumb"></canvas>
+                        <div class="drawer-page-num">{{ pageNum }}</div>
+                        <div v-if="selectedPages.includes(pageNum)" class="drawer-page-selected">✓</div>
+                      </div>
+                      <div 
+                        v-if="hasMorePreviews" 
+                        class="drawer-page-item drawer-show-more-card"
+                        @click="loadMorePreviews"
+                      >
+                        <div class="drawer-show-more-content">
+                          <span class="drawer-show-more-icon">▼</span>
+                          <div class="drawer-show-more-text">Load More</div>
+                          <div class="drawer-show-more-count">{{ pageCount - visiblePreviews }} more</div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -801,7 +802,9 @@ document.addEventListener('DOMContentLoaded', function() {
         downloadFileName: 'extracted_pages.pdf',
         drawerWidth: 600,
         currentPage: 0,
-        currentView: 'pages'
+        currentView: 'pages',
+        visiblePreviews: 10,
+        hasMorePreviews: false
       }
     },
     mounted() {
@@ -871,6 +874,8 @@ document.addEventListener('DOMContentLoaded', function() {
           this.selectAll();
           this.drawerWidth = '100%';
           this.showDrawer = true;
+          this.visiblePreviews = 10;
+          this.hasMorePreviews = this.pageCount > 10;
           
           if (onSuccess) onSuccess('success');
         } catch (error) {
@@ -947,6 +952,11 @@ document.addEventListener('DOMContentLoaded', function() {
       },
       deselectAll() {
         this.selectedPages = [];
+      },
+      loadMorePreviews() {
+        const LOAD_BATCH = 10;
+        this.visiblePreviews = Math.min(this.visiblePreviews + LOAD_BATCH, this.pageCount);
+        this.hasMorePreviews = this.visiblePreviews < this.pageCount;
       },
       async extractPages() {
         if (this.selectedPages.length === 0) {

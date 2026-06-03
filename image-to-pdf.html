@@ -311,11 +311,9 @@
                 <div class="button-bar">
                   <a-button type="default" @click="backToOptions">Back</a-button>
                   <a-button type="primary" size="large" @click="download">
-                    <i class="anticon anticon-download"></i>
                     Download
                   </a-button>
                   <a-button type="primary" @click="reset">
-                    <i class="anticon anticon-redo"></i>
                     Start Over
                   </a-button>
                 </div>
@@ -326,8 +324,14 @@
 
                 <div class="preview-layout">
                   <div class="main-preview">
-                    <div v-for="(t, i) in previews" :key="i" class="page-wrapper" :id="'page-' + i">
+                    <div v-for="(t, i) in previews.slice(0, visiblePreviews)" :key="i" class="page-wrapper" :id="'page-' + i">
                       <img :src="t" class="page-image" :alt="'Page ' + (i+1)" />
+                    </div>
+                    <div v-if="hasMorePreviews" class="load-more-wrapper">
+                      <a-button size="large" @click="loadMorePreviews">
+                        <span style="margin-right: 6px;">▼</span>
+                        Load More ({{ previews.length - visiblePreviews }} more)
+                      </a-button>
                     </div>
                   </div>
                 </div>
@@ -336,9 +340,6 @@
               <div v-if="drawerStage === 'options'" class="drawer-bottom-actions">
                 <div class="drawer-actions-right">
                   <a-button type="primary" size="large" class="drawer-export-btn" @click="convert" :disabled="selectedFiles.length === 0">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"></path>
-                    </svg>
                     Convert to PDF
                   </a-button>
                 </div>
@@ -733,6 +734,8 @@ document.addEventListener('DOMContentLoaded', function() {
       done: false,
       resultBlob: null,
       previews: [],
+      visiblePreviews: 10,
+      hasMorePreviews: false,
       downloadFileName: 'images.pdf',
       converting: false,
       progress: 0,
@@ -980,7 +983,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async generatePreviews() {
       const arrayBuffer = await this.resultBlob.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const totalPages = Math.min(pdf.numPages, 6)
+      const totalPages = pdf.numPages
       
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
@@ -999,6 +1002,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
       pdf.destroy()
+      
+      this.visiblePreviews = 10
+      this.hasMorePreviews = this.previews.length > this.visiblePreviews
+    },
+    loadMorePreviews() {
+      const LOAD_BATCH = 10
+      this.visiblePreviews = Math.min(this.visiblePreviews + LOAD_BATCH, this.previews.length)
+      this.hasMorePreviews = this.visiblePreviews < this.previews.length
     },
     download() {
       const url = URL.createObjectURL(this.resultBlob)

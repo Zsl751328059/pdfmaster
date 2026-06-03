@@ -284,7 +284,7 @@
           <div v-if="selectedFiles.length" class="file-list-section">
             <div class="file-list-header">
               <a-button type="text" danger size="small" @click="clearAllFiles">
-                <i class="anticon anticon-delete"></i>
+                <span>🗑️</span>
                 Clear All
               </a-button>
             </div>
@@ -323,9 +323,9 @@
                       </button>
                     </div>
                     <div class="drawer-toolbar-buttons">
-                      <a-button type="default" @click="clearAllFiles">
-                        <i class="anticon anticon-delete"></i>
-                        Clear All
+                      <a-button type="default" @click="clearAllFiles" danger>
+                        <span>🗑️</span>
+                        <span>Clear All</span>
                       </a-button>
                     </div>
                   </div>
@@ -334,8 +334,14 @@
                 <div class="drawer-pages-view">
                   <div class="drawer-pages-header">
                     <div class="drawer-select-actions">
-                      <a-button size="small" @click="selectAllPages"><span></span><span>Select All</span></a-button>
-                      <a-button size="small" @click="deselectAllPages"><span></span><span>Deselect All</span></a-button>
+                      <a-button size="small" @click="selectAllPages">
+                        <span>✅</span>
+                        <span>Select All</span>
+                      </a-button>
+                      <a-button size="small" @click="deselectAllPages">
+                        <span>❌</span>
+                        <span>Deselect All</span>
+                      </a-button>
                     </div>
                   </div>
                   <div class="drawer-all-pages">
@@ -354,6 +360,12 @@
                           <div v-if="pagesToRemove.includes(pi + 1)" class="drawer-page-selected">✓</div>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                  <div class="drawer-file-card drawer-add-card" @click="triggerUpload">
+                    <div class="drawer-add-content">
+                      <span class="drawer-add-icon">+</span>
+                      <div class="drawer-add-text">Add Files</div>
                     </div>
                   </div>
                 </div>
@@ -382,13 +394,12 @@
                 </div>
 
                 <div class="button-bar">
-                  <a-button type="default" @click="reset">
-                    <i class="anticon anticon-redo"></i>
-                    Start Over
-                  </a-button>
+                  <a-button type="default" @click="backToSelect">Back</a-button>
                   <a-button type="primary" size="large" @click="download">
-                    <i class="anticon anticon-download"></i>
                     Download
+                  </a-button>
+                  <a-button type="primary" @click="reset">
+                    Start Over
                   </a-button>
                 </div>
 
@@ -398,8 +409,14 @@
 
                 <div class="preview-layout" v-if="resultPreviews.length > 0">
                   <div class="main-preview">
-                    <div v-for="(page, i) in resultPreviews" :key="i" class="page-wrapper" :id="'page-' + i">
+                    <div v-for="(page, i) in resultPreviews.slice(0, visiblePreviews)" :key="i" class="page-wrapper" :id="'page-' + i">
                       <img :src="page" class="page-image" :alt="'Page ' + (i+1)" />
+                    </div>
+                    <div v-if="hasMorePreviews" class="load-more-wrapper">
+                      <a-button size="large" @click="loadMorePreviews">
+                        <span style="margin-right: 6px;">▼</span>
+                        Load More ({{ resultPreviews.length - visiblePreviews }} more)
+                      </a-button>
                     </div>
                   </div>
                 </div>
@@ -408,9 +425,6 @@
               <div v-if="drawerStage === 'options'" class="drawer-bottom-actions">
                 <div class="drawer-actions-right">
                   <a-button type="primary" size="large" class="drawer-export-btn" @click="removePages" :disabled="drawerStage === 'progress' || pagesToRemove.length === 0">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"></path>
-                    </svg>
                     {{ drawerStage === 'progress' ? 'Removing...' : 'Remove Pages' }}
                   </a-button>
                 </div>
@@ -751,6 +765,8 @@ document.addEventListener('DOMContentLoaded', function() {
       merging: false,
       resultBlob: null,
       resultPreviews: [],
+      visiblePreviews: 10,
+      hasMorePreviews: false,
       downloadFileName: 'pages-removed',
       removedCount: 0,
       showPreviewModal: false,
@@ -999,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', function() {
       this.resultPreviews = []
       const arrayBuffer = await this.resultBlob.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      const totalPages = Math.min(pdf.numPages, 10)
+      const totalPages = pdf.numPages
       
       for (let i = 0; i < totalPages; i++) {
         const page = await pdf.getPage(i + 1)
@@ -1017,6 +1033,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
       pdf.destroy()
+      
+      this.visiblePreviews = 10
+      this.hasMorePreviews = this.resultPreviews.length > this.visiblePreviews
+    },
+    loadMorePreviews() {
+      const LOAD_BATCH = 10
+      this.visiblePreviews = Math.min(this.visiblePreviews + LOAD_BATCH, this.resultPreviews.length)
+      this.hasMorePreviews = this.visiblePreviews < this.resultPreviews.length
     },
     async openPreview(img) {
       this.zoomScale = 1
@@ -1077,6 +1101,10 @@ document.addEventListener('DOMContentLoaded', function() {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
+    },
+    backToSelect() {
+      this.done = false
+      this.drawerStage = 'options'
     },
     cleanupAllResources() {
       if (this.currentPreviewImage?.startsWith('blob:')) {
