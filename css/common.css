@@ -1015,6 +1015,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  aspect-ratio: 3/4;
 }
 .drawer-show-more-card:hover {
   border-color: #1890ff;

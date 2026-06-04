@@ -168,40 +168,42 @@
     .page-preview-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 12px;
+      gap: 14px;
       padding: 16px;
       background: rgba(30, 41, 59, 0.8);
       border-radius: 12px;
-      min-height: 200px;
     }
     .page-preview-item {
       position: relative;
       cursor: grab;
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
-      background: rgba(51, 65, 85, 0.8);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+      background: #111827;
+      border: 1px solid #374151;
     }
     .page-preview-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
     }
     .page-preview-item:active {
       cursor: grabbing;
     }
     .page-preview-image {
       width: 100%;
-      height: 160px;
+      aspect-ratio: 3/4;
       object-fit: cover;
       background: #fff;
+      display: block;
     }
     .page-number {
       position: absolute;
-      top: 8px;
+      bottom: 8px;
       left: 8px;
-      width: 24px;
-      height: 24px;
+      width: 26px;
+      height: 26px;
       background: rgba(59, 130, 246, 0.9);
       color: #fff;
       border-radius: 50%;
@@ -211,38 +213,8 @@
       font-size: 12px;
       font-weight: 600;
     }
-    .page-order {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0, 0, 0, 0.8);
-      color: #fff;
-      padding: 4px 8px;
-      font-size: 11px;
-      text-align: center;
-    }
-    .page-preview-item.clickable {
-      cursor: pointer;
-    }
-    .preview-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 14px;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .page-preview-item.clickable:hover .preview-overlay {
-      opacity: 1;
-    }
+
+
     .sortable-ghost {
       opacity: 0.4;
       background: #409EFF !important;
@@ -252,6 +224,38 @@
     }
     .sortable-drag {
       opacity: 0.8;
+    }
+    
+    @media (max-width: 768px) {
+      .page-preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 8px;
+        padding: 12px;
+      }
+      .page-preview-item {
+        border-radius: 6px;
+      }
+      .page-number {
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+      }
+    }
+    
+    @media (max-width: 400px) {
+      .page-preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 6px;
+        padding: 10px;
+      }
+      .page-preview-item {
+        border-radius: 4px;
+      }
+      .page-number {
+        width: 18px;
+        height: 18px;
+        font-size: 9px;
+      }
     }
   </style>
   <script src="/lib/vue/vue.js"></script>
@@ -369,15 +373,27 @@
               <div v-else class="pages-container">
                 
                 <div ref="pagesList" class="page-preview-grid">
-                  <div 
-                    v-for="(page, index) in pages" 
+                  <div
+                    v-for="(page, index) in pages.slice(0, visiblePages)" 
                     :key="page.id" 
                     class="page-preview-item"
                     :data-order="index + 1"
                   >
-                    <div class="page-number">{{ index + 1 }}</div>
                     <img :src="page.thumbnail" class="page-preview-image" :alt="'Page ' + (index + 1)">
-                    <div class="page-order">Original {{ page.originalNumber }}</div>
+                    <div class="page-number">{{ index + 1 }}</div>
+                  </div>
+                  <div 
+                    v-if="hasMorePages" 
+                    class="page-preview-item drawer-show-more-card"
+                    @click="loadMorePages"
+                    @touchstart.prevent="loadMorePages"
+                    :class="{loading: isLoadingMore}"
+                  >
+                    <div class="drawer-show-more-content">
+                      <span class="drawer-show-more-icon">▼</span>
+                      <div class="drawer-show-more-text">Load More</div>
+                      <div class="drawer-show-more-count">{{ pages.length - visiblePages }} more</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -422,7 +438,6 @@
               <div class="button-bar">
                 <a-button type="default" @click="backToReorder">Back</a-button>
                 <a-button type="primary" size="large" @click="download">
-                  <i class="anticon anticon-download" style="margin-right: 8px;"></i>
                   Download PDF
                 </a-button>
                 <a-button type="primary" @click="reset">Start Over</a-button>
@@ -790,8 +805,12 @@
         return {
           selectedFiles: [],
           pages: [],
+          visiblePages: 10,
+          hasMorePages: false,
+          isLoadingMore: false,
           resultBlob: null,
           processing: false,
+          done: false,
           progress: 0,
           progressText: '',
           showDrawer: false,
@@ -993,31 +1012,58 @@
             
             pdf.destroy();
             
+            this.visiblePages = 10;
+            this.hasMorePages = this.pages.length > 10;
+            
+            this.initSortable();
+            
           } catch (error) {
             console.error('Error loading pages:', error);
             this.$message.error('Failed to load pages: ' + error.message);
           }
         },
+        loadMorePages() {
+          const LOAD_BATCH = 10;
+          this.visiblePages = Math.min(this.visiblePages + LOAD_BATCH, this.pages.length);
+          this.hasMorePages = this.visiblePages < this.pages.length;
+          this.$nextTick(() => {
+            if (this.$refs.pagesList && this.$refs.pagesList.sortable) {
+              this.$refs.pagesList.sortable.option('disabled', false);
+            }
+          });
+        },
         initSortable() {
           const tryInit = () => {
             if (this.$refs.pagesList && window.Sortable) {
-              Sortable.create(this.$refs.pagesList, {
+              if (this.$refs.pagesList.sortable) {
+                this.$refs.pagesList.sortable.destroy();
+              }
+              const sortable = Sortable.create(this.$refs.pagesList, {
                 animation: 200,
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
                 dragClass: 'sortable-drag',
+                filter: '.drawer-show-more-card',
+                touchStartThreshold: 1,
+                handle: '.page-preview-item',
+                swapThreshold: 0.65,
+                bubbleScroll: true,
+                scroll: true,
+                scrollSensitivity: 30,
                 onEnd: (evt) => {
                   const oldIndex = evt.oldIndex;
                   const newIndex = evt.newIndex;
+                  if (oldIndex === undefined || newIndex === undefined) return;
                   const movedPage = this.pages.splice(oldIndex, 1)[0];
                   this.pages.splice(newIndex, 0, movedPage);
                 }
               });
+              this.$refs.pagesList.sortable = sortable;
             } else if (!window.Sortable) {
               setTimeout(tryInit, 100);
             }
           };
-          this.$nextTick(tryInit);
+          setTimeout(tryInit, 300);
         },
         async loadPagesWithRetry() {
           await this.loadPages();
