@@ -349,15 +349,27 @@
                       <div class="drawer-file-group-title">{{ item.name }}</div>
                       <div class="drawer-pages-grid">
                         <div 
-                          v-for="(img, pi) in item.thumbnails" 
+                          v-for="(idx, pi) in item.visibleThumbnails" 
                           :key="pi" 
                           class="drawer-page-item"
-                          :class="{selected: pagesToRemove.includes(pi + 1)}"
-                          @click="togglePage(pi + 1)"
+                          :class="{selected: pagesToRemove.includes(idx + 1)}"
+                          @click="togglePage(idx + 1)"
                         >
-                          <img :src="img" class="drawer-page-thumb">
-                          <div class="drawer-page-num">{{ pi + 1 }}</div>
-                          <div v-if="pagesToRemove.includes(pi + 1)" class="drawer-page-selected">✓</div>
+                          <img :src="item.thumbnails[idx]" class="drawer-page-thumb">
+                          <div class="drawer-page-num">{{ idx + 1 }}</div>
+                          <div v-if="pagesToRemove.includes(idx + 1)" class="drawer-page-selected">✓</div>
+                        </div>
+                        <div 
+                          v-if="item.hasMorePages" 
+                          class="drawer-page-item drawer-show-more-card"
+                          @click="loadMorePages(fi)"
+                          :class="{loading: item.isLoadingMore}"
+                        >
+                          <div class="drawer-show-more-content">
+                            <span class="drawer-show-more-icon">▼</span>
+                            <div class="drawer-show-more-text">Load More</div>
+                            <div class="drawer-show-more-count">{{ item.pageCount - item.visibleThumbnails.length }} more</div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -900,6 +912,74 @@ document.addEventListener('DOMContentLoaded', function() {
         this.pagesToRemove.push(pageNum)
       }
     },
+    async loadMorePages(fi) {
+      const item = this.selectedFiles[fi]
+      if (!item || !item.hasMorePages || item.isLoadingMore) {
+        return
+      }
+      
+      item.isLoadingMore = true
+      
+      const LOAD_MORE_COUNT = 10
+      const currentVisible = item.visibleThumbnails.length
+      const newVisibleCount = Math.min(currentVisible + LOAD_MORE_COUNT, item.pageCount)
+      
+      try {
+        const buf = await item.file.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+        
+        try {
+          const startPage = currentVisible + 1
+          const endPage = newVisibleCount
+          
+          const batchSize = 2
+          const pagesToLoad = []
+          for (let i = startPage; i <= endPage; i++) {
+            pagesToLoad.push(i)
+          }
+          
+          while (pagesToLoad.length > 0) {
+            const batch = pagesToLoad.splice(0, batchSize)
+            const promises = batch.map(async (pageNum) => {
+              const page = await pdf.getPage(pageNum)
+              const vp = page.getViewport({ scale: 0.8 })
+              const c = document.createElement('canvas')
+              const ctx = c.getContext('2d')
+              c.width = vp.width
+              c.height = vp.height
+              await page.render({ canvasContext: ctx, viewport: vp }).promise
+              const thumbnail = c.toDataURL()
+              if (typeof page.destroy === 'function') {
+                await page.destroy()
+              }
+              this.$set(item.thumbnails, pageNum - 1, thumbnail)
+            })
+            await Promise.all(promises)
+            await new Promise(resolve => requestAnimationFrame(resolve))
+          }
+          
+          const newVisibleIndices = []
+          for (let i = 0; i < newVisibleCount; i++) {
+            newVisibleIndices.push(i)
+          }
+          this.$set(item, 'visibleThumbnails', newVisibleIndices)
+          this.$set(item, 'hasMorePages', newVisibleCount < item.pageCount)
+          
+        } finally {
+          if (pdf && typeof pdf.destroy === 'function') {
+            try {
+              await pdf.destroy()
+            } catch (e) {
+              console.warn('Error destroying PDF instance:', e)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading more pages:', error)
+      } finally {
+        item.isLoadingMore = false
+      }
+    },
     clearSelection() {
       this.pagesToRemove = []
     },
@@ -984,10 +1064,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const file = this.selectedFiles[fi]
         const arrayBuffer = await file.file.arrayBuffer()
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const totalPages = Math.min(pdf.numPages, 10)
+        const totalPages = pdf.numPages
+        const visibleCount = Math.min(totalPages, 10)
         
         const thumbnails = []
-        for (let i = 0; i < totalPages; i++) {
+        for (let i = 0; i < visibleCount; i++) {
           const page = await pdf.getPage(i + 1)
           const vp = page.getViewport({ scale: 0.4 })
           const canvas = document.createElement('canvas')
@@ -1005,9 +1086,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         pdf.destroy()
         
+        const visibleIndices = []
+        for (let i = 0; i < visibleCount; i++) {
+          visibleIndices.push(i)
+        }
         this.$set(this.selectedFiles, fi, {
           ...file,
-          thumbnails: thumbnails
+          thumbnails: thumbnails,
+          visibleThumbnails: visibleIndices,
+          hasMorePages: totalPages > visibleCount,
+          isLoadingMore: false
         })
       }
     },

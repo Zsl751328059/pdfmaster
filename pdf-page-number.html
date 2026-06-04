@@ -196,13 +196,28 @@
       color: #f9fafb;
       font-size: 12px;
     }
+    .position-option {
+      padding: 10px 8px;
+      border: 2px solid #374151;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      background: #1f2937;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60px;
+    }
     .position-option:hover {
       border-color: #3b82f6;
       background: #374151;
     }
     .position-option.active {
       border-color: #3b82f6;
-      background: rgba(59, 130, 246, 0.2);
+      background: rgba(59, 130, 246, 0.3);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
     }
     .position-icon {
       font-size: 20px;
@@ -501,6 +516,8 @@
             progressText: '',
             resultBlob: null,
             resultPreviews: [],
+            visiblePreviews: 10,
+            hasMorePreviews: false,
             downloadFileName: 'page-numbered.pdf',
             showPreviewModal: false,
             currentPreviewImage: '',
@@ -778,9 +795,8 @@
               data: pdfBytes,
               cache: false
             }).promise;
-            const maxPages = Math.min(5, pdf.numPages);
             
-            for (let i = 1; i <= maxPages; i++) {
+            for (let i = 1; i <= pdf.numPages; i++) {
               const page = await pdf.getPage(i);
               const viewport = page.getViewport({ scale: 1.5 });
               const canvas = document.createElement('canvas');
@@ -800,6 +816,14 @@
               canvas.height = 0;
             }
             await pdf.destroy();
+            
+            this.visiblePreviews = 10;
+            this.hasMorePreviews = this.resultPreviews.length > 10;
+          },
+          loadMorePreviews() {
+            const LOAD_BATCH = 10;
+            this.visiblePreviews = Math.min(this.visiblePreviews + LOAD_BATCH, this.resultPreviews.length);
+            this.hasMorePreviews = this.visiblePreviews < this.resultPreviews.length;
           },
           
           async openPreview(index) {
@@ -1146,15 +1170,12 @@
 
               <div class="button-bar">
                 <a-button type="default" @click="backToOptions">
-                  <i class="anticon anticon-left"></i>
                   Back
                 </a-button>
                 <a-button type="primary" size="large" @click="download">
-                  <i class="anticon anticon-download"></i>
                   Download PDF
                 </a-button>
                 <a-button type="primary" @click="reset">
-                  <i class="anticon anticon-redo"></i>
                   Start Over
                 </a-button>
               </div>
@@ -1165,8 +1186,14 @@
 
               <div class="preview-layout" v-if="resultPreviews.length > 0">
                 <div class="main-preview">
-                  <div v-for="(thumb, i) in resultPreviews" :key="i" class="page-wrapper" :id="'page-' + i">
+                  <div v-for="(thumb, i) in resultPreviews.slice(0, visiblePreviews)" :key="i" class="page-wrapper" :id="'page-' + i">
                     <img :src="thumb" class="page-image" :alt="'Page ' + (i+1)" />
+                  </div>
+                  <div v-if="hasMorePreviews" class="load-more-wrapper">
+                    <a-button size="large" @click="loadMorePreviews">
+                      <span style="margin-right: 6px;">▼</span>
+                      Load More ({{ resultPreviews.length - visiblePreviews }} more)
+                    </a-button>
                   </div>
                 </div>
               </div>

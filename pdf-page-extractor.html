@@ -283,27 +283,43 @@
                     </div>
                   </div>
                   <div class="drawer-all-pages">
-                    <div class="drawer-pages-grid">
-                      <div 
-                        v-for="pageNum in Math.min(pageCount, visiblePreviews)" 
-                        :key="pageNum" 
-                        class="drawer-page-item"
-                        :class="{selected: selectedPages.includes(pageNum)}"
-                        @click="togglePage(pageNum)"
-                      >
-                        <canvas :ref="'canvas' + pageNum" class="drawer-page-thumb"></canvas>
-                        <div class="drawer-page-num">{{ pageNum }}</div>
-                        <div v-if="selectedPages.includes(pageNum)" class="drawer-page-selected">✓</div>
-                      </div>
-                      <div 
-                        v-if="hasMorePreviews" 
-                        class="drawer-page-item drawer-show-more-card"
-                        @click="loadMorePreviews"
-                      >
-                        <div class="drawer-show-more-content">
-                          <span class="drawer-show-more-icon">▼</span>
-                          <div class="drawer-show-more-text">Load More</div>
-                          <div class="drawer-show-more-count">{{ pageCount - visiblePreviews }} more</div>
+                    <div v-if="selectedFiles[0]" class="drawer-file-pages-group">
+                      <div class="drawer-file-group-title">{{ selectedFiles[0].name }}</div>
+                      <div class="drawer-pages-grid">
+                        <div 
+                          v-for="(idx, pi) in selectedFiles[0].visibleThumbnails" 
+                          :key="pi" 
+                          class="drawer-page-item"
+                          :class="{selected: selectedPages.includes(idx + 1)}"
+                          @click="togglePage(idx + 1)"
+                        >
+                          <img 
+                            v-if="selectedFiles[0].thumbnails[idx] !== null"
+                            :src="selectedFiles[0].thumbnails[idx]" 
+                            class="drawer-page-thumb"
+                            :alt="'Page ' + (idx + 1)"
+                          >
+                          <div 
+                            v-else
+                            class="drawer-page-placeholder"
+                          >
+                            <i class="anticon anticon-file-text"></i>
+                            <span class="placeholder-text">Loading...</span>
+                          </div>
+                          <div class="drawer-page-num">{{ idx + 1 }}</div>
+                          <div v-if="selectedPages.includes(idx + 1)" class="drawer-page-selected">✓</div>
+                        </div>
+                        <div 
+                          v-if="selectedFiles[0].hasMorePages" 
+                          class="drawer-page-item drawer-show-more-card"
+                          @click="loadMorePages(0)"
+                          :class="{loading: selectedFiles[0].isLoadingMore}"
+                        >
+                          <div class="drawer-show-more-content">
+                            <span class="drawer-show-more-icon">▼</span>
+                            <div class="drawer-show-more-text">Load More</div>
+                            <div class="drawer-show-more-count">{{ selectedFiles[0].pageCount - selectedFiles[0].visibleThumbnails.length }} more</div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -312,8 +328,13 @@
               </div>
 
               <div v-if="(drawerStage === 'progress' || extracting) && progress < 100" class="progress-section">
-                <div class="progress-text">{{ progressText }} {{ progress }}%</div>
-                <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" style="margin-top: 16px;" />
+                <div class="progress-container">
+                  <div class="progress-info">
+                    <span class="progress-text">{{ progressText }}</span>
+                    <span class="progress-percent">{{ progress }}%</span>
+                  </div>
+                  <a-progress :percent="progress" :status="progress === 100 ? 'success' : 'active'" :show-info="false" :stroke-width="8" />
+                </div>
               </div>
 
               <div v-if="done" class="result-content">
@@ -330,15 +351,12 @@
 
                 <div class="button-bar">
                   <a-button type="default" @click="backToOptions">
-                    <i class="anticon anticon-left"></i>
                     Back
                   </a-button>
                   <a-button type="primary" size="large" @click="downloadResult">
-                    <i class="anticon anticon-download"></i>
                     Download PDF
                   </a-button>
                   <a-button type="primary" @click="reset">
-                    <i class="anticon anticon-redo"></i>
                     Start Over
                   </a-button>
                 </div>
@@ -349,8 +367,14 @@
 
                 <div class="preview-layout" v-if="resultThumbnails.length > 0">
                   <div class="main-preview">
-                    <div v-for="(thumb, i) in resultThumbnails" :key="i" class="page-wrapper" :id="'page-' + i">
+                    <div v-for="(thumb, i) in resultThumbnails.slice(0, visiblePreviews)" :key="i" class="page-wrapper" :id="'page-' + i">
                       <img :src="thumb" class="page-image" :alt="'Page ' + (i+1)" />
+                    </div>
+                    <div v-if="hasMorePreviews" class="load-more-wrapper">
+                      <a-button size="large" @click="loadMorePreviews">
+                        <span style="margin-right: 6px;">▼</span>
+                        Load More ({{ resultThumbnails.length - visiblePreviews }} more)
+                      </a-button>
                     </div>
                   </div>
                 </div>
@@ -365,7 +389,6 @@
                     :disabled="selectedPages.length === 0"
                     @click="extractPages"
                   >
-                    <i class="anticon anticon-scissor"></i>
                     Extract Pages
                   </a-button>
                 </div>
@@ -859,23 +882,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
-          this.selectedFiles = [{ file: raw, name: raw.name, size: raw.size, pageCount: 0 }];
+          const arrayBuffer = await raw.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const totalPages = pdf.numPages;
+          const visibleCount = Math.min(totalPages, 10);
+          
+          const thumbnails = [];
+          for (let i = 0; i < visibleCount; i++) {
+            const page = await pdf.getPage(i + 1);
+            const vp = page.getViewport({ scale: 0.8 });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = vp.width;
+            canvas.height = vp.height;
+            await page.render({ canvasContext: ctx, viewport: vp }).promise;
+            thumbnails.push(canvas.toDataURL());
+            canvas.width = 0;
+            canvas.height = 0;
+            if (typeof page.destroy === 'function') {
+              await page.destroy();
+            }
+          }
+          pdf.destroy();
+          
+          const visibleIndices = [];
+          for (let i = 0; i < visibleCount; i++) {
+            visibleIndices.push(i);
+          }
+          
+          this.selectedFiles = [{ 
+            file: raw, 
+            name: raw.name, 
+            size: raw.size, 
+            pageCount: totalPages,
+            thumbnails: thumbnails,
+            visibleThumbnails: visibleIndices,
+            hasMorePages: totalPages > visibleCount,
+            isLoadingMore: false
+          }];
           this.selectedPages = [];
           this.extractedBlob = null;
           this.resultThumbnails = [];
-          
-          const arrayBuffer = await raw.arrayBuffer();
-          this.pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-          this.pageCount = this.pdfDoc.numPages;
-          if (this.selectedFiles[0]) {
-            this.selectedFiles[0].pageCount = this.pageCount;
-          }
+          this.pageCount = totalPages;
           
           this.selectAll();
           this.drawerWidth = '100%';
           this.showDrawer = true;
-          this.visiblePreviews = 10;
-          this.hasMorePreviews = this.pageCount > 10;
           
           if (onSuccess) onSuccess('success');
         } catch (error) {
@@ -883,21 +935,72 @@ document.addEventListener('DOMContentLoaded', function() {
           console.error(error);
         }
       },
-      async generatePagePreviews() {
-        if (!this.pdfDoc) return;
-        for (let i = 1; i <= this.pageCount; i++) {
-          const page = await this.pdfDoc.getPage(i);
-          const canvasRef = this.$refs['canvas' + i];
-          if (!canvasRef) continue;
-          const canvas = Array.isArray(canvasRef) ? canvasRef[0] : canvasRef;
-          if (!canvas || typeof canvas.getContext !== 'function') continue;
-          const viewport = page.getViewport({ scale: 0.5 });
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          await page.render({ canvasContext: ctx, viewport }).promise;
+      async loadMorePages(fi) {
+        const item = this.selectedFiles[fi];
+        if (!item || !item.hasMorePages || item.isLoadingMore) {
+          return;
+        }
+        
+        item.isLoadingMore = true;
+        
+        const LOAD_MORE_COUNT = 10;
+        const currentVisible = item.visibleThumbnails.length;
+        const newVisibleCount = Math.min(currentVisible + LOAD_MORE_COUNT, item.pageCount);
+        
+        try {
+          const buf = await item.file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+          
+          try {
+            const startPage = currentVisible + 1;
+            const endPage = newVisibleCount;
+            
+            const batchSize = 2;
+            const pagesToLoad = [];
+            for (let i = startPage; i <= endPage; i++) {
+              pagesToLoad.push(i);
+            }
+            
+            while (pagesToLoad.length > 0) {
+              const batch = pagesToLoad.splice(0, batchSize);
+              const promises = batch.map(async (pageNum) => {
+                const page = await pdf.getPage(pageNum);
+                const vp = page.getViewport({ scale: 0.8 });
+                const c = document.createElement('canvas');
+                const ctx = c.getContext('2d');
+                c.width = vp.width;
+                c.height = vp.height;
+                await page.render({ canvasContext: ctx, viewport: vp }).promise;
+                const thumbnail = c.toDataURL();
+                if (typeof page.destroy === 'function') {
+                  await page.destroy();
+                }
+                this.$set(item.thumbnails, pageNum - 1, thumbnail);
+              });
+              await Promise.all(promises);
+              await new Promise(resolve => requestAnimationFrame(resolve));
+            }
+            
+            const newVisibleIndices = [];
+            for (let i = 0; i < newVisibleCount; i++) {
+              newVisibleIndices.push(i);
+            }
+            this.$set(item, 'visibleThumbnails', newVisibleIndices);
+            this.$set(item, 'hasMorePages', newVisibleCount < item.pageCount);
+            
+          } finally {
+            if (pdf && typeof pdf.destroy === 'function') {
+              try {
+                await pdf.destroy();
+              } catch (e) {
+                console.warn('Error destroying PDF instance:', e);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error loading more pages:', error);
+        } finally {
+          item.isLoadingMore = false;
         }
       },
       clearAllFiles() {
@@ -953,11 +1056,6 @@ document.addEventListener('DOMContentLoaded', function() {
       deselectAll() {
         this.selectedPages = [];
       },
-      loadMorePreviews() {
-        const LOAD_BATCH = 10;
-        this.visiblePreviews = Math.min(this.visiblePreviews + LOAD_BATCH, this.pageCount);
-        this.hasMorePreviews = this.visiblePreviews < this.pageCount;
-      },
       async extractPages() {
         if (this.selectedPages.length === 0) {
           this.$message.warning('Please select at least one page');
@@ -1007,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const arrayBuffer = await this.extractedBlob.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         
-        for (let i = 1; i <= Math.min(10, pdf.numPages); i++) {
+        for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const viewport = page.getViewport({ scale: 1.5 });
           const canvas = document.createElement('canvas');
@@ -1023,7 +1121,15 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
         pdf.destroy();
+        
+        this.visiblePreviews = 10;
+        this.hasMorePreviews = this.resultThumbnails.length > 10;
         return;
+      },
+      loadMorePreviews() {
+        const LOAD_BATCH = 10;
+        this.visiblePreviews = Math.min(this.visiblePreviews + LOAD_BATCH, this.resultThumbnails.length);
+        this.hasMorePreviews = this.visiblePreviews < this.resultThumbnails.length;
       },
       
       downloadResult() {
